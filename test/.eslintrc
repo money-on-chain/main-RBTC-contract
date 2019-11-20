@@ -1,0 +1,11 @@
+{
+  "rules": {
+    "func-names": "off",
+    "prefer-arrow-callback": "off"
+  },
+  "globals": {
+    "contract": false,
+    "assert": false,
+    "web3": false
+  }
+}

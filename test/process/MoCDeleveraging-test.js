@@ -1,0 +1,197 @@
+const testHelperBuilder = require('../mocHelper.js');
+
+let mocHelper;
+let toContractBN;
+let BUCKET_X2;
+let accounts;
+contract('MoC: Delever X', function([owner, ...allAccounts]) {
+  accounts = allAccounts.slice(0, 10);
+  before(async function() {
+    mocHelper = await testHelperBuilder({ owner, useMock: true });
+    ({ toContractBN } = mocHelper);
+    ({ BUCKET_X2 } = mocHelper);
+    this.moc = mocHelper.moc;
+    this.mocState = mocHelper.mocState;
+    this.mocSettlement = mocHelper.mocSettlement;
+    this.revertingContract = mocHelper.revertingContract;
+  });
+
+  beforeEach(function() {
+    return mocHelper.revertState();
+  });
+
+  describe('DoS attack mitigation', function() {
+    const rbtcBalances = [];
+
+    describe('GIVEN two honest users and one attacker mint BProx', function() {
+      beforeEach(async function() {
+        await mocHelper.mintBProAmount(owner, 3);
+        await mocHelper.mintDocAmount(owner, 15000);
+
+        mocHelper.getBucketState(BUCKET_X2);
+
+        await mocHelper.mintBProxAmount(accounts[1], BUCKET_X2, 0.5);
+        await mocHelper.mintBProxAmount(accounts[2], BUCKET_X2, 0.5);
+        const btcToMint = toContractBN(0.5 * mocHelper.RESERVE_PRECISION);
+        // Double is sent only to avoid calculations.
+        const btcTotal = toContractBN(0.5 * 2 * mocHelper.RESERVE_PRECISION);
+        await this.revertingContract.mintBProx(BUCKET_X2, btcToMint, {
+          from: accounts[3],
+          value: btcTotal
+        });
+
+        // From now reverting
+        await this.revertingContract.setAcceptingMoney(false);
+        rbtcBalances.push(toContractBN(await web3.eth.getBalance(accounts[1])));
+        rbtcBalances.push(toContractBN(await web3.eth.getBalance(accounts[2])));
+        rbtcBalances.push(toContractBN(await web3.eth.getBalance(this.revertingContract.address)));
+      });
+      describe('WHEN deleveraging is run', function() {
+        beforeEach(async function() {
+          await this.mocSettlement.pubRunDeleveraging();
+        });
+        it(`AND bucket ${BUCKET_X2} coverage should be 2`, async function() {
+          const bxCoverage = await this.mocState.coverage(BUCKET_X2);
+          mocHelper.assertBigCb(bxCoverage, 2, 'Coverage should be 2');
+        });
+        it('AND honest users receives RBTC', async function() {
+          const finalBalance1 = toContractBN(await web3.eth.getBalance(accounts[1]));
+          const finalBalance2 = toContractBN(await web3.eth.getBalance(accounts[2]));
+
+          assert(finalBalance1 > rbtcBalances[0], 'Honest user balance does not increase');
+          assert(finalBalance2 > rbtcBalances[1], 'Honest user balance does not increase');
+        });
+        it('AND attacker does not receive his RBTC', async function() {
+          const finalBalance = toContractBN(
+            await web3.eth.getBalance(this.revertingContract.address)
+          );
+
+          mocHelper.assertBig(finalBalance, rbtcBalances[2], 'Incorrect attackers balance');
+        });
+      });
+    });
+  });
+
+  const scenarios = [
+    {
+      description: 'If there is one X2 position, it gets delevered and coverage is restored',
+      users: [
+        {
+          nBPro: 10,
+          nDoc: 10000,
+          bproxMint: {
+            nB: 1
+          }, // Loads X2 with nB: 1 and nDoc: 10000
+          expect: {
+            returned: { nB: 1 },
+            burn: { nBProx: 1 }
+          }
+        }
+      ],
+      expect: {
+        coverage: { after: 2 } // X2 coverage is restored
+      }
+    },
+    {
+      description: 'If there are two X2 position, both got delevered and coverage is restored',
+      // Loads X2 with nB: 1 and nDoc: 10000
+      users: [
+        {
+          nBPro: 5,
+          nDoc: 5000,
+          bproxMint: {
+            nB: 0.5
+          },
+          expect: {
+            returned: { nB: 0.5 },
+            burn: { nBProx: 0.5 }
+          }
+        },
+        {
+          nBPro: 5,
+          nDoc: 5000,
+          bproxMint: {
+            nB: 0.5
+          },
+          expect: {
+            returned: { nB: 0.5 },
+            burn: { nBProx: 0.5 }
+          }
+        }
+      ],
+      expect: {
+        coverage: { after: 2 } // X2 coverage is restored
+      }
+    },
+    {
+      description: 'no X2 position, nothings is moved',
+      users: [
+        {
+          nBPro: 10,
+          nDoc: 10000,
+          bproxMint: {
+            nB: 0
+          },
+          expect: {
+            returned: { nB: 0 },
+            burn: { nBProx: 0 }
+          }
+        }
+      ],
+      expect: {
+        coverage: { after: 2 }
+      }
+    }
+  ];
+  scenarios.forEach(s => {
+    const userPrevBalances = [];
+    describe(`GIVEN there is 1 BProx in Bucket ${BUCKET_X2}`, function() {
+      beforeEach(async function() {
+        await new Promise(resolve => {
+          s.users.forEach(async (user, index) => {
+            const account = accounts[index + 1];
+
+            await mocHelper.mintBProAmount(account, user.nBPro);
+            await mocHelper.mintDocAmount(account, user.nDoc);
+
+            if (user.bproxMint.nB) {
+              await mocHelper.mintBProx(account, BUCKET_X2, user.bproxMint.nB);
+            }
+            userPrevBalances[index] = {
+              nBProx: await mocHelper.getBProxBalance(BUCKET_X2, accounts[index + 1]),
+              nB: await web3.eth.getBalance(accounts[index + 1])
+            };
+            if (index === s.users.length - 1) resolve();
+          });
+        });
+      });
+      describe('WHEN deleveraging is run', function() {
+        beforeEach(async function() {
+          await this.mocSettlement.pubRunDeleveraging();
+        });
+        s.users.forEach(async (u, index) => {
+          const { nB } = u.expect.returned;
+          const { nBProx } = u.expect.burn;
+          it(`THEN ${nB} RBTC are returned to the user ${index}`, async function() {
+            const userRbtcBalance = toContractBN(await web3.eth.getBalance(accounts[index + 1]));
+            const returnedRbtc = userRbtcBalance.sub(toContractBN(userPrevBalances[index].nB));
+            mocHelper.assertBigRBTC(returnedRbtc, nB, `returned RBTC should be ${nB}`);
+          });
+          it(`AND ${nBProx} are burnt for the user ${index}`, async function() {
+            const userBProxBalance = await mocHelper.getBProxBalance(
+              BUCKET_X2,
+              accounts[index + 1]
+            );
+            const burnedBProx = userPrevBalances[index].nBProx.sub(userBProxBalance);
+            mocHelper.assertBigRBTC(burnedBProx, nBProx, `burned BProx should be ${nBProx}`);
+          });
+        });
+        const newCoverage = s.expect.coverage.after;
+        it(`THEN bucket ${BUCKET_X2} coverage should be ${newCoverage}`, async function() {
+          const bLCoverage = await this.mocState.coverage(BUCKET_X2);
+          mocHelper.assertBigCb(bLCoverage, newCoverage, `Coverage should be ${newCoverage}`);
+        });
+      });
+    });
+  });
+});
