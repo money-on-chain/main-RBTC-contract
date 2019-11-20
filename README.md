@@ -47,18 +47,29 @@ docker run -d -p 8545:8545 trufflesuite/ganache-cli:latest
 
 ## Deploy
 
-(Truffle suit)[https://github.com/trufflesuite/truffle] is recommended to compile and deploy the contracts. There are a set of scripts to easy this process for the different known environments. Each environment (and network) might defer in its configuration settings, you can adjust this values in the the `migrations/config/config.json` file.
+(Truffle suit)[https://github.com/trufflesuite/truffle] is recommended to compile and deploy the contracts.
+ 
+1.  Edit truffle.js and change add network changes and point to your
+    ganache cli or rsk node.
+    
+2. Edit migrations/config/config.json and make changes
 
-At the end of the deployment the addresses of the most relevant contracts will be displayed. If you are interested in another contracts you should look inside some files depending if the contracts is upgradeable or not.
+3. Run `npm run truffle-compile` to compile the code
 
-The addresses of the deployed proxies will be in a file called `zos.<network-id>.json` . There you will have to look inside the proxies object and look for the `address` of the proxy you are interested in. If you are interested in the address of a contract that has not a proxy you should look for it in the prints of the deployment or inside the `builds/<contract-name>.json` file.
+4. Run `npm run migrate-development` to deploy the contracts
+  
+## Main contracts
 
-## Settings
+* Network: **RSK Mainnet**
+* Type: **Production**
 
-- _initialPrice_: Bitcoin initial (current) price
-- _initialEma_: Bitcoin initial EMA (exponential moving average) price
-- _dayBlockSpan_: Average amount of blocks expected to be mined in a calendar day in this network.
-- _settlementDays_: Amount of days in between settlement to allowed executions
-- _gas_: Gas to use on MoC.sol contract deploy.
-- _oracle_: Moc Price Provider compatible address (see `contracts/interface/BtcPriceProvider.sol`). You can deploy this contract using the `oracle` project or (in development) the mock:`contracts/mocks/BtcPriceProviderMock.sol` (which is deployed on development migration by default).
-- _startStoppable_: If set to true, the MoC contract can be stopped after the deployment. If set to false, before pausing the contract you should make it stoppable with governance(this together with the blockage of the governance system can result in a blockage of the pausing system too).
+**Contract Implementations**
+
+|  Contract  |  Address |  
+|:---|:---|
+|  MoCHelperLib  | [0x4e1894debd18b470706a20ac8fe0cc2d9e904218](https://explorer.rsk.co/address/0x4e1894debd18b470706a20ac8fe0cc2d9e904218?__ctab=general) |
+|  MoC  | [0x8e065bf32bb68c1a32e37d7276f8c8dd5545e029](https://explorer.rsk.co/address/0x8e065bf32bb68c1a32e37d7276f8c8dd5545e029?__ctab=general) |
+|  MoCConnector  | [0x437221b50b0066186e58412b0ba940441a7b7df5](https://explorer.rsk.co/address/0x437221b50b0066186e58412b0ba940441a7b7df5?__ctab=general) |
+|  MoCBProxManager  | [0x2745652c5e765777779ddb9799e8bc1add892c43](https://explorer.rsk.co/address/0x2745652c5e765777779ddb9799e8bc1add892c43?__ctab=general) |
+|  MoCBurnout  | [0x1d1bee3a56c01cae266bfb62dd6fef53e3f5e508](https://explorer.rsk.co/address/0x1d1bee3a56c01cae266bfb62dd6fef53e3f5e508?__ctab=general) |
+|  MoCSettlement  | [0xe3abce2b0ee0d7ea48a5bcd0442d5505ae5b6334](https://explorer.rsk.co/address/0xe3abce2b0ee0d7ea48a5bcd0442d5505ae5b6334?__ctab=general) |
