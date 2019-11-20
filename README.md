@@ -8,7 +8,7 @@ The rationale behind this is that deposits of Rootstock-BTC (RBTC) help collater
 
 [Full explanation](MOC.md)
 
-# getting started
+# Getting Started
 
 ## Install dependencies
 
@@ -63,7 +63,15 @@ docker run -d -p 8545:8545 trufflesuite/ganache-cli:latest
 * Network: **RSK Mainnet**
 * Type: **Production**
 
-**Contract Implementations**
+**Tokens**
+
+|  Contract  |  Address |  
+|:---|:---|
+|  DoC  | [0xe700691da7b9851f2f35f8b8182c69c53ccad9db](https://explorer.rsk.co/address/0xe700691da7b9851f2f35f8b8182c69c53ccad9db?__ctab=general) |
+|  BitPRO  | [0x440cd83c160de5c96ddb20246815ea44c7abbca8](https://explorer.rsk.co/address/0x440cd83c160de5c96ddb20246815ea44c7abbca8) |
+
+
+**Implementations**
 
 |  Contract  |  Address |  
 |:---|:---|
