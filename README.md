@@ -2,8 +2,14 @@ This is the main RBTC-collateralized stablecoin contract
 
 # Introduction
 
-Money On Chain is a suite of smart contracts dedicated to providing a bitcoin-collateralized stable-coin, Dollar On Chain, (DoC); a passive income hodler-targeted token, BitPro (BPRO), and a leveraged Bitcoin investment instrument (BTCX series).
-The rationale behind this is that deposits of Rootstock-BTC (RBTC) help collateralize the DoCs, BitPro absorbs the USD-BTC rate fluctuations, and BTC2X is leveraged borrowing value from BitPro and DoC holders, with a daily interest rate being paid to the former.
+Money On Chain is a suite of smart contracts dedicated to providing a
+bitcoin-collateralized stable-coin, Dollar On Chain, (DoC); a passive
+income holder-targeted token, BitPro (BPRO), and a leveraged Bitcoin
+investment instrument (BTCX series). The rationale behind this is that
+deposits of Rootstock-BTC (RBTC) help collateralize the DoCs, BitPro
+absorbs the USD-BTC rate fluctuations, and BTC2X is leveraged borrowing
+value from BitPro and DoC holders, with a daily interest rate being paid
+to the former.
 
 
 [Full explanation](MOC.md)
@@ -15,7 +21,11 @@ The rationale behind this is that deposits of Rootstock-BTC (RBTC) help collater
 - Use nodejs v8.12: `nvm install 8.12 && nvm alias default 8.12`
 - Install local dependencies: `npm install`
 
-## Run Ganache-cli
+## Node
+
+You need a node to run contracts. Ganache cli for developing purpose
+
+1. Ganache-cli
 
 - Globally:
 
@@ -31,16 +41,18 @@ docker pull trufflesuite/ganache-cli;
 docker run -d -p 8545:8545 trufflesuite/ganache-cli:latest
 ```
 
-## Run Rsk Local Node
+2. Rsk Local Node
 
 - With Docker:
   See this repo: https://github.com/rsksmart/artifacts/tree/master/Dockerfiles/RSK-Node
 
-## Run Tests
+## Tests
+
+** Tests **
 
 - run: `npm test`
 
-### With Coverage
+** Tests With Coverage**
 
 - `npm run coverage`
 - browse: [./coverage/index.html](./coverage/index.html)
@@ -101,3 +113,9 @@ docker run -d -p 8545:8545 trufflesuite/ganache-cli:latest
 |  MocExchange  | [0x6aCb83bB0281FB847b43cf7dd5e2766BFDF49038](https://explorer.rsk.co/address/0x6aCb83bB0281FB847b43cf7dd5e2766BFDF49038) |
 |  MocInrate  | [0xc0f9B54c41E3d0587Ce0F7540738d8d649b0A3F3](https://explorer.rsk.co/address/0xc0f9B54c41E3d0587Ce0F7540738d8d649b0A3F3) |
 |  Medianizer  | [0x7b19bb8e6c5188ec483b784d6fb5d807a77b21bf](https://explorer.rsk.co/address/0x7b19bb8e6c5188ec483b784d6fb5d807a77b21bf) |
+
+
+### Security and Audits
+
+
+[Audits](https://github.com/money-on-chain/Audits)
