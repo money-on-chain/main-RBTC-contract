@@ -68,7 +68,11 @@ const baseParams = {
   emaBlockSpan: toContract(40),
   commissionRate: toContract(0 * 10 ** 18), // mocPrecision
   peg: toContract(1),
+
   maxMintBPro: toContract(5000 * 10 ** 18),
+  docTmin: toContract(0), // mocPrecision
+  docTmax: toContract(0.0002611578760678 * 10 ** 18), // mocPrecision
+  docPower: toContract(1),
 
   startStoppable: true
 };
@@ -93,6 +97,10 @@ const createContracts = params => async ({ owner, useMock }) => {
     bitProRate,
     commissionRate,
     peg,
+    maxMintBPro,
+    docTmin,
+    docTmax,
+    docPower,
     startStoppable
   } = params;
   const settlementContract = useMock ? MoCSettlementMock : MoCSettlement;
@@ -144,6 +152,7 @@ const createContracts = params => async ({ owner, useMock }) => {
     liq,
     smoothingFactor,
     emaBlockSpan,
+    maxMintBPro,
     { from: owner }
   );
   const mockMocInrateChanger = await MocInrateChanger.new(
@@ -154,9 +163,9 @@ const createContracts = params => async ({ owner, useMock }) => {
     btcxPower,
     bitProRate,
     commissionRate,
-    btcxTmin,
-    btcxTmax,
-    btcxPower,
+    docTmin,
+    docTmax,
+    docPower,
     { from: owner }
   );
 
@@ -226,9 +235,9 @@ const createContracts = params => async ({ owner, useMock }) => {
     owner,
     owner,
     commissionRate,
-    btcxTmin,
-    btcxPower,
-    btcxTmax
+    docTmin,
+    docPower,
+    docTmax
   );
   await bprox.initialize(mocConnector.address, governor.address, c0Cobj, x2Cobj);
   await mocSettlement.initialize(mocConnector.address, governor.address, settlementBlockSpan);

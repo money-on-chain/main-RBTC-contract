@@ -48,9 +48,16 @@ docker run -d -p 8545:8545 trufflesuite/ganache-cli:latest
 
 ## Tests
 
+**Node**
+
+First run test node example:
+
+- run test node: `npm run ganache-cli`
+
 **Tests**
 
-- run: `npm test`
+
+- run: `npm run test`
 
 **Tests With Coverage**
 
