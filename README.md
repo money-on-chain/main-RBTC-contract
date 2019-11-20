@@ -48,11 +48,11 @@ docker run -d -p 8545:8545 trufflesuite/ganache-cli:latest
 
 ## Tests
 
-** Tests **
+**Tests**
 
 - run: `npm test`
 
-** Tests With Coverage**
+**Tests With Coverage**
 
 - `npm run coverage`
 - browse: [./coverage/index.html](./coverage/index.html)
