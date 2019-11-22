@@ -20,7 +20,7 @@
 |:---|:---|
 |  FeedFactory  | [0xf0abcc4cb0b46d9858704eb0c72d9735986b09cf](https://blockscout.com/rsk/mainnet/address/0xf0abcc4cb0b46d9858704eb0c72d9735986b09cf/contracts) |
 |  PriceFeeders  | [0xf0abcc4cb0b46d9858704eb0c72d9735986b09cf](https://blockscout.com/rsk/mainnet/address/0xf0abcc4cb0b46d9858704eb0c72d9735986b09cf) |
-
+|  Medianizer  | [0x7b19bb8e6c5188ec483b784d6fb5d807a77b21bf](https://blockscout.com/rsk/mainnet/address/0x7b19bb8e6c5188ec483b784d6fb5d807a77b21bf/contracts) |
 
 ### Main MoC RBTC Contract
 
@@ -35,17 +35,17 @@
 
 |  Contract  |  Address |  
 |:---|:---|
-|  MoCHelperLib  | [0x4e1894debd18b470706a20ac8fe0cc2d9e904218](https://explorer.rsk.co/address/0x4e1894debd18b470706a20ac8fe0cc2d9e904218?__ctab=general) |
+|  MoCHelperLib  | [0x4e1894debd18b470706a20ac8fe0cc2d9e904218](https://blockscout.com/rsk/mainnet/address/0x4e1894debd18b470706a20ac8fe0cc2d9e904218/transactions) |
 |  MoC  | [0x8e065bf32bb68c1a32e37d7276f8c8dd5545e029](https://explorer.rsk.co/address/0x8e065bf32bb68c1a32e37d7276f8c8dd5545e029?__ctab=general) |
 |  MoCConnector  | [0x437221b50b0066186e58412b0ba940441a7b7df5](https://explorer.rsk.co/address/0x437221b50b0066186e58412b0ba940441a7b7df5?__ctab=general) |
 |  MoCBProxManager  | [0x2745652c5e765777779ddb9799e8bc1add892c43](https://explorer.rsk.co/address/0x2745652c5e765777779ddb9799e8bc1add892c43?__ctab=general) |
 |  MoCBurnout  | [0x1d1bee3a56c01cae266bfb62dd6fef53e3f5e508](https://explorer.rsk.co/address/0x1d1bee3a56c01cae266bfb62dd6fef53e3f5e508?__ctab=general) |
 |  MoCSettlement  | [0xe3abce2b0ee0d7ea48a5bcd0442d5505ae5b6334](https://explorer.rsk.co/address/0xe3abce2b0ee0d7ea48a5bcd0442d5505ae5b6334?__ctab=general) |
 |  MoCConverter  | [0x0CFc08501780bc02Ca4c16324D22F32511B309a9](https://blockscout.com/rsk/mainnet/address/0x0CFc08501780bc02Ca4c16324D22F32511B309a9/contracts) |
-|  MocState  | [0x08817f585A9F2601fB7bFFfE913Dac305Aaf2dDd](https://explorer.rsk.co/address/0x08817f585A9F2601fB7bFFfE913Dac305Aaf2dDd) |
+|  MocState  | [0x08817f585A9F2601fB7bFFfE913Dac305Aaf2dDd](https://blockscout.com/rsk/mainnet/address/0x08817f585a9f2601fb7bfffe913dac305aaf2ddd/transactions) |
 |  MocExchange  | [0x785814724324C63ec52e6675C899508E74850046](https://blockscout.com/rsk/mainnet/address/0x785814724324C63ec52e6675C899508E74850046/contracts) |
 |  MocInrate  | [0x56e327FA971572828f846BE9E37FB850e5852822](https://blockscout.com/rsk/mainnet/address/0x56e327fa971572828f846be9e37fb850e5852822/contracts) |
-|  Medianizer  | [0x7b19bb8e6c5188ec483b784d6fb5d807a77b21bf](https://blockscout.com/rsk/mainnet/address/0x7b19bb8e6c5188ec483b784d6fb5d807a77b21bf/contracts) |
+
 
 **Proxies**
 
@@ -60,5 +60,4 @@
 |  MocState  | [0xb9C42EFc8ec54490a37cA91c423F7285Fa01e257](https://explorer.rsk.co/address/0xb9C42EFc8ec54490a37cA91c423F7285Fa01e257) |
 |  MocExchange  | [0x6aCb83bB0281FB847b43cf7dd5e2766BFDF49038](https://explorer.rsk.co/address/0x6aCb83bB0281FB847b43cf7dd5e2766BFDF49038) |
 |  MocInrate  | [0xc0f9B54c41E3d0587Ce0F7540738d8d649b0A3F3](https://explorer.rsk.co/address/0xc0f9B54c41E3d0587Ce0F7540738d8d649b0A3F3) |
-|  Medianizer  | [0x7b19bb8e6c5188ec483b784d6fb5d807a77b21bf](https://explorer.rsk.co/address/0x7b19bb8e6c5188ec483b784d6fb5d807a77b21bf) |
 
