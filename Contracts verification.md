@@ -19,7 +19,6 @@
 |  Contract  |  Address |  
 |:---|:---|
 |  FeedFactory  | [0xf0abcc4cb0b46d9858704eb0c72d9735986b09cf](https://blockscout.com/rsk/mainnet/address/0xf0abcc4cb0b46d9858704eb0c72d9735986b09cf/contracts) |
-|  PriceFeeders  | [0xf0abcc4cb0b46d9858704eb0c72d9735986b09cf](https://blockscout.com/rsk/mainnet/address/0xf0abcc4cb0b46d9858704eb0c72d9735986b09cf/logs) |
 |  Medianizer  | [0x7b19bb8e6c5188ec483b784d6fb5d807a77b21bf](https://blockscout.com/rsk/mainnet/address/0x7b19bb8e6c5188ec483b784d6fb5d807a77b21bf/contracts) |
 
 ### Main MoC RBTC Contract
