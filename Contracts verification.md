@@ -7,7 +7,7 @@
 
 |  Contract  |  Address |  
 |:---|:---|
-|  Governor  | [0xc61f0392d5170214b5d93c0bc4c4354163abc1f7](https://explorer.rsk.co/address/0xc61f0392d5170214b5d93c0bc4c4354163abc1f7?__ctab=Code) |
+|  Proxy Governor  | [0xc61f0392d5170214b5d93c0bc4c4354163abc1f7](https://explorer.rsk.co/address/0xc61f0392d5170214b5d93c0bc4c4354163abc1f7?__ctab=Code) |
 |  Proxy Stopper  | [0x40662ed57284b4b541a42d347be2447abd1b119d](https://explorer.rsk.co/address/0x40662ed57284b4b541a42d347be2447abd1b119d?__ctab=Code) |
 |  Stopper  | [0x0bd2949cb6c3c17a6af84bf29c7e358f6ddcd5fc](https://explorer.rsk.co/address/0x0bd2949cb6c3c17a6af84bf29c7e358f6ddcd5fc?__ctab=Code) |
 |  Governor  | [0xcce9dad3a431a43d57a27a4623b6bc1f97e530fe](https://explorer.rsk.co/address/0xcce9dad3a431a43d57a27a4623b6bc1f97e530fe?__ctab=Code) |
@@ -19,7 +19,7 @@
 |  Contract  |  Address |  
 |:---|:---|
 |  FeedFactory  | [0xf0abcc4cb0b46d9858704eb0c72d9735986b09cf](https://blockscout.com/rsk/mainnet/address/0xf0abcc4cb0b46d9858704eb0c72d9735986b09cf/contracts) |
-|  PriceFeeders  | [0xf0abcc4cb0b46d9858704eb0c72d9735986b09cf](https://blockscout.com/rsk/mainnet/address/0xf0abcc4cb0b46d9858704eb0c72d9735986b09cf) |
+|  PriceFeeders  | [0xf0abcc4cb0b46d9858704eb0c72d9735986b09cf](https://blockscout.com/rsk/mainnet/address/0xf0abcc4cb0b46d9858704eb0c72d9735986b09cf/logs) |
 |  Medianizer  | [0x7b19bb8e6c5188ec483b784d6fb5d807a77b21bf](https://blockscout.com/rsk/mainnet/address/0x7b19bb8e6c5188ec483b784d6fb5d807a77b21bf/contracts) |
 
 ### Main MoC RBTC Contract
