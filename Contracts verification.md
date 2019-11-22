@@ -38,7 +38,7 @@
 |  MoCHelperLib  | [0x4e1894debd18b470706a20ac8fe0cc2d9e904218](https://blockscout.com/rsk/mainnet/address/0x4e1894debd18b470706a20ac8fe0cc2d9e904218/transactions) |
 |  MoC  | [0x8e065bf32bb68c1a32e37d7276f8c8dd5545e029](https://explorer.rsk.co/address/0x8e065bf32bb68c1a32e37d7276f8c8dd5545e029?__ctab=general) |
 |  MoCConnector  | [0x437221b50b0066186e58412b0ba940441a7b7df5](https://explorer.rsk.co/address/0x437221b50b0066186e58412b0ba940441a7b7df5?__ctab=general) |
-|  MoCBProxManager  | [0x2745652c5e765777779ddb9799e8bc1add892c43](https://explorer.rsk.co/address/0x2745652c5e765777779ddb9799e8bc1add892c43?__ctab=general) |
+|  MoCBProxManager  | [0xee35b51edf623533a83d3aef8f1518ff67da4e89](https://explorer.rsk.co/address/0xee35b51edf623533a83d3aef8f1518ff67da4e89) |
 |  MoCBurnout  | [0x1d1bee3a56c01cae266bfb62dd6fef53e3f5e508](https://explorer.rsk.co/address/0x1d1bee3a56c01cae266bfb62dd6fef53e3f5e508?__ctab=general) |
 |  MoCSettlement  | [0xe3abce2b0ee0d7ea48a5bcd0442d5505ae5b6334](https://explorer.rsk.co/address/0xe3abce2b0ee0d7ea48a5bcd0442d5505ae5b6334?__ctab=general) |
 |  MoCConverter  | [0x0CFc08501780bc02Ca4c16324D22F32511B309a9](https://blockscout.com/rsk/mainnet/address/0x0CFc08501780bc02Ca4c16324D22F32511B309a9/contracts) |
