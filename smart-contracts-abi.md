@@ -1,4 +1,5 @@
 
+
 [MoCEvents]: #MoCEvents
 [MoCEvents-BucketLiquidation-bytes32-]: #MoCEvents-BucketLiquidation-bytes32-
 [MoC]: #MoC
@@ -563,6 +564,8 @@
 [BProToken-fallback--]: #BProToken-fallback--
 [DocToken]: #DocToken
 [DocToken-fallback--]: #DocToken-fallback--
+[OwnerBurnableToken]:#OwnerBurnableToken
+[OwnerBurnableToken-burn-address-uint256-]:#OwnerBurnableToken-burn-address-uint256-
 
 ## <span></span> `Introduction`
 In this document you will find all about smart contracts used in MoC suite  and how to interact with them.
@@ -1458,10 +1461,6 @@ return the value of the BPro max discount rate configuration param
 
 
 
-### <span id="MoCState-initialize-address-address-address-uint256-uint256-uint256-uint256-uint256-uint256-uint256-uint256-"></span> 
-`initialize(address connectorAddress, address _governor, address _btcPriceProvider, uint256 _liq, uint256 _utpdu, uint256 _maxDiscRate, uint256 _dayBlockSpan, uint256 _ema, uint256 _smoothFactor, uint256 _emaBlockSpan, uint256 _maxMintBPro)` (public)
-
-
 ********************
 **************************BTC PRICE PROVIDER**************************
 
@@ -1576,6 +1575,8 @@ return the value of the BPro max discount rate configuration param
 
 <font size="3">Burns user BProx
 
+### <span id="MoCState-initialize-address-address-address-uint256-uint256-uint256-uint256-uint256-uint256-uint256-uint256-"></span> 
+`initialize(address connectorAddress, address _governor, address _btcPriceProvider, uint256 _liq, uint256 _utpdu, uint256 _maxDiscRate, uint256 _dayBlockSpan, uint256 _ema, uint256 _smoothFactor, uint256 _emaBlockSpan, uint256 _maxMintBPro)` (public)
 ## <span id="MoCBProxManager"></span> `MoCBProxManager`
 
 It is [MoCBucketContainer]
@@ -1690,7 +1691,7 @@ Sets the amount of BProx
 
 ## <span id="MoCSettlement"></span> `MoCSettlement`
 
-It is [Governed]([https://github.com/money-on-chain/Areopagus-Governance](https://github.com/money-on-chain/Areopagus-Governance)), [MoCSettlementEvents]
+It is [Governed](https://github.com/money-on-chain/Areopagus-Governance), [MoCSettlementEvents]
 
 
 - [`setBlockSpan(uint256 bSpan)`][MoCSettlement-setBlockSpan-uint256-]
@@ -1867,7 +1868,9 @@ It is [OwnerBurnableToken].
 
 
 
-Token that allows the owner to irreversibly burned (destroyed) any token.
+Token that allows the owner to irreversibly burned (destroyed) any token.  
+
+
 It is [Ownable](https://github.com/OpenZeppelin/openzeppelin-contracts-ethereum-package) and [ERC20 Mintable](https://github.com/OpenZeppelin/openzeppelin-contracts-ethereum-package) (minting only allowed for DoC).
 
 - [`burn(address who, uint256 value)`][OwnerBurnableToken-burn-address-uint256-]
@@ -2133,7 +2136,7 @@ It is [MoCBurnoutEvents]
 - [`getBurnoutAddress(address _who)`][MoCBurnout-getBurnoutAddress-address-]
 - [`pushBurnoutAddress(address _who, address payable _burnout)`][MoCBurnout-pushBurnoutAddress-address-address-payable-]
 - [`executeBurnout(uint256 steps)`][MoCBurnout-executeBurnout-uint256-]
-
+- [`initialize(address connectorAddress)`][MoCBurnout-initialize-address-]
 
 ### <span id="MoCBurnout-isBurnoutRunning--"></span>
  `isBurnoutRunning() → bool` (public)
@@ -2674,7 +2677,7 @@ It is [Governed](https://github.com/money-on-chain/Areopagus-Governance), [MoCIn
 - [`payBitProHoldersInterestPayment()`][MoCInrate-payBitProHoldersInterestPayment--]
 - [`getMocPrecision()`][MoCLibConnection-getMocPrecision--]
 - [`getReservePrecision()`][MoCLibConnection-getReservePrecision--]
-- [`getDayPrecision()`][MoCLibConnection-getDayPrecision--]]
+- [`getDayPrecision()`][MoCLibConnection-getDayPrecision--]
 -  [`initialize(address connectorAddress, address _governor, uint256 btcxTmin, uint256 btcxPower, uint256 btcxTmax, uint256 _bitProRate, uint256 blockSpanBitPro, address payable bitProInterestTargetAddress, address payable commissionsAddressTarget, uint256 commissionRateParam, uint256 _docTmin, uint256 _docPower, uint256 _docTmax)`][MoCInrate-initialize-address-address-uint256-uint256-uint256-uint256-uint256-address-payable-address-payable-uint256-uint256-uint256-uint256-]
 
 
@@ -3112,11 +3115,11 @@ This contract is used to update the MoCBProxManager to fix the governor variable
 
 This productive contract to add a new PriceFeeder with moc---gobernanza.
 
-- [`constructor(contract PriceFactory _priceFactory, contract Medianizer _medianizer, address _priceFeedOwner)`][PriceFeederAdder-constructor-contract-PriceFactory-contract-Medianizer-address-]
-- [`execute()`][PriceFeederAdder-execute--]
 
-### <span id="PriceFeederAdder-constructor-contract-PriceFactory-contract-Medianizer-address-"></span>
- `constructor(contract PriceFactory _priceFactory, contract Medianizer _medianizer, address _priceFeedOwner)` (public)
+- [`execute()`][PriceFeederAdder-execute--]
+- [`constructor(contract PriceFactory _priceFactory, contract Medianizer _medianizer, address _priceFeedOwner)`][PriceFeederAdder-constructor-contract-PriceFactory-contract-Medianizer-address-]
+
+
 
 
 
@@ -3126,6 +3129,8 @@ This productive contract to add a new PriceFeeder with moc---gobernanza.
  `execute()` (external)
 
 
+### <span id="PriceFeederAdder-constructor-contract-PriceFactory-contract-Medianizer-address-"></span>
+ `constructor(contract PriceFactory _priceFactory, contract Medianizer _medianizer, address _priceFeedOwner)` (public)
 
 
 
@@ -3144,12 +3149,9 @@ This productive contract to add a new PriceFeeder with moc---gobernanza.
 
 This productive contract to remove a new PriceFeeder with moc---gobernanza.
 
-- [`constructor(contract Medianizer _medianizer, address _priceFeed)`][PriceFeederRemover-constructor-contract-Medianizer-address-]
+
 - [`execute()`][PriceFeederRemover-execute--]
-
-### <span id="PriceFeederRemover-constructor-contract-Medianizer-address-"></span>
- `constructor(contract Medianizer _medianizer, address _priceFeed)` (public)
-
+- [`constructor(contract Medianizer _medianizer, address _priceFeed)`][PriceFeederRemover-constructor-contract-Medianizer-address-]
 
 
 
@@ -3157,8 +3159,8 @@ This productive contract to remove a new PriceFeeder with moc---gobernanza.
 ### <span id="PriceFeederRemover-execute--"></span>
  `execute()` (external)
 
-
-
+### <span id="PriceFeederRemover-constructor-contract-Medianizer-address-"></span>
+`constructor(contract Medianizer _medianizer, address _priceFeed)` (public)
 
 
 
