@@ -1,0 +1,29 @@
+{
+  "development": {},
+  "qaTestnet": {
+    "oracle": "0xDa17C30A4c9CfC9C4359Ea92EB7096Ba482Ed9e8",
+    "governor": "0xD63C0441b9A6c019917e9773992F7B5428542cbb",
+    "priceFactory": "0x15d5b0a343FB99Ea466ea1f2F2590BAd07179ba9",
+    "medianizer": "0xDa17C30A4c9CfC9C4359Ea92EB7096Ba482Ed9e8",
+    "stopper": "0x7936cA4f95a662ABe0b1d9B41Ce89eE0Bc704824",
+    "upgradeDelegator": "0xc3aaFB85466Fb3D70b4dd801f694add6260997e3",
+    "mocInrate": "",
+    "mocRiskProxManager": "",
+    "commissionSplitter": "",
+    "mocState": "",
+    "moc": "0x9A9ad90344B854b03E82c0bdddf6BF1aB4BF37A1"
+  },
+  "uatTestnet": {
+    "oracle": "0xF027e67fDDc8f589dc4419f0aF20747A1d670E1E",
+    "governor": "0xa3A8d2AE0021b5AbF90c4C9133b5bAcd75025c93",
+    "priceFactory": "0x4c9FF0533438769E79e85CcA3937866566816EC3",
+    "medianizer": "0xF027e67fDDc8f589dc4419f0aF20747A1d670E1E",
+    "stopper": "0xb0f004ffAA04f4F1642d355f0D7Dc598edE5CBa3",
+    "upgradeDelegator": "0x997068C3687EcacB3396E8de3C4724bb588D7c",
+    "commissionSplitter": "",
+    "mocInrate": "",
+    "mocRiskProxManager": "",
+    "mocState": "",
+    "moc": "0x1CacFFb40036E5940d6F9F80af8054756704409f"
+  }
+}

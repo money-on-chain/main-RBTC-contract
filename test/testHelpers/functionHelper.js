@@ -3,6 +3,15 @@ const chai = require('chai');
 const { toContract } = require('../../utils/numberHelper');
 const { toContractBNNoPrec } = require('./formatHelper');
 
+
+// Changers
+const SetCommissionFinalAddressChanger = artifacts.require(
+  './contracts/SetCommissionFinalAddressChanger.sol'
+);
+const SetCommissionMocProportionChanger = artifacts.require(
+  './contracts/SetCommissionMocProportionChanger.sol'
+);
+
 const SETTLEMENT_STEPS = 100;
 const BUCKET_C0 = web3.utils.asciiToHex('C0', 32);
 const BUCKET_X2 = web3.utils.asciiToHex('X2', 32);
@@ -49,23 +58,23 @@ const isBitProInterestEnabled = moc => async () => moc.isBitProInterestEnabled()
 
 const getBitProInterestAddress = moc => async () => moc.getBitProInterestAddress();
 
-const mintBPro = moc => async (from, btcAmount, applyPrecision = true) => {
-  if (!applyPrecision) {
-    return moc.mintBPro(toContract(btcAmount), { from, value: toContract(btcAmount) });
-  }
+const mintBPro = moc => async (from, reserveAmount, applyPrecision = true) => {
   const reservePrecision = await moc.getReservePrecision();
-  return moc.mintBPro(toContract(btcAmount * reservePrecision), {
+
+  const reserveAmountToMint = applyPrecision ? toContract(reserveAmount * reservePrecision): toContract(reserveAmount);
+
+  return moc.mintBPro(reserveAmountToMint,  {
     from,
-    value: toContract(btcAmount * reservePrecision)
+    value: reserveAmountToMint,
   });
 };
 
-const mintDoc = moc => async (from, btcAmount) => {
+const mintDoc = moc => async (from, reserveAmount) => {
   const reservePrecision = await moc.getReservePrecision();
-  const btcAmountWithReservePrecision = toContract(btcAmount * reservePrecision);
-  return moc.mintDoc(btcAmountWithReservePrecision, {
+  const reserveAmountWithReservePrecision = toContract(reserveAmount * reservePrecision);
+  return moc.mintDoc(reserveAmountWithReservePrecision, {
     from,
-    value: btcAmountWithReservePrecision
+    value: reserveAmountWithReservePrecision
   });
 };
 
@@ -104,7 +113,7 @@ const mintBProAmount = (moc, mocState, mocInrate) => async (account, bproAmount)
   // Sent more to pay commissions
   const commissionRate = await mocInrate.getCommissionRate();
   const mocPrecision = await moc.getMocPrecision();
-  const commissionRbtcAmount = (btcTotal * commissionRate) / mocPrecision;
+  const commissionRbtcAmount = btcTotal.mul(commissionRate).div(mocPrecision);
   const value = toContract(new BigNumber(btcTotal).plus(commissionRbtcAmount));
   return moc.mintBPro(toContract(btcTotal), { from: account, value });
 };
@@ -154,6 +163,8 @@ const redeemBPro = moc => async (from, amount) => {
 const getDoCBalance = docToken => async address => docToken.balanceOf(address);
 
 const getBProBalance = bproToken => async address => bproToken.balanceOf(address);
+
+const getReserveBalance = async address => new BN(await web3.eth.getBalance(address));
 
 // Runs settlement with a default fixed step count
 const executeSettlement = moc => () => moc.runSettlement(SETTLEMENT_STEPS);
@@ -231,6 +242,25 @@ const logBucket = moc => async bucket => {
   console.log(await bucketString(moc)(bucket));
 };
 
+const setFinalCommissionAddress = (commissionSplitter, governor) => async finalAddress => {
+  const setCommissionAddressChanger = await SetCommissionFinalAddressChanger.new(
+    commissionSplitter.address,
+    finalAddress
+  );
+
+  return governor.executeChange(setCommissionAddressChanger.address);
+};
+
+const setMocCommissionProportion = (commissionSplitter, governor) => async proportion => {
+  const setCommissionMocProportionChanger = await SetCommissionMocProportionChanger.new(
+    commissionSplitter.address,
+    proportion
+  );
+
+  return governor.executeChange(setCommissionMocProportionChanger.address);
+};
+
+
 module.exports = async contracts => {
   const {
     doc,
@@ -241,7 +271,8 @@ module.exports = async contracts => {
     btcPriceProvider,
     mocInrate,
     governor,
-    mockMocStateChanger
+    mockMocStateChanger,
+    commissionSplitter
   } = contracts;
 
   return {
@@ -250,6 +281,7 @@ module.exports = async contracts => {
     getDoCBalance: getDoCBalance(doc),
     getBProBalance: getBProBalance(bpro),
     getBProxBalance: getBProxBalance(bprox),
+    getReserveBalance: getReserveBalance,
     getUserBalances: getUserBalances(bpro, doc, bprox),
     setSmoothingFactor: setSmoothingFactor(governor, mockMocStateChanger),
     redeemFreeDoc: redeemFreeDoc(moc),
@@ -271,6 +303,9 @@ module.exports = async contracts => {
     getGlobalState: getGlobalState(mocState),
     getBucketState: getBucketState(mocState),
     logBucket: logBucket(mocState),
-    getRedeemRequestAt: getRedeemRequestAt(moc)
+    getRedeemRequestAt: getRedeemRequestAt(moc),
+    setFinalCommissionAddress: setFinalCommissionAddress(commissionSplitter, governor),
+    setMocCommissionProportion: setMocCommissionProportion(commissionSplitter, governor)
+
   };
 };

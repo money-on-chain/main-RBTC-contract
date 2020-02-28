@@ -233,6 +233,18 @@ Leveraged buckets will get to critical coverage values quicker than the system a
 Bucket liquidation process is verified on every bucket State Transition (`bucketStateTransition` modifier), that being mint/redeem of leveraged (X) instruments. And there is also a public function to evaluate (and trigger if needed): `evalBucketLiquidation`.
 For a leveraged bucket, reaching coverage liquidation point (~1) means that user's funds had absorbed all the price dropping, so this process just needs to return the borrowed value (to base bucket) and dissolve the position.
 
+## Commission splitting
+
+By adding the CommissionSplitter contract and set it as the destination of Money on Chain commissions (just as a normal commission destination address), the splitting process can be made.
+
+The CommissionSplitter contract will accummulate commissions until the `split()` function is called. At that moment a part of the commissions will be added to Money on Chain reserves using the Collateral Injection functionality and the other part will be sent to a final destination address.
+
+## Collateral injection
+
+Collateral injection is the operation of adding reserveTokens to the system's reserves without minting RiskPro. This come in handy when reserves are runnning low and there is a need of Stable token minting.
+
+This injection is made by sending funds directly to the main MoC Contract, this will result in executing the fallback function which will update the internal values according to the sent value.
+
 # Contracts architecture
 
 MoC system is a network of cooperative contracts working together to ultimately provide an US dollar pegged ERC20 Token (DoC). In this sense, be can categorize then into 4 categories:
@@ -303,6 +315,14 @@ MoC also handles the [System states][#system-states] by a series of modifiers:
       _;
   }
 ```
+
+## CommissionSplitter
+
+The CommissionSplitter is the contract used to implement [Commission Splitting](#commission-splitting) functionality.
+The contract have two main properties that can be modified by Governance:
+
+- _commissionAddress_: Defines the final destination of the commissions after the split process takes place. Can be changed with `setCommissionAddress(address _commissionAddress)` function.
+- _mocProportion_: Defines the proportion of the accumulated commissions that will be injected into MoC contract as collateral. Can be changed with `function setMocProportion(uint256 _mocProportion)`.
 
 ## MoCState
 
@@ -652,3 +672,5 @@ The addresses of the deployed proxies will be in a file called `zos.<network-id>
 - _gas_: Gas to use on MoC.sol contract deploy.
 - _oracle_: Moc Price Provider compatible address (see `contracts/interface/BtcPriceProvider.sol`). You can deploy this contract using the `oracle` project or (in development) the mock:`contracts/mocks/BtcPriceProviderMock.sol` (which is deployed on development migration by default).
 - _startStoppable_: If set to true, the MoC contract can be stopped after the deployment. If set to false, before pausing the contract you should make it stoppable with governance(this together with the blockage of the governance system can result in a blockage of the pausing system too).
+- _commissionSplitter_: Defines an address for an existing CommissionSplitter. If none is set, then the CommissionSplitter will be deployed.
+- _mocCommissionProportion_: Defines the proportion of commissions that will be injected as collateral to MoC as defined in [Commission splitting](#commission-splitting). This configuration only works if no _commissiomSplitter_ address is set.
