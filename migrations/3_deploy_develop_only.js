@@ -1,11 +1,11 @@
 /* eslint-disable no-console */
-const MoCStateMock = artifacts.require('./mocks/MoCStateMock.sol');
-const MoCSettlementMock = artifacts.require('./mocks/MoCSettlementMock.sol');
-const DocToken = artifacts.require('./token/DocToken.sol');
-const BProToken = artifacts.require('./token/BProToken.sol');
-const MoCLib = artifacts.require('./MoCHelperLib.sol');
-const makeUtils = require('./utils');
-const allConfigs = require('./configs/config');
+const MoCStateMock = artifacts.require("./mocks/MoCStateMock.sol");
+const MoCSettlementMock = artifacts.require("./mocks/MoCSettlementMock.sol");
+const DocToken = artifacts.require("./token/DocToken.sol");
+const BProToken = artifacts.require("./token/BProToken.sol");
+const MoCLib = artifacts.require("./MoCHelperLib.sol");
+const makeUtils = require("./utils");
+const allConfigs = require("./configs/config");
 
 module.exports = async (deployer, currentNetwork, [owner]) => {
   const {
@@ -17,25 +17,41 @@ module.exports = async (deployer, currentNetwork, [owner]) => {
     deployProxyAdminContract,
     deployStopperContract,
     deployUpgradeDelegatorContract
-  } = await makeUtils(artifacts, currentNetwork, allConfigs[currentNetwork], owner, deployer);
+  } = await makeUtils(
+    artifacts,
+    currentNetwork,
+    allConfigs[currentNetwork],
+    owner,
+    deployer
+  );
   // Workaround to get the link working on tests
-  if (currentNetwork === 'development' || currentNetwork === 'coverage') {
+  if (currentNetwork === "development" || currentNetwork === "coverage") {
     return deployer.then(async () => {
-      console.log('Deploying Dev only 1');
-      await Promise.all([deployMocLibMock(), deployOracleMock(), deployGovernorContract()]);
-      console.log('Deploying Dev only Proxy Admin');
+      console.log("Deploying Dev only 1");
+      await Promise.all([
+        deployMocLibMock(),
+        deployOracleMock(),
+        deployGovernorContract()
+      ]);
+      console.log("Deploying Dev only Proxy Admin");
       await deployProxyAdminContract();
-      console.log('Deploying Dev only Stopper and delegator');
-      await Promise.all([deployStopperContract(), deployUpgradeDelegatorContract()]);
-      console.log('Deploying Dev only MoCStateMock');
+      console.log("Deploying Dev only Stopper and delegator");
+      await Promise.all([
+        deployStopperContract(),
+        deployUpgradeDelegatorContract()
+      ]);
+      console.log("Deploying Dev only MoCStateMock");
       await linkMocLib(MoCStateMock);
-      console.log('Deploying Dev only Tokens');
-      await Promise.all([deployer.deploy(DocToken), deployer.deploy(BProToken)]);
-      console.log('Deploying Dev only MoCLib');
+      console.log("Deploying Dev only Tokens");
+      await Promise.all([
+        deployer.deploy(DocToken),
+        deployer.deploy(BProToken)
+      ]);
+      console.log("Deploying Dev only MoCLib");
       deployer.deploy(MoCLib);
-      console.log('Deploying Dev only deployUpgradable');
+      console.log("Deploying Dev only deployUpgradable");
       // eslint-disable-next-line promise/always-return
-      for (let index = 1; index <= 9; index++) {
+      for (let index = 1; index <= 10; index++) {
         // eslint-disable-next-line no-await-in-loop
         await deployUpgradable(MoCSettlementMock, MoCStateMock, index);
       }

@@ -11,6 +11,7 @@
     "MoCConverter": "MoCConverter",
     "MoCState": "MoCState",
     "MoCExchange": "MoCExchange",
-    "MoCInrate": "MoCInrate"
+    "MoCInrate": "MoCInrate",
+    "CommissionSplitter": "CommissionSplitter"
   }
 }
