@@ -3,7 +3,7 @@ const GovernorAbi = require('../../build/contracts/Governor.json');
 
 const input = {
   network: 'qaTestnet',
-  changerAddress: '0xF617D3484a8e4F4953E0F2ffa1141E916057E06C'
+  changerAddress: '0xe9bE4c9E36E24134b6BBcbC0F1691120A116b0C2 '
 };
 
 const execute = async () => {

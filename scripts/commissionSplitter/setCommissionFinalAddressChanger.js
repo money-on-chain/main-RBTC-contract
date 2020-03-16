@@ -1,5 +1,5 @@
-const SetCommissionFinalAddressChanger = require('../../../build/contracts/SetCommissionFinalAddressChanger.json');
-const { deployContract, getConfig } = require('../changerHelper');
+const SetCommissionFinalAddressChanger = require('../../build/contracts/SetCommissionFinalAddressChanger.json');
+const { deployContract, getConfig } = require('./changerHelper');
 
 /**
  * Script for setting address that will receive

@@ -7,9 +7,9 @@
     "medianizer": "0xDa17C30A4c9CfC9C4359Ea92EB7096Ba482Ed9e8",
     "stopper": "0x7936cA4f95a662ABe0b1d9B41Ce89eE0Bc704824",
     "upgradeDelegator": "0xc3aaFB85466Fb3D70b4dd801f694add6260997e3",
-    "mocInrate": "",
+    "mocInrate": "0x105dafd5953968Febae0a19111a972b2d93E50d9",
     "mocRiskProxManager": "",
-    "commissionSplitter": "",
+    "commissionSplitter": "0xAA98297F2ed80B44883AAC572386B710a71af594",
     "mocState": "",
     "moc": "0x9A9ad90344B854b03E82c0bdddf6BF1aB4BF37A1"
   },

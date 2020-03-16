@@ -6,7 +6,7 @@ const changerAbi = require('../../build/contracts/CommissionsAddressChanger.json
  */
 const input = {
   network: 'qaTestnet',
-  commissionsAddress: ''
+  commissionsAddress: '0xAA98297F2ed80B44883AAC572386B710a71af594'
 };
 
 const execute = async () => {
