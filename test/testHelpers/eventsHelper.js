@@ -13,6 +13,7 @@ const MoCSettlement = artifacts.require('./contracts/MoCSettlement.sol');
 const MoCBurnout = artifacts.require('./contracts/MoCBurnout.sol');
 const Governor = artifacts.require('moc-governance/contracts/Governance/Governor.sol');
 const Stopper = artifacts.require('moc-governance/contracts/Stopper/Stopper.sol');
+const CommissionSplitter = artifacts.require('./CommissionSplitter.sol');
 
 abiDecoder.addABI(MoC.abi);
 abiDecoder.addABI(DoC.abi);
@@ -27,6 +28,7 @@ abiDecoder.addABI(MoCBurnout.abi);
 abiDecoder.addABI(BtcPriceProviderMock.abi);
 abiDecoder.addABI(Governor.abi);
 abiDecoder.addABI(Stopper.abi);
+abiDecoder.addABI(CommissionSplitter.abi);
 
 const findEventsInTxs = (txs, eventName, eventArgs) => {
   const events = txs.map(tx => findEvents(tx, eventName, eventArgs));

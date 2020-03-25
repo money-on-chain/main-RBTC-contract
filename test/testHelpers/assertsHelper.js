@@ -38,6 +38,7 @@ module.exports = precisions => {
 
   return {
     assertBig: assertBig(new BN(1)),
+    assertBigReserve: assertBig(RESERVE_PRECISION),
     assertBigRBTC: assertBig(RESERVE_PRECISION),
     assertBigDollar: assertBig(MOC_PRECISION),
     assertBigCb: assertBig(MOC_PRECISION),
