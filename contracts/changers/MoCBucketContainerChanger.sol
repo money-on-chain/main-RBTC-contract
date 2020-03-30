@@ -26,7 +26,7 @@ contract MoCBucketContainerChanger is ChangeContract, Ownable {
     }
     if (cobjX2 > 0)
       mocContainer.setBucketCobj(BUCKET_X2, cobjX2);
-    }
+  }
 
   function setCobjBucketC0(uint256 _cobj) public onlyOwner() {
     cobjC0 = _cobj;

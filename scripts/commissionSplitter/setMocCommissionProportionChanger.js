@@ -1,5 +1,5 @@
-const SetCommissionMocProportion = require('../../../build/contracts/SetCommissionMocProportionChanger.json');
-const { deployContract, getConfig } = require('../changerHelper');
+const SetCommissionMocProportion = require('../../build/contracts/SetCommissionMocProportionChanger.json');
+const { deployContract, getConfig } = require('./changerHelper');
 
 /**
  * Script for setting the proportion of the commissions that
