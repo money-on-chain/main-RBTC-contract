@@ -10,7 +10,7 @@
     "mocInrate": "0x105dafd5953968Febae0a19111a972b2d93E50d9",
     "mocRiskProxManager": "",
     "commissionSplitter": "0xAA98297F2ed80B44883AAC572386B710a71af594",
-    "mocState": "",
+    "mocState": "0x3351b71B76D568067d7c52e4c7FE8e29BE108797",
     "moc": "0x9A9ad90344B854b03E82c0bdddf6BF1aB4BF37A1"
   },
   "uatTestnet": {
