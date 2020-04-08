@@ -1,70 +1,54 @@
-const { TestHelper } = require("zos");
-const { Contracts, ZWeb3 } = require("zos-lib");
+const { TestHelper } = require('zos');
+const { Contracts, ZWeb3 } = require('zos-lib');
 
 ZWeb3.initialize(web3.currentProvider);
 
-const BtcPriceProviderMock = artifacts.require(
-  "./contracts/mocks/BtcPriceProviderMock.sol"
-);
-const DoC = artifacts.require("./contracts/DocToken.sol");
-const MoC = artifacts.require("./contracts/MoC.sol");
-const MoCState = artifacts.require("./contracts/MoCState.sol");
-const MoCStateMock = artifacts.require("./contracts/mocks/MoCStateMock.sol");
-const MoCConverter = artifacts.require("./contracts/MoCConverter.sol");
-const MoCExchange = artifacts.require("./contracts/MoCExchange.sol");
-const MoCInrate = artifacts.require("./contracts/MoCInrate.sol");
-const MoCSettlementMock = artifacts.require(
-  "./contracts/mocks/MoCSettlementMock.sol"
-);
-const BPro = artifacts.require("./contracts/BProToken.sol");
-const BProxManager = artifacts.require("./contracts/MoCBProxManager.sol");
-const MoCSettlement = artifacts.require("./contracts/MoCSettlement.sol");
-const MoCBurnout = artifacts.require("./contracts/MoCBurnout.sol");
-const MoCConnector = artifacts.require("./contracts/base/MoCConnector.sol");
-const Governor = artifacts.require(
-  "moc-governance/contracts/Governance/Governor.sol"
-);
-const ProxyAdmin = artifacts.require("ProxyAdmin");
-const UpgradeDelegator = artifacts.require("UpgradeDelegator");
-const Stopper = artifacts.require(
-  "moc-governance/contracts/Stopper/Stopper.sol"
-);
-const MocStateChanger = artifacts.require("./contracts/MocStateChanger.sol");
-const MocInrateChanger = artifacts.require("./contracts/MocInrateChanger.sol");
-const MoCSettlementChanger = artifacts.require(
-  "./contracts/MoCSettlementChanger.sol"
-);
-const MoCBucketContainerChanger = artifacts.require(
-  "./contracts/MoCBucketContainerChanger.sol"
-);
+const BtcPriceProviderMock = artifacts.require('./contracts/mocks/BtcPriceProviderMock.sol');
+const DoC = artifacts.require('./contracts/DocToken.sol');
+const MoC = artifacts.require('./contracts/MoC.sol');
+const MoCState = artifacts.require('./contracts/MoCState.sol');
+const MoCStateMock = artifacts.require('./contracts/mocks/MoCStateMock.sol');
+const MoCConverter = artifacts.require('./contracts/MoCConverter.sol');
+const MoCExchange = artifacts.require('./contracts/MoCExchange.sol');
+const MoCInrate = artifacts.require('./contracts/MoCInrate.sol');
+const MoCSettlementMock = artifacts.require('./contracts/mocks/MoCSettlementMock.sol');
+const BPro = artifacts.require('./contracts/BProToken.sol');
+const BProxManager = artifacts.require('./contracts/MoCBProxManager.sol');
+const MoCSettlement = artifacts.require('./contracts/MoCSettlement.sol');
+const MoCBurnout = artifacts.require('./contracts/MoCBurnout.sol');
+const MoCConnector = artifacts.require('./contracts/base/MoCConnector.sol');
+const Governor = artifacts.require('moc-governance/contracts/Governance/Governor.sol');
+const ProxyAdmin = artifacts.require('ProxyAdmin');
+const UpgradeDelegator = artifacts.require('UpgradeDelegator');
+const Stopper = artifacts.require('moc-governance/contracts/Stopper/Stopper.sol');
+const MocStateChanger = artifacts.require('./contracts/MocStateChanger.sol');
+const MocInrateChanger = artifacts.require('./contracts/MocInrateChanger.sol');
+const MoCSettlementChanger = artifacts.require('./contracts/MoCSettlementChanger.sol');
+const MoCBucketContainerChanger = artifacts.require('./contracts/MoCBucketContainerChanger.sol');
 const MoCRestartSettlementChanger = artifacts.require(
-  "./contracts/MoCRestartSettlementChanger.sol"
+  './contracts/MoCRestartSettlementChanger.sol'
 );
-const MoCStallSettlementChanger = artifacts.require(
-  "./contracts/MoCStallSettlementChanger.sol"
-);
-const MocChanger = artifacts.require("./contracts/MocChanger.sol");
-const CommissionSplitter = artifacts.require("CommissionSplitter.sol");
+const MoCStallSettlementChanger = artifacts.require('./contracts/MoCStallSettlementChanger.sol');
+const MocChanger = artifacts.require('./contracts/MocChanger.sol');
+const CommissionSplitter = artifacts.require('CommissionSplitter.sol');
 
-const MoCProxy = Contracts.getFromLocal("MoC");
-const MoCStateProxy = Contracts.getFromLocal("MoCState");
-const MoCStateMockProxy = Contracts.getFromLocal("MoCStateMock");
-const MoCConverterProxy = Contracts.getFromLocal("MoCConverter");
-const MoCExchangeProxy = Contracts.getFromLocal("MoCExchange");
-const MoCInrateProxy = Contracts.getFromLocal("MoCInrate");
-const MoCSettlementMockProxy = Contracts.getFromLocal("MoCSettlementMock");
-const BProxManagerProxy = Contracts.getFromLocal("MoCBProxManager");
-const MoCSettlementProxy = Contracts.getFromLocal("MoCSettlement");
-const MoCBurnoutProxy = Contracts.getFromLocal("MoCBurnout");
-const MoCConnectorProxy = Contracts.getFromLocal("MoCConnector");
-const GovernorProxy = Contracts.getFromLocal("Governor");
-const StopperProxy = Contracts.getFromLocal("Stopper");
-const CommissionSplitterProxy = Contracts.getFromLocal("CommissionSplitter");
-const RevertingOnSend = artifacts.require(
-  "./contracts/test-contracts/RevertingOnSend.sol"
-);
+const MoCProxy = Contracts.getFromLocal('MoC');
+const MoCStateProxy = Contracts.getFromLocal('MoCState');
+const MoCStateMockProxy = Contracts.getFromLocal('MoCStateMock');
+const MoCConverterProxy = Contracts.getFromLocal('MoCConverter');
+const MoCExchangeProxy = Contracts.getFromLocal('MoCExchange');
+const MoCInrateProxy = Contracts.getFromLocal('MoCInrate');
+const MoCSettlementMockProxy = Contracts.getFromLocal('MoCSettlementMock');
+const BProxManagerProxy = Contracts.getFromLocal('MoCBProxManager');
+const MoCSettlementProxy = Contracts.getFromLocal('MoCSettlement');
+const MoCBurnoutProxy = Contracts.getFromLocal('MoCBurnout');
+const MoCConnectorProxy = Contracts.getFromLocal('MoCConnector');
+const GovernorProxy = Contracts.getFromLocal('Governor');
+const StopperProxy = Contracts.getFromLocal('Stopper');
+const CommissionSplitterProxy = Contracts.getFromLocal('CommissionSplitter');
+const RevertingOnSend = artifacts.require('./contracts/test-contracts/RevertingOnSend.sol');
 
-const { toContract } = require("../../utils/numberHelper");
+const { toContract } = require('../../utils/numberHelper');
 
 const baseParams = {
   btcPrice: toContract(10000 * 10 ** 18), // mocPrecision
@@ -89,7 +73,7 @@ const baseParams = {
   docTmin: toContract(0), // mocPrecision
   docTmax: toContract(0.0002611578760678 * 10 ** 18), // mocPrecision
   docPower: toContract(1),
-  mocProportion: toContract(0.01 * 10 ** 18), //mocPrecision
+  mocProportion: toContract(0.01 * 10 ** 18), // mocPrecision
 
   startStoppable: true
 };
@@ -123,9 +107,7 @@ const createContracts = params => async ({ owner, useMock }) => {
   } = params;
   const settlementContract = useMock ? MoCSettlementMock : MoCSettlement;
   const stateContract = useMock ? MoCStateMock : MoCState;
-  const settlementContractProxy = useMock
-    ? MoCSettlementMockProxy
-    : MoCSettlementProxy;
+  const settlementContractProxy = useMock ? MoCSettlementMockProxy : MoCSettlementProxy;
   const stateContractProxy = useMock ? MoCStateMockProxy : MoCStateProxy;
 
   // Non-upgradeable
@@ -143,9 +125,7 @@ const createContracts = params => async ({ owner, useMock }) => {
   const mocInrateProxy = await project.createProxy(MoCInrateProxy);
   const mocBurnoutProxy = await project.createProxy(MoCBurnoutProxy);
   const mocProxy = await project.createProxy(MoCProxy);
-  const commissionSplitterProxy = await project.createProxy(
-    CommissionSplitterProxy
-  );
+  const commissionSplitterProxy = await project.createProxy(CommissionSplitterProxy);
 
   // Governance
   const governorProxy = await project.createProxy(GovernorProxy);
@@ -161,9 +141,7 @@ const createContracts = params => async ({ owner, useMock }) => {
   const mocInrate = await MoCInrate.at(mocInrateProxy.address);
   const mocBurnout = await MoCBurnout.at(mocBurnoutProxy.address);
   const moc = await MoC.at(mocProxy.address);
-  const commissionSplitter = await CommissionSplitter.at(
-    commissionSplitterProxy.address
-  );
+  const commissionSplitter = await CommissionSplitter.at(commissionSplitterProxy.address);
 
   const governor = await Governor.at(governorProxy.address);
   const stopper = await Stopper.at(stopperProxy.address);
@@ -202,9 +180,7 @@ const createContracts = params => async ({ owner, useMock }) => {
       from: owner
     }
   );
-  const mockMoCStallSettlementChanger = await MoCStallSettlementChanger.new(
-    mocSettlement.address
-  );
+  const mockMoCStallSettlementChanger = await MoCStallSettlementChanger.new(mocSettlement.address);
   const mockMoCRestartSettlementChanger = await MoCRestartSettlementChanger.new(
     mocSettlement.address
   );
@@ -216,14 +192,9 @@ const createContracts = params => async ({ owner, useMock }) => {
       from: owner
     }
   );
-  const mockMocChanger = await MocChanger.new(
-    moc.address,
-    governor.address,
-    stopper.address,
-    {
-      from: owner
-    }
-  );
+  const mockMocChanger = await MocChanger.new(moc.address, governor.address, stopper.address, {
+    from: owner
+  });
 
   await mocConnector.initialize(
     moc.address,
@@ -240,12 +211,7 @@ const createContracts = params => async ({ owner, useMock }) => {
 
   // Initialize contracts
   await mocConverter.initialize(mocConnector.address);
-  await moc.initialize(
-    mocConnector.address,
-    governor.address,
-    stopper.address,
-    startStoppable
-  );
+  await moc.initialize(mocConnector.address, governor.address, stopper.address, startStoppable);
   await stopper.initialize(owner);
   await mocExchange.initialize(mocConnector.address);
   await mocState.initialize(
@@ -277,25 +243,11 @@ const createContracts = params => async ({ owner, useMock }) => {
     docPower,
     docTmax
   );
-  await bprox.initialize(
-    mocConnector.address,
-    governor.address,
-    c0Cobj,
-    x2Cobj
-  );
-  await mocSettlement.initialize(
-    mocConnector.address,
-    governor.address,
-    settlementBlockSpan
-  );
+  await bprox.initialize(mocConnector.address, governor.address, c0Cobj, x2Cobj);
+  await mocSettlement.initialize(mocConnector.address, governor.address, settlementBlockSpan);
   await mocBurnout.initialize(mocConnector.address);
   await governor.initialize(owner);
-  await commissionSplitter.initialize(
-    moc.address,
-    owner,
-    mocProportion,
-    governor.address
-  );
+  await commissionSplitter.initialize(moc.address, owner, mocProportion, governor.address);
 
   await upgradeDelegator.initialize(governor.address, proxyAdmin.address);
   // Transfer roles
@@ -305,10 +257,7 @@ const createContracts = params => async ({ owner, useMock }) => {
   await proxyAdmin.transferOwnership(upgradeDelegator.address);
 
   // Transfer upgrade adminship
-  await project.changeProxyAdmin(
-    mocSettlementProxy.address,
-    proxyAdmin.address
-  );
+  await project.changeProxyAdmin(mocSettlementProxy.address, proxyAdmin.address);
   await project.changeProxyAdmin(mocStateProxy.address, proxyAdmin.address);
   await project.changeProxyAdmin(mocConnectorProxy.address, proxyAdmin.address);
   await project.changeProxyAdmin(bproxProxy.address, proxyAdmin.address);
@@ -319,10 +268,7 @@ const createContracts = params => async ({ owner, useMock }) => {
   await project.changeProxyAdmin(mocProxy.address, proxyAdmin.address);
   await project.changeProxyAdmin(governorProxy.address, proxyAdmin.address);
   await project.changeProxyAdmin(stopperProxy.address, proxyAdmin.address);
-  await project.changeProxyAdmin(
-    commissionSplitter.address,
-    proxyAdmin.address
-  );
+  await project.changeProxyAdmin(commissionSplitter.address, proxyAdmin.address);
 
   // Contract that reverts when receiving RBTC on fallback function
   const revertingContract = await RevertingOnSend.new(moc.address, {
