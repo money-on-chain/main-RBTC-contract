@@ -282,7 +282,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
     return false;
   }
 
-  function evalBucketLiquidation(bytes32 bucket) public availableBucket(bucket) notBaseBucket(bucket) {
+  function evalBucketLiquidation(bytes32 bucket) public availableBucket(bucket) notBaseBucket(bucket) whenSettlementReady() {
     if (mocState.coverage(bucket) <= mocState.liq()) {
       bproxManager.liquidateBucket(bucket, BUCKET_C0);
 

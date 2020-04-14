@@ -3,6 +3,7 @@ const chai = require('chai');
 const { toContract } = require('../../utils/numberHelper');
 const { toContractBNNoPrec } = require('./formatHelper');
 
+
 // Changers
 const SetCommissionFinalAddressChanger = artifacts.require(
   './contracts/SetCommissionFinalAddressChanger.sol'
@@ -60,13 +61,11 @@ const getBitProInterestAddress = moc => async () => moc.getBitProInterestAddress
 const mintBPro = moc => async (from, reserveAmount, applyPrecision = true) => {
   const reservePrecision = await moc.getReservePrecision();
 
-  const reserveAmountToMint = applyPrecision
-    ? toContract(reserveAmount * reservePrecision)
-    : toContract(reserveAmount);
+  const reserveAmountToMint = applyPrecision ? toContract(reserveAmount * reservePrecision): toContract(reserveAmount);
 
-  return moc.mintBPro(reserveAmountToMint, {
+  return moc.mintBPro(reserveAmountToMint,  {
     from,
-    value: reserveAmountToMint
+    value: reserveAmountToMint,
   });
 };
 
@@ -149,9 +148,10 @@ const mintBProxAmount = (moc, mocState, mocInrate) => async (account, bucket, bp
   const mocPrecision = await moc.getMocPrecision();
   const commissionRate = await mocInrate.getCommissionRate();
 
-  const commissionRbtcAmount = (btcTotal * commissionRate) / mocPrecision;
+  const commissionRbtcAmount = btcTotal.mul(commissionRate).div(mocPrecision);
 
-  const value = btcInterestAmount.add(toContractBNNoPrec(commissionRbtcAmount)).add(btcTotal);
+  // Multiply commission by 3 to avoid rounding issues
+  const value = btcInterestAmount.add(commissionRbtcAmount).add(btcTotal).add(btcTotal);
 
   return moc.mintBProx(bucket, btcTotal, { from: account, value });
 };
@@ -261,6 +261,7 @@ const setMocCommissionProportion = (commissionSplitter, governor) => async propo
   return governor.executeChange(setCommissionMocProportionChanger.address);
 };
 
+
 module.exports = async contracts => {
   const {
     doc,
@@ -281,7 +282,7 @@ module.exports = async contracts => {
     getDoCBalance: getDoCBalance(doc),
     getBProBalance: getBProBalance(bpro),
     getBProxBalance: getBProxBalance(bprox),
-    getReserveBalance,
+    getReserveBalance: getReserveBalance,
     getUserBalances: getUserBalances(bpro, doc, bprox),
     setSmoothingFactor: setSmoothingFactor(governor, mockMocStateChanger),
     redeemFreeDoc: redeemFreeDoc(moc),
@@ -306,5 +307,6 @@ module.exports = async contracts => {
     getRedeemRequestAt: getRedeemRequestAt(moc),
     setFinalCommissionAddress: setFinalCommissionAddress(commissionSplitter, governor),
     setMocCommissionProportion: setMocCommissionProportion(commissionSplitter, governor)
+
   };
 };
