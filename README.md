@@ -11,8 +11,9 @@ absorbs the USD-BTC rate fluctuations, and BTC2X is leveraged borrowing
 value from BitPro and DoC holders, with a daily interest rate being paid
 to the former.
 
+You can find a [full explanation about the platform here](MOC.md).
 
-[Full explanation](MOC.md)
+You can learn [how to integrate your apps to the platform here](integration-to-MOC-platform.md).
 
 # Getting Started
 
@@ -56,7 +57,6 @@ First run test node example:
 
 **Tests**
 
-
 - run: `npm run test`
 
 **Tests With Coverage**
@@ -67,17 +67,15 @@ First run test node example:
 ## Deploy
 
 (Truffle suit)[https://github.com/trufflesuite/truffle] is recommended to compile and deploy the contracts.
- 
+
 1.  Edit truffle.js and change add network changes and point to your
     ganache cli or rsk node.
-    
-2. Edit migrations/config/config.json and make changes
 
-3. Run `npm run truffle-compile` to compile the code
+2.  Edit migrations/config/config.json and make changes
 
-4. Run `npm run migrate-development` to deploy the contracts
- 
+3.  Run `npm run truffle-compile` to compile the code
 
+4.  Run `npm run migrate-development` to deploy the contracts
 
 ### Security and Audits
 
