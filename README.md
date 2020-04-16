@@ -66,7 +66,7 @@ First run test node example:
 
 ## Deploy
 
-(Truffle suit)[https://github.com/trufflesuite/truffle] is recommended to compile and deploy the contracts.
+[Truffle suit](https://github.com/trufflesuite/truffle) is recommended to compile and deploy the contracts.
  
 1.  Edit truffle.js and change add network changes and point to your
     ganache cli or rsk node.
