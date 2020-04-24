@@ -56,7 +56,7 @@ When the logic needs to be updated, a new version of your business logic contrac
 
 The Money on Chain system handles different types of currency precision to operate with tokens and RBTC. The **MoCLibConnection** contract defines 2 variables that are used across the platform:
 
-- _mocPrecision_: Currently DOC, BROS and BTC2X tokens use 18 decimal places of precision.
+- _mocPrecision_: Currently DOC, BPROS and BTC2X tokens use 18 decimal places of precision.
 - _reservePrecision_: Currently RBTC amounts use 18 decimal places of precision.
 
 ### MoC State Contracts
@@ -85,11 +85,12 @@ This means that most wallets like Nifty and MetaMask can handle them if you tell
 ​
 That BitPro is an _ERC20_ Token also means that any user that has already some tokens can trade them to you in exchange for a service or for another token.
 ​
-But in some circumstances you may not find such a user (maybe they are keeping the tokens to themselves ESTO ES OPCIONAL). In those cases, you may be happy to know that you can create them(or mint them, as it is usually said) using the Smart Contracts.
+But in some circumstances you may not find such a user. In those cases, you may be happy to know that you can create them(or mint them, as it is usually said) using the Smart Contracts.
 ​
-​## Minting BitPros
 
-In this tutorial the method (or function) that is of interest to us is `function mintBPro(uint256 btcToMint) public payable` As you can see this function is payable, this means that it is prepared to receive RBTCs.
+## Minting BitPros
+
+In this tutorial the method (or function) that is of interest to us is `function mintBPro(uint256 btcToMint) public payable`. As you can see this function is payable, this means that it is prepared to receive RBTCs.
 
 ### Parameters of the operation
 
@@ -102,9 +103,9 @@ Maybe, depending on the state of the contract, a value lesser than btcToMint wil
 #### The value sent
 
 The amount sent in RBTCs to the contract can be considered as a parameter of the transaction, which is why it will be explained in this section. You have to take into consideration that it will be split in three.
-The first part will be used to mint some BitPro, the size of this part depends directly on the btcToMint, and, as explained in the previous section, it may be smaller than btcToMint.
-The second part will be used to pay the commission, this part is a percentage of the previous part. The exact percentage of it is set in the variable **commissionRate** of the **MocInrate** contract. The current value is 0.001 and can be consulted through the method `commissionRate()​` as this parameter is public(Note that this parameter when consulted through said method has also a precision of 18 decimals, i.e. a 1 \* 10^15 in that parameter means that 0.1% is being charged as a commission).
-The third part is always returned, so if you have doubts of how much you should send, keep in mind that if you send too much RBTCs we will return everything that it is not used for commissions or minting.
+- The first part will be used to mint some BitPro, the size of this part depends directly on the btcToMint, and, as explained in the previous section, it may be smaller than btcToMint.
+- The second part will be used to pay the commission, this part is a percentage of the previous part. The exact percentage of it is set in the variable **commissionRate** of the **MocInrate** contract. The current value is 0.001 and can be consulted through the method `commissionRate()​` as this parameter is public(Note that this parameter when consulted through said method has also a precision of 18 decimals, i.e. a 1 \* 10^15 in that parameter means that 0.1% is being charged as a commission).
+- The third part is always returned, so if you have doubts of how much you should send, keep in mind that if you send too much RBTCs we will return everything that it is not used for commissions or minting.
 In conclusion the amount sent has to be at least the btcToMint plus the commission, the commission being btcToMint times the commission rate.
 
 ```
@@ -158,21 +159,7 @@ Assuming you already have your project up and running (if you don't, please foll
 npm install --save -E git+https://git@github.com/money-on-chain/main-RBTC-contract.git
 ```
 
-​To run a local blockchain you can use
-
-```
-npm run ganache-cli
-```
-
-To deploy the contracts you can use
-
-```
-npm run deploy-reset-development
-
-```
-
-​
-Having done that lets you use our contract as a dependency to your contract. For this let's suppose you are doing some kind of contract that when executing a certain task charges a fixed commission. Now let's suppose that the commission is sent in RBTCs because it is easier for the user but actually you want some BitPros. The good news is that you can do this instantly just by minting them. The code necessary to do this is actually pretty simple.
+​Having done that lets you use our contract as a dependency to your contract. For this let's suppose you are doing some kind of contract that when executing a certain task charges a fixed commission. Now let's suppose that the commission is sent in RBTCs because it is easier for the user but actually you want some BitPros. The good news is that you can do this instantly just by minting them. The code necessary to do this is actually pretty simple.
 ​
 You just have to import the contract
 ​
@@ -250,7 +237,7 @@ contract YourMintingBproContract {
 ​
 ```
 
-And that is it, the only thing left to do is to add in the [truffle migrations](https://www.trufflesuite.com/docs/truffle/getting-started/running-migrations) scripts the address to MoC and BPro when deploying YourContract and you are done.
+And that is it, the only thing left to do is to add in the [truffle migrations](https://www.trufflesuite.com/docs/truffle/getting-started/running-migrations) scripts the address to MoC and BPro when deploying YourMintingBproContract and you are done.
 ​​
 
 ## Redeeming BitPros
@@ -327,25 +314,10 @@ To create a new Smart Contract that uses the Money On Chain platform, you can us
 Truffle framework offers some template projects that you can use to develop applications that use smart contracts. You can get more information [here](https://www.trufflesuite.com/boxes).
 Assuming you already have your project up and running (if you don't, please follow [this link](https://github.com/money-on-chain/main-RBTC-contract/blob/master/README.md)) the only extra thing you need to do is to install our repo as a dependency in your NPM project. In order you need to do this you just need to run the following command.
 ​
-
 ```
 npm install --save -E git+https://git@github.com/money-on-chain/main-RBTC-contract.git
 ```
 
-​To run a local blockchain you can use
-
-```
-npm run ganache-cli
-```
-
-To deploy the contracts you can use
-
-```
-npm run deploy-reset-development
-
-```
-
-​
 Having done that lets you use our contract as a dependency to your contract. For this let's suppose you are doing some kind of contract that when executing a certain task charges a fixed commission. Now let's suppose that the commission is sent in RBTCs because it is easier for the user but actually you want some BitPros. The good news is that you can do this instantly just by minting them. The code necessary to do this is actually pretty simple.
 ​
 You just have to import the contract
@@ -365,8 +337,8 @@ constructor (MoC _mocContract, MoCInrate _mocInrateContract, rest of your params
 ```
 
 ```js
-uint256 bproAmountInWei = 9000000;
-moc.redeemBPro(bproAmountInWei);
+uint256 bproAmount = 9000000;
+moc.redeemBPro(bproAmount);
 ```
 
 ​
@@ -376,13 +348,12 @@ This will leave you with a contract similar to the following
 
 ```js
 import "money-on-chain/contracts/MoC.sol";
-import "money-on-chain/contracts/MoCInrate.sol";
 ```
 
 Receive the address in the constructor in order to be able to interact with it later
 
 ```js
-constructor (MoC _mocContract, MoCInrate _mocInrateContract, rest of your params...) {
+constructor (MoC _mocContract, rest of your params...) {
 //....rest of your constructor....
 }
 ​
@@ -434,7 +405,9 @@ A DOC, Dollar On Chain, is a bitcoin-collateralized stable-coin. Its value is pe
 
 That DOC is an _ERC20_ Token means that any user that has already some tokens can trade them to you in exchange for a service or for another token. You can find specific information about ERC-20 tokens [here](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-20.md).
 
-​## Minting DOCs
+​
+
+## Minting DOCs
 
 DOC can only be minted in exchange for RBTC. Given an amount of RBTC paid to the contract, the system calculates the corresponding DOCs amount to mint, RBTC and DOC balances are added to the Money on Chain system and the new tokens are sent to the user.
 
@@ -515,13 +488,12 @@ You just have to import the contract
 
 ```js
 import "money-on-chain/contracts/MoC.sol";
-import "money-on-chain/contracts/MoCInrate.sol";
 ```
 
 Receive the address in the constructor in order to be able to interact with it later
 
 ```js
-constructor (MoC _mocContract, MoCInrate _mocInrateContract, rest of your params...) {
+constructor (MoC _mocContract, rest of your params...) {
 //....rest of your constructor....
 }
 ​
@@ -531,8 +503,9 @@ constructor (MoC _mocContract, MoCInrate _mocInrateContract, rest of your params
 ​
 
 ```js
-uint256 commissionOfMoC = mocInrate.calcCommissionValue(msg.value);
-moc.mintDoc.value(msg.value)(msg.value-commissionOfMoC);
+uint256 yourCommission = calcYourCommissionValue(msg.value);
+uint256 rbtcToMint = msg.value - yourCommission;
+moc.mintDoc.value(rbtcToMint)(rbtcToMint);
 ```
 
 ​
@@ -570,12 +543,12 @@ contract YourMintingDocContract {
     }
 ​
     function doTask() public payable {
-        //We compute the commision.
+        //We compute the commision using MocInrate contrac as example
 ​        uint256 commission = mocInrate.calcCommissionValue(msg.value);
         //We compute the btcToMint.
         uint256 btcToMint = msg.value - commission;
         // Mint some new DOC
-        moc.mintDoc.value(msg.value)(btcToMint);
+        moc.mintDoc.value(btcToMint)(btcToMint);
 ​        // Transfer it to your receiver account
         bpro.transfer(receiverAddress, bpro.balanceOf(address(this)));
         // Rest of the function to actually perform the task
@@ -1051,8 +1024,9 @@ constructor (MoC _mocContract, MoCInrate _mocInrateContract, rest of your params
 
 ```js
 bytes32 constant public BUCKET_X2 = "X2";
-uint256 commissionOfMoC = mocInrate.calcCommissionValue(msg.value);
-moc.mintBProx.value(msg.value)(BUCKET_X2, msg.value-commissionOfMoC);
+uint256 yourCommision = calcYourCommissionValue(msg.value);
+uint256 rbtcToMint = msg.value - yourCommision;
+moc.mintBProx.value(rbtcToMint)(BUCKET_X2, rbtcToMint);
 ```
 
 ​
@@ -1084,12 +1058,13 @@ contract YourMintingBtc2xContract {
     }
 ​
     function doTask() public payable {
-        //We compute the commision.
+        //We compute the commision using a MOC function, but you should
+        //use your own function
 ​        uint256 commission = mocInrate.calcCommissionValue(msg.value);
         //We compute the btcToMint.
         uint256 btcToMint = msg.value - commission;
         // Mint some new BitPro
-        moc.mintBProx.value(msg.value)(BUCKET_X2, btcToMint);
+        moc.mintBProx.value(btcToMint)(BUCKET_X2, btcToMint);
         // Rest of the function to actually perform the task
     }
     // rest of your contract
@@ -1239,7 +1214,6 @@ This will leave you with a contract similar to the following
 pragma solidity 0.5.8;
 ​
 import "money-on-chain/contracts/MoC.sol";
-import "money-on-chain/contracts/MoCInrate.sol";
 // Here you will import your own dependencies
 ​
 contract YourRedeemingBtc2xContract {
