@@ -1350,27 +1350,174 @@ You can use the technology that suits you best for your project to integrate wit
 
 In the Money on Chain repository you can find the [official ABIs of the platform](https://github.com/money-on-chain/web-billfold-app/tree/develop/contracts/moc). You can use them to build your own decentralized applications to invoke the functions of smart contracts.
 
-## Example code minting BPROS
+We can also compile the contracts to generate the ABIS that will be saved in the _./build/contracts_ 
+dir. You can do this with the following commands:
 
-In the following example we will show how to invoke the mintBpro function of the Money on Chain contract in testnet.
+```
+git clone https://github.com/money-on-chain/main-RBTC-contract.git
+cd main-RBTC-contract
+npm install
+npm run truffle-compile
+```
+
+Then we can check the abis
+
+```
+cd build/contracts/
+ls -la
+```
+
+```
+drwxrwxr-x 2 user user    4096 abr 24 18:15 .
+drwxrwxr-x 3 user user    4096 abr 24 18:15 ..
+-rw-rw-r-- 1 user user   58622 abr 24 18:15 AdminUpgradeabilityProxy.json
+-rw-rw-r-- 1 user user  172799 abr 24 18:15 BaseAdminUpgradeabilityProxy.json
+-rw-rw-r-- 1 user user   62097 abr 24 18:15 BaseUpgradeabilityProxy.json
+-rw-rw-r-- 1 user user   91558 abr 24 18:15 BProToken.json
+-rw-rw-r-- 1 user user   17711 abr 24 18:15 BtcPriceFeed.json
+-rw-rw-r-- 1 user user    9360 abr 24 18:15 BtcPriceProvider.json
+...
+```
+## Example code minting BPROS without Truffle
+
+In the following example we will learn how to:
+- Use the ABIs of Money on Chain.
+- Get the maximum amount of BPRO available.
+- Get the price of the BPRO in RBTC.
+- Minting BPROs
+
+We will use the **testnet** network
 
 First we create a new node project.
 
-````
-
+```
 mkdir example-mint-bpro
-node init
-
+cd example-mint-bpro
+npm init
 ```
 
-Then we add the necessary dependencies to run the project
+Let's add the necessary dependencies to run the project.
 
 ```
 npm install --save bignumber.js
 npm install --save web3
 npm install --save truffle-hdwallet-provider
-
 ````
+Now we create a new script called **mintBpro.js** with the following code:
+
+```js
+const HDWalletProvider = require("truffle-hdwallet-provider");
+const BigNumber = require("bignumber.js");
+const Web3 = require("web3");
+//You must compile the smart contracts or use the official ABIs of the //repository
+const MocAbi = require("./contracts/moc/MoC.json");
+const MoCInrateAbi = require("./contracts/moc/MoCInrate.json");
+const MoCStateAbi = require("./contracts/moc/MoCState.json");
+
+//Config params to TestNet
+const endpoint = "https://public-node.testnet.rsk.co";
+//a mnemonic is 12 words instead of a single private key to sign the //transactions
+const mnemonic =
+  "chase chair crew elbow uncle awful cover asset cradle pet loud puzzle";
+const provider = new HDWalletProvider(mnemonic, endpoint);
+const web3 = new Web3(provider);
+
+//Contract addresses on testnet
+const mocContractAddress = "0x2820f6d4D199B8D8838A4B26F9917754B86a0c1F";
+const mocInrateAddress = "0x76790f846FAAf44cf1B2D717d0A6c5f6f5152B60";
+const mocStateAddress = "0x0adb40132cB0ffcEf6ED81c26A1881e214100555";
+const gasPrice = 60000000;
+
+const execute = async () => {
+  /**
+   * Loads an specified contract
+   * @param {json ABI} abi
+   * @param {localhost/testnet/mainnet} contractAddress
+   */
+  const getContract = async (abi, contractAddress) =>
+    new web3.eth.Contract(abi, contractAddress);
+
+  /**
+   * Transforms BigNumbers into
+   * @param {*} number
+   */
+  const toContract = number => new BigNumber(number).toFixed(0);
+
+  // Loading moc contract
+  const moc = await getContract(MocAbi.abi, mocContractAddress);
+  if (!moc) {
+    throw Error("Can not find MoC contract.");
+  }
+
+  // Loading mocInrate contract. It is necessary to compute commissions
+  const mocInrate = await getContract(MoCInrateAbi.abi, mocInrateAddress);
+  if (!mocInrate) {
+    throw Error("Can not find MoC Inrate contract.");
+  }
+
+  // Loading mocState contract. It is necessary to compute max BPRO available to mint
+  const mocState = await getContract(MoCStateAbi.abi, mocStateAddress);
+  if (!mocState) {
+    throw Error("Can not find MoCState contract.");
+  }
+
+  const mintBpro = async btcAmount => {
+    web3.eth.getAccounts().then(console.log);
+    const from = "0x088f4B1313D161D83B4D8A5EB90905C263ce0DbD";
+    const weiAmount = web3.utils.toWei(btcAmount, "ether");
+    // Computes commision value
+    const commissionValue = new BigNumber(
+      await mocInrate.methods.calcCommissionValue(weiAmount).call()
+    );
+    // Computes totalBtcAmount to call mintBpro
+    const totalBtcAmount = toContract(commissionValue.plus(weiAmount));
+    console.log(
+      `Calling Bpro minting with account: ${from} and amount: ${weiAmount}.`
+    );
+    const tx = moc.methods
+      .mintBPro(weiAmount)
+      .send({ from, value: totalBtcAmount, gasPrice }, function(
+        error,
+        transactionHash
+      ) {
+        if (error) console.log(error);
+        if (transactionHash) console.log("txHash: ".concat(transactionHash));
+      });
+
+    return tx;
+  };
+
+  function logEnd() {
+    console.log("End Example");
+  }
+
+  // Gets max BPRO available to mint
+  const maxBproAvailable = await mocState.methods.maxMintBProAvalaible().call();
+  console.log("Max Available BPRO: ".concat(maxBproAvailable.toString()));
+  const btcAmount = "0.00005";
+
+  // Call mint
+  await mintBpro(btcAmount, logEnd);
+};
+
+execute()
+  .then(() => console.log("Completed"))
+  .catch(err => {
+    console.log("Error", err);
+  });
+```
+
+And we run it with
+```
+node mintBpro.js
+```
+
+## Example code minting BPROS with Truffle
+
+In the following example we will show how to invoke the mintBpro function of the Money on Chain contract in testnet with truffle.
+
+You can find code examples into _examples_ dir.
+
 
 ```js
 const BigNumber = require("bignumber.js");
@@ -1497,3 +1644,6 @@ execute()
 ```
 
 
+```
+node mintBpro.js
+```
