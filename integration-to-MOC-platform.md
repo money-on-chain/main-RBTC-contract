@@ -992,7 +992,6 @@ In the following sections we will give some code on how this can be done through
 
 #### Smart Contract​
 
-​
 To create a new Smart Contract that uses the Money On Chain platform, you can use any language and IDE you want. In this tutorial, we will show you how to do it using [Solidity language](https://solidity.readthedocs.io/en/v0.5.8/), [Truffle Framework](https://www.trufflesuite.com/) and [NPM](https://www.npmjs.com/).
 Truffle framework offers some template projects that you can use to develop applications that use smart contracts. You can get more information [here](https://www.trufflesuite.com/boxes).
 Assuming you already have your project up and running (if you don't, please follow [this link](https://github.com/money-on-chain/main-RBTC-contract/blob/master/README.md)) the only extra thing you need to do is to install our repo as a dependency in your NPM project. In order you need to do this you just need to run the following command.
@@ -1381,6 +1380,77 @@ drwxrwxr-x 3 user user    4096 abr 24 18:15 ..
 -rw-rw-r-- 1 user user    9360 abr 24 18:15 BtcPriceProvider.json
 ...
 ```
+# Events
+
+When a transaction is mined, smart contracts can emit events and write logs to the blockchain that the frontend can then process. Click [here](https://media.consensys.net/technical-introduction-to-events-and-logs-in-ethereum-a074d65dd61e) for more information about events.
+
+In the following example we will show you how to find events that are emitted by Money On Chain's smart contract in **RSK Testnet** blockchain with **truffle**.
+
+
+**Script example**
+
+```js
+const Web3 = require('web3');
+//You must compile the smart contracts or use the official ABIs of the //repository
+const MocExchange = require('../../build/contracts/MoCExchange.json');
+const truffleConfig = require('../../truffle');
+
+/**
+ * Get a provider from truffle.js file
+ * @param {String} network
+ */
+const getDefaultProvider = network =>
+  truffleConfig.networks[network].provider || truffleConfig.networks[network].endpoint;
+
+/**
+ * Get a new web3 instance from truffle.js file
+ */
+const getWeb3 = network => {
+  const provider = getDefaultProvider(network);
+  return new Web3(provider, null, {
+    transactionConfirmationBlocks: 1
+  });
+};
+
+const web3 = getWeb3('rskTestnet');
+
+//Contract address on testnet
+const mocExchangeAddress = '<contract-address>';
+
+const execute = async () => {
+  web3.eth.defaultGas = 2000000;
+
+  /**
+   * Loads an specified contract
+   * @param {ContractABI} abi
+   * @param {String} contractAddress
+   */
+  const getContract = async (abi, contractAddress) => new web3.eth.Contract(abi, contractAddress);
+
+  // Loading MoCExchange contract to get the events emitted by this
+  const mocExchange = await getContract(MocExchange.abi, mocExchangeAddress);
+  if (!mocExchange) {
+    throw Error('Can not find MoCExchange contract.');
+  }
+
+  // In this example we are getting BPro Mint events from MoCExchange contract
+  // in the interval of blocks passed by parameter
+  const getEvents = () =>
+    Promise.resolve(mocExchange.getPastEvents('RiskProMint', { fromBlock: 1000, toBlock: 1010 }))
+      .then(events => console.log(events))
+      .catch(err => console.log('Error getting past events ', err));
+
+  await getEvents();
+};
+
+execute()
+  .then(() => console.log('Completed'))
+  .catch(err => {
+    console.log('Error', err);
+  });
+```
+
+See [getPastEvents](https://web3js.readthedocs.io/en/v1.2.0/web3-eth-contract.html?highlight=getPastEvents#events-allevents) for parameters and event structure details.
 
 ## Example code minting BPROS without Truffle
 
@@ -1428,9 +1498,9 @@ const provider = new HDWalletProvider(mnemonic, endpoint);
 const web3 = new Web3(provider);
 
 //Contract addresses on testnet
-const mocContractAddress = '0x2820f6d4D199B8D8838A4B26F9917754B86a0c1F';
-const mocInrateAddress = '0x76790f846FAAf44cf1B2D717d0A6c5f6f5152B60';
-const mocStateAddress = '0x0adb40132cB0ffcEf6ED81c26A1881e214100555';
+const mocContractAddress = '<contract-address>';
+const mocInrateAddress = '<contract-address>';
+const mocStateAddress = '<contract-address>';
 const gasPrice = 60000000;
 
 const execute = async () => {
@@ -1554,9 +1624,9 @@ const web3 = getWeb3('rskTestnet');
 const gasPrice = getGasPrice('rskTestnet');
 
 //Contract addresses on testnet
-const mocContractAddress = '0x2820f6d4D199B8D8838A4B26F9917754B86a0c1F';
-const mocInrateAddress = '0x76790f846FAAf44cf1B2D717d0A6c5f6f5152B60';
-const mocStateAddress = '0x0adb40132cB0ffcEf6ED81c26A1881e214100555';
+const mocContractAddress = '<contract-address>';
+const mocInrateAddress = '<contract-address>';
+const mocStateAddress = '<contract-address>';
 
 const execute = async () => {
   web3.eth.defaultGas = 2000000;
@@ -1686,10 +1756,10 @@ const provider = new HDWalletProvider(mnemonic, endpoint);
 const web3 = new Web3(provider);
 
 //Contract addresses on testnet
-const mocContractAddress = '0x2820f6d4D199B8D8838A4B26F9917754B86a0c1F';
-const mocInrateAddress = '0x76790f846FAAf44cf1B2D717d0A6c5f6f5152B60';
-const mocStateAddress = '0x0adb40132cB0ffcEf6ED81c26A1881e214100555';
-const bproTokenAddress = '0x4dA7997A819bb46B6758B9102234c289dD2Ad3bf';
+const mocContractAddress = '<contract-address>';
+const mocInrateAddress = '<contract-address>';
+const mocStateAddress = '<contract-address>';
+const bproTokenAddress = '<contract-address>';
 const gasPrice = 60000000;
 
 const execute = async () => {
