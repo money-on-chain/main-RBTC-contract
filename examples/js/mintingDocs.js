@@ -4,7 +4,6 @@ const Web3 = require('web3');
 const MocAbi = require('../../build/contracts/MoC.json');
 const MoCInrateAbi = require('../../build/contracts/MoCInrate.json');
 const MoCStateAbi = require('../../build/contracts/MoCState.json');
-const MoCConverterAbi = require('../../build/contracts/MoCConverter.json');
 const truffleConfig = require('../../truffle');
 
 /**
@@ -37,7 +36,6 @@ const gasPrice = getGasPrice('rskTestnet');
 const mocContractAddress = '<contract-address>';
 const mocInrateAddress = '<contract-address>';
 const mocStateAddress = '<contract-address>';
-const mocConverterAddress = '<contract-address>';
 
 const execute = async () => {
   web3.eth.defaultGas = 2000000;
@@ -73,12 +71,6 @@ const execute = async () => {
     throw Error('Can not find MoCState contract.');
   }
 
-  // Loading mocConverter contract. It is necessary to convert BTC into DOC
-  const mocConverter = await getContract(MoCConverterAbi.abi, mocConverterAddress);
-  if (!mocConverter) {
-    throw Error('Can not find MoCConverter contract.');
-  }
-
   const mintDoc = async btcAmount => {
     const [from] = await web3.eth.getAccounts();
     const weiAmount = web3.utils.toWei(btcAmount, 'ether');
@@ -88,7 +80,7 @@ const execute = async () => {
     );
     // Computes totalBtcAmount to call mintBpro
     const totalBtcAmount = toContract(commissionValue.plus(weiAmount));
-    console.log(`Calling Doc minting with account: ${from} and amount: ${weiAmount}.`);
+    console.log(`Calling Doc minting, account: ${from}, amount: ${weiAmount}.`);
     moc.methods
       .mintDoc(weiAmount)
       .send({ from, value: totalBtcAmount, gasPrice }, function(error, transactionHash) {
@@ -106,10 +98,10 @@ const execute = async () => {
 
   // Gets max BPRO available to mint
   const getAbsoluteMaxDoc = await mocState.methods.absoluteMaxDoc().call();
-  console.log('=== Max doc amount to mint: ', getAbsoluteMaxDoc.toString());
   const btcAmount = '0.00001';
-  console.log('=== BTCs to mint:  ', btcAmount);
-  console.log('=== converted to DOC amount: ', mocConverter.methods.btcToDoc(btcAmount).call());
+  
+  console.log('=== Max doc amount available to mint: ', getAbsoluteMaxDoc.toString());
+  console.log('=== BTCs that are gonna be minted:  ', btcAmount);
 
   // Call mint
   await mintDoc(btcAmount);
