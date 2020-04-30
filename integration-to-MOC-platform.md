@@ -1889,7 +1889,6 @@ In the following example we will learn how to:
 
 - Get the maximum amount of DOC available to mint.
 - Mint DOCs.
-- Convert BTC to DOC amount.
 
 You can find code examples into _/examples_ dir.
 
@@ -1907,7 +1906,6 @@ Let's add the necessary dependencies to run the project.
 ```
 npm install --save bignumber.js
 npm install --save web3
-npm install --save truffle-hdwallet-provider
 ```
 
 Now we create a script called **mintDoc.js** with the following code:
@@ -1919,7 +1917,6 @@ const Web3 = require('web3');
 const MocAbi = require('../../build/contracts/MoC.json');
 const MoCInrateAbi = require('../../build/contracts/MoCInrate.json');
 const MoCStateAbi = require('../../build/contracts/MoCState.json');
-const MoCConverterAbi = require('../../build/contracts/MoCConverter.json');
 const truffleConfig = require('../../truffle');
 
 /**
@@ -1952,7 +1949,6 @@ const gasPrice = getGasPrice('rskTestnet');
 const mocContractAddress = '<contract-address>';
 const mocInrateAddress = '<contract-address>';
 const mocStateAddress = '<contract-address>';
-const mocConverterAddress = '<contract-address>';
 
 const execute = async () => {
   web3.eth.defaultGas = 2000000;
@@ -1988,12 +1984,6 @@ const execute = async () => {
     throw Error('Can not find MoCState contract.');
   }
 
-  // Loading mocConverter contract. It is necessary to convert BTC into DOC
-  const mocConverter = await getContract(MoCConverterAbi.abi, mocConverterAddress);
-  if (!mocConverter) {
-    throw Error('Can not find MoCConverter contract.');
-  }
-
   const mintDoc = async btcAmount => {
     const [from] = await web3.eth.getAccounts();
     const weiAmount = web3.utils.toWei(btcAmount, 'ether');
@@ -2003,7 +1993,7 @@ const execute = async () => {
     );
     // Computes totalBtcAmount to call mintBpro
     const totalBtcAmount = toContract(commissionValue.plus(weiAmount));
-    console.log(`Calling Doc minting with account: ${from} and amount: ${weiAmount}.`);
+    console.log(`Calling Doc minting, account: ${from}, amount: ${weiAmount}.`);
     moc.methods
       .mintDoc(weiAmount)
       .send({ from, value: totalBtcAmount, gasPrice }, function(error, transactionHash) {
@@ -2021,10 +2011,10 @@ const execute = async () => {
 
   // Gets max BPRO available to mint
   const getAbsoluteMaxDoc = await mocState.methods.absoluteMaxDoc().call();
-  console.log('=== Max doc amount to mint: ', getAbsoluteMaxDoc.toString());
   const btcAmount = '0.00001';
-  console.log('=== BTCs to mint:  ', btcAmount);
-  console.log('=== converted to DOC amount: ', mocConverter.methods.btcToDoc(btcAmount).call());
+  
+  console.log('=== Max doc amount available to mint: ', getAbsoluteMaxDoc.toString());
+  console.log('=== BTCs that are gonna be minted:  ', btcAmount);
 
   // Call mint
   await mintDoc(btcAmount);
@@ -2040,5 +2030,120 @@ execute()
 And we run it
 
 ```
-node redeemBpro.js
+node mintDoc.js
+```
+## Redeeming Free DOCS with example using Truffle
+
+In the following example we will learn how to:
+
+- Get the maximum amount of DOC available to redeem.
+- Redeem DOCs.
+
+You can find code examples into _/examples_ dir.
+
+**Example**
+
+```js
+const Web3 = require('web3');
+//You must compile the smart contracts or use the official ABIs of the //repository
+const MoC = require('../../build/contracts/MoC.json');
+const MocState = require('../../build/contracts/MoCState.json');
+const DocToken = require('../../build/contracts/DocToken.json');
+const truffleConfig = require('../../truffle');
+/**
+ * Get a provider from truffle.js file
+ * @param {String} network
+ */
+const getDefaultProvider = network =>
+  truffleConfig.networks[network].provider || truffleConfig.networks[network].endpoint;
+
+/**
+ * Get a gasPrice from truffle.js file
+ * @param {String} network
+ */
+const getGasPrice = network => truffleConfig.networks[network].gasPrice || 60000000;
+
+/**
+ * Get a new web3 instance from truffle.js file
+ */
+const getWeb3 = network => {
+  const provider = getDefaultProvider(network);
+  return new Web3(provider, null, {
+    transactionConfirmationBlocks: 1
+  });
+};
+
+const web3 = getWeb3('rskTestnet');
+const gasPrice = getGasPrice('rskTestnet');
+
+//Contract addresses on testnet
+const mocAddress = '<contract-address>';
+const mocStateAddress = '<contract-address>';
+const docTokenAddress = '<contract-address>';
+
+const execute = async () => {
+  web3.eth.defaultGas = 2000000;
+
+  /**
+   * Loads an specified contract
+   * @param {ContractABI} abi
+   * @param {String} contractAddress
+   */
+  const getContract = async (abi, contractAddress) => new web3.eth.Contract(abi, contractAddress);
+
+  // Loading MoC contract
+  const moc = await getContract(MoC.abi, mocAddress);
+  if (!moc) {
+    throw Error('Can not find MoC contract.');
+  }
+
+  // Loading mocState contract. It is necessary to compute freeDoc
+  const mocState = await getContract(MocState.abi, mocStateAddress);
+  if (!mocState) {
+    throw Error('Can not find MoCState contract.');
+  }
+
+  // Loading DocToken contract. It is necessary to compute user balance
+  const docToken = await getContract(DocToken.abi, docTokenAddress);
+  if (!docToken) {
+    throw Error('Can not find DocToken contract.');
+  }
+
+  const [from] = await web3.eth.getAccounts();
+
+  const redeemFreeDoc = async docAmount => {
+    const weiAmount = web3.utils.toWei(docAmount, 'ether');
+
+    console.log(`Calling redeem Doc request, account: ${from}, amount: ${weiAmount}.`);
+    moc.methods
+      .redeemFreeDoc(weiAmount)
+      .send({ from, gasPrice }, function(error, transactionHash) {
+        if (error) console.log(error);
+        if (transactionHash) console.log('txHash: '.concat(transactionHash));
+      })
+      .on('transactionHash', function(hash) {
+        console.log('TxHash: '.concat(hash));
+      })
+      .on('receipt', function(receipt) {
+        console.log(receipt);
+      })
+      .on('error', console.error);
+
+  };
+
+  const docAmount = '10000';
+  const freeDoc = await mocState.methods.freeDoc().call();
+  const userDocBalance = await docToken.methods.balanceOf(from).call();
+  const finalDocAmount = Math.min(freeDoc, userDocBalance);
+  console.log('=== Max Available DOC to redeem: ', finalDocAmount);
+
+  // Call redeem
+  await redeemFreeDoc(docAmount);
+};
+
+execute()
+  .then(() => console.log('Completed'))
+  .catch(err => {
+    console.log('Error', err);
+  });
 ```
