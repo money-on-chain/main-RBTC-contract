@@ -74,7 +74,6 @@ const execute = async () => {
     }
 
     const mintBpro = async btcAmount => {
-        web3.eth.getAccounts().then(console.log);
         const [from] = await web3.eth.getAccounts();
         const weiAmount = web3.utils.toWei(btcAmount, "ether");
         // Computes commision value
