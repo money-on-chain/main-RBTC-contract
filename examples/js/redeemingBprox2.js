@@ -1,9 +1,7 @@
 const Web3 = require('web3');
 //You must compile the smart contracts or use the official ABIs of the //repository
-const MocAbi = require('../../build/contracts/MoC.json');
-const MoCInrateAbi = require('../../build/contracts/MoCInrate.json');
-const MoCStateAbi = require('../../build/contracts/MoCState.json');
-const BProTokenAbi = require('../../build/contracts/BProToken.json');
+const MoC = require('../../build/contracts/MoC.json');
+const MoCBProxManager = require('../../build/contracts/MoCBProxManager.json');
 const truffleConfig = require('../../truffle');
 
 /**
@@ -34,9 +32,7 @@ const gasPrice = getGasPrice('rskTestnet');
 
 //Contract addresses on testnet
 const mocContractAddress = '<contract-address>';
-const mocInrateAddress = '<contract-address>';
-const mocStateAddress = '<contract-address>';
-const bproTokenAddress = '<contract-address>';
+const mocBProxManagerAddress = '<contract-address>';
 
 const execute = async () => {
   web3.eth.defaultGas = 2000000;
@@ -47,35 +43,29 @@ const execute = async () => {
    * @param {String} contractAddress
    */
   const getContract = async (abi, contractAddress) => new web3.eth.Contract(abi, contractAddress);
+  const strToBytes32 = bucket => web3.utils.asciiToHex(bucket, 32);
+  const bucketX2 = 'X2';
 
-  // Loading moc contract
-  const moc = await getContract(MocAbi.abi, mocContractAddress);
+  // Loading Moc contract
+  const moc = await getContract(MoC.abi, mocContractAddress);
   if (!moc) {
     throw Error('Can not find MoC contract.');
   }
 
-  // Loading mocInrate contract. It is necessary to compute commissions
-  const mocInrate = await getContract(MoCInrateAbi.abi, mocInrateAddress);
-  if (!mocInrate) {
-    throw Error('Can not find MoC Inrate contract.');
+  // Loading MoCBProxManager contract. It is necessary to compute user BProx2 balance
+  const mocBproxManager = await getContract(MoCBProxManager.abi, mocBProxManagerAddress);
+  if (!mocBproxManager) {
+    throw Error('Can not find MoCBProxManager contract.');
   }
-
-  // Loading mocState contract. It is necessary to compute absolute max BPRO
-  const mocState = await getContract(MoCStateAbi.abi, mocStateAddress);
-  if (!mocState) {
-    throw Error('Can not find MoCState contract.');
-  }
-
-  // Loading BProToken contract. It is necessary to compute user balance
-  const bproToken = await getContract(BProTokenAbi.abi, bproTokenAddress);
 
   const [from] = await web3.eth.getAccounts();
 
-  const redeemBpro = async bproAmount => {
-    const weiAmount = web3.utils.toWei(bproAmount, 'ether');
-    console.log(`Calling redeem Bpro with account: ${from} and amount: ${weiAmount}.`);
+  const redeemBprox2 = async bprox2Amount => {
+    const weiAmount = web3.utils.toWei(bprox2Amount, 'ether');
+
+    console.log(`Calling redeem Bprox2 with account: ${from}, amount: ${weiAmount}.`);
     moc.methods
-      .redeemBPro(weiAmount)
+      .redeemBProx(strToBytes32(bucketX2), weiAmount)
       .send({ from, gasPrice }, function(error, transactionHash) {
         if (error) console.log(error);
         if (transactionHash) console.log('txHash: '.concat(transactionHash));
@@ -89,16 +79,15 @@ const execute = async () => {
       .on('error', console.error);
   };
 
-  const getAbsoluteMaxBpro = await mocState.methods.absoluteMaxBPro().call();
-  const userAmount = await bproToken.methods.balanceOf(from).call();
+  const userBalance = await mocBproxManager.methods
+    .bproxBalanceOf(strToBytes32(bucketX2), from)
+    .call();
+  console.log('=== User BPROX2 Balance: '.concat(userBalance.toString()));
 
-  console.log('=== Max amount of BPro to redeem: ', getAbsoluteMaxBpro.toString());
-  console.log('=== User BPro Balance: ', userAmount.toString());
-
-  const bproAmount = '0.00001';
+  const bprox2Amount = '0.00001';
 
   // Call redeem
-  await redeemBpro(bproAmount);
+  await redeemBprox2(bprox2Amount);
 };
 
 execute()
