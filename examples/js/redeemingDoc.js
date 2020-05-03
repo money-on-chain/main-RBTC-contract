@@ -1,8 +1,6 @@
 const Web3 = require('web3');
 //You must compile the smart contracts or use the official ABIs of the //repository
 const MoC = require('../../build/contracts/MoC.json');
-const MocState = require('../../build/contracts/MoCState.json');
-const DocToken = require('../../build/contracts/DocToken.json');
 const truffleConfig = require('../../truffle');
 /**
  * Get a provider from truffle.js file
@@ -30,10 +28,8 @@ const getWeb3 = network => {
 const web3 = getWeb3('rskTestnet');
 const gasPrice = getGasPrice('rskTestnet');
 
-//Contract addresses on testnet
+//Loading MoC address on testnet
 const mocAddress = '<contract-address>';
-const mocStateAddress = '<contract-address>';
-const docTokenAddress = '<contract-address>';
 
 const execute = async () => {
   web3.eth.defaultGas = 2000000;
@@ -51,26 +47,14 @@ const execute = async () => {
     throw Error('Can not find MoC contract.');
   }
 
-  // Loading mocState contract. It is necessary to compute freeDoc
-  const mocState = await getContract(MocState.abi, mocStateAddress);
-  if (!mocState) {
-    throw Error('Can not find MoCState contract.');
-  }
 
-  // Loading DocToken contract. It is necessary to compute user balance
-  const docToken = await getContract(DocToken.abi, docTokenAddress);
-  if (!docToken) {
-    throw Error('Can not find DocToken contract.');
-  }
-
-  const [from] = await web3.eth.getAccounts();
-
-  const redeemFreeDoc = async docAmount => {
+  const redeemDocRequest = async docAmount => {
+    const [from] = await web3.eth.getAccounts();
     const weiAmount = web3.utils.toWei(docAmount, 'ether');
 
-    console.log(`Calling redeem free Doc, account: ${from}, amount: ${weiAmount}.`);
+    console.log(`Calling redeem Doc request, account: ${from}, amount: ${weiAmount}.`);
     moc.methods
-      .redeemFreeDoc(weiAmount)
+      .redeemDocRequest(weiAmount)
       .send({ from, gasPrice }, function(error, transactionHash) {
         if (error) console.log(error);
         if (transactionHash) console.log('txHash: '.concat(transactionHash));
@@ -82,17 +66,12 @@ const execute = async () => {
         console.log(receipt);
       })
       .on('error', console.error);
-
   };
 
   const docAmount = '10000';
-  const freeDoc = await mocState.methods.freeDoc().call();
-  const userDocBalance = await docToken.methods.balanceOf(from).call();
-  const finalDocAmount = Math.min(freeDoc, userDocBalance);
-  console.log('=== Max Available DOC to redeem: ', finalDocAmount);
 
   // Call redeem
-  await redeemFreeDoc(docAmount);
+  await redeemDocRequest(docAmount);
 };
 
 execute()
