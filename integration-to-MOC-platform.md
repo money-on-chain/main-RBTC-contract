@@ -16,7 +16,15 @@
     1.  [Using RSK nodes](#using-rsk-nodes)
     1.  [Using web3](#using-web3)
     1.  [Official Money on Chain ABIS](#official-money-on-chain-abis)
+    1.  [Events](#events)
     1.  [Example code minting BPROS](#example-code-minting-bpros)
+    1.  [Example code redeeming BPROS](#example-code-redeeming-bpros)
+    1.  [Example code minting DOCS](#example-code-minting-docs)
+    1.  [Example code redeeming DOCS](#example-code-redeeming-docs)
+    1.  [Example code redeeming free DOCS](#example-code-redeeming-free-docs)
+    1.  [Example code redeeming all DOCS](#example-code-redeeming-all-docs)
+    1.  [Example code minting BTC2X](#example-code-minting-btc2x)
+    1.  [Example code redeeming BTC2X](#example-code-redeeming-btc2x)
 
 # Introduction to MoC
 
@@ -1380,14 +1388,14 @@ drwxrwxr-x 3 user user    4096 abr 24 18:15 ..
 -rw-rw-r-- 1 user user    9360 abr 24 18:15 BtcPriceProvider.json
 ...
 ```
-# Events
+## Events
 
 When a transaction is mined, smart contracts can emit events and write logs to the blockchain that the frontend can then process. Click [here](https://media.consensys.net/technical-introduction-to-events-and-logs-in-ethereum-a074d65dd61e) for more information about events.
 
-In the following example we will show you how to find events that are emitted by Money On Chain's smart contract in **RSK Testnet** blockchain with **truffle**.
+In the following example we will show you how to find events that are emitted by Money On Chain smart contract in **RSK Testnet** blockchain with **truffle**.
 
 
-**Script example**
+**Code example**
 
 ```js
 const Web3 = require('web3');
@@ -1575,13 +1583,6 @@ execute()
     console.log('Error', err);
   });
 ```
-
-And we run it with
-
-```
-node mintBpro.js
-```
-
 ## Example code minting BPROS with Truffle
 
 In the following example we will show how to invoke the mintBpro function of the Money on Chain contract in testnet with truffle.
@@ -1706,18 +1707,12 @@ execute()
   });
 ```
 
-And we run it with
-
-```
-node mintBpro.js
-```
-
 ## Example redeeming BPros without Truffle
 
 In the following example we will learn how to:
 
 - Get the maximum amount of BPRO available to redeem.
-- Get user BPRO balance.
+- Get BPRO balance of an account.
 - Redeem BPROs.
 
 We will use the **testnet** network.
@@ -1736,8 +1731,6 @@ Let's add the necessary dependencies to run the project.
 npm install --save web3
 npm install --save truffle-hdwallet-provider
 ```
-
-Now we create a script called **redeemBpro.js** with the following code:
 
 ```js
 const HDWalletProvider = require('truffle-hdwallet-provider');
@@ -1833,20 +1826,31 @@ execute()
   });
 ```
 
-And we run it
-
-```
-node redeemBpro.js
-```
-
 ## Example redeeming BPROS with Truffle
 
-In the following example we will show how to invoke the redeemBpro function of the Money on Chain contract in testnet with truffle.
+In the following example we will learn how to:
 
-You can find code examples into _/examples_ dir.
+- Get the maximum amount of BPRO available to redeem.
+- Get BPRO balance of an account.
+- Redeem BPROs.
 
-Using truffle you get web3, the provider and gas price from config:
+We will use the **testnet** network.
 
+First we create a new node project.
+
+```
+mkdir example-redeem-bpro
+cd example-redeem-bpro
+npm init
+```
+
+Let's add the necessary dependencies to run the project.
+
+```
+npm install --save web3
+```
+
+**Example**
 ```js
 const Web3 = require('web3');
 //You must compile the smart contracts or use the official ABIs of the //repository
@@ -1907,9 +1911,7 @@ Let's add the necessary dependencies to run the project.
 npm install --save bignumber.js
 npm install --save web3
 ```
-
-Now we create a script called **mintDoc.js** with the following code:
-
+**Example**:
 ```js
 const BigNumber = require('bignumber.js');
 const Web3 = require('web3');
@@ -2027,19 +2029,29 @@ execute()
   });
 ```
 
-And we run it
-
-```
-node mintDoc.js
-```
-## Example redeeming Free DOCS using Truffle
+## Example redeeming Free DOCS with Truffle
 
 In the following script example we will learn how to:
 
 - Get the maximum amount of DOC available to redeem.
+- Get DOC balance of an account.
 - Redeem DOCs.
 
 You can find code examples into _/examples_ dir.
+
+First we create a new node project.
+
+```
+mkdir example-redeem-free-doc
+cd example-redeem-free-doc
+npm init
+```
+
+Let's add the necessary dependencies to run the project.
+
+```
+npm install --save web3
+```
 
 **Example**
 
@@ -2147,13 +2159,26 @@ execute()
     console.log('Error', err);
   });
 ```
-## Example redeeming Free DOCS using Truffle
+## Example redeeming DOC Request with Truffle
 
-In the following script example we will learn how to:
-
-- Redeem DOC Request.
+You can see [here](#redeeming-docs) how DOC's redeemption works.
+In the following example we will show how to invoke redeemDocRequest using Money on Chain contract. We will use TestNet network.
 
 You can find code examples into _/examples_ dir.
+
+First we create a new node project.
+
+```
+mkdir example-redeem-doc-request
+cd example-redeem-doc-request
+npm init
+```
+
+Let's add the necessary dependencies to run the project.
+
+```
+npm install --save web3
+```
 
 **Example**
 
@@ -2239,13 +2264,26 @@ execute()
     console.log('Error', err);
   });
 ```
-## Example redeeming all DOC using Truffle
+## Example redeeming all DOCs using Truffle
 
-In the following script example we will learn how to:
-
-- Redeem all DOC.
+You can see [here](#redeeming-docs) how DOC's redeemption works.
+In the following example we will show how to invoke redeemAllDoc using Money on Chain contract. We will use TestNet network.
 
 You can find code examples into _/examples_ dir.
+
+First we create a new node project.
+
+```
+mkdir example-redeem-all-doc
+cd example-redeem-all-doc
+npm init
+```
+
+Let's add the necessary dependencies to run the project.
+
+```
+npm install --save web3
+```
 
 **Example**
 ```js
@@ -2329,14 +2367,29 @@ execute()
   });
 ```
 
-## Example minting BPROX2 using Truffle
+## Example minting BTC2X using Truffle
 
 In the following script example we will learn how to:
 
-- Get the maximum amount of RBTC available to mint BPROx2.
-- Mint BPROx2.
+- Get the maximum amount of BTC2X available to mint.
+- Mint BTC2X.
 
 You can find code examples into _/examples_ dir.
+
+First we create a new node project.
+
+```
+mkdir example-mint-btc2x
+cd example-mint-btc2x
+npm init
+```
+
+Let's add the necessary dependencies to run the project.
+
+```
+npm install --save web3
+npm install --save bignumber.js
+```
 
 **Example**
 
@@ -2410,13 +2463,13 @@ const execute = async () => {
     throw Error('Can not find MoC Inrate contract.');
   }
 
-  // Loading mocState contract. It is necessary to compute max BPRO available to mint
+  // Loading mocState contract. It is necessary to compute max BTC2X available to mint
   const mocState = await getContract(MoCState.abi, mocStateAddress);
   if (!mocState) {
     throw Error('Can not find MoCState contract.');
   }
 
-  const mintBprox2 = async btcAmount => {
+  const mintBtc2x = async btcAmount => {
     const [from] = await web3.eth.getAccounts();
     const weiAmount = web3.utils.toWei(btcAmount, 'ether');
     const btcInterestAmount = await mocInrate.methods.calcMintInterestValues(strToBytes32(bucketX2), weiAmount).call();
@@ -2424,7 +2477,7 @@ const execute = async () => {
       await mocInrate.methods.calcCommissionValue(weiAmount).call()
     );
     const totalBtcAmount = toContract(commissionValue.plus(btcInterestAmount).plus(weiAmount));
-    console.log(`Calling mint Bprox with ${btcAmount} Btcs with account: ${from}.`);
+    console.log(`Calling mint BTC2X with ${btcAmount} Btcs with account: ${from}.`);
     moc.methods
       .mintBProx(strToBytes32(bucketX2), weiAmount)
       .send({ from, value: totalBtcAmount, gasPrice }, function(error, transactionHash) {
@@ -2441,13 +2494,13 @@ const execute = async () => {
   };
 
   const btcToMint = '0.00001';
-  // Gets max BTC value available to mint BPROX2
+  // Gets max BTC2X amount available to mint
   const maxBtcToMint = await mocState.methods.maxBProxBtcValue(strToBytes32(bucketX2)).call();
 
-  console.log('=== Max Available RBTC to mint BPROX2: '.concat(maxBtcToMint.toString()));
+  console.log('=== Max Available RBTC to mint BTC2X: '.concat(maxBtcToMint.toString()));
 
   // Call mint
-  await mintBprox2(btcToMint);
+  await mintBtc2x(btcToMint);
 };
 
 execute()
@@ -2457,14 +2510,27 @@ execute()
   });
 ```
 
-## Example redeeming BPROX2 using Truffle
+## Example redeeming BTC2X using Truffle
 
 In the following script example we will learn how to:
 
-- Get user's BPROX2 balance.
-- Redeem BPROX2.
+- Get BTC2X balance of an account.
+- Redeem BTC2X.
 
 You can find code examples into _/examples_ dir.
+First we create a new node project.
+
+```
+mkdir example-redeem-btc2x
+cd example-redeem-btc2x
+npm init
+```
+
+Let's add the necessary dependencies to run the project.
+
+```
+npm install --save web3
+```
 
 **Example**
 
@@ -2523,7 +2589,7 @@ const execute = async () => {
     throw Error('Can not find MoC contract.');
   }
 
-  // Loading MoCBProxManager contract. It is necessary to compute user BProx2 balance
+  // Loading MoCBProxManager contract. It is necessary to compute user BTC2X balance
   const mocBproxManager = await getContract(MoCBProxManager.abi, mocBProxManagerAddress);
   if (!mocBproxManager) {
     throw Error('Can not find MoCBProxManager contract.');
@@ -2531,10 +2597,10 @@ const execute = async () => {
 
   const [from] = await web3.eth.getAccounts();
 
-  const redeemBprox2 = async bprox2Amount => {
-    const weiAmount = web3.utils.toWei(bprox2Amount, 'ether');
+  const redeemBtc2x = async btc2xAmount => {
+    const weiAmount = web3.utils.toWei(btc2xAmount, 'ether');
 
-    console.log(`Calling redeem Bprox2 with account: ${from}, amount: ${weiAmount}.`);
+    console.log(`Calling redeem BTC2X with account: ${from}, amount: ${weiAmount}.`);
     moc.methods
       .redeemBProx(strToBytes32(bucketX2), weiAmount)
       .send({ from, gasPrice }, function(error, transactionHash) {
@@ -2553,12 +2619,12 @@ const execute = async () => {
   const userBalance = await mocBproxManager.methods
     .bproxBalanceOf(strToBytes32(bucketX2), from)
     .call();
-  console.log('=== User BPROX2 Balance: '.concat(userBalance.toString()));
+  console.log('=== User BTC2X Balance: '.concat(userBalance.toString()));
 
-  const bprox2Amount = '0.00001';
+  const btc2xAmount = '0.00001';
 
   // Call redeem
-  await redeemBprox2(bprox2Amount);
+  await redeemBtc2x(btc2xAmount);
 };
 
 execute()
