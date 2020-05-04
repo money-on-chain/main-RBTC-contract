@@ -17,12 +17,14 @@
     1.  [Using web3](#using-web3)
     1.  [Official Money on Chain ABIS](#official-money-on-chain-abis)
     1.  [Events](#events)
-    1.  [Example code minting BPROS](#example-code-minting-bpros)
-    1.  [Example code redeeming BPROS](#example-code-redeeming-bpros)
-    1.  [Example code minting DOCS](#example-code-minting-docs)
-    1.  [Example code redeeming DOCS](#example-code-redeeming-docs)
-    1.  [Example code redeeming free DOCS](#example-code-redeeming-free-docs)
-    1.  [Example code redeeming all DOCS](#example-code-redeeming-all-docs)
+    1.  [Example code minting BPros](#example-code-minting-bpros)
+    1.  [Example code minting BPros without truffle](#example-code-minting-bpros-without-truffle)
+    1.  [Example code redeeming BPros](#example-code-redeeming-bpros)
+    1.  [Example code redeeming BPros without truffle](#example-code-redeeming-bpros-without-truffle)
+    1.  [Example code minting DOC](#example-code-minting-doc)
+    1.  [Example code redeeming DOC Request](#example-code-redeeming-doc-request)
+    1.  [Example code redeeming free DOC](#example-code-redeeming-free-doc)
+    1.  [Example code redeeming all DOC](#example-code-redeeming-all-doc)
     1.  [Example code minting BTC2X](#example-code-minting-btc2x)
     1.  [Example code redeeming BTC2X](#example-code-redeeming-btc2x)
 
@@ -1460,7 +1462,130 @@ execute()
 
 See [getPastEvents](https://web3js.readthedocs.io/en/v1.2.0/web3-eth-contract.html?highlight=getPastEvents#events-allevents) for parameters and event structure details.
 
-## Example code minting BPROS without Truffle
+## Example code minting BPros
+
+In the following example we will show how to invoke the mintBpro function of the Money on Chain contract in **testnet** with **truffle**.
+
+You can find code examples into _/examples_ dir.
+
+```js
+const BigNumber = require('bignumber.js');
+const Web3 = require('web3');
+//You must compile the smart contracts or use the official ABIs of the //repository
+const MocAbi = require('../../build/contracts/MoC.json');
+const MoCInrateAbi = require('../../build/contracts/MoCInrate.json');
+const MoCStateAbi = require('../../build/contracts/MoCState.json');
+const truffleConfig = require('../../truffle');
+
+/**
+ * Get a provider from truffle.js file
+ * @param {String} network
+ */
+const getDefaultProvider = network =>
+  truffleConfig.networks[network].provider || truffleConfig.networks[network].endpoint;
+
+/**
+ * Get a gasPrice from truffle.js file
+ * @param {String} network
+ */
+const getGasPrice = network => truffleConfig.networks[network].gasPrice || 60000000;
+
+/**
+ * Get a new web3 instance from truffle.js file
+ */
+const getWeb3 = network => {
+  const provider = getDefaultProvider(network);
+  return new Web3(provider, null, {
+    transactionConfirmationBlocks: 1
+  });
+};
+
+const web3 = getWeb3('rskTestnet');
+const gasPrice = getGasPrice('rskTestnet');
+
+//Contract addresses on testnet
+const mocContractAddress = '<contract-address>';
+const mocInrateAddress = '<contract-address>';
+const mocStateAddress = '<contract-address>';
+
+const execute = async () => {
+  web3.eth.defaultGas = 2000000;
+
+  /**
+   * Loads an specified contract
+   * @param {ContractABI} abi
+   * @param {String} contractAddress
+   */
+  const getContract = async (abi, contractAddress) => new web3.eth.Contract(abi, contractAddress);
+
+  /**
+   * Transforms BigNumbers into
+   * @param {BigNumber} number
+   */
+  const toContract = number => new BigNumber(number).toFixed(0);
+
+  // Loading moc contract
+  const moc = await getContract(MocAbi.abi, mocContractAddress);
+  if (!moc) {
+    throw Error('Can not find MoC contract.');
+  }
+
+  // Loading mocInrate contract. It is necessary to compute commissions
+  const mocInrate = await getContract(MoCInrateAbi.abi, mocInrateAddress);
+  if (!mocInrate) {
+    throw Error('Can not find MoC Inrate contract.');
+  }
+
+  // Loading mocState contract. It is necessary to compute max BPRO available to mint
+  const mocState = await getContract(MoCStateAbi.abi, mocStateAddress);
+  if (!mocState) {
+    throw Error('Can not find MoCState contract.');
+  }
+
+  const mintBpro = async btcAmount => {
+    web3.eth.getAccounts().then(console.log);
+    const [from] = await web3.eth.getAccounts();
+    const weiAmount = web3.utils.toWei(btcAmount, 'ether');
+    // Computes commision value
+    const commissionValue = new BigNumber(
+      await mocInrate.methods.calcCommissionValue(weiAmount).call()
+    );
+    // Computes totalBtcAmount to call mintBpro
+    const totalBtcAmount = toContract(commissionValue.plus(weiAmount));
+    console.log(`Calling Bpro minting with account: ${from} and amount: ${weiAmount}.`);
+    moc.methods
+      .mintBPro(weiAmount)
+      .send({ from, value: totalBtcAmount, gasPrice }, function(error, transactionHash) {
+        if (error) console.log(error);
+        if (transactionHash) console.log('txHash: '.concat(transactionHash));
+      })
+      .on('transactionHash', function(hash) {
+        console.log('TxHash: '.concat(hash));
+      })
+      .on('receipt', function(receipt) {
+        console.log(receipt);
+      })
+      .on('error', console.error);
+  };
+
+  // Gets max BPRO available to mint
+  const maxBproAvailable = await mocState.methods.maxMintBProAvalaible().call();
+  const bproPriceInRBTC = await mocState.methods.bproTecPrice().call();
+  console.log('=== Max Available BPRO: '.concat(maxBproAvailable.toString()));
+  console.log('=== BPRO in RBTC: '.concat(bproPriceInRBTC.toString()));
+  const btcAmount = '0.00001';
+
+  // Call mint
+  await mintBpro(btcAmount);
+};
+
+execute()
+  .then(() => console.log('Completed'))
+  .catch(err => {
+    console.log('Error', err);
+  });
+```
+## Example code minting BPros without Truffle
 
 In the following example we will learn how to:
 
@@ -1583,19 +1708,39 @@ execute()
     console.log('Error', err);
   });
 ```
-## Example code minting BPROS with Truffle
 
-In the following example we will show how to invoke the mintBpro function of the Money on Chain contract in testnet with truffle.
+## Example code redeeming BPros
 
-You can find code examples into _/examples_ dir.
+In the following example we will learn how to:
 
+- Get the maximum amount of BPRO available to redeem.
+- Get BPRO balance of an account.
+- Redeem BPROs.
+
+We will use **truffle** and **testnet** network.
+
+First we create a new node project.
+
+```
+mkdir example-redeem-bpro
+cd example-redeem-bpro
+npm init
+```
+
+Let's add the necessary dependencies to run the project.
+
+```
+npm install --save web3
+```
+
+**Example**
 ```js
-const BigNumber = require('bignumber.js');
 const Web3 = require('web3');
 //You must compile the smart contracts or use the official ABIs of the //repository
 const MocAbi = require('../../build/contracts/MoC.json');
 const MoCInrateAbi = require('../../build/contracts/MoCInrate.json');
 const MoCStateAbi = require('../../build/contracts/MoCState.json');
+const BProTokenAbi = require('../../build/contracts/BProToken.json');
 const truffleConfig = require('../../truffle');
 
 /**
@@ -1623,91 +1768,8 @@ const getWeb3 = network => {
 
 const web3 = getWeb3('rskTestnet');
 const gasPrice = getGasPrice('rskTestnet');
-
-//Contract addresses on testnet
-const mocContractAddress = '<contract-address>';
-const mocInrateAddress = '<contract-address>';
-const mocStateAddress = '<contract-address>';
-
-const execute = async () => {
-  web3.eth.defaultGas = 2000000;
-
-  /**
-   * Loads an specified contract
-   * @param {ContractABI} abi
-   * @param {String} contractAddress
-   */
-  const getContract = async (abi, contractAddress) => new web3.eth.Contract(abi, contractAddress);
-
-  /**
-   * Transforms BigNumbers into
-   * @param {BigNumber} number
-   */
-  const toContract = number => new BigNumber(number).toFixed(0);
-
-  // Loading moc contract
-  const moc = await getContract(MocAbi.abi, mocContractAddress);
-  if (!moc) {
-    throw Error('Can not find MoC contract.');
-  }
-
-  // Loading mocInrate contract. It is necessary to compute commissions
-  const mocInrate = await getContract(MoCInrateAbi.abi, mocInrateAddress);
-  if (!mocInrate) {
-    throw Error('Can not find MoC Inrate contract.');
-  }
-
-  // Loading mocState contract. It is necessary to compute max BPRO available to mint
-  const mocState = await getContract(MoCStateAbi.abi, mocStateAddress);
-  if (!mocState) {
-    throw Error('Can not find MoCState contract.');
-  }
-
-  const mintBpro = async btcAmount => {
-    web3.eth.getAccounts().then(console.log);
-    const [from] = await web3.eth.getAccounts();
-    const weiAmount = web3.utils.toWei(btcAmount, 'ether');
-    // Computes commision value
-    const commissionValue = new BigNumber(
-      await mocInrate.methods.calcCommissionValue(weiAmount).call()
-    );
-    // Computes totalBtcAmount to call mintBpro
-    const totalBtcAmount = toContract(commissionValue.plus(weiAmount));
-    console.log(`Calling Bpro minting with account: ${from} and amount: ${weiAmount}.`);
-    moc.methods
-      .mintBPro(weiAmount)
-      .send({ from, value: totalBtcAmount, gasPrice }, function(error, transactionHash) {
-        if (error) console.log(error);
-        if (transactionHash) console.log('txHash: '.concat(transactionHash));
-      })
-      .on('transactionHash', function(hash) {
-        console.log('TxHash: '.concat(hash));
-      })
-      .on('receipt', function(receipt) {
-        console.log(receipt);
-      })
-      .on('error', console.error);
-  };
-
-  // Gets max BPRO available to mint
-  const maxBproAvailable = await mocState.methods.maxMintBProAvalaible().call();
-  const bproPriceInRBTC = await mocState.methods.bproTecPrice().call();
-  console.log('=== Max Available BPRO: '.concat(maxBproAvailable.toString()));
-  console.log('=== BPRO in RBTC: '.concat(bproPriceInRBTC.toString()));
-  const btcAmount = '0.00001';
-
-  // Call mint
-  await mintBpro(btcAmount);
-};
-
-execute()
-  .then(() => console.log('Completed'))
-  .catch(err => {
-    console.log('Error', err);
-  });
 ```
-
-## Example redeeming BPros without Truffle
+## Example code redeeming BPros without Truffle
 
 In the following example we will learn how to:
 
@@ -1826,68 +1888,7 @@ execute()
   });
 ```
 
-## Example redeeming BPROS with Truffle
-
-In the following example we will learn how to:
-
-- Get the maximum amount of BPRO available to redeem.
-- Get BPRO balance of an account.
-- Redeem BPROs.
-
-We will use the **testnet** network.
-
-First we create a new node project.
-
-```
-mkdir example-redeem-bpro
-cd example-redeem-bpro
-npm init
-```
-
-Let's add the necessary dependencies to run the project.
-
-```
-npm install --save web3
-```
-
-**Example**
-```js
-const Web3 = require('web3');
-//You must compile the smart contracts or use the official ABIs of the //repository
-const MocAbi = require('../../build/contracts/MoC.json');
-const MoCInrateAbi = require('../../build/contracts/MoCInrate.json');
-const MoCStateAbi = require('../../build/contracts/MoCState.json');
-const BProTokenAbi = require('../../build/contracts/BProToken.json');
-const truffleConfig = require('../../truffle');
-
-/**
- * Get a provider from truffle.js file
- * @param {String} network
- */
-const getDefaultProvider = network =>
-  truffleConfig.networks[network].provider || truffleConfig.networks[network].endpoint;
-
-/**
- * Get a gasPrice from truffle.js file
- * @param {String} network
- */
-const getGasPrice = network => truffleConfig.networks[network].gasPrice || 60000000;
-
-/**
- * Get a new web3 instance from truffle.js file
- */
-const getWeb3 = network => {
-  const provider = getDefaultProvider(network);
-  return new Web3(provider, null, {
-    transactionConfirmationBlocks: 1
-  });
-};
-
-const web3 = getWeb3('rskTestnet');
-const gasPrice = getGasPrice('rskTestnet');
-```
-
-## Example minting DOCS with Truffle
+## Example code minting DOC
 
 In the following example we will learn how to:
 
@@ -1896,7 +1897,7 @@ In the following example we will learn how to:
 
 You can find code examples into _/examples_ dir.
 
-We will use the **testnet** network
+We will use **truffle** and **testnet** network
 First we create a new node project.
 
 ```
@@ -2029,16 +2030,18 @@ execute()
   });
 ```
 
-## Example redeeming Free DOCS with Truffle
+## Example code redeeming Free DOC
 
-In the following script example we will learn how to:
+In the following example we will show how to invoke redeemFreeDoc from Money on Chain contract.This method allows to redeem DOC outside the settlement and they are limited by user balance. Check the [DOC redeemption section](#redeeming-docs) for more details.
+
+We will learn how to:
 
 - Get the maximum amount of DOC available to redeem.
 - Get DOC balance of an account.
 - Redeem DOCs.
 
 You can find code examples into _/examples_ dir.
-
+We will use **truffle** and **testnet** network.
 First we create a new node project.
 
 ```
@@ -2159,11 +2162,11 @@ execute()
     console.log('Error', err);
   });
 ```
-## Example redeeming DOC Request with Truffle
+## Example code redeeming DOC Request
 
-You can see [here](#redeeming-docs) how DOC's redeemption works.
-In the following example we will show how to invoke redeemDocRequest using Money on Chain contract. We will use TestNet network.
+In the following example we will show how to invoke redeemDocRequest using Money on Chain contract. This method can recieve any amount of DOC to redeem, but this will be processed on the next settlement. Check the [DOC redeemption section](#redeeming-docs) for more details.
 
+We will use **truffle** and **testnet** network.
 You can find code examples into _/examples_ dir.
 
 First we create a new node project.
@@ -2264,11 +2267,11 @@ execute()
     console.log('Error', err);
   });
 ```
-## Example redeeming all DOCs using Truffle
+## Example code redeeming all DOC
 
-You can see [here](#redeeming-docs) how DOC's redeemption works.
-In the following example we will show how to invoke redeemAllDoc using Money on Chain contract. We will use TestNet network.
+In the following example we will show how to invoke redeemAllDoc using Money on Chain contract. As a condition to do this the Moc contract must be paused(). Check the [DOC redeemption section](#redeeming-docs) for more details.
 
+We will use **truffle** and **testnet** network.
 You can find code examples into _/examples_ dir.
 
 First we create a new node project.
@@ -2367,13 +2370,14 @@ execute()
   });
 ```
 
-## Example minting BTC2X using Truffle
+## Example code minting BTC2X
 
 In the following script example we will learn how to:
 
 - Get the maximum amount of BTC2X available to mint.
 - Mint BTC2X.
 
+We will use **truffle** and **testnet** network.
 You can find code examples into _/examples_ dir.
 
 First we create a new node project.
@@ -2510,14 +2514,16 @@ execute()
   });
 ```
 
-## Example redeeming BTC2X using Truffle
+## Example code redeeming BTC2X
 
 In the following script example we will learn how to:
 
 - Get BTC2X balance of an account.
 - Redeem BTC2X.
 
+We will use **truffle** and **testnet** network.
 You can find code examples into _/examples_ dir.
+
 First we create a new node project.
 
 ```
