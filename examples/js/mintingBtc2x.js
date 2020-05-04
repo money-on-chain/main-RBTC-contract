@@ -67,13 +67,13 @@ const execute = async () => {
     throw Error('Can not find MoC Inrate contract.');
   }
 
-  // Loading mocState contract. It is necessary to compute max BPRO available to mint
+  // Loading mocState contract. It is necessary to compute max BTC2X available to mint
   const mocState = await getContract(MoCState.abi, mocStateAddress);
   if (!mocState) {
     throw Error('Can not find MoCState contract.');
   }
 
-  const mintBprox2 = async btcAmount => {
+  const mintBtc2x = async btcAmount => {
     const [from] = await web3.eth.getAccounts();
     const weiAmount = web3.utils.toWei(btcAmount, 'ether');
     const btcInterestAmount = await mocInrate.methods.calcMintInterestValues(strToBytes32(bucketX2), weiAmount).call();
@@ -81,7 +81,7 @@ const execute = async () => {
       await mocInrate.methods.calcCommissionValue(weiAmount).call()
     );
     const totalBtcAmount = toContract(commissionValue.plus(btcInterestAmount).plus(weiAmount));
-    console.log(`Calling mint Bprox with ${btcAmount} Btcs with account: ${from}.`);
+    console.log(`Calling mint BTC2X with ${btcAmount} Btcs with account: ${from}.`);
     moc.methods
       .mintBProx(strToBytes32(bucketX2), weiAmount)
       .send({ from, value: totalBtcAmount, gasPrice }, function(error, transactionHash) {
@@ -98,13 +98,13 @@ const execute = async () => {
   };
 
   const btcToMint = '0.00001';
-  // Gets max BTC value available to mint BPROX2
-  const maxBtcToMint = await mocState.methods.maxBProxBtcValue(strToBytes32(bucketX2)).call();
+  // Gets max BTC2X amount available to mint
+  const maxBtc2x = await mocState.methods.maxBProx(strToBytes32(bucketX2)).call();
 
-  console.log('=== Max Available RBTC to mint BPROX2: '.concat(maxBtcToMint.toString()));
+  console.log('=== Max Available BTC2X to mint: '.concat(maxBtc2x.toString()));
 
   // Call mint
-  await mintBprox2(btcToMint);
+  await mintBtc2x(btcToMint);
 };
 
 execute()

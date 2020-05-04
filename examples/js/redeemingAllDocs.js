@@ -48,7 +48,7 @@ const execute = async () => {
   }
 
 
-  const redeemDocRequest = async () => {
+  const redeemAllDoc = async () => {
     const [from] = await web3.eth.getAccounts();
 
     console.log(`Calling redeem all Doc.`);
@@ -68,7 +68,7 @@ const execute = async () => {
   };
 
   // Call redeem
-  await redeemDocRequest();
+  await redeemAllDoc();
 };
 
 execute()

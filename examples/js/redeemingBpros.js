@@ -1,7 +1,6 @@
 const Web3 = require('web3');
 //You must compile the smart contracts or use the official ABIs of the //repository
 const MocAbi = require('../../build/contracts/MoC.json');
-const MoCInrateAbi = require('../../build/contracts/MoCInrate.json');
 const MoCStateAbi = require('../../build/contracts/MoCState.json');
 const BProTokenAbi = require('../../build/contracts/BProToken.json');
 const truffleConfig = require('../../truffle');
@@ -54,12 +53,6 @@ const execute = async () => {
     throw Error('Can not find MoC contract.');
   }
 
-  // Loading mocInrate contract. It is necessary to compute commissions
-  const mocInrate = await getContract(MoCInrateAbi.abi, mocInrateAddress);
-  if (!mocInrate) {
-    throw Error('Can not find MoC Inrate contract.');
-  }
-
   // Loading mocState contract. It is necessary to compute absolute max BPRO
   const mocState = await getContract(MoCStateAbi.abi, mocStateAddress);
   if (!mocState) {
@@ -68,6 +61,9 @@ const execute = async () => {
 
   // Loading BProToken contract. It is necessary to compute user balance
   const bproToken = await getContract(BProTokenAbi.abi, bproTokenAddress);
+  if (!bproToken) {
+    throw Error('Can not find BProToken contract.');
+  }
 
   const [from] = await web3.eth.getAccounts();
 

@@ -52,7 +52,7 @@ const execute = async () => {
     throw Error('Can not find MoC contract.');
   }
 
-  // Loading MoCBProxManager contract. It is necessary to compute user BProx2 balance
+  // Loading MoCBProxManager contract. It is necessary to compute user BTC2X balance
   const mocBproxManager = await getContract(MoCBProxManager.abi, mocBProxManagerAddress);
   if (!mocBproxManager) {
     throw Error('Can not find MoCBProxManager contract.');
@@ -60,10 +60,10 @@ const execute = async () => {
 
   const [from] = await web3.eth.getAccounts();
 
-  const redeemBprox2 = async bprox2Amount => {
-    const weiAmount = web3.utils.toWei(bprox2Amount, 'ether');
+  const redeemBtc2x = async btc2xAmount => {
+    const weiAmount = web3.utils.toWei(btc2xAmount, 'ether');
 
-    console.log(`Calling redeem Bprox2 with account: ${from}, amount: ${weiAmount}.`);
+    console.log(`Calling redeem BTC2X with account: ${from}, amount: ${weiAmount}.`);
     moc.methods
       .redeemBProx(strToBytes32(bucketX2), weiAmount)
       .send({ from, gasPrice }, function(error, transactionHash) {
@@ -82,12 +82,12 @@ const execute = async () => {
   const userBalance = await mocBproxManager.methods
     .bproxBalanceOf(strToBytes32(bucketX2), from)
     .call();
-  console.log('=== User BPROX2 Balance: '.concat(userBalance.toString()));
+  console.log('=== User BTC2X Balance: '.concat(userBalance.toString()));
 
-  const bprox2Amount = '0.00001';
+  const btc2xAmount = '0.00001';
 
   // Call redeem
-  await redeemBprox2(bprox2Amount);
+  await redeemBtc2x(btc2xAmount);
 };
 
 execute()

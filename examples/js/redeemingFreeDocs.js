@@ -89,6 +89,7 @@ const execute = async () => {
   const freeDoc = await mocState.methods.freeDoc().call();
   const userDocBalance = await docToken.methods.balanceOf(from).call();
   const finalDocAmount = Math.min(freeDoc, userDocBalance);
+  console.log('User DOC balance: ', userDocBalance.toString());
   console.log('=== Max Available DOC to redeem: ', finalDocAmount);
 
   // Call redeem
