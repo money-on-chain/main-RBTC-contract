@@ -16,7 +16,17 @@
     1.  [Using RSK nodes](#using-rsk-nodes)
     1.  [Using web3](#using-web3)
     1.  [Official Money on Chain ABIS](#official-money-on-chain-abis)
-    1.  [Example code minting BPROS](#example-code-minting-bpros)
+    1.  [Events](#events)
+    1.  [Example code minting BPros](#example-code-minting-bpros)
+    1.  [Example code minting BPros without truffle](#example-code-minting-bpros-without-truffle)
+    1.  [Example code redeeming BPros](#example-code-redeeming-bpros)
+    1.  [Example code redeeming BPros without truffle](#example-code-redeeming-bpros-without-truffle)
+    1.  [Example code minting DOC](#example-code-minting-doc)
+    1.  [Example code redeeming DOC Request](#example-code-redeeming-doc-request)
+    1.  [Example code redeeming free DOC](#example-code-redeeming-free-doc)
+    1.  [Example code redeeming all DOC](#example-code-redeeming-all-doc)
+    1.  [Example code minting BTC2X](#example-code-minting-btc2x)
+    1.  [Example code redeeming BTC2X](#example-code-redeeming-btc2x)
 
 # Introduction to MoC
 
@@ -56,7 +66,7 @@ When the logic needs to be updated, a new version of your business logic contrac
 
 The Money on Chain system handles different types of currency precision to operate with tokens and RBTC. The **MoCLibConnection** contract defines 2 variables that are used across the platform:
 
-- _mocPrecision_: Currently DOC, BROS and BTC2X tokens use 18 decimal places of precision.
+- _mocPrecision_: Currently DOC, BPROS and BTC2X tokens use 18 decimal places of precision.
 - _reservePrecision_: Currently RBTC amounts use 18 decimal places of precision.
 
 ### MoC State Contracts
@@ -85,11 +95,12 @@ This means that most wallets like Nifty and MetaMask can handle them if you tell
 ​
 That BitPro is an _ERC20_ Token also means that any user that has already some tokens can trade them to you in exchange for a service or for another token.
 ​
-But in some circumstances you may not find such a user (maybe they are keeping the tokens to themselves ESTO ES OPCIONAL). In those cases, you may be happy to know that you can create them(or mint them, as it is usually said) using the Smart Contracts.
+But in some circumstances you may not find such a user. In those cases, you may be happy to know that you can create them(or mint them, as it is usually said) using the Smart Contracts.
 ​
-​## Minting BitPros
 
-In this tutorial the method (or function) that is of interest to us is `function mintBPro(uint256 btcToMint) public payable` As you can see this function is payable, this means that it is prepared to receive RBTCs.
+## Minting BitPros
+
+In this tutorial the method (or function) that is of interest to us is `function mintBPro(uint256 btcToMint) public payable`. As you can see this function is payable, this means that it is prepared to receive RBTCs.
 
 ### Parameters of the operation
 
@@ -102,10 +113,11 @@ Maybe, depending on the state of the contract, a value lesser than btcToMint wil
 #### The value sent
 
 The amount sent in RBTCs to the contract can be considered as a parameter of the transaction, which is why it will be explained in this section. You have to take into consideration that it will be split in three.
-The first part will be used to mint some BitPro, the size of this part depends directly on the btcToMint, and, as explained in the previous section, it may be smaller than btcToMint.
-The second part will be used to pay the commission, this part is a percentage of the previous part. The exact percentage of it is set in the variable **commissionRate** of the **MocInrate** contract. The current value is 0.001 and can be consulted through the method `commissionRate()​` as this parameter is public(Note that this parameter when consulted through said method has also a precision of 18 decimals, i.e. a 1 \* 10^15 in that parameter means that 0.1% is being charged as a commission).
-The third part is always returned, so if you have doubts of how much you should send, keep in mind that if you send too much RBTCs we will return everything that it is not used for commissions or minting.
-In conclusion the amount sent has to be at least the btcToMint plus the commission, the commission being btcToMint times the commission rate.
+
+- The first part will be used to mint some BitPro, the size of this part depends directly on the btcToMint, and, as explained in the previous section, it may be smaller than btcToMint.
+- The second part will be used to pay the commission, this part is a percentage of the previous part. The exact percentage of it is set in the variable **commissionRate** of the **MocInrate** contract. The current value is 0.001 and can be consulted through the method `commissionRate()​` as this parameter is public(Note that this parameter when consulted through said method has also a precision of 18 decimals, i.e. a 1 \* 10^15 in that parameter means that 0.1% is being charged as a commission).
+- The third part is always returned, so if you have doubts of how much you should send, keep in mind that if you send too much RBTCs we will return everything that it is not used for commissions or minting.
+  In conclusion the amount sent has to be at least the btcToMint plus the commission, the commission being btcToMint times the commission rate.
 
 ```
 btcSent (msg.value) >= btcToMint + btcToMint * commissionRate
@@ -158,28 +170,14 @@ Assuming you already have your project up and running (if you don't, please foll
 npm install --save -E git+https://git@github.com/money-on-chain/main-RBTC-contract.git
 ```
 
-​To run a local blockchain you can use
-
-```
-npm run ganache-cli
-```
-
-To deploy the contracts you can use
-
-```
-npm run deploy-reset-development
-
-```
-
-​
-Having done that lets you use our contract as a dependency to your contract. For this let's suppose you are doing some kind of contract that when executing a certain task charges a fixed commission. Now let's suppose that the commission is sent in RBTCs because it is easier for the user but actually you want some BitPros. The good news is that you can do this instantly just by minting them. The code necessary to do this is actually pretty simple.
+​Having done that lets you use our contract as a dependency to your contract. For this let's suppose you are doing some kind of contract that when executing a certain task charges a fixed commission. Now let's suppose that the commission is sent in RBTCs because it is easier for the user but actually you want some BitPros. The good news is that you can do this instantly just by minting them. The code necessary to do this is actually pretty simple.
 ​
 You just have to import the contract
 ​
 
 ```js
-import "money-on-chain/contracts/MoC.sol";
-import "money-on-chain/contracts/MoCInrate.sol";
+import 'money-on-chain/contracts/MoC.sol';
+import 'money-on-chain/contracts/MoCInrate.sol';
 ```
 
 Receive the address in the constructor in order to be able to interact with it later
@@ -250,7 +248,7 @@ contract YourMintingBproContract {
 ​
 ```
 
-And that is it, the only thing left to do is to add in the [truffle migrations](https://www.trufflesuite.com/docs/truffle/getting-started/running-migrations) scripts the address to MoC and BPro when deploying YourContract and you are done.
+And that is it, the only thing left to do is to add in the [truffle migrations](https://www.trufflesuite.com/docs/truffle/getting-started/running-migrations) scripts the address to MoC and BPro when deploying YourMintingBproContract and you are done.
 ​​
 
 ## Redeeming BitPros
@@ -332,27 +330,13 @@ Assuming you already have your project up and running (if you don't, please foll
 npm install --save -E git+https://git@github.com/money-on-chain/main-RBTC-contract.git
 ```
 
-​To run a local blockchain you can use
-
-```
-npm run ganache-cli
-```
-
-To deploy the contracts you can use
-
-```
-npm run deploy-reset-development
-
-```
-
-​
 Having done that lets you use our contract as a dependency to your contract. For this let's suppose you are doing some kind of contract that when executing a certain task charges a fixed commission. Now let's suppose that the commission is sent in RBTCs because it is easier for the user but actually you want some BitPros. The good news is that you can do this instantly just by minting them. The code necessary to do this is actually pretty simple.
 ​
 You just have to import the contract
 ​
 
 ```js
-import "money-on-chain/contracts/MoC.sol";
+import 'money-on-chain/contracts/MoC.sol';
 ```
 
 Receive the address in the constructor in order to be able to interact with it later
@@ -365,8 +349,8 @@ constructor (MoC _mocContract, MoCInrate _mocInrateContract, rest of your params
 ```
 
 ```js
-uint256 bproAmountInWei = 9000000;
-moc.redeemBPro(bproAmountInWei);
+uint256 bproAmount = 9000000;
+moc.redeemBPro(bproAmount);
 ```
 
 ​
@@ -375,14 +359,13 @@ You can send it immediately to you so you can start using it right away. In orde
 This will leave you with a contract similar to the following
 
 ```js
-import "money-on-chain/contracts/MoC.sol";
-import "money-on-chain/contracts/MoCInrate.sol";
+import 'money-on-chain/contracts/MoC.sol';
 ```
 
 Receive the address in the constructor in order to be able to interact with it later
 
 ```js
-constructor (MoC _mocContract, MoCInrate _mocInrateContract, rest of your params...) {
+constructor (MoC _mocContract, rest of your params...) {
 //....rest of your constructor....
 }
 ​
@@ -434,7 +417,9 @@ A DOC, Dollar On Chain, is a bitcoin-collateralized stable-coin. Its value is pe
 
 That DOC is an _ERC20_ Token means that any user that has already some tokens can trade them to you in exchange for a service or for another token. You can find specific information about ERC-20 tokens [here](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-20.md).
 
-​## Minting DOCs
+​
+
+## Minting DOCs
 
 DOC can only be minted in exchange for RBTC. Given an amount of RBTC paid to the contract, the system calculates the corresponding DOCs amount to mint, RBTC and DOC balances are added to the Money on Chain system and the new tokens are sent to the user.
 
@@ -514,14 +499,13 @@ You just have to import the contract
 ​
 
 ```js
-import "money-on-chain/contracts/MoC.sol";
-import "money-on-chain/contracts/MoCInrate.sol";
+import 'money-on-chain/contracts/MoC.sol';
 ```
 
 Receive the address in the constructor in order to be able to interact with it later
 
 ```js
-constructor (MoC _mocContract, MoCInrate _mocInrateContract, rest of your params...) {
+constructor (MoC _mocContract, rest of your params...) {
 //....rest of your constructor....
 }
 ​
@@ -531,8 +515,9 @@ constructor (MoC _mocContract, MoCInrate _mocInrateContract, rest of your params
 ​
 
 ```js
-uint256 commissionOfMoC = mocInrate.calcCommissionValue(msg.value);
-moc.mintDoc.value(msg.value)(msg.value-commissionOfMoC);
+uint256 yourCommission = calcYourCommissionValue(msg.value);
+uint256 rbtcToMint = msg.value - yourCommission;
+moc.mintDoc.value(rbtcToMint)(rbtcToMint);
 ```
 
 ​
@@ -570,12 +555,12 @@ contract YourMintingDocContract {
     }
 ​
     function doTask() public payable {
-        //We compute the commision.
+        //We compute the commision using MocInrate contrac as example
 ​        uint256 commission = mocInrate.calcCommissionValue(msg.value);
         //We compute the btcToMint.
         uint256 btcToMint = msg.value - commission;
         // Mint some new DOC
-        moc.mintDoc.value(msg.value)(btcToMint);
+        moc.mintDoc.value(btcToMint)(btcToMint);
 ​        // Transfer it to your receiver account
         bpro.transfer(receiverAddress, bpro.balanceOf(address(this)));
         // Rest of the function to actually perform the task
@@ -814,7 +799,7 @@ You just have to import the contract
 ​
 
 ```js
-import "money-on-chain/contracts/MoC.sol";
+import 'money-on-chain/contracts/MoC.sol';
 ```
 
 Receive the address in the constructor in order to be able to interact with it later
@@ -850,7 +835,7 @@ You can send it immediately to you so you can start using it right away. In orde
 This will leave you with a contract similar to the following
 
 ```js
-import "money-on-chain/contracts/MoC.sol";
+import 'money-on-chain/contracts/MoC.sol';
 ```
 
 Receive the address in the constructor in order to be able to interact with it later
@@ -943,7 +928,7 @@ There is also a bucket named _C0_ but it should not be used to mint and redeem B
 In the following example you can see how to do it with javascript and the web3 library. For more detailed information about web3 you can read the [from outside blockchain](#from-outside-the-blockchain) section.
 
 ```js
-const BUCKET_X2 = web3.utils.asciiToHex("X2", 32);
+const BUCKET_X2 = web3.utils.asciiToHex('X2', 32);
 ```
 
 #### The btcToMint parameter
@@ -1017,7 +1002,6 @@ In the following sections we will give some code on how this can be done through
 
 #### Smart Contract​
 
-​
 To create a new Smart Contract that uses the Money On Chain platform, you can use any language and IDE you want. In this tutorial, we will show you how to do it using [Solidity language](https://solidity.readthedocs.io/en/v0.5.8/), [Truffle Framework](https://www.trufflesuite.com/) and [NPM](https://www.npmjs.com/).
 Truffle framework offers some template projects that you can use to develop applications that use smart contracts. You can get more information [here](https://www.trufflesuite.com/boxes).
 Assuming you already have your project up and running (if you don't, please follow [this link](https://github.com/money-on-chain/main-RBTC-contract/blob/master/README.md)) the only extra thing you need to do is to install our repo as a dependency in your NPM project. In order you need to do this you just need to run the following command.
@@ -1033,8 +1017,8 @@ You just have to import the contract
 ​
 
 ```js
-import "money-on-chain/contracts/MoC.sol";
-import "money-on-chain/contracts/MoCInrate.sol";
+import 'money-on-chain/contracts/MoC.sol';
+import 'money-on-chain/contracts/MoCInrate.sol';
 ```
 
 Receive the address in the constructor in order to be able to interact with it later
@@ -1051,8 +1035,9 @@ constructor (MoC _mocContract, MoCInrate _mocInrateContract, rest of your params
 
 ```js
 bytes32 constant public BUCKET_X2 = "X2";
-uint256 commissionOfMoC = mocInrate.calcCommissionValue(msg.value);
-moc.mintBProx.value(msg.value)(BUCKET_X2, msg.value-commissionOfMoC);
+uint256 yourCommision = calcYourCommissionValue(msg.value);
+uint256 rbtcToMint = msg.value - yourCommision;
+moc.mintBProx.value(rbtcToMint)(BUCKET_X2, rbtcToMint);
 ```
 
 ​
@@ -1084,12 +1069,13 @@ contract YourMintingBtc2xContract {
     }
 ​
     function doTask() public payable {
-        //We compute the commision.
+        //We compute the commision using a MOC function, but you should
+        //use your own function
 ​        uint256 commission = mocInrate.calcCommissionValue(msg.value);
         //We compute the btcToMint.
         uint256 btcToMint = msg.value - commission;
         // Mint some new BitPro
-        moc.mintBProx.value(msg.value)(BUCKET_X2, btcToMint);
+        moc.mintBProx.value(btcToMint)(BUCKET_X2, btcToMint);
         // Rest of the function to actually perform the task
     }
     // rest of your contract
@@ -1118,7 +1104,7 @@ There is also a bucket named _C0_ but it should not be used to mint and redeem B
 In the following example you can see how to do it with javascript and the web3 library. For more detailed information about web3 you can read the [From outside the blockchain](#from-outside-the-blockchain) section.
 
 ```js
-const BUCKET_X2 = web3.utils.asciiToHex("X2", 32);
+const BUCKET_X2 = web3.utils.asciiToHex('X2', 32);
 ```
 
 #### The bproxAmount parameter
@@ -1132,9 +1118,9 @@ The first part transforms the amount **bproxAmount** into an RBTC amount, but 2 
 - The amount entered in bproAmount must not exceed the user's balance in BPROs. If this occurs then the user’s balance will be used to calculate the value in RBTC.
 
 ```js
-    userBalance = bproxBalanceOf(bucket, user);
-    bproxToRedeem = Math.min(bproxAmount, userBalance);
-    rbtcToRedeem = bproxToBtc(bproxToRedeem, bucket);
+userBalance = bproxBalanceOf(bucket, user);
+bproxToRedeem = Math.min(bproxAmount, userBalance);
+rbtcToRedeem = bproxToBtc(bproxToRedeem, bucket);
 ```
 
 The second part computes interests to be paid to the user.
@@ -1206,8 +1192,8 @@ You just have to import the contract
 ​
 
 ```js
-import "money-on-chain/contracts/MoC.sol";
-import "money-on-chain/contracts/MoCInrate.sol";
+import 'money-on-chain/contracts/MoC.sol';
+import 'money-on-chain/contracts/MoCInrate.sol';
 ```
 
 Receive the address in the constructor in order to be able to interact with it later
@@ -1239,7 +1225,6 @@ This will leave you with a contract similar to the following
 pragma solidity 0.5.8;
 ​
 import "money-on-chain/contracts/MoC.sol";
-import "money-on-chain/contracts/MoCInrate.sol";
 // Here you will import your own dependencies
 ​
 contract YourRedeemingBtc2xContract {
@@ -1278,7 +1263,7 @@ You can find tutorials about developing dApps in the following resources:
 
 - [RSK Truffle Boxes](https://developers.rsk.co/tools/truffle/boxes/)
 
-  The web3 library is one of the most popular to invoke the functions of smart contracts and there are different projects to use them with
+The web3 library is one of the most popular to invoke the functions of smart contracts and there are different projects to use them with
 
 - [javascript](https://web3js.readthedocs.io/)
 - [Python](https://web3py.readthedocs.io/en/stable/)
@@ -1286,7 +1271,9 @@ You can find tutorials about developing dApps in the following resources:
 - [.NET](https://nethereum.readthedocs.io/en/latest/)
 - [Swift](https://web3swift.io/)
 
-We use **web3.js** in this tutorial.
+[Truffle Framework](https://www.trufflesuite.com/) offers some template projects and tools that you can use to develop applications that use smart contracts.
+
+We use **web3.js** and **truffle** in this tutorial.
 
 An RSK smart contract is bytecode implemented on the RSK blockchain. When a smart contract is compiled, an ABI (application binary interface) is generated and it is required so that you can specify which contract function to invoke, as well as get a guarantee that the function will return the data in the format you expect.
 The ABI in JSON format must be provided to web3 to build decentralized applications.
@@ -1311,6 +1298,50 @@ Money on Chain contracts are executed on the RSK blockchain whose public nodes a
 - Cryptocurrency symbol: RBTC
 - Explorer: https://explorer.rsk.co/
 
+### Truffle config: truffle.js
+
+If you use truffle then you can use the following settings in your **truffle.js** file
+
+```js
+const HDWalletProvider = require('truffle-hdwallet-provider');
+
+const mnemonic = 'YOUR_MNEMO_PRHASE';
+
+module.exports = {
+  compilers: {
+    solc: {
+      version: '0.5.8',
+      evmVersion: 'byzantium',
+      settings: {
+        optimizer: {
+          enabled: true,
+          runs: 1
+        }
+      }
+    }
+  },
+  networks: {
+    development: {
+      host: '127.0.0.1',
+      port: 8545,
+      network_id: '*'
+    },
+    rskTestnet: {
+      host: 'https://public-node.testnet.rsk.co',
+      provider: new HDWalletProvider(mnemonic, 'https://public-node.testnet.rsk.co'),
+      network_id: '31',
+      gasPrice: 60000000
+    },
+    rskMainnet: {
+      host: 'https://public-node.rsk.co',
+      provider: new HDWalletProvider(mnemonic, 'https://public-node.rsk.co'),
+      network_id: '30',
+      gasPrice: 60000000
+    }
+  }
+};
+```
+
 ### Installing your own node
 
 The RSK node can be installed on different operating systems such as Linux, Windows and Mac. It is also possible to run them in environments running docker and in cloud service providers such as AWS, Azure and Google. For more information check the [official RSK documentation](https://developers.rsk.co/rsk/node/install/)
@@ -1331,50 +1362,278 @@ You can use the technology that suits you best for your project to integrate wit
 
 In the Money on Chain repository you can find the [official ABIs of the platform](https://github.com/money-on-chain/web-billfold-app/tree/develop/contracts/moc). You can use them to build your own decentralized applications to invoke the functions of smart contracts.
 
-## Example code minting BPROS
+We can also compile the contracts to generate the ABIS that will be saved in the _./build/contracts_
+dir. You can do this with the following commands:
 
-In the following example we will show how to invoke the mintBpro function of the Money on Chain contract in testnet.
+```
+git clone https://github.com/money-on-chain/main-RBTC-contract.git
+cd main-RBTC-contract
+npm install
+npm run truffle-compile
+```
+
+Then we can check the abis
+
+```
+cd build/contracts/
+ls -la
+```
+
+```
+drwxrwxr-x 2 user user    4096 abr 24 18:15 .
+drwxrwxr-x 3 user user    4096 abr 24 18:15 ..
+-rw-rw-r-- 1 user user   58622 abr 24 18:15 AdminUpgradeabilityProxy.json
+-rw-rw-r-- 1 user user  172799 abr 24 18:15 BaseAdminUpgradeabilityProxy.json
+-rw-rw-r-- 1 user user   62097 abr 24 18:15 BaseUpgradeabilityProxy.json
+-rw-rw-r-- 1 user user   91558 abr 24 18:15 BProToken.json
+-rw-rw-r-- 1 user user   17711 abr 24 18:15 BtcPriceFeed.json
+-rw-rw-r-- 1 user user    9360 abr 24 18:15 BtcPriceProvider.json
+...
+```
+## Events
+
+When a transaction is mined, smart contracts can emit events and write logs to the blockchain that the frontend can then process. Click [here](https://media.consensys.net/technical-introduction-to-events-and-logs-in-ethereum-a074d65dd61e) for more information about events.
+
+In the following example we will show you how to find events that are emitted by Money On Chain smart contract in **RSK Testnet** blockchain with **truffle**.
+
+
+**Code example**
+
+```js
+const Web3 = require('web3');
+//You must compile the smart contracts or use the official ABIs of the //repository
+const MocExchange = require('../../build/contracts/MoCExchange.json');
+const truffleConfig = require('../../truffle');
+
+/**
+ * Get a provider from truffle.js file
+ * @param {String} network
+ */
+const getDefaultProvider = network =>
+  truffleConfig.networks[network].provider || truffleConfig.networks[network].endpoint;
+
+/**
+ * Get a new web3 instance from truffle.js file
+ */
+const getWeb3 = network => {
+  const provider = getDefaultProvider(network);
+  return new Web3(provider, null, {
+    transactionConfirmationBlocks: 1
+  });
+};
+
+const web3 = getWeb3('rskTestnet');
+
+//Contract address on testnet
+const mocExchangeAddress = '<contract-address>';
+
+const execute = async () => {
+  web3.eth.defaultGas = 2000000;
+
+  /**
+   * Loads an specified contract
+   * @param {ContractABI} abi
+   * @param {String} contractAddress
+   */
+  const getContract = async (abi, contractAddress) => new web3.eth.Contract(abi, contractAddress);
+
+  // Loading MoCExchange contract to get the events emitted by this
+  const mocExchange = await getContract(MocExchange.abi, mocExchangeAddress);
+  if (!mocExchange) {
+    throw Error('Can not find MoCExchange contract.');
+  }
+
+  // In this example we are getting BPro Mint events from MoCExchange contract
+  // in the interval of blocks passed by parameter
+  const getEvents = () =>
+    Promise.resolve(mocExchange.getPastEvents('RiskProMint', { fromBlock: 1000, toBlock: 1010 }))
+      .then(events => console.log(events))
+      .catch(err => console.log('Error getting past events ', err));
+
+  await getEvents();
+};
+
+execute()
+  .then(() => console.log('Completed'))
+  .catch(err => {
+    console.log('Error', err);
+  });
+```
+
+See [getPastEvents](https://web3js.readthedocs.io/en/v1.2.0/web3-eth-contract.html?highlight=getPastEvents#events-allevents) for parameters and event structure details.
+
+## Example code minting BPros
+
+In the following example we will show how to invoke the mintBpro function of the Money on Chain contract in **testnet** with **truffle**.
+
+You can find code examples into _/examples_ dir.
+
+```js
+const BigNumber = require('bignumber.js');
+const Web3 = require('web3');
+//You must compile the smart contracts or use the official ABIs of the //repository
+const MocAbi = require('../../build/contracts/MoC.json');
+const MoCInrateAbi = require('../../build/contracts/MoCInrate.json');
+const MoCStateAbi = require('../../build/contracts/MoCState.json');
+const truffleConfig = require('../../truffle');
+
+/**
+ * Get a provider from truffle.js file
+ * @param {String} network
+ */
+const getDefaultProvider = network =>
+  truffleConfig.networks[network].provider || truffleConfig.networks[network].endpoint;
+
+/**
+ * Get a gasPrice from truffle.js file
+ * @param {String} network
+ */
+const getGasPrice = network => truffleConfig.networks[network].gasPrice || 60000000;
+
+/**
+ * Get a new web3 instance from truffle.js file
+ */
+const getWeb3 = network => {
+  const provider = getDefaultProvider(network);
+  return new Web3(provider, null, {
+    transactionConfirmationBlocks: 1
+  });
+};
+
+const web3 = getWeb3('rskTestnet');
+const gasPrice = getGasPrice('rskTestnet');
+
+//Contract addresses on testnet
+const mocContractAddress = '<contract-address>';
+const mocInrateAddress = '<contract-address>';
+const mocStateAddress = '<contract-address>';
+
+const execute = async () => {
+  web3.eth.defaultGas = 2000000;
+
+  /**
+   * Loads an specified contract
+   * @param {ContractABI} abi
+   * @param {String} contractAddress
+   */
+  const getContract = async (abi, contractAddress) => new web3.eth.Contract(abi, contractAddress);
+
+  /**
+   * Transforms BigNumbers into
+   * @param {BigNumber} number
+   */
+  const toContract = number => new BigNumber(number).toFixed(0);
+
+  // Loading moc contract
+  const moc = await getContract(MocAbi.abi, mocContractAddress);
+  if (!moc) {
+    throw Error('Can not find MoC contract.');
+  }
+
+  // Loading mocInrate contract. It is necessary to compute commissions
+  const mocInrate = await getContract(MoCInrateAbi.abi, mocInrateAddress);
+  if (!mocInrate) {
+    throw Error('Can not find MoC Inrate contract.');
+  }
+
+  // Loading mocState contract. It is necessary to compute max BPRO available to mint
+  const mocState = await getContract(MoCStateAbi.abi, mocStateAddress);
+  if (!mocState) {
+    throw Error('Can not find MoCState contract.');
+  }
+
+  const mintBpro = async btcAmount => {
+    web3.eth.getAccounts().then(console.log);
+    const [from] = await web3.eth.getAccounts();
+    const weiAmount = web3.utils.toWei(btcAmount, 'ether');
+    // Computes commision value
+    const commissionValue = new BigNumber(
+      await mocInrate.methods.calcCommissionValue(weiAmount).call()
+    );
+    // Computes totalBtcAmount to call mintBpro
+    const totalBtcAmount = toContract(commissionValue.plus(weiAmount));
+    console.log(`Calling Bpro minting with account: ${from} and amount: ${weiAmount}.`);
+    moc.methods
+      .mintBPro(weiAmount)
+      .send({ from, value: totalBtcAmount, gasPrice }, function(error, transactionHash) {
+        if (error) console.log(error);
+        if (transactionHash) console.log('txHash: '.concat(transactionHash));
+      })
+      .on('transactionHash', function(hash) {
+        console.log('TxHash: '.concat(hash));
+      })
+      .on('receipt', function(receipt) {
+        console.log(receipt);
+      })
+      .on('error', console.error);
+  };
+
+  // Gets max BPRO available to mint
+  const maxBproAvailable = await mocState.methods.maxMintBProAvalaible().call();
+  const bproPriceInRBTC = await mocState.methods.bproTecPrice().call();
+  console.log('=== Max Available BPRO: '.concat(maxBproAvailable.toString()));
+  console.log('=== BPRO in RBTC: '.concat(bproPriceInRBTC.toString()));
+  const btcAmount = '0.00001';
+
+  // Call mint
+  await mintBpro(btcAmount);
+};
+
+execute()
+  .then(() => console.log('Completed'))
+  .catch(err => {
+    console.log('Error', err);
+  });
+```
+## Example code minting BPros without Truffle
+
+In the following example we will learn how to:
+
+- Use the ABIs of Money on Chain.
+- Get the maximum amount of BPRO available.
+- Get the price of the BPRO in RBTC.
+- Minting BPROs
+
+We will use the **testnet** network
 
 First we create a new node project.
 
-````
-
+```
 mkdir example-mint-bpro
-node init
-
+cd example-mint-bpro
+npm init
 ```
 
-Then we add the necessary dependencies to run the project
+Let's add the necessary dependencies to run the project.
 
 ```
-
 npm install --save bignumber.js
 npm install --save web3
 npm install --save truffle-hdwallet-provider
+```
 
-````
+Now we create a new script called **mintBpro.js** with the following code:
 
 ```js
-const HDWalletProvider = require("truffle-hdwallet-provider");
-const BigNumber = require("bignumber.js");
-const Web3 = require("web3");
+const HDWalletProvider = require('truffle-hdwallet-provider');
+const BigNumber = require('bignumber.js');
+const Web3 = require('web3');
 //You must compile the smart contracts or use the official ABIs of the //repository
-const MocAbi = require("./contracts/moc/MoC.json");
-const MoCInrateAbi = require("./contracts/moc/MoCInrate.json");
-const MoCStateAbi = require("./contracts/moc/MoCState.json");
+const MocAbi = require('./contracts/moc/MoC.json');
+const MoCInrateAbi = require('./contracts/moc/MoCInrate.json');
+const MoCStateAbi = require('./contracts/moc/MoCState.json');
 
 //Config params to TestNet
-const endpoint = "https://public-node.testnet.rsk.co";
+const endpoint = 'https://public-node.testnet.rsk.co';
 //a mnemonic is 12 words instead of a single private key to sign the //transactions
-const mnemonic =
-  "chase chair crew elbow uncle awful cover asset cradle pet loud puzzle";
+const mnemonic = 'chase chair crew elbow uncle awful cover asset cradle pet loud puzzle';
 const provider = new HDWalletProvider(mnemonic, endpoint);
 const web3 = new Web3(provider);
 
 //Contract addresses on testnet
-const mocContractAddress = "0x2820f6d4D199B8D8838A4B26F9917754B86a0c1F";
-const mocInrateAddress = "0x76790f846FAAf44cf1B2D717d0A6c5f6f5152B60";
-const mocStateAddress = "0x0adb40132cB0ffcEf6ED81c26A1881e214100555";
+const mocContractAddress = '<contract-address>';
+const mocInrateAddress = '<contract-address>';
+const mocStateAddress = '<contract-address>';
 const gasPrice = 60000000;
 
 const execute = async () => {
@@ -1383,8 +1642,7 @@ const execute = async () => {
    * @param {json ABI} abi
    * @param {localhost/testnet/mainnet} contractAddress
    */
-  const getContract = async (abi, contractAddress) =>
-    new web3.eth.Contract(abi, contractAddress);
+  const getContract = async (abi, contractAddress) => new web3.eth.Contract(abi, contractAddress);
 
   /**
    * Transforms BigNumbers into
@@ -1395,65 +1653,989 @@ const execute = async () => {
   // Loading moc contract
   const moc = await getContract(MocAbi.abi, mocContractAddress);
   if (!moc) {
-    throw Error("Can not find MoC contract.");
+    throw Error('Can not find MoC contract.');
   }
 
   // Loading mocInrate contract. It is necessary to compute commissions
   const mocInrate = await getContract(MoCInrateAbi.abi, mocInrateAddress);
   if (!mocInrate) {
-    throw Error("Can not find MoC Inrate contract.");
+    throw Error('Can not find MoC Inrate contract.');
   }
 
   // Loading mocState contract. It is necessary to compute max BPRO available to mint
   const mocState = await getContract(MoCStateAbi.abi, mocStateAddress);
   if (!mocState) {
-    throw Error("Can not find MoCState contract.");
+    throw Error('Can not find MoCState contract.');
   }
 
   const mintBpro = async btcAmount => {
     web3.eth.getAccounts().then(console.log);
-    const from = "0x088f4B1313D161D83B4D8A5EB90905C263ce0DbD";
-    const weiAmount = web3.utils.toWei(btcAmount, "ether");
+    const from = '0x088f4B1313D161D83B4D8A5EB90905C263ce0DbD';
+    const weiAmount = web3.utils.toWei(btcAmount, 'ether');
     // Computes commision value
     const commissionValue = new BigNumber(
       await mocInrate.methods.calcCommissionValue(weiAmount).call()
     );
     // Computes totalBtcAmount to call mintBpro
     const totalBtcAmount = toContract(commissionValue.plus(weiAmount));
-    console.log(
-      `Calling Bpro minting with account: ${from} and amount: ${weiAmount}.`
-    );
+    console.log(`Calling Bpro minting with account: ${from} and amount: ${weiAmount}.`);
     const tx = moc.methods
       .mintBPro(weiAmount)
-      .send({ from, value: totalBtcAmount, gasPrice }, function(
-        error,
-        transactionHash
-      ) {
+      .send({ from, value: totalBtcAmount, gasPrice }, function(error, transactionHash) {
         if (error) console.log(error);
-        if (transactionHash) console.log("txHash: ".concat(transactionHash));
+        if (transactionHash) console.log('txHash: '.concat(transactionHash));
       });
 
     return tx;
   };
 
   function logEnd() {
-    console.log("End Example");
+    console.log('End Example');
   }
 
   // Gets max BPRO available to mint
   const maxBproAvailable = await mocState.methods.maxMintBProAvalaible().call();
-  console.log("Max Available BPRO: ".concat(maxBproAvailable.toString()));
-  const btcAmount = "0.00005";
+  console.log('Max Available BPRO: '.concat(maxBproAvailable.toString()));
+  const btcAmount = '0.00005';
 
   // Call mint
   await mintBpro(btcAmount, logEnd);
 };
 
 execute()
-  .then(() => console.log("Completed"))
+  .then(() => console.log('Completed'))
   .catch(err => {
-    console.log("Error", err);
+    console.log('Error', err);
   });
 ```
 
+## Example code redeeming BPros
 
+In the following example we will learn how to:
+
+- Get the maximum amount of BPRO available to redeem.
+- Get BPRO balance of an account.
+- Redeem BPROs.
+
+We will use **truffle** and **testnet** network.
+
+First we create a new node project.
+
+```
+mkdir example-redeem-bpro
+cd example-redeem-bpro
+npm init
+```
+
+Let's add the necessary dependencies to run the project.
+
+```
+npm install --save web3
+```
+
+**Example**
+```js
+const Web3 = require('web3');
+//You must compile the smart contracts or use the official ABIs of the //repository
+const MocAbi = require('../../build/contracts/MoC.json');
+const MoCInrateAbi = require('../../build/contracts/MoCInrate.json');
+const MoCStateAbi = require('../../build/contracts/MoCState.json');
+const BProTokenAbi = require('../../build/contracts/BProToken.json');
+const truffleConfig = require('../../truffle');
+
+/**
+ * Get a provider from truffle.js file
+ * @param {String} network
+ */
+const getDefaultProvider = network =>
+  truffleConfig.networks[network].provider || truffleConfig.networks[network].endpoint;
+
+/**
+ * Get a gasPrice from truffle.js file
+ * @param {String} network
+ */
+const getGasPrice = network => truffleConfig.networks[network].gasPrice || 60000000;
+
+/**
+ * Get a new web3 instance from truffle.js file
+ */
+const getWeb3 = network => {
+  const provider = getDefaultProvider(network);
+  return new Web3(provider, null, {
+    transactionConfirmationBlocks: 1
+  });
+};
+
+const web3 = getWeb3('rskTestnet');
+const gasPrice = getGasPrice('rskTestnet');
+```
+## Example code redeeming BPros without Truffle
+
+In the following example we will learn how to:
+
+- Get the maximum amount of BPRO available to redeem.
+- Get BPRO balance of an account.
+- Redeem BPROs.
+
+We will use the **testnet** network.
+
+First we create a new node project.
+
+```
+mkdir example-redeem-bpro
+cd example-redeem-bpro
+npm init
+```
+
+Let's add the necessary dependencies to run the project.
+
+```
+npm install --save web3
+npm install --save truffle-hdwallet-provider
+```
+
+```js
+const HDWalletProvider = require('truffle-hdwallet-provider');
+const Web3 = require('web3');
+//You must compile the smart contracts or use the official ABIs of the //repository
+const MocAbi = require('../../build/contracts/MoC.json');
+const MoCInrateAbi = require('../../build/contracts/MoCInrate.json');
+const MoCStateAbi = require('../../build/contracts/MoCState.json');
+const BProTokenAbi = require('../../build/contracts/BProToken.json');
+
+//Config params to TestNet
+const endpoint = 'https://public-node.testnet.rsk.co';
+//a mnemonic is 12 words instead of a single private key to sign the //transactions
+const mnemonic = 'chase chair crew elbow uncle awful cover asset cradle pet loud puzzle';
+const provider = new HDWalletProvider(mnemonic, endpoint);
+const web3 = new Web3(provider);
+
+//Contract addresses on testnet
+const mocContractAddress = '<contract-address>';
+const mocInrateAddress = '<contract-address>';
+const mocStateAddress = '<contract-address>';
+const bproTokenAddress = '<contract-address>';
+const gasPrice = 60000000;
+
+const execute = async () => {
+  web3.eth.defaultGas = 2000000;
+
+  /**
+   * Loads an specified contract
+   * @param {ContractABI} abi
+   * @param {String} contractAddress
+   */
+  const getContract = async (abi, contractAddress) => new web3.eth.Contract(abi, contractAddress);
+
+  // Loading moc contract
+  const moc = await getContract(MocAbi.abi, mocContractAddress);
+  if (!moc) {
+    throw Error('Can not find MoC contract.');
+  }
+
+  // Loading mocInrate contract. It is necessary to compute commissions
+  const mocInrate = await getContract(MoCInrateAbi.abi, mocInrateAddress);
+  if (!mocInrate) {
+    throw Error('Can not find MoC Inrate contract.');
+  }
+
+  // Loading mocState contract. It is necessary to compute absolute max BPRO
+  const mocState = await getContract(MoCStateAbi.abi, mocStateAddress);
+  if (!mocState) {
+    throw Error('Can not find MoCState contract.');
+  }
+
+  // Loading BProToken contract. It is necessary to compute user balance
+  const bproToken = await getContract(BProTokenAbi.abi, bproTokenAddress);
+
+  const [from] = await web3.eth.getAccounts();
+
+  const redeemBpro = async bproAmount => {
+    const weiAmount = web3.utils.toWei(bproAmount, 'ether');
+
+    console.log(`Calling redeem Bpro with account: ${from} and amount: ${weiAmount}.`);
+    moc.methods
+      .redeemBPro(weiAmount)
+      .send({ from, gasPrice }, function(error, transactionHash) {
+        if (error) console.log(error);
+        if (transactionHash) console.log('txHash: '.concat(transactionHash));
+      })
+      .on('transactionHash', function(hash) {
+        console.log('TxHash: '.concat(hash));
+      })
+      .on('receipt', function(receipt) {
+        console.log(receipt);
+      })
+      .on('error', console.error);
+  };
+
+  const getAbsoluteMaxBpro = await mocState.methods.absoluteMaxBPro().call();
+  const userAmount = await bproToken.methods.balanceOf(from).call();
+  const bproFinalAmount = Math.min(userAmount, getAbsoluteMaxBpro);
+  console.log('=== User BPRO balance: ', userAmount);
+  console.log('=== Max amount of BPro to redeem ', bproFinalAmount);
+
+  const bproAmount = '0.00001';
+
+  // Call redeem
+  await redeemBpro(bproAmount);
+};
+
+execute()
+  .then(() => console.log('Completed'))
+  .catch(err => {
+    console.log('Error', err);
+  });
+```
+
+## Example code minting DOC
+
+In the following example we will learn how to:
+
+- Get the maximum amount of DOC available to mint.
+- Mint DOCs.
+
+You can find code examples into _/examples_ dir.
+
+We will use **truffle** and **testnet** network
+First we create a new node project.
+
+```
+mkdir example-mint-doc
+cd example-mint-doc
+npm init
+```
+
+Let's add the necessary dependencies to run the project.
+
+```
+npm install --save bignumber.js
+npm install --save web3
+```
+**Example**:
+```js
+const BigNumber = require('bignumber.js');
+const Web3 = require('web3');
+//You must compile the smart contracts or use the official ABIs of the //repository
+const MocAbi = require('../../build/contracts/MoC.json');
+const MoCInrateAbi = require('../../build/contracts/MoCInrate.json');
+const MoCStateAbi = require('../../build/contracts/MoCState.json');
+const truffleConfig = require('../../truffle');
+
+/**
+ * Get a provider from truffle.js file
+ * @param {String} network
+ */
+const getDefaultProvider = network =>
+  truffleConfig.networks[network].provider || truffleConfig.networks[network].endpoint;
+
+/**
+ * Get a gasPrice from truffle.js file
+ * @param {String} network
+ */
+const getGasPrice = network => truffleConfig.networks[network].gasPrice || 60000000;
+
+/**
+ * Get a new web3 instance from truffle.js file
+ */
+const getWeb3 = network => {
+  const provider = getDefaultProvider(network);
+  return new Web3(provider, null, {
+    transactionConfirmationBlocks: 1
+  });
+};
+
+const web3 = getWeb3('rskTestnet');
+const gasPrice = getGasPrice('rskTestnet');
+
+//Contract addresses on testnet
+const mocContractAddress = '<contract-address>';
+const mocInrateAddress = '<contract-address>';
+const mocStateAddress = '<contract-address>';
+
+const execute = async () => {
+  web3.eth.defaultGas = 2000000;
+
+  /**
+   * Loads an specified contract
+   * @param {ContractABI} abi
+   * @param {String} contractAddress
+   */
+  const getContract = async (abi, contractAddress) => new web3.eth.Contract(abi, contractAddress);
+
+  /**
+   * Transforms BigNumbers into
+   * @param {BigNumber} number
+   */
+  const toContract = number => new BigNumber(number).toFixed(0);
+
+  // Loading moc contract
+  const moc = await getContract(MocAbi.abi, mocContractAddress);
+  if (!moc) {
+    throw Error('Can not find MoC contract.');
+  }
+
+  // Loading mocInrate contract. It is necessary to compute commissions
+  const mocInrate = await getContract(MoCInrateAbi.abi, mocInrateAddress);
+  if (!mocInrate) {
+    throw Error('Can not find MoC Inrate contract.');
+  }
+
+  // Loading mocState contract. It is necessary to compute max BPRO available to mint
+  const mocState = await getContract(MoCStateAbi.abi, mocStateAddress);
+  if (!mocState) {
+    throw Error('Can not find MoCState contract.');
+  }
+
+  const mintDoc = async btcAmount => {
+    const [from] = await web3.eth.getAccounts();
+    const weiAmount = web3.utils.toWei(btcAmount, 'ether');
+    // Computes commision value
+    const commissionValue = new BigNumber(
+      await mocInrate.methods.calcCommissionValue(weiAmount).call()
+    );
+    // Computes totalBtcAmount to call mintBpro
+    const totalBtcAmount = toContract(commissionValue.plus(weiAmount));
+    console.log(`Calling Doc minting, account: ${from}, amount: ${weiAmount}.`);
+    moc.methods
+      .mintDoc(weiAmount)
+      .send({ from, value: totalBtcAmount, gasPrice }, function(error, transactionHash) {
+        if (error) console.log(error);
+        if (transactionHash) console.log('txHash: '.concat(transactionHash));
+      })
+      .on('transactionHash', function(hash) {
+        console.log('TxHash: '.concat(hash));
+      })
+      .on('receipt', function(receipt) {
+        console.log(receipt);
+      })
+      .on('error', console.error);
+  };
+
+  // Gets max BPRO available to mint
+  const getAbsoluteMaxDoc = await mocState.methods.absoluteMaxDoc().call();
+  const btcAmount = '0.00001';
+  
+  console.log('=== Max doc amount available to mint: ', getAbsoluteMaxDoc.toString());
+  console.log('=== BTCs that are gonna be minted:  ', btcAmount);
+
+  // Call mint
+  await mintDoc(btcAmount);
+};
+
+execute()
+  .then(() => console.log('Completed'))
+  .catch(err => {
+    console.log('Error', err);
+  });
+```
+
+## Example code redeeming Free DOC
+
+In the following example we will show how to invoke redeemFreeDoc from Money on Chain contract.This method allows to redeem DOC outside the settlement and they are limited by user balance. Check the [DOC redeemption section](#redeeming-docs) for more details.
+
+We will learn how to:
+
+- Get the maximum amount of DOC available to redeem.
+- Get DOC balance of an account.
+- Redeem DOCs.
+
+You can find code examples into _/examples_ dir.
+We will use **truffle** and **testnet** network.
+First we create a new node project.
+
+```
+mkdir example-redeem-free-doc
+cd example-redeem-free-doc
+npm init
+```
+
+Let's add the necessary dependencies to run the project.
+
+```
+npm install --save web3
+```
+
+**Example**
+
+```js
+const Web3 = require('web3');
+//You must compile the smart contracts or use the official ABIs of the //repository
+const MoC = require('../../build/contracts/MoC.json');
+const MocState = require('../../build/contracts/MoCState.json');
+const DocToken = require('../../build/contracts/DocToken.json');
+const truffleConfig = require('../../truffle');
+/**
+ * Get a provider from truffle.js file
+ * @param {String} network
+ */
+const getDefaultProvider = network =>
+  truffleConfig.networks[network].provider || truffleConfig.networks[network].endpoint;
+
+/**
+ * Get a gasPrice from truffle.js file
+ * @param {String} network
+ */
+const getGasPrice = network => truffleConfig.networks[network].gasPrice || 60000000;
+
+/**
+ * Get a new web3 instance from truffle.js file
+ */
+const getWeb3 = network => {
+  const provider = getDefaultProvider(network);
+  return new Web3(provider, null, {
+    transactionConfirmationBlocks: 1
+  });
+};
+
+const web3 = getWeb3('rskTestnet');
+const gasPrice = getGasPrice('rskTestnet');
+
+//Contract addresses on testnet
+const mocAddress = '<contract-address>';
+const mocStateAddress = '<contract-address>';
+const docTokenAddress = '<contract-address>';
+
+const execute = async () => {
+  web3.eth.defaultGas = 2000000;
+
+  /**
+   * Loads an specified contract
+   * @param {ContractABI} abi
+   * @param {String} contractAddress
+   */
+  const getContract = async (abi, contractAddress) => new web3.eth.Contract(abi, contractAddress);
+
+  // Loading MoC contract
+  const moc = await getContract(MoC.abi, mocAddress);
+  if (!moc) {
+    throw Error('Can not find MoC contract.');
+  }
+
+  // Loading mocState contract. It is necessary to compute freeDoc
+  const mocState = await getContract(MocState.abi, mocStateAddress);
+  if (!mocState) {
+    throw Error('Can not find MoCState contract.');
+  }
+
+  // Loading DocToken contract. It is necessary to compute user balance
+  const docToken = await getContract(DocToken.abi, docTokenAddress);
+  if (!docToken) {
+    throw Error('Can not find DocToken contract.');
+  }
+
+  const [from] = await web3.eth.getAccounts();
+
+  const redeemFreeDoc = async docAmount => {
+    const weiAmount = web3.utils.toWei(docAmount, 'ether');
+
+    console.log(`Calling redeem Doc request, account: ${from}, amount: ${weiAmount}.`);
+    moc.methods
+      .redeemFreeDoc(weiAmount)
+      .send({ from, gasPrice }, function(error, transactionHash) {
+        if (error) console.log(error);
+        if (transactionHash) console.log('txHash: '.concat(transactionHash));
+      })
+      .on('transactionHash', function(hash) {
+        console.log('TxHash: '.concat(hash));
+      })
+      .on('receipt', function(receipt) {
+        console.log(receipt);
+      })
+      .on('error', console.error);
+
+  };
+
+  const docAmount = '10000';
+  const freeDoc = await mocState.methods.freeDoc().call();
+  const userDocBalance = await docToken.methods.balanceOf(from).call();
+  const finalDocAmount = Math.min(freeDoc, userDocBalance);
+  console.log('=== Max Available DOC to redeem: ', finalDocAmount);
+
+  // Call redeem
+  await redeemFreeDoc(docAmount);
+};
+
+execute()
+  .then(() => console.log('Completed'))
+  .catch(err => {
+    console.log('Error', err);
+  });
+```
+## Example code redeeming DOC Request
+
+In the following example we will show how to invoke redeemDocRequest using Money on Chain contract. This method can recieve any amount of DOC to redeem, but this will be processed on the next settlement. Check the [DOC redeemption section](#redeeming-docs) for more details.
+
+We will use **truffle** and **testnet** network.
+You can find code examples into _/examples_ dir.
+
+First we create a new node project.
+
+```
+mkdir example-redeem-doc-request
+cd example-redeem-doc-request
+npm init
+```
+
+Let's add the necessary dependencies to run the project.
+
+```
+npm install --save web3
+```
+
+**Example**
+
+```js
+const Web3 = require('web3');
+//You must compile the smart contracts or use the official ABIs of the //repository
+const MoC = require('../../build/contracts/MoC.json');
+const truffleConfig = require('../../truffle');
+/**
+ * Get a provider from truffle.js file
+ * @param {String} network
+ */
+const getDefaultProvider = network =>
+  truffleConfig.networks[network].provider || truffleConfig.networks[network].endpoint;
+
+/**
+ * Get a gasPrice from truffle.js file
+ * @param {String} network
+ */
+const getGasPrice = network => truffleConfig.networks[network].gasPrice || 60000000;
+
+/**
+ * Get a new web3 instance from truffle.js file
+ */
+const getWeb3 = network => {
+  const provider = getDefaultProvider(network);
+  return new Web3(provider, null, {
+    transactionConfirmationBlocks: 1
+  });
+};
+
+const web3 = getWeb3('rskTestnet');
+const gasPrice = getGasPrice('rskTestnet');
+
+//Loading MoC address on testnet
+const mocAddress = '<contract-address>';
+
+const execute = async () => {
+  web3.eth.defaultGas = 2000000;
+
+  /**
+   * Loads an specified contract
+   * @param {ContractABI} abi
+   * @param {String} contractAddress
+   */
+  const getContract = async (abi, contractAddress) => new web3.eth.Contract(abi, contractAddress);
+
+  // Loading MoC contract
+  const moc = await getContract(MoC.abi, mocAddress);
+  if (!moc) {
+    throw Error('Can not find MoC contract.');
+  }
+
+  const redeemDocRequest = async docAmount => {
+    const [from] = await web3.eth.getAccounts();
+    const weiAmount = web3.utils.toWei(docAmount, 'ether');
+
+    console.log(`Calling redeem Doc request, account: ${from}, amount: ${weiAmount}.`);
+    moc.methods
+      .redeemDocRequest(weiAmount)
+      .send({ from, gasPrice }, function(error, transactionHash) {
+        if (error) console.log(error);
+        if (transactionHash) console.log('txHash: '.concat(transactionHash));
+      })
+      .on('transactionHash', function(hash) {
+        console.log('TxHash: '.concat(hash));
+      })
+      .on('receipt', function(receipt) {
+        console.log(receipt);
+      })
+      .on('error', console.error);
+  };
+
+  const docAmount = '10000';
+
+  // Call redeem
+  await redeemDocRequest(docAmount);
+};
+
+execute()
+  .then(() => console.log('Completed'))
+  .catch(err => {
+    console.log('Error', err);
+  });
+```
+## Example code redeeming all DOC
+
+In the following example we will show how to invoke redeemAllDoc using Money on Chain contract. As a condition to do this the Moc contract must be paused(). Check the [DOC redeemption section](#redeeming-docs) for more details.
+
+We will use **truffle** and **testnet** network.
+You can find code examples into _/examples_ dir.
+
+First we create a new node project.
+
+```
+mkdir example-redeem-all-doc
+cd example-redeem-all-doc
+npm init
+```
+
+Let's add the necessary dependencies to run the project.
+
+```
+npm install --save web3
+```
+
+**Example**
+```js
+const Web3 = require('web3');
+//You must compile the smart contracts or use the official ABIs of the //repository
+const MoC = require('../../build/contracts/MoC.json');
+const truffleConfig = require('../../truffle');
+/**
+ * Get a provider from truffle.js file
+ * @param {String} network
+ */
+const getDefaultProvider = network =>
+  truffleConfig.networks[network].provider || truffleConfig.networks[network].endpoint;
+
+/**
+ * Get a gasPrice from truffle.js file
+ * @param {String} network
+ */
+const getGasPrice = network => truffleConfig.networks[network].gasPrice || 60000000;
+
+/**
+ * Get a new web3 instance from truffle.js file
+ */
+const getWeb3 = network => {
+  const provider = getDefaultProvider(network);
+  return new Web3(provider, null, {
+    transactionConfirmationBlocks: 1
+  });
+};
+
+const web3 = getWeb3('rskTestnet');
+const gasPrice = getGasPrice('rskTestnet');
+
+// Loading MoC address on testnet
+const mocAddress = '<contract-address>';
+
+const execute = async () => {
+  web3.eth.defaultGas = 2000000;
+
+  /**
+   * Loads an specified contract
+   * @param {ContractABI} abi
+   * @param {String} contractAddress
+   */
+  const getContract = async (abi, contractAddress) => new web3.eth.Contract(abi, contractAddress);
+
+  // Loading MoC contract
+  const moc = await getContract(MoC.abi, mocAddress);
+  if (!moc) {
+    throw Error('Can not find MoC contract.');
+  }
+
+
+  const redeemDocRequest = async () => {
+    const [from] = await web3.eth.getAccounts();
+
+    console.log(`Calling redeem all Doc.`);
+    moc.methods
+      .redeemAllDoc()
+      .send({ from, gasPrice }, function(error, transactionHash) {
+        if (error) console.log(error);
+        if (transactionHash) console.log('txHash: '.concat(transactionHash));
+      })
+      .on('transactionHash', function(hash) {
+        console.log('TxHash: '.concat(hash));
+      })
+      .on('receipt', function(receipt) {
+        console.log(receipt);
+      })
+      .on('error', console.error);
+  };
+
+  // Call redeem
+  await redeemDocRequest();
+};
+
+execute()
+  .then(() => console.log('Completed'))
+  .catch(err => {
+    console.log('Error', err);
+  });
+```
+
+## Example code minting BTC2X
+
+In the following script example we will learn how to:
+
+- Get the maximum amount of BTC2X available to mint.
+- Mint BTC2X.
+
+We will use **truffle** and **testnet** network.
+You can find code examples into _/examples_ dir.
+
+First we create a new node project.
+
+```
+mkdir example-mint-btc2x
+cd example-mint-btc2x
+npm init
+```
+
+Let's add the necessary dependencies to run the project.
+
+```
+npm install --save web3
+npm install --save bignumber.js
+```
+
+**Example**
+
+```js
+const BigNumber = require('bignumber.js');
+const Web3 = require('web3');
+//You must compile the smart contracts or use the official ABIs of the //repository
+const Moc = require('../../build/contracts/MoC.json');
+const MoCInrate = require('../../build/contracts/MoCInrate.json');
+const MoCState = require('../../build/contracts/MoCState.json');
+const truffleConfig = require('../../truffle');
+
+/**
+ * Get a provider from truffle.js file
+ * @param {String} network
+ */
+const getDefaultProvider = network =>
+  truffleConfig.networks[network].provider || truffleConfig.networks[network].endpoint;
+
+/**
+ * Get a gasPrice from truffle.js file
+ * @param {String} network
+ */
+const getGasPrice = network => truffleConfig.networks[network].gasPrice || 60000000;
+
+/**
+ * Get a new web3 instance from truffle.js file
+ */
+const getWeb3 = network => {
+  const provider = getDefaultProvider(network);
+  return new Web3(provider, null, {
+    transactionConfirmationBlocks: 1
+  });
+};
+
+const web3 = getWeb3('rskTestnet');
+const gasPrice = getGasPrice('rskTestnet');
+
+//Contract addresses on testnet
+const mocContractAddress = '<contract-address>';
+const mocInrateAddress = '<contract-address>';
+const mocStateAddress = '<contract-address>';
+
+const execute = async () => {
+  web3.eth.defaultGas = 2000000;
+
+  /**
+   * Loads an specified contract
+   * @param {ContractABI} abi
+   * @param {String} contractAddress
+   */
+  const getContract = async (abi, contractAddress) => new web3.eth.Contract(abi, contractAddress);
+
+  /**
+   * Transforms BigNumbers into
+   * @param {BigNumber} number
+   */
+  const toContract = number => new BigNumber(number).toFixed(0);
+  const strToBytes32 = bucket => web3.utils.asciiToHex(bucket, 32);
+  const bucketX2 = 'X2';
+
+  // Loading moc contract
+  const moc = await getContract(Moc.abi, mocContractAddress);
+  if (!moc) {
+    throw Error('Can not find MoC contract.');
+  }
+
+  // Loading mocInrate contract. It is necessary to compute commissions
+  const mocInrate = await getContract(MoCInrate.abi, mocInrateAddress);
+  if (!mocInrate) {
+    throw Error('Can not find MoC Inrate contract.');
+  }
+
+  // Loading mocState contract. It is necessary to compute max BTC2X available to mint
+  const mocState = await getContract(MoCState.abi, mocStateAddress);
+  if (!mocState) {
+    throw Error('Can not find MoCState contract.');
+  }
+
+  const mintBtc2x = async btcAmount => {
+    const [from] = await web3.eth.getAccounts();
+    const weiAmount = web3.utils.toWei(btcAmount, 'ether');
+    const btcInterestAmount = await mocInrate.methods.calcMintInterestValues(strToBytes32(bucketX2), weiAmount).call();
+    const commissionValue = new BigNumber(
+      await mocInrate.methods.calcCommissionValue(weiAmount).call()
+    );
+    const totalBtcAmount = toContract(commissionValue.plus(btcInterestAmount).plus(weiAmount));
+    console.log(`Calling mint BTC2X with ${btcAmount} Btcs with account: ${from}.`);
+    moc.methods
+      .mintBProx(strToBytes32(bucketX2), weiAmount)
+      .send({ from, value: totalBtcAmount, gasPrice }, function(error, transactionHash) {
+        if (error) console.log(error);
+        if (transactionHash) console.log('txHash: '.concat(transactionHash));
+      })
+      .on('transactionHash', function(hash) {
+        console.log('TxHash: '.concat(hash));
+      })
+      .on('receipt', function(receipt) {
+        console.log(receipt);
+      })
+      .on('error', console.error);
+  };
+
+  const btcToMint = '0.00001';
+  // Gets max BTC2X amount available to mint
+  const maxBtcToMint = await mocState.methods.maxBProxBtcValue(strToBytes32(bucketX2)).call();
+
+  console.log('=== Max Available RBTC to mint BTC2X: '.concat(maxBtcToMint.toString()));
+
+  // Call mint
+  await mintBtc2x(btcToMint);
+};
+
+execute()
+  .then(() => console.log('Completed'))
+  .catch(err => {
+    console.log('Error', err);
+  });
+```
+
+## Example code redeeming BTC2X
+
+In the following script example we will learn how to:
+
+- Get BTC2X balance of an account.
+- Redeem BTC2X.
+
+We will use **truffle** and **testnet** network.
+You can find code examples into _/examples_ dir.
+
+First we create a new node project.
+
+```
+mkdir example-redeem-btc2x
+cd example-redeem-btc2x
+npm init
+```
+
+Let's add the necessary dependencies to run the project.
+
+```
+npm install --save web3
+```
+
+**Example**
+
+```js
+const Web3 = require('web3');
+//You must compile the smart contracts or use the official ABIs of the //repository
+const MoC = require('../../build/contracts/MoC.json');
+const MoCBProxManager = require('../../build/contracts/MoCBProxManager.json');
+const truffleConfig = require('../../truffle');
+
+/**
+ * Get a provider from truffle.js file
+ * @param {String} network
+ */
+const getDefaultProvider = network =>
+  truffleConfig.networks[network].provider || truffleConfig.networks[network].endpoint;
+
+/**
+ * Get a gasPrice from truffle.js file
+ * @param {String} network
+ */
+const getGasPrice = network => truffleConfig.networks[network].gasPrice || 60000000;
+
+/**
+ * Get a new web3 instance from truffle.js file
+ */
+const getWeb3 = network => {
+  const provider = getDefaultProvider(network);
+  return new Web3(provider, null, {
+    transactionConfirmationBlocks: 1
+  });
+};
+
+const web3 = getWeb3('rskTestnet');
+const gasPrice = getGasPrice('rskTestnet');
+
+//Contract addresses on testnet
+const mocContractAddress = '<contract-address>';
+const mocBProxManagerAddress = '<contract-address>';
+
+const execute = async () => {
+  web3.eth.defaultGas = 2000000;
+
+  /**
+   * Loads an specified contract
+   * @param {ContractABI} abi
+   * @param {String} contractAddress
+   */
+  const getContract = async (abi, contractAddress) => new web3.eth.Contract(abi, contractAddress);
+  const strToBytes32 = bucket => web3.utils.asciiToHex(bucket, 32);
+  const bucketX2 = 'X2';
+
+  // Loading Moc contract
+  const moc = await getContract(MoC.abi, mocContractAddress);
+  if (!moc) {
+    throw Error('Can not find MoC contract.');
+  }
+
+  // Loading MoCBProxManager contract. It is necessary to compute user BTC2X balance
+  const mocBproxManager = await getContract(MoCBProxManager.abi, mocBProxManagerAddress);
+  if (!mocBproxManager) {
+    throw Error('Can not find MoCBProxManager contract.');
+  }
+
+  const [from] = await web3.eth.getAccounts();
+
+  const redeemBtc2x = async btc2xAmount => {
+    const weiAmount = web3.utils.toWei(btc2xAmount, 'ether');
+
+    console.log(`Calling redeem BTC2X with account: ${from}, amount: ${weiAmount}.`);
+    moc.methods
+      .redeemBProx(strToBytes32(bucketX2), weiAmount)
+      .send({ from, gasPrice }, function(error, transactionHash) {
+        if (error) console.log(error);
+        if (transactionHash) console.log('txHash: '.concat(transactionHash));
+      })
+      .on('transactionHash', function(hash) {
+        console.log('TxHash: '.concat(hash));
+      })
+      .on('receipt', function(receipt) {
+        console.log(receipt);
+      })
+      .on('error', console.error);
+  };
+
+  const userBalance = await mocBproxManager.methods
+    .bproxBalanceOf(strToBytes32(bucketX2), from)
+    .call();
+  console.log('=== User BTC2X Balance: '.concat(userBalance.toString()));
+
+  const btc2xAmount = '0.00001';
+
+  // Call redeem
+  await redeemBtc2x(btc2xAmount);
+};
+
+execute()
+  .then(() => console.log('Completed'))
+  .catch(err => {
+    console.log('Error', err);
+  });
+```
