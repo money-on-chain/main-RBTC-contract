@@ -12,19 +12,19 @@ import "moc-governance/contracts/Governance/Governed.sol";
 import "moc-governance/contracts/Governance/IGovernor.sol";
 
 contract MoCSettlementEvents {
-  event RedeemRequestAlter(address indexed redeemer, bool isAddition, uint256 delta);
-  event RedeemRequestProcessed(address indexed redeemer, uint256 commission, uint256 amount);
-  event SettlementRedeemStableToken(uint256 queueSize, uint256 accumCommissions, uint256 reservePrice);
-  event SettlementDeleveraging(uint256 leverage, uint256 riskProxPrice, uint256 reservePrice, uint256 startBlockNumber);
-  event SettlementStarted(
-    uint256 stableTokenRedeemCount,
-    uint256 deleveragingCount,
-    uint256 riskProxPrice,
-    uint256 reservePrice
-  );
-  event SettlementCompleted(
-    uint256 commissionsPayed
-  );
+    event RedeemRequestAlter(address indexed redeemer, bool isAddition, uint256 delta);
+    event RedeemRequestProcessed(address indexed redeemer, uint256 commission, uint256 amount);
+    event SettlementRedeemStableToken(uint256 queueSize, uint256 accumCommissions, uint256 reservePrice);
+    event SettlementDeleveraging(uint256 leverage, uint256 riskProxPrice, uint256 reservePrice, uint256 startBlockNumber);
+    event SettlementStarted(
+        uint256 stableTokenRedeemCount,
+        uint256 deleveragingCount,
+        uint256 riskProxPrice,
+        uint256 reservePrice
+    );
+    event SettlementCompleted(
+        uint256 commissionsPayed
+    );
 }
 
 contract MoCSettlement is
