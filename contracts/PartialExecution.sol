@@ -1,4 +1,5 @@
 pragma solidity 0.5.8;
+
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "openzeppelin-solidity/contracts/math/Math.sol";
 
@@ -17,7 +18,7 @@ contract PartialExecutionData {
 
     struct Task {
         bytes32 id;
-        function() internal returns (uint256)  getStepCount;
+        function() internal returns (uint256) getStepCount;
         function(uint256) internal stepFunction;
         function() internal onStart;
         function() internal onFinish;
@@ -91,7 +92,7 @@ contract PartialExecution is PartialExecutionData {
         tasks[taskId].onFinish = _onFinish;
     }
 
-  
+
 
     /**
      @dev Creates a task group
@@ -125,7 +126,7 @@ contract PartialExecution is PartialExecutionData {
    */
     function createTask(
         bytes32 taskId,
-        function() internal returns (uint256)  _getStepCount,
+        function() internal returns (uint256) _getStepCount,
         function(uint256) internal _stepFunction,
         function() internal _onStart,
         function() internal _onFinish
@@ -174,8 +175,8 @@ contract PartialExecution is PartialExecutionData {
      @return The amount of steps consumed in the execution
    */
     function executeTask(bytes32 taskId, uint256 steps)
-        internal
-        returns (uint256)
+    internal
+    returns (uint256)
     {
         Task storage task = tasks[taskId];
         uint256 initialStep = task.currentStep;

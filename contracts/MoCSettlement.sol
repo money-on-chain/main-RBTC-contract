@@ -12,26 +12,26 @@ import "moc-governance/contracts/Governance/Governed.sol";
 import "moc-governance/contracts/Governance/IGovernor.sol";
 
 contract MoCSettlementEvents {
-  event RedeemRequestAlter(address indexed redeemer, bool isAddition, uint256 delta);
-  event RedeemRequestProcessed(address indexed redeemer, uint256 commission, uint256 amount);
-  event SettlementRedeemStableToken(uint256 queueSize, uint256 accumCommissions, uint256 reservePrice);
-  event SettlementDeleveraging(uint256 leverage, uint256 riskProxPrice, uint256 reservePrice, uint256 startBlockNumber);
-  event SettlementStarted(
-    uint256 stableTokenRedeemCount,
-    uint256 deleveragingCount,
-    uint256 riskProxPrice,
-    uint256 reservePrice
-  );
-  event SettlementCompleted(
-    uint256 commissionsPayed
-  );
+    event RedeemRequestAlter(address indexed redeemer, bool isAddition, uint256 delta);
+    event RedeemRequestProcessed(address indexed redeemer, uint256 commission, uint256 amount);
+    event SettlementRedeemStableToken(uint256 queueSize, uint256 accumCommissions, uint256 reservePrice);
+    event SettlementDeleveraging(uint256 leverage, uint256 riskProxPrice, uint256 reservePrice, uint256 startBlockNumber);
+    event SettlementStarted(
+        uint256 stableTokenRedeemCount,
+        uint256 deleveragingCount,
+        uint256 riskProxPrice,
+        uint256 reservePrice
+    );
+    event SettlementCompleted(
+        uint256 commissionsPayed
+    );
 }
 
 contract MoCSettlement is
-    MoCSettlementEvents,
-    MoCBase,
-    PartialExecution,
-    Governed
+MoCSettlementEvents,
+MoCBase,
+PartialExecution,
+Governed
 {
     using Math for uint256;
     using SafeMath for uint256;
@@ -128,10 +128,10 @@ contract MoCSettlement is
     @return redeemer's address and amount he submitted
   */
     function getRedeemRequestAt(uint256 _index)
-        public
-        view
-        withinBoundaries(_index)
-        returns (address payable, uint256)
+    public
+    view
+    withinBoundaries(_index)
+    returns (address payable, uint256)
     {
         return (redeemQueue[_index].who, redeemQueue[_index].amount);
     }
@@ -208,8 +208,8 @@ contract MoCSettlement is
     @param redeemer redeemer address
   */
     function addRedeemRequest(uint256 amount, address payable redeemer)
-        public
-        onlyWhitelisted(msg.sender)
+    public
+    onlyWhitelisted(msg.sender)
     {
         if (!redeemMapping[redeemer].activeRedeemer) {
             if (redeemQueueLength == redeemQueue.length) {
@@ -270,10 +270,10 @@ contract MoCSettlement is
     @return The commissions collected in the executed steps
   */
     function runSettlement(uint256 steps)
-        public
-        onlyWhitelisted(msg.sender)
-        isTime()
-        returns (uint256)
+    public
+    onlyWhitelisted(msg.sender)
+    isTime()
+    returns (uint256)
     {
         executeGroup(SETTLEMENT_TASK, steps);
 
@@ -350,7 +350,7 @@ contract MoCSettlement is
     function finishSettlement() internal {
         lastProcessedBlock = lastProcessedBlock.add(blockSpan);
         settlementInfo.finalCommissionAmount = settlementInfo
-            .partialCommissionAmount;
+        .partialCommissionAmount;
         emit SettlementCompleted(settlementInfo.finalCommissionAmount);
     }
 
@@ -418,7 +418,7 @@ contract MoCSettlement is
         uint256 amountToRedeem = Math.min(userDocBalance, redeemAmount);
         if (amountToRedeem > 0) {
             (bool result, uint256 btcCommissionSpent) = mocExchange
-                .redeemDocWithPrice(
+            .redeemDocWithPrice(
                 redeemer,
                 amountToRedeem,
                 settlementInfo.btcPrice
@@ -431,8 +431,8 @@ contract MoCSettlement is
                     amountToRedeem
                 );
                 settlementInfo.partialCommissionAmount = settlementInfo
-                    .partialCommissionAmount
-                    .add(btcCommissionSpent);
+                .partialCommissionAmount
+                .add(btcCommissionSpent);
             }
         }
         UserRedeemRequest storage userReedem = redeemMapping[redeemer];
