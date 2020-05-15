@@ -7,30 +7,16 @@ import "./token/DocToken.sol";
 import "./MoCState.sol";
 import "./MoCExchange.sol";
 import "./MoCBProxManager.sol";
-import "./PartialExecution.sol";
+import "./PartialExecution_v019.sol";
 import "moc-governance/contracts/Governance/Governed.sol";
 import "moc-governance/contracts/Governance/IGovernor.sol";
 
-contract MoCSettlementEvents {
-  event RedeemRequestAlter(address indexed redeemer, bool isAddition, uint256 delta);
-  event RedeemRequestProcessed(address indexed redeemer, uint256 commission, uint256 amount);
-  event SettlementRedeemStableToken(uint256 queueSize, uint256 accumCommissions, uint256 reservePrice);
-  event SettlementDeleveraging(uint256 leverage, uint256 riskProxPrice, uint256 reservePrice, uint256 startBlockNumber);
-  event SettlementStarted(
-    uint256 stableTokenRedeemCount,
-    uint256 deleveragingCount,
-    uint256 riskProxPrice,
-    uint256 reservePrice
-  );
-  event SettlementCompleted(
-    uint256 commissionsPayed
-  );
-}
 
-contract MoCSettlement is
+
+contract MoCSettlement_v019 is
     MoCSettlementEvents,
     MoCBase,
-    PartialExecution,
+    PartialExecution_v019,
     Governed
 {
     using Math for uint256;
@@ -458,12 +444,6 @@ contract MoCSettlement is
             noFunction,
             finishDocRedemption
         );
-
-
-        bytes32[] memory tasks = new bytes32[](2);
-        tasks[0] = DELEVERAGING_TASK;
-        tasks[1] = DOC_REDEMPTION_TASK;
-
         resetTaskGroupPointers(
             SETTLEMENT_TASK,
             tasks,
