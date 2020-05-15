@@ -1,0 +1,95 @@
+{
+  "timeout": 60,
+  "timeout_web3": 300,
+  "gas_price": 60000000,
+  "networks": {
+    "develop": {
+      "uri": "http://127.0.0.1:8545",
+      "chain_id": null,
+      "accounts": [
+        {
+          "address": "0x0e424e9a8598a55918e12de47172f3180c4b4e13",
+          "private_key":  "0x2bdd21761a483f71054e14f5b827213567971c676928d9a1808cbfa4b7501200"
+        }
+      ],
+      "addresses": {
+        "governor": "0x4B7250eE63F09dF3312d6B0E59B062Eb73fBAB18",
+        "upgradeDelegator": "0xa0474c9c745Bf66bd8848f478764700f18e183c4",
+        "MoC": "0xdeD5F72c57E7A9d336ef9C9B5e22727Ac391C1ED",
+        "MoCHelperLib": "0x2556a2509Fb3C5bb8102Bc876358f0A3c1BA3E8B"
+      }
+
+    },
+    "mocTestnetAlpha": {
+      "uri": "https://public-node.testnet.rsk.co",
+      "chain_id": 31,
+      "accounts": [
+        {
+          "address": "0xAb242e50E95C2f539242763A4eD5Db1aEE5ce461",
+          "private_key": ""
+        }
+      ],
+      "addresses": {
+        "governor": "0x9258531274B945eB628656F4b30e8216938A619C",
+        "upgradeDelegator": "0x00a47D7d7B9bD22e0A862908EC493bDE893f627B",
+        "MoC": "0xE02f9AE8fe5Da307b6C7cd928AEa380392f5a395",
+        "MoCSettlement": "0xa0dA80B5E5bdf96F9e99630Fa333821fB741A308",
+        "MoCHelperLib": "0xbb2fF72258637a1c29Dd1924C7F34EA80B9413DF"
+      }
+
+    },
+    "mocTestnet": {
+      "uri": "https://public-node.testnet.rsk.co",
+      "chain_id": 31,
+      "accounts": [
+        {
+          "address": "0xE2929d888015EB568AFfa06aaB946923a7236Ad9",
+          "private_key": ""
+        }
+      ],
+      "addresses": {
+        "governor": "0x4eAC4518e81B3A5198aADAb998D2610B46aAA609",
+        "upgradeDelegator": "0xCDAbFbF334A5F6BCe900D2f73470D1e6722365d8",
+        "MoC": "0x2820f6d4D199B8D8838A4B26F9917754B86a0c1F",
+        "MoCSettlement": "0x367D283c53f8F10e47424e2AeB102F45eCC49FEa",
+        "MoCHelperLib": "0xB842F6E4795F0DCE9e05729981B4B1D908dE552c"
+      }
+
+    },
+    "mocMainnet1": {
+      "uri": "https://public-node.rsk.co",
+      "chain_id": 30,
+      "accounts": [
+        {
+          "address": "0xEA14c08764c9e5F212c916E11a5c47Eaf92571e4",
+          "private_key": ""
+        }
+      ],
+      "addresses": {
+        "governor": "0x8375040b93d24FC89388295D12916289DeeAC8FC",
+        "upgradeDelegator": "0xFAC405bA85e189F899ead9984bBC59DEc15Ec35f",
+        "MoCHelperLib": "0xFfbEe1089b1ad5f31c92aFf9918e668e1a15C22A"
+      }
+    },
+    "mocMainnet2": {
+      "uri": "https://public-node.rsk.co",
+      "chain_id": 30,
+      "accounts": [
+        {
+          "address": "0xEA14c08764c9e5F212c916E11a5c47Eaf92571e4",
+          "private_key": ""
+        }
+      ],
+      "addresses": {
+        "governor": "0xC61F0392d5170214b5D93C0BC4c4354163aBC1f7",
+        "upgradeDelegator": "0x5cE577f6Ec969CE9a282838D350206C52A6F338C",
+        "MoC": "0xf773B590aF754D597770937Fa8ea7AbDf2668370",
+        "MoCSettlement": "0x609dF03D8a85eAffE376189CA7834D4C35e32F22",
+        "MoCHelperLib": "0x4E1894debD18b470706A20aC8FE0cc2D9e904218"
+      }
+    }
+
+
+  }
+
+}
