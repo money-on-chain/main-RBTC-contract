@@ -285,7 +285,7 @@ module.exports = async contracts => {
     getDoCBalance: getDoCBalance(doc),
     getBProBalance: getBProBalance(bpro),
     getBProxBalance: getBProxBalance(bprox),
-    getReserveBalance: getReserveBalance(),
+    getReserveBalance,
     getUserBalances: getUserBalances(bpro, doc, bprox),
     setSmoothingFactor: setSmoothingFactor(governor, mockMocStateChanger),
     redeemFreeDoc: redeemFreeDoc(moc),
