@@ -57,8 +57,9 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
 
   const bitcoinOracle = async () => {
     switch (networkName) {
-      case "coverage":
-      case "development":
+      case 'regtest':
+      case 'coverage':
+      case 'development':
         return (await BtcPriceProviderMock.deployed()).address;
       default:
         return config.oracle;
@@ -67,8 +68,9 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
 
   const governorContractAddress = async () => {
     switch (networkName) {
-      case "coverage":
-      case "development":
+      case 'regtest':
+      case 'coverage':
+      case 'development':
         return (await Governor.deployed()).address;
       default:
         return config.governor;
@@ -77,8 +79,9 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
 
   const stopperContractAddress = async () => {
     switch (networkName) {
-      case "coverage":
-      case "development":
+      case 'regtest':
+      case 'coverage':
+      case 'development':
         return (await Stopper.deployed()).address;
       default:
         return config.stopper;
@@ -87,8 +90,9 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
 
   const proxyAdminContractAddress = async () => {
     switch (networkName) {
-      case "coverage":
-      case "development":
+      case 'regtest':
+      case 'coverage':
+      case 'development':
         return (await ProxyAdmin.deployed()).address;
       default:
         return config.proxyAdmin;

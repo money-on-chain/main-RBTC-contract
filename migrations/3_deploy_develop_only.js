@@ -25,7 +25,11 @@ module.exports = async (deployer, currentNetwork, [owner]) => {
     deployer
   );
   // Workaround to get the link working on tests
-  if (currentNetwork === "development" || currentNetwork === "coverage") {
+  if (
+    currentNetwork === 'development' ||
+    currentNetwork === 'coverage' ||
+    currentNetwork === 'regtest'
+  ) {
     return deployer.then(async () => {
       console.log("Deploying Dev only 1");
       await Promise.all([

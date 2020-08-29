@@ -15,7 +15,11 @@ module.exports = async (deployer, currentNetwork, [owner]) => {
     initializeContracts
   } = await makeUtils(artifacts, currentNetwork, allConfigs[currentNetwork], owner, deployer);
   // Workaround to get the link working on tests
-  if (currentNetwork === 'development' || currentNetwork === 'coverage') {
+  if (
+    currentNetwork === 'development' ||
+    currentNetwork === 'coverage' ||
+    currentNetwork === 'regtest'
+  ) {
     return deployer.then(async () => {
       console.log('Init Dev only createInstances');
       await createInstances(MoCSettlementMock, MoCStateMock);
