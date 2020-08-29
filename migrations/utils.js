@@ -238,7 +238,7 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
       });
     }
     if (index++ === step) {
-      bprox = await await create({ contractAlias: contract.alias, ...options });
+      bprox = await create({ contractAlias: contract.alias, ...options });
     }
     if (index++ === step) {
       mocBurnout = await create({ contractAlias: contract.alias, ...options });

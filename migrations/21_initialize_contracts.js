@@ -14,9 +14,8 @@ module.exports = async (deployer, currentNetwork, [owner]) => {
     owner,
     deployer
   );
-  return deployer.then(async () => {
-    await createInstances(MoCSettlement, MoCState);
-    console.log(`Initialize contracts - network: ${currentNetwork}`);
-    return initializeContracts();
-  });
+
+  await createInstances(MoCSettlement, MoCState);
+  console.log(`Initialize contracts - network: ${currentNetwork}`);
+  await initializeContracts();
 };
