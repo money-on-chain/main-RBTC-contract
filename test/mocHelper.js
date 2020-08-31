@@ -1,5 +1,5 @@
 const flat = require('flat');
-
+const fs = require('fs');
 const { createBaseContracts } = require('./testHelpers/contractsBuilder');
 const functionHelper = require('./testHelpers/functionHelper');
 const precisionHelper = require('./testHelpers/precisionHelper');
@@ -39,6 +39,15 @@ const getContractReadyState = (unitsMapping, unitsPrecision) => state => {
 };
 
 module.exports = async ({ owner, useMock }) => {
+  const networkId = await web3.eth.net.getId();
+  if (networkId >= 30 && networkId <= 33) {
+    // workaround for nonce too high error due to zos pushing all the contracts at once
+    // surpasing the RSK limit of 4 tx of the same account in the mempool
+    // remove whne upgrade from zos to open zepelin sdk
+    // https://github.com/OpenZeppelin/openzeppelin-sdk/issues/1250
+    const data = fs.readFileSync('./zos.json.empty');
+    fs.writeFileSync('./zos.json', data);
+  }
   const contracts = await createBaseContracts({
     owner,
     useMock
