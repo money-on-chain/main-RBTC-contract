@@ -11,5 +11,5 @@ module.exports = async (deployer, currentNetwork, [owner]) => {
     owner,
     deployer
   );
-  return deployer.then(async () => linkMocLib(MoCState));
+  await linkMocLib(MoCState);
 };
