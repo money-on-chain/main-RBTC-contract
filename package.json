@@ -20,7 +20,8 @@
     "eslint": "eslint 'test/**/*.js' 'scripts/**/*.js'",
     "migrate-development": "npx truffle migrate --network development",
     "deploy-reset-development": "rm zos.dev-*.json; rm -r build/contracts; npx truffle migrate --network development --reset",
-    "deploy-reset-regtest": "rm zos.dev-*.json; rm -r build/contracts; cat zos.json.empty > zos.json; npx truffle migrate --network regtest --reset"
+    "deploy-reset-regtest": "rm zos.dev-*.json; rm -r build/contracts; cat zos.json.empty > zos.json; npx truffle migrate --network regtest --reset",
+    "deploy-reset-testnet": "rm zos.dev-*.json; rm -r build/contracts; cat zos.json.empty > zos.json; npx truffle migrate --network rskTestnet --reset"
   },
   "repository": {
     "type": "git",

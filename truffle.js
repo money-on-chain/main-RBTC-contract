@@ -20,12 +20,11 @@ module.exports = {
   },
   networks: {
     development: {
-      host: '127.0.0.1',
-      port: 8545,
-      endpoint: 'http://127.0.0.1:8545',
+      provider: new HDWalletProvider(mnemonic, 'http://localhost:4444', 0, 1, true),
       network_id: '*',
-      gas: 6721975,
-      gasPrice: 20000000000
+      gas: 7885048,
+      gasPrice: 65000000,
+      confirmations: 0
     },
     regtest: {
       host: '127.0.0.1',
@@ -40,6 +39,15 @@ module.exports = {
       port: 8555,
       gas: 0xfffffffffff,
       gasPrice: 0x01
+    },
+    rskTestnet: {
+      host: 'https://public-node.testnet.rsk.co',
+      provider: new HDWalletProvider(mnemonic, 'https://public-node.testnet.rsk.co'),
+      network_id: '*',
+      gas: 6700000,
+      gasPrice: 69000000,
+      skipDryRun: true,
+      confirmations: 1
     }
   },
   mocha: {
