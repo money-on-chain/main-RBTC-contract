@@ -40,12 +40,30 @@ module.exports = {
       gas: 0xfffffffffff,
       gasPrice: 0x01
     },
-    rskTestnet: {
+    rskAlphaTestnet: {
       host: 'https://public-node.testnet.rsk.co',
       provider: new HDWalletProvider(mnemonic, 'https://public-node.testnet.rsk.co'),
       network_id: '*',
       gas: 6700000,
       gasPrice: 69000000,
+      skipDryRun: true,
+      confirmations: 1
+    },
+    rskMocTestnet: {
+      host: 'https://public-node.testnet.rsk.co',
+      provider: new HDWalletProvider(mnemonic, 'https://public-node.testnet.rsk.co'),
+      network_id: '*',
+      gas: 6700000,
+      gasPrice: 69000000,
+      skipDryRun: true,
+      confirmations: 1
+    },
+    rskMocMainnet2: {
+      host: 'https://public-node.rsk.co',
+      provider: new HDWalletProvider(mnemonic, 'https://public-node.rsk.co'),
+      network_id: '*',
+      gas: 6700000,
+      gasPrice: 60000000,
       skipDryRun: true,
       confirmations: 1
     }

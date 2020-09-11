@@ -1,0 +1,8 @@
+{
+  "zosversion": "2.2",
+  "name": "money-on-chain",
+  "version": "0.1.3",
+  "contracts": {
+    "CommissionSplitter": "CommissionSplitter"
+  }
+}
