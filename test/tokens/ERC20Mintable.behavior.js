@@ -10,14 +10,6 @@ function shouldBehaveLikeERC20Mintable(minter, [other]) {
       context('when the sender has minting permission', function() {
         const from = minter;
 
-        context('for a zero amount', function() {
-          shouldMint(new BN(0));
-        });
-
-        context('for a non-zero amount', function() {
-          shouldMint(amount);
-        });
-
         function shouldMint(_amount) {
           beforeEach(async function() {
             ({ logs: this.logs } = await this.token.mint(other, _amount, { from }));
@@ -35,6 +27,14 @@ function shouldBehaveLikeERC20Mintable(minter, [other]) {
             });
           });
         }
+
+        context('for a zero amount', function() {
+          shouldMint(new BN(0));
+        });
+
+        context('for a non-zero amount', function() {
+          shouldMint(amount);
+        });
       });
 
       context('when the sender does not have minting permission', function() {
