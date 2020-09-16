@@ -38,7 +38,7 @@ const getContractReadyState = (unitsMapping, unitsPrecision) => state => {
   return flat.unflatten(transformed);
 };
 
-module.exports = async ({ owner, useMock }) => {
+module.exports = async ({ owner, useMock = true }) => {
   const networkId = await web3.eth.net.getId();
   if (networkId >= 30 && networkId <= 33) {
     // workaround for nonce too high error due to zos pushing all the contracts at once
@@ -56,6 +56,7 @@ module.exports = async ({ owner, useMock }) => {
   const { saveState } = networkFunctions;
   // Fix snapshot after moc deploy
   await saveState();
+
   const mocFunctions = await functionHelper(contracts);
   const precisions = await precisionHelper(contracts.moc);
   const asserts = await assertsHelper(precisions);

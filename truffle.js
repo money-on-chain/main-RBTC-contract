@@ -19,12 +19,20 @@ module.exports = {
     }
   },
   networks: {
+    // development: {
+    //   provider: new HDWalletProvider(mnemonic, 'http://localhost:4444', 0, 1, true),
+    //   network_id: '*',
+    //   gas: 7885048,
+    //   gasPrice: 65000000,
+    //   confirmations: 0
+    // },
     development: {
-      provider: new HDWalletProvider(mnemonic, 'http://localhost:4444', 0, 1, true),
+      host: '127.0.0.1',
+      port: 8545,
+      endpoint: 'http://127.0.0.1:8545',
       network_id: '*',
-      gas: 7885048,
-      gasPrice: 65000000,
-      confirmations: 0
+      gas: 6721975,
+      gasPrice: 20000000000
     },
     regtest: {
       host: '127.0.0.1',
