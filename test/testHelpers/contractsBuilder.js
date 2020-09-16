@@ -75,13 +75,23 @@ const baseParams = {
   docTmin: toContract(0), // mocPrecision
   docTmax: toContract(0.0002611578760678 * 10 ** 18), // mocPrecision
   docPower: toContract(1),
-  mocProportion: toContract(0.01 * 10 ** 18), //mocPrecision
+  mocProportion: toContract(0.01 * 10 ** 18), // mocPrecision
 
   startStoppable: true
 };
 
+const transferOwnershipAndMinting = async (token, address) => {
+  await token.transferOwnership(address);
+  await token.addMinter(address);
+  await token.renounceMinter();
+};
+
+const transferPausingRole = async (token, address) => {
+  await token.addPauser(address);
+  await token.renouncePauser();
+};
+
 const createContracts = params => async ({ owner, useMock }) => {
-  console.log('Creating Contracts');
   const project = await TestHelper();
 
   const {
@@ -298,17 +308,6 @@ const createContracts = params => async ({ owner, useMock }) => {
     mockMoCRestartSettlementChanger,
     revertingContract
   };
-};
-
-const transferOwnershipAndMinting = async (token, address) => {
-  await token.transferOwnership(address);
-  await token.addMinter(address);
-  await token.renounceMinter();
-};
-
-const transferPausingRole = async (token, address) => {
-  await token.addPauser(address);
-  await token.renouncePauser();
 };
 
 module.exports = {

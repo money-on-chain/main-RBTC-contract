@@ -6,6 +6,18 @@ let toContractBN;
 
 const { BN } = web3.utils;
 const ACCOUNTS_QUANTITY = 10;
+
+const initializeBurnout = async (owner, accounts) => {
+  await mocHelper.setBitcoinPrice(10000 * mocHelper.MOC_PRECISION);
+  await mocHelper.mintBProAmount(owner, 1);
+  await Promise.all(
+    accounts.map(async account => {
+      await mocHelper.mintDocAmount(account, 500);
+      return mocHelper.moc.setBurnoutAddress(account, { from: account });
+    })
+  );
+};
+
 contract('MoC: Partial Burnout execution', function([owner, ...accounts]) {
   const accountsTest = accounts.slice(0, ACCOUNTS_QUANTITY);
   before(async function() {
@@ -120,14 +132,3 @@ contract('MoC: Partial Burnout execution', function([owner, ...accounts]) {
     });
   });
 });
-
-const initializeBurnout = async (owner, accounts) => {
-  await mocHelper.setBitcoinPrice(10000 * mocHelper.MOC_PRECISION);
-  await mocHelper.mintBProAmount(owner, 1);
-  await Promise.all(
-    accounts.map(async account => {
-      await mocHelper.mintDocAmount(account, 500);
-      return mocHelper.moc.setBurnoutAddress(account, { from: account });
-    })
-  );
-};
