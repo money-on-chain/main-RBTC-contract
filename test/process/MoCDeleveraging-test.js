@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-expressions */
 const { expectRevert } = require('openzeppelin-test-helpers');
 const { expect } = require('chai');
 const testHelperBuilder = require('../mocHelper.js');
@@ -103,7 +104,7 @@ contract('MoC: Delever X', function([owner, ...allAccounts]) {
           // Run only a few deleveraging step
           await this.moc.runSettlement(3);
           await mocHelper.waitNBlocks(100);
-          expect(await this.mocSettlement.isSettlementRunning()).to.be.true();
+          expect(await this.mocSettlement.isSettlementRunning()).to.be.true;
         });
         it(`THEN bucket liquidation should not be enabled ${BUCKET_X2} until the settlement finishes`, async function() {
           await expectRevert(
@@ -143,7 +144,7 @@ contract('MoC: Delever X', function([owner, ...allAccounts]) {
           // Run only a deleveraging step to finish
           await this.mocSettlement.pubRunDeleveraging();
 
-          expect(await this.mocSettlement.isSettlementRunning()).to.be.false();
+          expect(await this.mocSettlement.isSettlementRunning()).to.be.false;
         });
         it('THEN all users BProx are burnt', async function() {
           await Promise.all(
@@ -189,7 +190,7 @@ contract('MoC: Delever X', function([owner, ...allAccounts]) {
           await this.moc.runSettlement(SETTLEMENT_STEPS_TO_RUN); // Run only a few deleveraging step
         });
         it('THEN the settlement is running', async function() {
-          expect(await this.mocSettlement.isSettlementRunning()).to.be.true();
+          expect(await this.mocSettlement.isSettlementRunning()).to.be.true;
         });
         it(`THEN the bucket liquitadion should not be enabled ${BUCKET_X2} until the settlement finishes`, async function() {
           await expectRevert(
