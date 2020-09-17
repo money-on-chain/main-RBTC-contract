@@ -1,43 +1,34 @@
 /* eslint-disable no-console */
-const jsonfile = require("jsonfile");
-const { scripts, ConfigVariablesInitializer } = require("zos");
+const jsonfile = require('jsonfile');
+const { scripts, ConfigVariablesInitializer } = require('zos');
 
 const { add, push, create, setAdmin } = scripts;
 const forceDeploy = true;
 
 const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
-  const MoC = artifacts.require("./MoC.sol");
-  const BtcPriceProviderMock = artifacts.require(
-    "./mocks/BtcPriceProviderMock.sol"
-  );
-  const MoCLib = artifacts.require("./MoCHelperLib.sol");
-  const DocToken = artifacts.require("./token/DocToken.sol");
-  const BProToken = artifacts.require("./token/BProToken.sol");
-  const BProxManager = artifacts.require("./MoCBProxManager.sol");
-  const MoCBurnout = artifacts.require("./MoCBurnout.sol");
-  const MoCConverter = artifacts.require("./MoCConverter.sol");
-  const Governor = artifacts.require(
-    "moc-governance/contracts/Governance/Governor.sol"
-  );
-  const Stopper = artifacts.require(
-    "moc-governance/contracts/Stopper/Stopper.sol"
-  );
+  const MoC = artifacts.require('./MoC.sol');
+  const BtcPriceProviderMock = artifacts.require('./mocks/BtcPriceProviderMock.sol');
+  const MoCLib = artifacts.require('./MoCHelperLib.sol');
+  const DocToken = artifacts.require('./token/DocToken.sol');
+  const BProToken = artifacts.require('./token/BProToken.sol');
+  const BProxManager = artifacts.require('./MoCBProxManager.sol');
+  const MoCBurnout = artifacts.require('./MoCBurnout.sol');
+  const MoCConverter = artifacts.require('./MoCConverter.sol');
+  const Governor = artifacts.require('moc-governance/contracts/Governance/Governor.sol');
+  const Stopper = artifacts.require('moc-governance/contracts/Stopper/Stopper.sol');
   const UpgradeDelegator = artifacts.require(
-    "moc-governance/contracts/Upgradeability/UpgradeDelegator.sol"
+    'moc-governance/contracts/Upgradeability/UpgradeDelegator.sol'
   );
-  const CommissionSplitter = artifacts.require("CommissionSplitter");
+  const CommissionSplitter = artifacts.require('CommissionSplitter');
 
-  const ProxyAdmin = artifacts.require("ProxyAdmin");
-  const MoCInrate = artifacts.require("./MoCInrate.sol");
-  const MoCExchange = artifacts.require("./MoCExchange.sol");
-  const MoCConnector = artifacts.require("./base/MoCConnector.sol");
-  const MoCLibMock = artifacts.require("./mocks/MoCHelperLibMock.sol");
-  const { toContract } = require("../utils/numberHelper");
+  const ProxyAdmin = artifacts.require('ProxyAdmin');
+  const MoCInrate = artifacts.require('./MoCInrate.sol');
+  const MoCExchange = artifacts.require('./MoCExchange.sol');
+  const MoCConnector = artifacts.require('./base/MoCConnector.sol');
+  const MoCLibMock = artifacts.require('./mocks/MoCHelperLibMock.sol');
+  const { toContract } = require('../utils/numberHelper');
 
-  const {
-    network,
-    txParams
-  } = await ConfigVariablesInitializer.initNetworkConfiguration({
+  const { network, txParams } = await ConfigVariablesInitializer.initNetworkConfiguration({
     network: networkName,
     from: owner
   });
@@ -105,10 +96,7 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
   };
 
   const deployOracleMock = async () => {
-    await deployer.deploy(
-      BtcPriceProviderMock,
-      toContract(config.initialPrice * 10 ** 18)
-    );
+    await deployer.deploy(BtcPriceProviderMock, toContract(config.initialPrice * 10 ** 18));
   };
 
   const deployGovernorContract = async () => {
@@ -164,7 +152,7 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
   };
 
   const getProxyAddress = (proxies, contractName) => {
-    const projectPrefix = "money-on-chain";
+    const projectPrefix = 'money-on-chain';
     const proxiesOfInterest = proxies[`${projectPrefix}/${contractName}`];
     return proxiesOfInterest[proxiesOfInterest.length - 1].address;
   };
@@ -174,23 +162,17 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
     doc = await DocToken.deployed();
     bpro = await BProToken.deployed();
 
-    bprox = await BProxManager.at(getProxyAddress(proxies, "MoCBProxManager"));
-    mocSettlement = await MoCSettlementContract.at(
-      getProxyAddress(proxies, "MoCSettlement")
-    );
-    mocState = await MoCStateContract.at(getProxyAddress(proxies, "MoCState"));
-    mocConverter = await MoCConverter.at(
-      getProxyAddress(proxies, "MoCConverter")
-    );
-    mocExchange = await MoCExchange.at(getProxyAddress(proxies, "MoCExchange"));
-    moc = await MoC.at(getProxyAddress(proxies, "MoC"));
-    mocInrate = await MoCInrate.at(getProxyAddress(proxies, "MoCInrate"));
-    mocBurnout = await MoCBurnout.at(getProxyAddress(proxies, "MoCBurnout"));
-    mocConnector = await MoCConnector.at(
-      getProxyAddress(proxies, "MoCConnector")
-    );
+    bprox = await BProxManager.at(getProxyAddress(proxies, 'MoCBProxManager'));
+    mocSettlement = await MoCSettlementContract.at(getProxyAddress(proxies, 'MoCSettlement'));
+    mocState = await MoCStateContract.at(getProxyAddress(proxies, 'MoCState'));
+    mocConverter = await MoCConverter.at(getProxyAddress(proxies, 'MoCConverter'));
+    mocExchange = await MoCExchange.at(getProxyAddress(proxies, 'MoCExchange'));
+    moc = await MoC.at(getProxyAddress(proxies, 'MoC'));
+    mocInrate = await MoCInrate.at(getProxyAddress(proxies, 'MoCInrate'));
+    mocBurnout = await MoCBurnout.at(getProxyAddress(proxies, 'MoCBurnout'));
+    mocConnector = await MoCConnector.at(getProxyAddress(proxies, 'MoCConnector'));
     commissionSplitter = await CommissionSplitter.at(
-      getProxyAddress(proxies, "CommissionSplitter")
+      getProxyAddress(proxies, 'CommissionSplitter')
     );
   };
 
@@ -203,22 +185,18 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
     await deployer.link(MoCLib, MoCInrate);
   };
 
-  const deployUpgradable = async (
-    MoCSettlementContract,
-    MoCStateContract,
-    step
-  ) => {
+  const deployUpgradable = async (MoCSettlementContract, MoCStateContract, step) => {
     const contracts = [
-      { name: "MoC", alias: "MoC" },
-      { name: "MoCConnector", alias: "MoCConnector" },
-      { name: "MoCBProxManager", alias: "MoCBProxManager" },
-      { name: "MoCBurnout", alias: "MoCBurnout" },
-      { name: MoCSettlementContract.contractName, alias: "MoCSettlement" },
-      { name: "MoCConverter", alias: "MoCConverter" },
-      { name: MoCStateContract.contractName, alias: "MoCState" },
-      { name: "MoCExchange", alias: "MoCExchange" },
-      { name: "MoCInrate", alias: "MoCInrate" },
-      { name: "CommissionSplitter", alias: "CommissionSplitter" }
+      { name: 'MoC', alias: 'MoC' },
+      { name: 'MoCConnector', alias: 'MoCConnector' },
+      { name: 'MoCBProxManager', alias: 'MoCBProxManager' },
+      { name: 'MoCBurnout', alias: 'MoCBurnout' },
+      { name: MoCSettlementContract.contractName, alias: 'MoCSettlement' },
+      { name: 'MoCConverter', alias: 'MoCConverter' },
+      { name: MoCStateContract.contractName, alias: 'MoCState' },
+      { name: 'MoCExchange', alias: 'MoCExchange' },
+      { name: 'MoCInrate', alias: 'MoCInrate' },
+      { name: 'CommissionSplitter', alias: 'CommissionSplitter' }
     ];
     const contract = contracts[step - 1];
     console.log(`deploying Upgradable ${step - 1}: ${contract.name}`);
@@ -278,12 +256,12 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
     const proxyAdmin = await ProxyAdmin.at(await proxyAdminContractAddress());
     const bitcoinPriceFeedAddress = await bitcoinOracle();
     return {
-      moc: getProxyAddress(proxies, "MoC"),
+      moc: getProxyAddress(proxies, 'MoC'),
       oracle: bitcoinPriceFeedAddress,
-      mocBProxManager: getProxyAddress(proxies, "MoCBProxManager"),
-      mocState: getProxyAddress(proxies, "MoCState"),
-      mocInrate: getProxyAddress(proxies, "MoCInrate"),
-      commissionSplitter: getProxyAddress(proxies, "CommissionSplitter"),
+      mocBProxManager: getProxyAddress(proxies, 'MoCBProxManager'),
+      mocState: getProxyAddress(proxies, 'MoCState'),
+      mocInrate: getProxyAddress(proxies, 'MoCInrate'),
+      commissionSplitter: getProxyAddress(proxies, 'CommissionSplitter'),
       governor: await governorContractAddress(),
       stopper: await stopperContractAddress(),
       proxyAdmin: proxyAdmin.address,
@@ -292,12 +270,12 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
   };
 
   const initializeContracts = async () => {
-    console.log("Initializing contracts");
+    console.log('Initializing contracts');
     const oracleAddress = await bitcoinOracle();
     const governorAddress = await governorContractAddress();
     const stopperAddress = await stopperContractAddress();
 
-    console.log("Initializing MoC");
+    console.log('Initializing MoC');
     await mocConnector.initialize(
       moc.address,
       doc.address,
@@ -310,7 +288,7 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
       mocInrate.address,
       mocBurnout.address
     );
-    console.log("MoCConnector Initialized");
+    console.log('MoCConnector Initialized');
 
     await moc.initialize(
       mocConnector.address,
@@ -318,21 +296,21 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
       stopperAddress,
       config.startStoppable
     );
-    console.log("MoC Initialized");
+    console.log('MoC Initialized');
 
     await mocExchange.initialize(mocConnector.address);
-    console.log("Exchange Initialized");
+    console.log('Exchange Initialized');
 
     await mocConverter.initialize(mocConnector.address);
-    console.log("Converter Initialized");
+    console.log('Converter Initialized');
 
     var targetAddressBitPro = owner;
-    if (config.targetAddressBitProInterest != "") {
+    if (config.targetAddressBitProInterest != '') {
       targetAddressBitPro = config.targetAddressBitProInterest;
     }
 
     var targetAddressCommission = owner;
-    if (config.targetAddressCommissionPayment != "") {
+    if (config.targetAddressCommissionPayment != '') {
       targetAddressCommission = config.targetAddressCommissionPayment;
     }
 
@@ -351,7 +329,7 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
       toContract(config.docPower), // docPower [no precision]
       toContract(config.docTmax * 10 ** 18) // docTmax [using mocPrecision]
     );
-    console.log("Inrate Initialized");
+    console.log('Inrate Initialized');
 
     // Initializing values
     await bprox.initialize(
@@ -360,17 +338,17 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
       toContract(config.c0Cobj * 10 ** 18),
       toContract(config.x2Cobj * 10 ** 18)
     ); // mocPrecision
-    console.log("BProxManager Initialized");
+    console.log('BProxManager Initialized');
 
     await mocBurnout.initialize(mocConnector.address);
-    console.log("Burnout Initialized");
+    console.log('Burnout Initialized');
 
     await mocSettlement.initialize(
       mocConnector.address,
       governorAddress,
       settlementBlockSpan(config)
     );
-    console.log("Settlement Initialized");
+    console.log('Settlement Initialized');
 
     await mocState.initialize(
       mocConnector.address,
@@ -385,7 +363,7 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
       config.dayBlockSpan, // _emaBlockSpan
       toContract(config.maxMintBPro * 10 ** 18)
     );
-    console.log("State Initialized");
+    console.log('State Initialized');
 
     await commissionSplitter.initialize(
       moc.address,
@@ -393,58 +371,58 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
       toContract(config.mocProportion),
       governorAddress
     );
-    console.log("CommissionSplitter Initialized");
+    console.log('CommissionSplitter Initialized');
   };
 
   const setGovernance = async () => {
     const adminAddress = await proxyAdminContractAddress();
     await setAdmin({
-      contractAlias: "MoC",
+      contractAlias: 'MoC',
       newAdmin: adminAddress,
       ...options
     });
     await setAdmin({
-      contractAlias: "MoCConnector",
+      contractAlias: 'MoCConnector',
       newAdmin: adminAddress,
       ...options
     });
     await setAdmin({
-      contractAlias: "MoCBProxManager",
+      contractAlias: 'MoCBProxManager',
       newAdmin: adminAddress,
       ...options
     });
     await setAdmin({
-      contractAlias: "MoCBurnout",
+      contractAlias: 'MoCBurnout',
       newAdmin: adminAddress,
       ...options
     });
     await setAdmin({
-      contractAlias: "MoCSettlement",
+      contractAlias: 'MoCSettlement',
       newAdmin: adminAddress,
       ...options
     });
     await setAdmin({
-      contractAlias: "MoCConverter",
+      contractAlias: 'MoCConverter',
       newAdmin: adminAddress,
       ...options
     });
     await setAdmin({
-      contractAlias: "MoCState",
+      contractAlias: 'MoCState',
       newAdmin: adminAddress,
       ...options
     });
     await setAdmin({
-      contractAlias: "MoCExchange",
+      contractAlias: 'MoCExchange',
       newAdmin: adminAddress,
       ...options
     });
     await setAdmin({
-      contractAlias: "MoCInrate",
+      contractAlias: 'MoCInrate',
       newAdmin: adminAddress,
       ...options
     });
     await setAdmin({
-      contractAlias: "CommissionSplitter",
+      contractAlias: 'CommissionSplitter',
       newAdmin: adminAddress,
       ...options
     });
@@ -462,8 +440,7 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
     await transferPausingRole(bpro, moc.address);
   };
 
-  const settlementBlockSpan = () =>
-    toContract(config.dayBlockSpan * config.settlementDays);
+  const settlementBlockSpan = () => toContract(config.dayBlockSpan * config.settlementDays);
 
   return {
     initializeContracts,
@@ -484,4 +461,7 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
   };
 };
 
-module.exports = makeUtils;
+const isDevelopment = currentNetwork =>
+  currentNetwork === 'development' || currentNetwork === 'coverage' || currentNetwork === 'regtest';
+
+module.exports = { makeUtils, isDevelopment };

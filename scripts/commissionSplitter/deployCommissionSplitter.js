@@ -1,6 +1,5 @@
-/* eslint-disable import/no-unresolved */
-const CommissionSplitter = require('../../build/contracts/CommissionSplitter.json');
-const { deployContract, getConfig, deployProxyContract } = require('./changerHelper');
+/* eslint-disable no-console */
+const { deployProxyContract } = require('./changerHelper');
 
 /**
  * Script for deploying a CommissionSplitter contract

@@ -8,6 +8,38 @@ let mocHelper;
 let toContractBN;
 let BUCKET_X2;
 
+const assertAllMintReedemMocHelperPausedFunctions = userAccount => {
+  const testFunctions = [
+    { name: 'mintBPro', args: [userAccount, 10] },
+    { name: 'mintDoc', args: [userAccount, 10000] },
+    {
+      name: 'mintBProx',
+      args: [userAccount, BUCKET_X2, toContractBN(10), toContractBN(9000)]
+    },
+    { name: 'redeemFreeDoc', args: [{ userAccount, docAmount: 3 }] },
+    { name: 'redeemBPro', args: [userAccount, 10] }
+  ];
+
+  // Get all tx promises
+  const txs = testFunctions.map(func => mocHelper[func.name](...func.args));
+
+  return Promise.all(txs.map(tx => expectRevert(tx, CONTRACT_IS_PAUSED)));
+};
+
+const assertAllMocPausedFunctions = (owner, userAccount) => {
+  const testFunctions = [
+    { name: 'redeemBProx', args: [BUCKET_X2, 3] },
+    { name: 'alterRedeemRequestAmount', args: [false, 100] },
+    { name: 'runSettlement', args: [1] },
+    { name: 'dailyInratePayment', args: [{ from: owner }] },
+    { name: 'payBitProHoldersInterestPayment', args: [{ from: owner }] },
+    { name: 'setBurnoutAddress', args: [userAccount, { from: owner }] }
+  ];
+  const txs = testFunctions.map(func => mocHelper.moc[func.name](...func.args));
+
+  return Promise.all(txs.map(tx => expectRevert(tx, CONTRACT_IS_PAUSED)));
+};
+
 contract('MoC', function([owner, userAccount]) {
   before(async function() {
     mocHelper = await testHelperBuilder({ owner });
@@ -79,35 +111,3 @@ contract('MoC', function([owner, userAccount]) {
     });
   });
 });
-
-const assertAllMintReedemMocHelperPausedFunctions = userAccount => {
-  const testFunctions = [
-    { name: 'mintBPro', args: [userAccount, 10] },
-    { name: 'mintDoc', args: [userAccount, 10000] },
-    {
-      name: 'mintBProx',
-      args: [userAccount, BUCKET_X2, toContractBN(10), toContractBN(9000)]
-    },
-    { name: 'redeemFreeDoc', args: [{ userAccount, docAmount: 3 }] },
-    { name: 'redeemBPro', args: [userAccount, 10] }
-  ];
-
-  // Get all tx promises
-  const txs = testFunctions.map(func => mocHelper[func.name](...func.args));
-
-  return Promise.all(txs.map(tx => expectRevert(tx, CONTRACT_IS_PAUSED)));
-};
-
-const assertAllMocPausedFunctions = (owner, userAccount) => {
-  const testFunctions = [
-    { name: 'redeemBProx', args: [BUCKET_X2, 3] },
-    { name: 'alterRedeemRequestAmount', args: [false, 100] },
-    { name: 'runSettlement', args: [1] },
-    { name: 'dailyInratePayment', args: [{ from: owner }] },
-    { name: 'payBitProHoldersInterestPayment', args: [{ from: owner }] },
-    { name: 'setBurnoutAddress', args: [userAccount, { from: owner }] }
-  ];
-  const txs = testFunctions.map(func => mocHelper.moc[func.name](...func.args));
-
-  return Promise.all(txs.map(tx => expectRevert(tx, CONTRACT_IS_PAUSED)));
-};

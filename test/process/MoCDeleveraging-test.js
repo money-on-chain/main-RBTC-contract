@@ -1,4 +1,6 @@
+/* eslint-disable no-unused-expressions */
 const { expectRevert } = require('openzeppelin-test-helpers');
+const { expect } = require('chai');
 const testHelperBuilder = require('../mocHelper.js');
 
 let mocHelper;
@@ -208,7 +210,7 @@ contract('MoC: Delever X', function([owner, ...allAccounts]) {
 
           const positionsInPlace = individualResults.reduce(
             (previousPositionsInPlace, currentPositionIsInPlace) =>
-              currentPositionIsInPlace ? previousPositionInPlace + 1 : previousPositionsInPlace
+              currentPositionIsInPlace ? previousPositionsInPlace + 1 : previousPositionsInPlace
           );
           expect(
             positionsInPlace === expectedPositionsInPlace,

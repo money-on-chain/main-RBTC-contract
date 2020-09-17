@@ -230,17 +230,17 @@ const getBucketState = mocState => async bucket => {
   return { coverage, leverage, lB, nB, nBPro, nDoc, inrateBag, bproxTecPrice };
 };
 
-const bucketString = moc => async bucket => {
-  const bucketState = await getBucketState(moc)(bucket);
-  return bucketStateToString(bucketState);
-};
-
 const bucketStateToString = state =>
   Object.keys(state).reduce(
     (last, key) => `${last}${key}: ${state[key].toString()}
   `,
     ''
   );
+
+const bucketString = moc => async bucket => {
+  const bucketState = await getBucketState(moc)(bucket);
+  return bucketStateToString(bucketState);
+};
 
 const logBucket = moc => async bucket => {
   // eslint-disable-next-line no-console

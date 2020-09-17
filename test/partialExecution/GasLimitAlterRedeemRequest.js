@@ -25,6 +25,58 @@ const scenario = {
   }
 };
 
+const initializeSettlement = async (owner, account2, account3, arrayRedeemSize) => {
+  await mocHelper.mintBProAmount(owner, scenario.mintBpro, { from: owner });
+  await mocHelper.mintDocAmount(owner, scenario.mintDoc, { from: owner });
+
+  const promisesOwner = [...Array(arrayRedeemSize).keys()].map(() =>
+    mocHelper.moc.redeemDocRequest(toContractBN(scenario.redeemAmountInitOwner, 'USD'), {
+      from: owner
+    })
+  );
+
+  const promisesAccount2 = [...Array(arrayRedeemSize).keys()].map(() =>
+    mocHelper.moc.redeemDocRequest(toContractBN(scenario.redeemAmountInitAccount2, 'USD'), {
+      from: account2
+    })
+  );
+
+  const promisesAccount3 = [...Array(arrayRedeemSize).keys()].map(() =>
+    mocHelper.moc.redeemDocRequest(toContractBN(scenario.redeemAmountInitAccount3, 'USD'), {
+      from: account3
+    })
+  );
+
+  const promises = promisesOwner.concat(promisesAccount2).concat(promisesAccount3);
+
+  await Promise.all(promises);
+};
+
+const initializeSettlementStress = async (accounts, arrayRedeemSize) => {
+  mocHelper.revertState();
+  // Avoid interests
+  await mocHelper.mocState.setDaysToSettlement(0);
+  const docAccounts = accounts.slice(0, 5);
+  await Promise.all(docAccounts.map(account => mocHelper.mintBProAmount(account, 100000)));
+  await Promise.all(docAccounts.map(account => mocHelper.mintDocAmount(account, 100000)));
+
+  let promises = [];
+
+  accounts.map(account => {
+    const promisesByAccount = [...Array(arrayRedeemSize).keys()].map(() =>
+      mocHelper.moc.redeemDocRequest(toContractBN(100, 'USD'), {
+        from: account
+      })
+    );
+
+    promises = promises.concat(promisesByAccount);
+    return promisesByAccount;
+  });
+
+  await Promise.all(promises);
+  await mocHelper.mocSettlement.setBlockSpan(1);
+};
+
 contract.skip('MoC: Gas limit on alter redeem request', function([
   owner,
   account2,
@@ -219,55 +271,3 @@ contract.skip('MoC: Gas limit on alter redeem request', function([
     });
   });
 });
-
-const initializeSettlement = async (owner, account2, account3, arrayRedeemSize) => {
-  await mocHelper.mintBProAmount(owner, scenario.mintBpro, { from: owner });
-  await mocHelper.mintDocAmount(owner, scenario.mintDoc, { from: owner });
-
-  const promisesOwner = [...Array(arrayRedeemSize).keys()].map(() =>
-    mocHelper.moc.redeemDocRequest(toContractBN(scenario.redeemAmountInitOwner, 'USD'), {
-      from: owner
-    })
-  );
-
-  const promisesAccount2 = [...Array(arrayRedeemSize).keys()].map(() =>
-    mocHelper.moc.redeemDocRequest(toContractBN(scenario.redeemAmountInitAccount2, 'USD'), {
-      from: account2
-    })
-  );
-
-  const promisesAccount3 = [...Array(arrayRedeemSize).keys()].map(() =>
-    mocHelper.moc.redeemDocRequest(toContractBN(scenario.redeemAmountInitAccount3, 'USD'), {
-      from: account3
-    })
-  );
-
-  const promises = promisesOwner.concat(promisesAccount2).concat(promisesAccount3);
-
-  await Promise.all(promises);
-};
-
-const initializeSettlementStress = async (accounts, arrayRedeemSize) => {
-  mocHelper.revertState();
-  // Avoid interests
-  await mocHelper.mocState.setDaysToSettlement(0);
-  const docAccounts = accounts.slice(0, 5);
-  await Promise.all(docAccounts.map(account => mocHelper.mintBProAmount(account, 100000)));
-  await Promise.all(docAccounts.map(account => mocHelper.mintDocAmount(account, 100000)));
-
-  let promises = [];
-
-  accounts.map(account => {
-    const promisesByAccount = [...Array(arrayRedeemSize).keys()].map(() =>
-      mocHelper.moc.redeemDocRequest(toContractBN(100, 'USD'), {
-        from: account
-      })
-    );
-
-    promises = promises.concat(promisesByAccount);
-    return promisesByAccount;
-  });
-
-  await Promise.all(promises);
-  await mocHelper.mocSettlement.setBlockSpan(1);
-};

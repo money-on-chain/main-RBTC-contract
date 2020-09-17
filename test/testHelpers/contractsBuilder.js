@@ -22,7 +22,6 @@ const MoCConnector = artifacts.require('./contracts/base/MoCConnector.sol');
 const Governor = artifacts.require('moc-governance/contracts/Governance/Governor.sol');
 const ProxyAdmin = artifacts.require('ProxyAdmin');
 const UpgradeDelegator = artifacts.require('UpgradeDelegator');
-const UpgraderTemplate = artifacts.require('UpgraderTemplate');
 const Stopper = artifacts.require('moc-governance/contracts/Stopper/Stopper.sol');
 const MocStateChanger = artifacts.require('./contracts/MocStateChanger.sol');
 const MocInrateChanger = artifacts.require('./contracts/MocInrateChanger.sol');
@@ -76,9 +75,20 @@ const baseParams = {
   docTmin: toContract(0), // mocPrecision
   docTmax: toContract(0.0002611578760678 * 10 ** 18), // mocPrecision
   docPower: toContract(1),
-  mocProportion: toContract(0.01 * 10 ** 18), //mocPrecision
+  mocProportion: toContract(0.01 * 10 ** 18), // mocPrecision
 
   startStoppable: true
+};
+
+const transferOwnershipAndMinting = async (token, address) => {
+  await token.transferOwnership(address);
+  await token.addMinter(address);
+  await token.renounceMinter();
+};
+
+const transferPausingRole = async (token, address) => {
+  await token.addPauser(address);
+  await token.renouncePauser();
 };
 
 const createContracts = params => async ({ owner, useMock }) => {
@@ -108,6 +118,7 @@ const createContracts = params => async ({ owner, useMock }) => {
     startStoppable,
     mocProportion = baseParams.mocProportion
   } = params;
+
   const settlementContract = useMock ? MoCSettlementMock : MoCSettlement;
   const stateContract = useMock ? MoCStateMock : MoCState;
   const settlementContractProxy = useMock ? MoCSettlementMockProxy : MoCSettlementProxy;
@@ -145,7 +156,6 @@ const createContracts = params => async ({ owner, useMock }) => {
   const mocBurnout = await MoCBurnout.at(mocBurnoutProxy.address);
   const moc = await MoC.at(mocProxy.address);
   const commissionSplitter = await CommissionSplitter.at(commissionSplitterProxy.address);
-
   const governor = await Governor.at(governorProxy.address);
   const stopper = await Stopper.at(stopperProxy.address);
 
@@ -175,7 +185,6 @@ const createContracts = params => async ({ owner, useMock }) => {
     docPower,
     { from: owner }
   );
-
   const mockMoCSettlementChanger = await MoCSettlementChanger.new(
     mocSettlement.address,
     dayBlockSpan,
@@ -199,6 +208,7 @@ const createContracts = params => async ({ owner, useMock }) => {
     from: owner
   });
 
+  // Initialize contracts
   await mocConnector.initialize(
     moc.address,
     doc.address,
@@ -211,8 +221,6 @@ const createContracts = params => async ({ owner, useMock }) => {
     mocInrate.address,
     mocBurnout.address
   );
-
-  // Initialize contracts
   await mocConverter.initialize(mocConnector.address);
   await moc.initialize(mocConnector.address, governor.address, stopper.address, startStoppable);
   await stopper.initialize(owner);
@@ -230,7 +238,6 @@ const createContracts = params => async ({ owner, useMock }) => {
     emaBlockSpan,
     maxMintBPro
   );
-
   await mocInrate.initialize(
     mocConnector.address,
     governor.address,
@@ -251,8 +258,8 @@ const createContracts = params => async ({ owner, useMock }) => {
   await mocBurnout.initialize(mocConnector.address);
   await governor.initialize(owner);
   await commissionSplitter.initialize(moc.address, owner, mocProportion, governor.address);
-
   await upgradeDelegator.initialize(governor.address, proxyAdmin.address);
+
   // Transfer roles
   await transferOwnershipAndMinting(doc, mocExchange.address);
   await transferOwnershipAndMinting(bpro, mocExchange.address);
@@ -301,17 +308,6 @@ const createContracts = params => async ({ owner, useMock }) => {
     mockMoCRestartSettlementChanger,
     revertingContract
   };
-};
-
-const transferOwnershipAndMinting = async (token, address) => {
-  await token.transferOwnership(address);
-  await token.addMinter(address);
-  await token.renounceMinter();
-};
-
-const transferPausingRole = async (token, address) => {
-  await token.addPauser(address);
-  await token.renouncePauser();
 };
 
 module.exports = {
