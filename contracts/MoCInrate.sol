@@ -101,6 +101,30 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
 
   /** END UPDATE V017: 01/11/2019 **/
 
+
+  /** Upgrade to support multiple commission rates: 18/09/2020 **/
+
+  uint8 public constant MINT_BPRO_FEES_RBTC = 1;
+  uint8 public constant REDEEM_BPRO_FEES_RBTC = 2;
+  uint8 public constant MINT_DOC_FEES_RBTC = 3;
+  uint8 public constant REDEEM_DOC_FEES_RBTC = 4;
+  uint8 public constant MINT_BTCX_FEES_RBTC = 5;
+  uint8 public constant REDEEM_BTCX_FEES_RBTC = 6;
+  uint8 public constant MINT_BPRO_FEES_MOC = 7;
+  uint8 public constant REDEEM_BPRO_FEES_MOC = 8;
+  uint8 public constant MINT_DOC_FEES_MOC = 9;
+  uint8 public constant REDEEM_DOC_FEES_MOC = 10;
+  uint8 public constant MINT_BTCX_FEES_MOC = 11;
+  uint8 public constant REDEEM_BTCX_FEES_MOC = 12;
+
+  mapping(uint8 => uint256) public commissionRatesByTxType;
+
+  function setCommissionRateByTxType(uint8 txType, uint256 value) public onlyAuthorizedChanger() {
+      commissionRatesByTxType[txType] = value;
+  }
+
+  /** End Upgrade: 18/09/2020 **/
+
   function initialize(
     address connectorAddress,
     address _governor,
