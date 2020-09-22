@@ -370,8 +370,9 @@ contract MoCInrateCommFees is MoCInrateEventsCommFees, MoCInrateStructsCommFees,
   }
 
   /**
-    @dev calculates the Commission rate from the passed RBTC amount for mint/redeem operations
+    @dev calculates the Commission rate from the passed RBTC amount and the transaction type for mint/redeem operations
     @param rbtcAmount Total value from which apply the Commission rate [using reservePrecision]
+    @param txType Transaction type according to constant values defined in this contract
     @return finalCommissionAmount [using reservePrecision]
   */
   function calcCommissionValue(uint256 rbtcAmount, uint8 txType)

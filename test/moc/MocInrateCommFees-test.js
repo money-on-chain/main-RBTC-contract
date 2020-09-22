@@ -1,10 +1,8 @@
-// const MoCInrate = artifacts.require('./contracts/MoCInrate.sol');
 const MoCHelperLibMock = artifacts.require('./contracts/mocks/MoCHelperLibMock.sol');
-// const MoCCommissionRates = artifacts.require('./contracts/MoCCommissionRates.sol');
-// const MoCCommissionRatesByTxType = artifacts.require('./contracts/MoCCommissionRatesByTxType.sol');
 const MoCInrateCommFees = artifacts.require('./contracts/MoCInrateCommFees.sol');
 const MocInrateChangerCommFees = artifacts.require('./contracts/MocInrateChangerCommFees.sol');
 
+const { assertEvent } = require('zos-lib');
 const testHelperBuilder = require('../mocHelper.js');
 let mocHelper;
 
@@ -20,11 +18,11 @@ const scenario = {
     commissionAmountZero: 0
 };
 
-contract('MoCInrate', function([owner]) {
+contract('MoCInrateCommFees', function([owner]) {
   before(async function() {
     mocHelper = await testHelperBuilder({ owner, useMock: true });
     this.mocInrate = mocHelper.mocInrate;
-    this.commisionRatesArray = [
+    this.commissionRatesArray = [
       { txType: (await this.mocInrate.MINT_BPRO_FEES_RBTC()).toString(), fee: web3.utils.toWei('0.1') },
       { txType: (await this.mocInrate.REDEEM_BPRO_FEES_RBTC()).toString(), fee: web3.utils.toWei('0.2')},
       { txType: (await this.mocInrate.MINT_DOC_FEES_RBTC()).toString(), fee: web3.utils.toWei('0.3') },
@@ -72,7 +70,7 @@ contract('MoCInrate', function([owner]) {
       0,
       0,
       0,
-      this.commisionRatesArray,
+      this.commissionRatesArray,
       { from: owner }
     );
 
@@ -80,14 +78,16 @@ contract('MoCInrate', function([owner]) {
     await this.governor.executeChange(this.mocInrateChangerCommFees.address);
   });
 
-  describe.only('GIVEN different transaction types and their fees to calculate commission rate', function() {
+  describe.only('GIVEN different transaction types and their fees to calculate commission rate (calcCommissionValue)', function() {
     it(`THEN transaction type ${scenario.invalidTxType} is invalid`, async function() {
       try {
         const newCommisionRateInvalidTxType = await this.mocInrateCommFees.calcCommissionValue(web3.utils.toWei(scenario.rbtcAmount.toString()), scenario.invalidTxType);
-      } catch (err) {
-        // console.log("Error: " + err);
-        // console.log("Error msg: " + err.message);
-        // console.log("Error JSON: " + JSON.stringify(err));
+        assert(
+          newCommisionRateInvalidTxType === null,
+          `This should not happen`
+        );
+      } 
+      catch (err) {
         assert(
           err.message.search(INVALID_TXTYPE_ERROR) >= 0,
           `Transaction type ${scenario.invalidTxType} is invalid`
@@ -99,7 +99,7 @@ contract('MoCInrate', function([owner]) {
       mocHelper.assertBig(
         web3.utils.fromWei(newCommisionRateValidTxType.toString()),
         scenario.commissionAmount,
-        `final commission amount should be ${scenario.commissionAmount} wei`
+        `final commission amount should be ${scenario.commissionAmount} ether`
       );
     });
     it(`THEN transaction type ${scenario.nonexistentTxType} is non-existent`, async function() {
@@ -107,8 +107,26 @@ contract('MoCInrate', function([owner]) {
       mocHelper.assertBig(
         newCommisionRateNonExistentTxType,
         scenario.commissionAmountZero,
-        `final commission amount should be ${scenario.commissionAmountZero} wei`
+        `final commission amount should be ${scenario.commissionAmountZero} ether`
       );
+    });
+  });
+
+  describe.only('GIVEN different *valid* transaction types and their fees to calculate commission rate (calcCommissionValue)', function() {
+    it('THEN the transaction types defined in the "commissionRatesArray" are valid', async function() {
+      // Iterate through array
+      for (const testCase of this.commissionRatesArray) {
+        const newCommisionRateValidTxType = await this.mocInrateCommFees.calcCommissionValue(web3.utils.toWei(scenario.rbtcAmount.toString()), testCase.txType);
+        const testCommissionValue = (scenario.rbtcAmount * testCase.fee) / 10 ** 18;
+        console.log(newCommisionRateValidTxType.toString());
+        console.log(testCommissionValue.toString());
+        console.log(testCase.fee.toString());
+        mocHelper.assertBig(
+          web3.utils.fromWei(newCommisionRateValidTxType.toString()),
+          testCommissionValue,
+          `final commission amount should be ${testCommissionValue} ether`
+        );
+      } 
     });
   });
 });
