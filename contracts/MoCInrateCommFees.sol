@@ -377,7 +377,7 @@ contract MoCInrateCommFees is MoCInrateEventsCommFees, MoCInrateStructsCommFees,
   function calcCommissionValue(uint256 rbtcAmount, uint8 txType)
   public view returns(uint256) {
     // Validate txType
-    require (txType > 0);
+    require (txType > 0, "Invalid transaction type 'txType'");
 
     uint256 finalCommissionAmount = rbtcAmount.mul(commissionRatesByTxType[txType]).div(mocLibConfig.mocPrecision);
     return finalCommissionAmount;
