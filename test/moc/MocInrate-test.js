@@ -1,8 +1,9 @@
 // const MoCInrate = artifacts.require('./contracts/MoCInrate.sol');
-// const MoCLibConnection = artifacts.require('./contracts/MoCLibConnection.sol');
-// const MoCHelperLibMock = artifacts.require('./contracts/mocks/MoCHelperLibMock.sol');
+const MoCLibConnection = artifacts.require('./contracts/MoCLibConnection.sol');
+const MoCHelperLibMock = artifacts.require('./contracts/mocks/MoCHelperLibMock.sol');
 const MoCCommissionRates = artifacts.require('./contracts/MoCCommissionRates.sol');
 const MoCCommissionRatesByTxType = artifacts.require('./contracts/MoCCommissionRatesByTxType.sol');
+const MoCInrateCommFees = artifacts.require('./contracts/MoCInrateCommFees.sol');
 const MocInrateChangerCommFees = artifacts.require('./contracts/MocInrateChangerCommFees.sol');
 
 const testHelperBuilder = require('../mocHelper.js');
@@ -54,9 +55,31 @@ contract('MoCInrate', function([owner]) {
       { txType: (await this.mocInrate.MINT_BTCX_FEES_MOC()).toString(), fee: web3.utils.toWei('11') },
       { txType: (await this.mocInrate.REDEEM_BTCX_FEES_MOC()).toString(), fee: web3.utils.toWei('12') },
     ];
+
     this.governor = mocHelper.governor;
+
+    this.mocHelperLibMock = await MoCHelperLibMock.new();
+    await MoCInrateCommFees.link('MoCHelperLib', this.mocHelperLibMock.address);
+
+    this.mocInrateCommFees = await MoCInrateCommFees.new();
+    await this.mocInrateCommFees.initialize(
+      mocHelper.mocConnector.address,
+      this.governor.address,
+      0,
+      0,
+      0,
+      0,
+      0,
+      owner,
+      owner,
+      0,
+      0,
+      0,
+      0
+    );
+
     this.mocInrateChangerCommFees = await MocInrateChangerCommFees.new(
-      this.mocInrate.address,
+      this.mocInrateCommFees.address,
       0,
       0,
       0,
@@ -161,17 +184,33 @@ contract('MoCInrate', function([owner]) {
   //   });
   // });
 
+  // describe.only(`COMMISSION RATES BY TRANSACTION`, function() {
+  //   it(`Set and read value`, async function() {
+  //     console.log("Owner: " + owner);
+  //     await this.governor.executeChange(this.mocInrateChangerCommFees.address);
+  //     console.log("Owner: " + owner);
+  //     // Get a test value
+  //     const newCommisionRateByTypeConst = await this.mocInrate.commissionRatesByTxType(await this.mocInrate.MINT_BTCX_FEES_RBTC());
+  //     console.log(`Commission rate constant MINT_BTCX_FEES_RBTC: ${newCommisionRateByTypeConst}`);
+  //     // Get all the values
+  //     for (var rate of this.commisionRatesArray){
+  //       const newCommisionRateByType = await this.mocInrate.commissionRatesByTxType(rate.txType);
+  //       console.log(`Commission rate ${rate.txType}: ${newCommisionRateByType}`);
+  //     } 
+  //   });
+  // });
+
   describe.only(`COMMISSION RATES BY TRANSACTION`, function() {
     it(`Set and read value`, async function() {
       console.log("Owner: " + owner);
       await this.governor.executeChange(this.mocInrateChangerCommFees.address);
       console.log("Owner: " + owner);
       // Get a test value
-      const newCommisionRateByTypeConst = await this.mocInrate.commissionRatesByTxType(await this.mocInrate.MINT_BTCX_FEES_RBTC());
+      const newCommisionRateByTypeConst = await this.mocInrateCommFees.commissionRatesByTxType(await this.mocInrateCommFees.MINT_BTCX_FEES_RBTC());
       console.log(`Commission rate constant MINT_BTCX_FEES_RBTC: ${newCommisionRateByTypeConst}`);
       // Get all the values
       for (var rate of this.commisionRatesArray){
-        const newCommisionRateByType = await this.mocInrate.commissionRatesByTxType(rate.txType);
+        const newCommisionRateByType = await this.mocInrateCommFees.commissionRatesByTxType(rate.txType);
         console.log(`Commission rate ${rate.txType}: ${newCommisionRateByType}`);
       } 
     });
