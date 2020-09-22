@@ -7,12 +7,12 @@ import "./MoCBProxManager.sol";
 import "./MoCConverter.sol";
 import "./base/MoCBase.sol";
 
-contract MoCInrateEvents {
+contract MoCInrateEventsCommFees {
   event InrateDailyPay(uint256 amount, uint256 daysToSettlement, uint256 nReserveBucketC0);
   event RiskProHoldersInterestPay(uint256 amount, uint256 nReserveBucketC0BeforePay);
 }
 
-contract MoCInrateStructs {
+contract MoCInrateStructsCommFees {
   struct InrateParams {
     uint256 tMax;
     uint256 tMin;
@@ -27,7 +27,7 @@ contract MoCInrateStructs {
 }
 
 
-contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnection, Governed {
+contract MoCInrateCommFees is MoCInrateEventsCommFees, MoCInrateStructsCommFees, MoCBase, MoCLibConnection, Governed {
   using SafeMath for uint256;
 
   // Last block when a payment was executed
@@ -374,9 +374,12 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
     @param rbtcAmount Total value from which apply the Commission rate [using reservePrecision]
     @return finalCommissionAmount [using reservePrecision]
   */
-  function calcCommissionValue(uint256 rbtcAmount)
+  function calcCommissionValue(uint256 rbtcAmount, uint8 txType)
   public view returns(uint256) {
-    uint256 finalCommissionAmount = rbtcAmount.mul(commissionRate).div(mocLibConfig.mocPrecision);
+    // Validate txType
+    require (txType > 0, "Invalid transaction type 'txType'");
+
+    uint256 finalCommissionAmount = rbtcAmount.mul(commissionRatesByTxType[txType]).div(mocLibConfig.mocPrecision);
     return finalCommissionAmount;
   }
 
