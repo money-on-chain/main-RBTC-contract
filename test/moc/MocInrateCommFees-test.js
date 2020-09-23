@@ -2,7 +2,6 @@ const MoCHelperLibMock = artifacts.require('./contracts/mocks/MoCHelperLibMock.s
 const MoCInrateCommFees = artifacts.require('./contracts/MoCInrateCommFees.sol');
 const MocInrateChangerCommFees = artifacts.require('./contracts/MocInrateChangerCommFees.sol');
 
-const { assertEvent } = require('zos-lib');
 const testHelperBuilder = require('../mocHelper.js');
 let mocHelper;
 
@@ -17,24 +16,23 @@ const scenario = {
     nonexistentTxType: 15,
     commissionAmountZero: 0
 };
-
 contract('MoCInrateCommFees', function([owner]) {
   before(async function() {
     mocHelper = await testHelperBuilder({ owner, useMock: true });
     this.mocInrate = mocHelper.mocInrate;
     this.commissionRatesArray = [
-      { txType: (await this.mocInrate.MINT_BPRO_FEES_RBTC()).toString(), fee: web3.utils.toWei('0.1') },
-      { txType: (await this.mocInrate.REDEEM_BPRO_FEES_RBTC()).toString(), fee: web3.utils.toWei('0.2')},
-      { txType: (await this.mocInrate.MINT_DOC_FEES_RBTC()).toString(), fee: web3.utils.toWei('0.3') },
-      { txType: (await this.mocInrate.REDEEM_DOC_FEES_RBTC()).toString(), fee: web3.utils.toWei('0.4') },
-      { txType: (await this.mocInrate.MINT_BTCX_FEES_RBTC()).toString(), fee: web3.utils.toWei('0.5') },
-      { txType: (await this.mocInrate.REDEEM_BTCX_FEES_RBTC()).toString(), fee: web3.utils.toWei('0.6') },
-      { txType: (await this.mocInrate.MINT_BPRO_FEES_MOC()).toString(), fee: web3.utils.toWei('0.7') },
-      { txType: (await this.mocInrate.REDEEM_BPRO_FEES_MOC()).toString(), fee: web3.utils.toWei('0.8') },
-      { txType: (await this.mocInrate.MINT_DOC_FEES_MOC()).toString(), fee: web3.utils.toWei('0.9') },
-      { txType: (await this.mocInrate.REDEEM_DOC_FEES_MOC()).toString(), fee: web3.utils.toWei('0.10')},
-      { txType: (await this.mocInrate.MINT_BTCX_FEES_MOC()).toString(), fee: web3.utils.toWei('0.11') },
-      { txType: (await this.mocInrate.REDEEM_BTCX_FEES_MOC()).toString(), fee: web3.utils.toWei('0.12') },
+      { txType: (await this.mocInrate.MINT_BPRO_FEES_RBTC()).toString(), fee: (0.1 * mocHelper.MOC_PRECISION).toString() },
+      { txType: (await this.mocInrate.REDEEM_BPRO_FEES_RBTC()).toString(), fee: (0.2 * mocHelper.MOC_PRECISION).toString() },
+      { txType: (await this.mocInrate.MINT_DOC_FEES_RBTC()).toString(), fee: (0.3 * mocHelper.MOC_PRECISION).toString() },
+      { txType: (await this.mocInrate.REDEEM_DOC_FEES_RBTC()).toString(), fee: (0.4 * mocHelper.MOC_PRECISION).toString() },
+      { txType: (await this.mocInrate.MINT_BTCX_FEES_RBTC()).toString(), fee: (0.5 * mocHelper.MOC_PRECISION).toString() },
+      { txType: (await this.mocInrate.REDEEM_BTCX_FEES_RBTC()).toString(), fee: (0.6 * mocHelper.MOC_PRECISION).toString() },
+      { txType: (await this.mocInrate.MINT_BPRO_FEES_MOC()).toString(), fee: (0.7 * mocHelper.MOC_PRECISION).toString() },
+      { txType: (await this.mocInrate.REDEEM_BPRO_FEES_MOC()).toString(), fee: (0.8 * mocHelper.MOC_PRECISION).toString() },
+      { txType: (await this.mocInrate.MINT_DOC_FEES_MOC()).toString(), fee: (0.9 * mocHelper.MOC_PRECISION).toString() },
+      { txType: (await this.mocInrate.REDEEM_DOC_FEES_MOC()).toString(), fee: (0.010 * mocHelper.MOC_PRECISION).toString() },
+      { txType: (await this.mocInrate.MINT_BTCX_FEES_MOC()).toString(), fee: (0.011 * mocHelper.MOC_PRECISION).toString() },
+      { txType: (await this.mocInrate.REDEEM_BTCX_FEES_MOC()).toString(), fee: (0.012 * mocHelper.MOC_PRECISION).toString() },
     ];
 
     this.governor = mocHelper.governor;
@@ -115,16 +113,14 @@ contract('MoCInrateCommFees', function([owner]) {
   describe.only('GIVEN different *valid* transaction types and their fees to calculate commission rate (calcCommissionValue)', function() {
     it('THEN the transaction types defined in the "commissionRatesArray" are valid', async function() {
       // Iterate through array
-      for (const testCase of this.commissionRatesArray) {
-        const newCommisionRateValidTxType = await this.mocInrateCommFees.calcCommissionValue(web3.utils.toWei(scenario.rbtcAmount.toString()), testCase.txType);
-        const testCommissionValue = (scenario.rbtcAmount * testCase.fee) / 10 ** 18;
-        console.log(newCommisionRateValidTxType.toString());
-        console.log(testCommissionValue.toString());
-        console.log(testCase.fee.toString());
+      for (var i = 0; i < this.commissionRatesArray.length; i++) {
+        const newCommisionRateValidTxType = await this.mocInrateCommFees.calcCommissionValue((scenario.rbtcAmount * mocHelper.MOC_PRECISION).toString(), this.commissionRatesArray[i].txType);
+        // The fee from the commissionRatesArray is already converted to wei
+        const testCommissionValue = (scenario.rbtcAmount * this.commissionRatesArray[i].fee);
         mocHelper.assertBig(
-          web3.utils.fromWei(newCommisionRateValidTxType.toString()),
-          testCommissionValue,
-          `final commission amount should be ${testCommissionValue} ether`
+          newCommisionRateValidTxType.toString(),
+          testCommissionValue.toString(),
+          `final commission amount should be ${testCommissionValue.toString()}`
         );
       } 
     });
