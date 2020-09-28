@@ -3,24 +3,24 @@ pragma solidity 0.5.8;
 import "../interface/PriceFeed.sol";
 import "../interface/PriceProvider.sol";
 
-contract BtcPriceProviderMock is PriceFeed, PriceProvider {
-  bytes32 btcPrice;
+contract MoCPriceProviderMock is PriceFeed, PriceProvider {
+  bytes32 mocPrice;
   bool has;
 
   constructor(uint256 price) public {
-    btcPrice = bytes32(price);
+    mocPrice = bytes32(price);
     has = true;
   }
 
   function peek() external view returns (bytes32, bool) {
-    return (btcPrice, has);
+    return (mocPrice, has);
   }
 
   function poke(uint128 val_, uint32) external {
-    btcPrice = bytes32(uint256(val_));
+    mocPrice = bytes32(uint256(val_));
   }
 
   function post(uint128 val_, uint32, address) external {
-    btcPrice = bytes32(uint256(val_));
+    mocPrice = bytes32(uint256(val_));
   }
 }
