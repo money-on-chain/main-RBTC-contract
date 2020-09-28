@@ -505,9 +505,9 @@
 [PriceFeederRemover-priceFeed-address]: #PriceFeederRemover-priceFeed-address
 [PriceFeederRemover-constructor-contract-Medianizer-address-]: #PriceFeederRemover-constructor-contract-Medianizer-address-
 [PriceFeederRemover-execute--]: #PriceFeederRemover-execute--
-[BtcPriceFeed]: #BtcPriceFeed
-[BtcPriceFeed-poke-uint128-uint32-]: #BtcPriceFeed-poke-uint128-uint32-
-[BtcPriceFeed-post-uint128-uint32-address-]: #BtcPriceFeed-post-uint128-uint32-address-
+[PriceFeed]: #PriceFeed
+[PriceFeed-poke-uint128-uint32-]: #PriceFeed-poke-uint128-uint32-
+[PriceFeed-post-uint128-uint32-address-]: #PriceFeed-post-uint128-uint32-address-
 [BtcPriceProvider]: #BtcPriceProvider
 [BtcPriceProvider-peek--]: #BtcPriceProvider-peek--
 [BtcPriceProviderMock]: #BtcPriceProviderMock
@@ -3165,23 +3165,23 @@ This productive contract to remove a new PriceFeeder with moc---gobernanza.
 
 
 
-## <span id="BtcPriceFeed"></span> `BtcPriceFeed`
+## <span id="PriceFeed"></span> `PriceFeed`
 
 
 
 
 
-- [`poke(uint128 val_, uint32 zzz_)`][BtcPriceFeed-poke-uint128-uint32-]
-- [`post(uint128 val_, uint32 zzz_, address med_)`][BtcPriceFeed-post-uint128-uint32-address-]
+- [`poke(uint128 val_, uint32 zzz_)`][PriceFeed-poke-uint128-uint32-]
+- [`post(uint128 val_, uint32 zzz_, address med_)`][PriceFeed-post-uint128-uint32-address-]
 
-### <span id="BtcPriceFeed-poke-uint128-uint32-"></span>
+### <span id="PriceFeed-poke-uint128-uint32-"></span>
  `poke(uint128 val_, uint32 zzz_)` (external)
 
 
 
 
 
-### <span id="BtcPriceFeed-post-uint128-uint32-address-"></span>
+### <span id="PriceFeed-post-uint128-uint32-address-"></span>
  `post(uint128 val_, uint32 zzz_, address med_)` (external)
 
 

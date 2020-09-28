@@ -34,7 +34,7 @@
    1. [OwnerBurnableToken](#ownerburnabletoken)
    1. [BProToken](#bprotoken)
    1. [DocToken](#doctoken)
-   1. [BtcPriceProvider](#btcpriceprovider)
+   1. [PriceProvider](#priceprovider)
 1. [Contracts Mocks](#contracts-mocks)
 1. [Relevant patterns and choices](#relevant-patterns-and-choices)
    1. [Safe Math and precision](#safe-math-and-precision)
@@ -94,7 +94,7 @@ It can _not_ be traded freely and does _not_ have an ERC20 interface. BTCX posit
 
 ## Oracle
 
-It's crucial to the system workflow to have an up to date BTC-USD rate price feed to relay on. This is currently achieved by a separate contract so that it can be easily replaced in the future without affecting the MOC system. See [BtcPriceProvider](#BtcPriceProvider).
+It's crucial to the system workflow to have an up to date BTC-USD rate price feed to relay on. This is currently achieved by a separate contract so that it can be easily replaced in the future without affecting the MOC system. See [PriceProvider](#PriceProvider).
 
 # System states
 
@@ -252,12 +252,12 @@ MoC system is a network of cooperative contracts working together to ultimately 
 - _MoC state Contracts_: They keep MoC state variables and logic (MoC, MoCState, MoCBucketContainer, MoCSettlement, MoCBurnout)
 - _MoC pure logic Contracts & Libraries_: Functional extensions of the above merely to have responsibility separation and contracts size (aka deploy fee) low. (MoCHelperLib, MoCLibConnection, MoCConverter, MoCExchange, MoCConnector, MoCBProxManager, MoCInrate, MoCWhitelist, MoCBase)
 - _Tokens_: Tokens backed by the system (OwnerBurnableToken, DocToken, BProToken)
-- _External Dependencies_: External contracts the system relies on, in this case the Oracle or price provider; this could evolved independently of MoC system as along as the interface is maintained. (BtcPriceProvider)
+- _External Dependencies_: External contracts the system relies on, in this case the Oracle or price provider; this could evolved independently of MoC system as along as the interface is maintained. (PriceProvider)
 
 ## MoC
 
 - Referenced by: MoCBurnout, MoCSettlement
-- References/uses: SafeMath, MoCLibConnection, DocToken, BProToken, BtcPriceProvider, MoCBProxManager, MoCState, MoCConverter, MoCSettlement, MoCExchange, MoCBurnout, base/MoCBase
+- References/uses: SafeMath, MoCLibConnection, DocToken, BProToken, PriceProvider, MoCBProxManager, MoCState, MoCConverter, MoCSettlement, MoCExchange, MoCBurnout, base/MoCBase
 - Inherits from: MoCEvents, MoCLibConnection, MoCBase, Stoppable
 
   MoC is the main contract of the MoC ecosystem, it's the entry point of almost every public interaction with it and it articulates the main logic and relations between the rest of the contracts.
@@ -327,7 +327,7 @@ The contract have two main properties that can be modified by Governance:
 ## MoCState
 
 - Referenced by: MoC, MoCConverter, MoCExchange, MoCInrate, MoCSettlement
-- References/uses: Math, MoCBProxManager, BtcPriceProvider, DocToken, BProToken, MoCSettlement
+- References/uses: Math, MoCBProxManager, PriceProvider, DocToken, BProToken, MoCSettlement
 - Inherits from: MoCLibConnection, MoCBase
   This contract holds the system variables to manage the state, wether it's the state itself or the thresholds configurations; as well as many `view` functions to access and evaluate it.
 - State:
@@ -499,7 +499,7 @@ It also defines the State enum options:
 - Symbol: BITPRO
 - Decimals: 18
 
-## BtcPriceProvider
+## PriceProvider
 
 - Referenced by: MocState, MoC
 - References/uses: SafeMath
@@ -670,7 +670,7 @@ The addresses of the deployed proxies will be in a file called `zos.<network-id>
 - _dayBlockSpan_: Average amount of blocks expected to be mined in a calendar day in this network.
 - _settlementDays_: Amount of days in between settlement to allowed executions
 - _gas_: Gas to use on MoC.sol contract deploy.
-- _oracle_: Moc Price Provider compatible address (see `contracts/interface/BtcPriceProvider.sol`). You can deploy this contract using the `oracle` project or (in development) the mock:`contracts/mocks/BtcPriceProviderMock.sol` (which is deployed on development migration by default).
+- _oracle_: Moc Price Provider compatible address (see `contracts/interface/PriceProvider.sol`). You can deploy this contract using the `oracle` project or (in development) the mock:`contracts/mocks/BtcPriceProviderMock.sol` (which is deployed on development migration by default).
 - _startStoppable_: If set to true, the MoC contract can be stopped after the deployment. If set to false, before pausing the contract you should make it stoppable with governance(this together with the blockage of the governance system can result in a blockage of the pausing system too).
 - _commissionSplitter_: Defines an address for an existing CommissionSplitter. If none is set, then the CommissionSplitter will be deployed.
 - _mocCommissionProportion_: Defines the proportion of commissions that will be injected as collateral to MoC as defined in [Commission splitting](#commission-splitting). This configuration only works if no _commissiomSplitter_ address is set.

@@ -50,6 +50,8 @@ const StopperProxy = Contracts.getFromLocal('Stopper');
 const CommissionSplitterProxy = Contracts.getFromLocal('CommissionSplitter');
 const RevertingOnSend = artifacts.require('./contracts/test-contracts/RevertingOnSend.sol');
 
+const MoCToken = artifacts.require('./contracts/MoCToken.sol');
+
 const { toContract } = require('../../utils/numberHelper');
 
 const baseParams = {
@@ -128,6 +130,7 @@ const createContracts = params => async ({ owner, useMock }) => {
   const bpro = await BPro.new({ from: owner });
   const doc = await DoC.new({ from: owner });
   const btcPriceProvider = await BtcPriceProviderMock.new(btcPrice);
+  const mocToken = await MoCToken.new({ from: owner });
 
   // Upgradeable
   const mocSettlementProxy = await project.createProxy(settlementContractProxy);
@@ -219,7 +222,8 @@ const createContracts = params => async ({ owner, useMock }) => {
     mocConverter.address,
     mocExchange.address,
     mocInrate.address,
-    mocBurnout.address
+    mocBurnout.address,
+    mocToken.address
   );
   await mocConverter.initialize(mocConnector.address);
   await moc.initialize(mocConnector.address, governor.address, stopper.address, startStoppable);

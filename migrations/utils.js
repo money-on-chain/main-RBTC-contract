@@ -11,6 +11,7 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
   const MoCLib = artifacts.require('./MoCHelperLib.sol');
   const DocToken = artifacts.require('./token/DocToken.sol');
   const BProToken = artifacts.require('./token/BProToken.sol');
+  const MoCToken = artifacts.require('./token/MoCToken.sol');
   const BProxManager = artifacts.require('./MoCBProxManager.sol');
   const MoCBurnout = artifacts.require('./MoCBurnout.sol');
   const MoCConverter = artifacts.require('./MoCConverter.sol');
@@ -35,6 +36,7 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
   const options = { network, txParams };
   let doc;
   let bpro;
+  let mocToken;
   let bprox;
   let mocSettlement;
   let mocState;
@@ -161,6 +163,7 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
     const proxies = getProxies();
     doc = await DocToken.deployed();
     bpro = await BProToken.deployed();
+    mocToken = await MoCToken.deployed();
 
     bprox = await BProxManager.at(getProxyAddress(proxies, 'MoCBProxManager'));
     mocSettlement = await MoCSettlementContract.at(getProxyAddress(proxies, 'MoCSettlement'));
@@ -286,7 +289,8 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
       mocConverter.address,
       mocExchange.address,
       mocInrate.address,
-      mocBurnout.address
+      mocBurnout.address,
+      mocToken.address
     );
     console.log('MoCConnector Initialized');
 
