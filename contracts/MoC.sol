@@ -2,7 +2,7 @@ pragma solidity 0.5.8;
 
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "./MoCLibConnection.sol";
-//import "./token/DocToken.sol";
+import "./token/DocToken.sol";
 import "./token/BProToken.sol";
 import "./MoCBProxManager.sol";
 import "./MoCState.sol";
@@ -13,8 +13,8 @@ import "./MoCBurnout.sol";
 import "./base/MoCBase.sol";
 import "moc-governance/contracts/Stopper/Stoppable.sol";
 import "moc-governance/contracts/Governance/IGovernor.sol";
-//import "./token/MoCToken.sol";
-import "openzeppelin-solidity/contracts/token/ERC20/IERC20.sol";
+import "./token/MoCToken.sol";
+//import "openzeppelin-solidity/contracts/token/ERC20/IERC20.sol";
 
 contract MoCEvents {
   event BucketLiquidation(bytes32 bucket);
@@ -27,7 +27,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
 
   // Contracts
   //DocToken internal docToken;
-  IERC20 internal docToken;
+  DocToken internal docToken;
   BProToken internal bproToken;
   MoCBProxManager internal bproxManager;
   MoCState internal mocState;
@@ -108,6 +108,22 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
     settlement.alterRedeemRequestAmount(isAddition, delta, msg.sender);
   }
 
+
+  function mintWithMocFees(address sender, uint256 value, uint256 totalBtcSpent, uint256 btcCommission, uint256 mocCommission) internal returns(uint256) {
+    // Check if there is enough balance of MoC
+    if (mocCommission > 0) {
+      // Transfer MoC from sender to this contract
+      mocToken.transferFrom(sender, address(this), mocCommission);
+      // Transfer MoC to commissions address
+      mocToken.transfer(mocInrate.commissionsAddress(), mocCommission);
+    } else {
+      // Check commission rate in RBTC according to transaction type
+      totalBtcSpent = totalBtcSpent.add(btcCommission);
+      require(totalBtcSpent <= value, "amount is not enough");
+    }
+    return totalBtcSpent;
+  }
+
   /**
     @dev Mints BPRO and pays the comissions of the operation.
     @param btcToMint Amount un BTC to mint
@@ -120,23 +136,12 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
 
     // Pass balance and allowance parameters to exchange
     // Calculate commissions in exchange
-    uint256 btcExchangeSpent;
+    uint256 totalBtcSpent;
     uint256 btcCommission;
     uint256 mocCommission; 
-    (btcExchangeSpent, btcCommission, mocCommission) = mocExchange.mintBPro(msg.sender, btcToMint, mocBalance, mocAllowance);
+    (totalBtcSpent, btcCommission, mocCommission) = mocExchange.mintBPro(msg.sender, btcToMint, mocBalance, mocAllowance);
 
-    uint256 totalBtcSpent = btcExchangeSpent;
-    // Check if there is enough balance of MoC
-    if (mocCommission > 0) {
-      // Transfer MoC from sender to this contract
-      mocToken.transferFrom(msg.sender, address(this), mocCommission);
-      // Transfer MoC to commissions address
-      mocToken.transfer(mocInrate.commissionsAddress(), mocCommission);
-    } else {
-      // Check commission rate in RBTC according to transaction type
-      totalBtcSpent = totalBtcSpent.add(btcCommission);
-      require(totalBtcSpent <= msg.value, "amount is not enough");
-    }
+    totalBtcSpent = mintWithMocFees(msg.sender, msg.value, totalBtcSpent, btcCommission, mocCommission);
     /** END UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
 
     // Need to update general State
@@ -148,6 +153,19 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
     doTransfer(mocInrate.commissionsAddress(), btcCommission);
   }
 
+
+  function redeemWithMocFees(address sender, uint256 btcCommission, uint256 mocCommission) internal {
+    // Check if there is enough balance of MoC
+    if (mocCommission > 0) {
+      // Transfer MoC from sender to this contract
+      mocToken.transferFrom(sender, address(this), mocCommission);
+      // Transfer MoC to commissions address
+      mocToken.transfer(mocInrate.commissionsAddress(), mocCommission);
+    } else {
+      // Transfer commissions to commissions address
+      doTransfer(mocInrate.commissionsAddress(), btcCommission);
+    }
+  }
   /**
    * @dev Redeems Bpro Tokens and pays the comissions of the operation in RBTC
      @param bproAmount Amout in Bpro
@@ -168,15 +186,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
     doTransfer(msg.sender, btcAmount);
 
     // Check if there is enough balance of MoC
-    if (mocCommission > 0) {
-      // Transfer MoC from sender to this contract
-      mocToken.transferFrom(msg.sender, address(this), mocCommission);
-      // Transfer MoC to commissions address
-      mocToken.transfer(mocInrate.commissionsAddress(), mocCommission);
-    } else {
-      // Transfer commissions to commissions address
-      doTransfer(mocInrate.commissionsAddress(), btcCommission);
-    }
+    redeemWithMocFees(msg.sender, btcCommission, mocCommission);
     /** END UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
   }
 
@@ -192,23 +202,12 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
 
     // Pass balance and allowance parameters to exchange
     // Calculate commissions in exchange
-    uint256 btcExchangeSpent;
+    uint256 totalBtcSpent;
     uint256 btcCommission;
     uint256 mocCommission; 
-    (btcExchangeSpent, btcCommission, mocCommission) = mocExchange.mintBPro(msg.sender, btcToMint, mocBalance, mocAllowance);
+    (totalBtcSpent, btcCommission, mocCommission) = mocExchange.mintDoc(msg.sender, btcToMint, mocBalance, mocAllowance);
 
-    uint256 totalBtcSpent = btcExchangeSpent;
-    // Check if there is enough balance of MoC
-    if (mocCommission > 0) {
-      // Transfer MoC from sender to this contract
-      mocToken.transferFrom(msg.sender, address(this), mocCommission);
-      // Transfer MoC to commissions address
-      mocToken.transfer(mocInrate.commissionsAddress(), mocCommission);
-    } else {
-      // Check commission rate in RBTC according to transaction type
-      totalBtcSpent = totalBtcSpent.add(btcCommission);
-      require(totalBtcSpent <= msg.value, "amount is not enough");
-    }
+    totalBtcSpent = mintWithMocFees(msg.sender, msg.value, totalBtcSpent, btcCommission, mocCommission);
     /** END UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
 
     // Need to update general State
@@ -245,15 +244,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
     doTransfer(msg.sender, totalBtcRedeemed);
 
     // Check if there is enough balance of MoC
-    if (mocCommission > 0) {
-      // Transfer MoC from sender to this contract
-      mocToken.transferFrom(msg.sender, address(this), mocCommission);
-      // Transfer MoC to commissions address
-      mocToken.transfer(mocInrate.commissionsAddress(), mocCommission);
-    } else {
-      // Transfer commissions to commissions address
-      doTransfer(mocInrate.commissionsAddress(), btcCommission);
-    }
+    redeemWithMocFees(msg.sender, btcCommission, mocCommission);
     /** END UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
   }
 
@@ -272,23 +263,12 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
 
     // Pass balance and allowance parameters to exchange
     // Calculate commissions in exchange
-    uint256 btcExchangeSpent;
+    uint256 totalBtcSpent;
     uint256 btcCommission;
     uint256 mocCommission; 
-    (btcExchangeSpent, btcCommission, mocCommission) = mocExchange.mintBProx(msg.sender, bucket, btcToMint, mocBalance, mocAllowance);
+    (totalBtcSpent, btcCommission, mocCommission) = mocExchange.mintBProx(msg.sender, bucket, btcToMint, mocBalance, mocAllowance);
 
-    uint256 totalBtcSpent = btcExchangeSpent;
-    // Check if there is enough balance of MoC
-    if (mocCommission > 0) {
-      // Transfer MoC from sender to this contract
-      mocToken.transferFrom(msg.sender, address(this), mocCommission);
-      // Transfer MoC to commissions address
-      mocToken.transfer(mocInrate.commissionsAddress(), mocCommission);
-    } else {
-      // Check commission rate in RBTC according to transaction type
-      totalBtcSpent = totalBtcSpent.add(btcCommission);
-      require(totalBtcSpent <= msg.value, "amount is not enough");
-    }
+    totalBtcSpent = mintWithMocFees(msg.sender, msg.value, totalBtcSpent, btcCommission, mocCommission);
     /** END UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
 
     // Need to update general State
@@ -321,15 +301,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
     doTransfer(msg.sender, btcAmount);
 
     // Check if there is enough balance of MoC
-    if (mocCommission > 0) {
-      // Transfer MoC from sender to this contract
-      mocToken.transferFrom(msg.sender, address(this), mocCommission);
-      // Transfer MoC to commissions address
-      mocToken.transfer(mocInrate.commissionsAddress(), mocCommission);
-    } else {
-      // Transfer commissions to commissions address
-      doTransfer(mocInrate.commissionsAddress(), btcCommission);
-    }
+    redeemWithMocFees(msg.sender, btcCommission, mocCommission);
     /** END UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
   }
 
@@ -480,7 +452,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
   }
 
   function initializeContracts() internal {
-    docToken = IERC20(connector.docToken());
+    docToken = DocToken(connector.docToken());
     bproToken = BProToken(connector.bproToken());
     bproxManager = MoCBProxManager(connector.bproxManager());
     mocState = MoCState(connector.mocState());
@@ -489,7 +461,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
     mocExchange = MoCExchange(connector.mocExchange());
     mocInrate = MoCInrate(connector.mocInrate());
     mocBurnout = MoCBurnout(connector.mocBurnout());
-    mocToken = IERC20(connector.mocToken());
+    mocToken = MoCToken(connector.mocToken());
   }
 
   function initializeGovernanceContracts(address stopperAddress, address governorAddress, bool startStoppable) internal {
@@ -579,7 +551,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
   /** START UPDATE V0110: 24/09/2020  **/
   /** Upgrade to support multiple commission rates **/
   //MoCToken mocToken;
-  IERC20 mocToken;
+  MoCToken mocToken;
   /** END UPDATE V0110: 24/09/2020 **/
 
   // Leave a gap betweeen inherited contracts variables in order to be
