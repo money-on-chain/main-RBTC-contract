@@ -1,6 +1,4 @@
 pragma solidity 0.5.8;
-pragma experimental ABIEncoderV2;
-
 import "../MoCInrate.sol";
 import "moc-governance/contracts/Governance/ChangeContract.sol";
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
@@ -8,7 +6,7 @@ import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
  * @dev This contract is used to update the configuration of MocInrate v017
  * with MoC --- governance.
  */
-contract MocInrateChangerCommFees is ChangeContract, Ownable{
+contract MocInrateChanger_v019 is ChangeContract, Ownable{
   MoCInrate private mocInrate;
   uint256 public bitProInterestBlockSpan;
   uint256 public btxcTmin;
@@ -21,12 +19,6 @@ contract MocInrateChangerCommFees is ChangeContract, Ownable{
   uint256 public docTmin;
   uint256 public docTmax;
   uint256 public docPower;
-  CommissionRates[] public commissionRates;
-
-  struct CommissionRates {
-      uint8 txType;
-      uint256 fee;
-  }
 
   constructor(
     MoCInrate _mocInrate,
@@ -38,8 +30,7 @@ contract MocInrateChangerCommFees is ChangeContract, Ownable{
     uint256 _newComRate,
     uint256 _docTmin,
     uint256 _docTmax,
-    uint256 _docPower,
-    CommissionRates[] memory _commissionRates
+    uint256 _docPower
   ) public {
     mocInrate = _mocInrate;
     bitProInterestBlockSpan = _bProIntBlockSpan;
@@ -51,10 +42,6 @@ contract MocInrateChangerCommFees is ChangeContract, Ownable{
     docTmin = _docTmin;
     docTmax = _docTmax;
     docPower = _docPower;
-    
-    for (uint256 i = 0; i < _commissionRates.length; i++){
-      commissionRates.push(_commissionRates[i]);
-    }
   }
 
   function execute() external {
@@ -76,8 +63,6 @@ contract MocInrateChangerCommFees is ChangeContract, Ownable{
     mocInrate.setDoCTmin(docTmin);
     mocInrate.setDoCTmax(docTmax);
     mocInrate.setDoCPower(docPower);
-
-    initializeCommissionRates();
   }
 
   function setBitProInterestBlockSpan(uint256 _bitProInterestBlockSpan) public onlyOwner(){
@@ -124,11 +109,4 @@ contract MocInrateChangerCommFees is ChangeContract, Ownable{
     docPower = _docPower;
   }
 
-  function initializeCommissionRates() public onlyOwner(){
-    require(commissionRates.length > 0);
-
-    for (uint256 i = 0; i < commissionRates.length; i++) {
-        mocInrate.setCommissionRateByTxType(commissionRates[i].txType, commissionRates[i].fee);
-    }
-  }
 }

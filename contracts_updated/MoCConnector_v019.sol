@@ -7,7 +7,7 @@ import "./MoCWhitelist.sol";
 /**
   @dev Provides access control between all MoC Contracts
  */
-contract MoCConnector is MoCWhitelist, Initializable {
+contract MoCConnector_v019 is MoCWhitelist, Initializable {
   // References
   address payable public moc;
   address public docToken;
@@ -19,7 +19,6 @@ contract MoCConnector is MoCWhitelist, Initializable {
   address public mocExchange;
   address public mocInrate;
   address public mocBurnout;
-  address public mocToken;
 
   bool internal initialized;
 
@@ -33,8 +32,7 @@ contract MoCConnector is MoCWhitelist, Initializable {
     address converterAddress,
     address exchangeAddress,
     address inrateAddress,
-    address burnoutBookAddress,
-    address mocTokenAddress
+    address burnoutBookAddress
   ) public initializer {
     moc = mocAddress;
     docToken = docAddress;
@@ -46,7 +44,6 @@ contract MoCConnector is MoCWhitelist, Initializable {
     mocExchange = exchangeAddress;
     mocInrate = inrateAddress;
     mocBurnout = burnoutBookAddress;
-    mocToken = mocTokenAddress;
 
     // Add to Whitelist
     add(mocAddress);
@@ -59,7 +56,6 @@ contract MoCConnector is MoCWhitelist, Initializable {
     add(exchangeAddress);
     add(inrateAddress);
     add(burnoutBookAddress);
-    add(mocTokenAddress);
   }
 
   // Leave a gap betweeen inherited contracts variables in order to be

@@ -1,7 +1,7 @@
 pragma solidity 0.5.8;
 
 import "openzeppelin-solidity/contracts/math/Math.sol";
-import "./interface/PriceProvider.sol";
+import "./interface/BtcPriceProvider.sol";
 import "./MoCEMACalculator.sol";
 import "./base/MoCBase.sol";
 import "./MoCLibConnection.sol";
@@ -12,7 +12,7 @@ import "./MoCSettlement.sol";
 import "moc-governance/contracts/Governance/Governed.sol";
 import "moc-governance/contracts/Governance/IGovernor.sol";
 
-contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
+contract MoCState_v019 is MoCLibConnection, MoCBase, MoCEMACalculator {
   using Math for uint256;
   using SafeMath for uint256;
 
@@ -22,7 +22,7 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
   event StateTransition(States newState);
   event PriceProviderUpdated(address oldAddress, address newAddress);
   // Contracts
-  PriceProvider internal btcPriceProvider;
+  BtcPriceProvider internal btcPriceProvider;
   MoCSettlement internal mocSettlement;
   MoCConverter internal mocConverter;
   DocToken internal docToken;
@@ -60,13 +60,12 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
     uint256 _ema,
     uint256 _smoothFactor,
     uint256 _emaBlockSpan,
-    uint256 _maxMintBPro,
-    address _mocPriceProvider
+    uint256 _maxMintBPro
   ) public initializer {
     initializePrecisions();
     initializeBase(connectorAddress);
     initializeContracts();
-    initializeValues(_governor, _btcPriceProvider,_liq, _utpdu, _maxDiscRate, _dayBlockSpan, _maxMintBPro, _mocPriceProvider);
+    initializeValues(_governor, _btcPriceProvider,_liq, _utpdu, _maxDiscRate, _dayBlockSpan, _maxMintBPro);
     initializeMovingAverage(_ema, _smoothFactor, _emaBlockSpan);
   }
 
@@ -101,7 +100,7 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
   **/
   function setBtcPriceProvider(address btcProviderAddress) public onlyAuthorizedChanger() {
     address oldBtcPriceProviderAddress = address(btcPriceProvider);
-    btcPriceProvider = PriceProvider(btcProviderAddress);
+    btcPriceProvider = BtcPriceProvider(btcProviderAddress);
     emit PriceProviderUpdated(oldBtcPriceProviderAddress, address(btcPriceProvider));
   }
 
@@ -638,19 +637,17 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
     uint256 _utpdu,
     uint256 _maxDiscRate,
     uint256 _dayBlockSpan,
-    uint256 _maxMintBPro,
-    address _mocPriceProvider) internal {
+    uint256 _maxMintBPro) internal {
     liq = _liq;
     utpdu = _utpdu;
     bproMaxDiscountRate = _maxDiscRate;
     dayBlockSpan = _dayBlockSpan;
     governor = IGovernor(_governor);
-    btcPriceProvider = PriceProvider(_btcPriceProvider);
+    btcPriceProvider = BtcPriceProvider(_btcPriceProvider);
     // Default values
     state = States.AboveCobj;
     peg = 1;
     maxMintBPro = _maxMintBPro;
-    mocPriceProvider = PriceProvider(_mocPriceProvider);
   }
 
   function initializeContracts() internal  {
@@ -704,51 +701,6 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
   }
 
   /** END UPDATE V017: 01/11/2019 **/
-
-  /************************************/
-  /***** UPGRADE v020       ***********/
-  /************************************/
-
-  /** START UPDATE V020: 24/09/2020 **/
-  /** Upgrade to support multiple commission rates **/
-  /** and rename price interfaces **/
-
-  PriceProvider internal mocPriceProvider;
-
-  /**********************
-    MoC PRICE PROVIDER
-   *********************/
-
-  /**
-  * @dev Sets a new MoCProvider contract
-  * @param mocProviderAddress MoC price provider address
-  **/
-  function setMoCPriceProvider(address mocProviderAddress) public onlyAuthorizedChanger() {
-    address oldMoCPriceProviderAddress = address(mocPriceProvider);
-    mocPriceProvider = PriceProvider(mocProviderAddress);
-    emit PriceProviderUpdated(oldMoCPriceProviderAddress, address(mocPriceProvider));
-  }
-
-  /**
-  * @dev Gets the MoCPriceProviderAddress
-  * @return mocPriceProvider MoC price provider address
-  **/
-  function getMoCPriceProvider() public view returns(address) {
-    return address(mocPriceProvider);
-  }
-
-  /**
-  * @dev Gets the MoCPrice
-  * @return price MoC price
-  **/
- function getMoCPrice() public view returns(uint256) {
-    (bytes32 price, bool has) = mocPriceProvider.peek();
-    require(has, "Oracle have no MoC Price");
-
-    return uint256(price);
-  }
-
-  /** END UPDATE V020: 24/09/2020 **/
 
   // Leave a gap betweeen inherited contracts variables in order to be
   // able to add more variables in them later

@@ -1,4 +1,6 @@
 pragma solidity 0.5.8;
+pragma experimental ABIEncoderV2;
+
 import "../MoCInrate.sol";
 import "moc-governance/contracts/Governance/ChangeContract.sol";
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
@@ -20,6 +22,22 @@ contract MocInrateChanger is ChangeContract, Ownable{
   uint256 public docTmax;
   uint256 public docPower;
 
+  /************************************/
+  /***** UPGRADE v0110      ***********/
+  /************************************/
+
+  /** START UPDATE V0110: 24/09/2020  **/
+  /** Upgrade to support multiple commission rates **/
+
+  CommissionRates[] public commissionRates;
+
+  struct CommissionRates {
+      uint8 txType;
+      uint256 fee;
+  }
+
+  /** END UPDATE V0110: 24/09/2020 **/
+
   constructor(
     MoCInrate _mocInrate,
     uint256 _bProIntBlockSpan,
@@ -30,7 +48,8 @@ contract MocInrateChanger is ChangeContract, Ownable{
     uint256 _newComRate,
     uint256 _docTmin,
     uint256 _docTmax,
-    uint256 _docPower
+    uint256 _docPower,
+    CommissionRates[] memory _commissionRates
   ) public {
     mocInrate = _mocInrate;
     bitProInterestBlockSpan = _bProIntBlockSpan;
@@ -42,6 +61,10 @@ contract MocInrateChanger is ChangeContract, Ownable{
     docTmin = _docTmin;
     docTmax = _docTmax;
     docPower = _docPower;
+    
+    for (uint256 i = 0; i < _commissionRates.length; i++){
+      commissionRates.push(_commissionRates[i]);
+    }
   }
 
   function execute() external {
@@ -63,6 +86,9 @@ contract MocInrateChanger is ChangeContract, Ownable{
     mocInrate.setDoCTmin(docTmin);
     mocInrate.setDoCTmax(docTmax);
     mocInrate.setDoCPower(docPower);
+
+    /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
+    initializeCommissionRates();
   }
 
   function setBitProInterestBlockSpan(uint256 _bitProInterestBlockSpan) public onlyOwner(){
@@ -109,4 +135,14 @@ contract MocInrateChanger is ChangeContract, Ownable{
     docPower = _docPower;
   }
 
+  /**
+    @dev initializes the commission rate fees by transaction type to use in the MoCInrate contract
+  */
+  function initializeCommissionRates() public onlyOwner(){
+    require(commissionRates.length > 0);
+
+    for (uint256 i = 0; i < commissionRates.length; i++) {
+        mocInrate.setCommissionRateByTxType(commissionRates[i].txType, commissionRates[i].fee);
+    }
+  }
 }
