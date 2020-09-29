@@ -14,7 +14,6 @@ import "./base/MoCBase.sol";
 import "moc-governance/contracts/Stopper/Stoppable.sol";
 import "moc-governance/contracts/Governance/IGovernor.sol";
 import "./token/MoCToken.sol";
-//import "openzeppelin-solidity/contracts/token/ERC20/IERC20.sol";
 
 contract MoCEvents {
   event BucketLiquidation(bytes32 bucket);
@@ -26,7 +25,6 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
   using SafeMath for uint256;
 
   // Contracts
-  //DocToken internal docToken;
   DocToken internal docToken;
   BProToken internal bproToken;
   MoCBProxManager internal bproxManager;
