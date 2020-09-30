@@ -13,9 +13,6 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount]) 
     this.moc = mocHelper.moc;
     this.mockMocInrateChanger = mocHelper.mockMocInrateChanger;
     this.governor = mocHelper.governor;
-    // this.mocToken = mocHelper.mocToken;
-
-    // console.log("MoCToken owner: ", await this.mocToken.owner());
   });
 
   beforeEach(async function() {
@@ -31,6 +28,7 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount]) 
 
   describe('BPro minting with commissions', function() {
     const scenarios = [
+      // RBTC commission
       { 
         params: {
           bproToMint: 1000,
@@ -45,6 +43,7 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount]) 
           mocAmount: 0
         }
       },
+      // MoC commission
       {
         params: {
           bproToMint: 1000,
@@ -61,11 +60,6 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount]) 
       }
     ];
     scenarios.forEach(async scenario => {
-      console.log("owner: ", owner);
-      console.log("userAccount: ", userAccount);
-      console.log("scenario.params.mocAmount: ", scenario.params.mocAmount);
-
-
       describe.only(`GIVEN ${scenario.params.bproToMint} BitPro are minted and ${scenario.params.mocAmount} MoC are available in user account`, function() {
         let prevUserBtcBalance;
         let prevUserBproBalance;
@@ -76,20 +70,17 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount]) 
         let prevCommissionsAccountMoCBalance;
 
         beforeEach(async function() {
-          // console.log("bpro bal");
-          // prevUserBproBalance = await mocHelper.getBProBalance(userAccount);
-          // prevUserBtcBalance = toContractBN(await web3.eth.getBalance(userAccount));
-          // prevCommissionsAccountBtcBalance = toContractBN(await web3.eth.getBalance(commissionsAccount));
-          // prevMocBtcBalance = toContractBN(await web3.eth.getBalance(this.moc.address));
-          // console.log("mint");
-          // console.log("owner in func", owner);
-          // await mocHelper.mintMoCToken(userAccount, scenario.params.mocAmount, owner);
-          // console.log("end mint");
-          // console.log("resto");
-          // prevUserMoCBalance = await mocHelper.getMoCBalance(userAccount);
-          // prevCommissionsAccountMoCBalance = await mocHelper.getMoCBalance(commissionsAccount);
-          //const mintTx = await mocHelper.mintBProAmount(userAccount, scenario.params.bproToMint);
-          //usedGas = toContractBN(await mocHelper.getTxCost(mintTx));
+          prevUserBproBalance = await mocHelper.getBProBalance(userAccount);
+          prevUserBtcBalance = toContractBN(await web3.eth.getBalance(userAccount));
+          prevCommissionsAccountBtcBalance = toContractBN(await web3.eth.getBalance(commissionsAccount));
+          prevMocBtcBalance = toContractBN(await web3.eth.getBalance(this.moc.address));
+          await mocHelper.mintMoCToken(userAccount, scenario.params.mocAmount, owner);
+          prevUserMoCBalance = await mocHelper.getMoCBalance(userAccount);
+          prevCommissionsAccountMoCBalance = await mocHelper.getMoCBalance(commissionsAccount);
+          // Set transaction type according to scenario
+          const txType = (scenario.params.mocAmount == 0) ? await mocHelper.mocInrate.MINT_BPRO_FEES_RBTC() : await mocHelper.mocInrate.MINT_BPRO_FEES_MOC();
+          const mintTx = await mocHelper.mintBProAmount(userAccount, scenario.params.bproToMint, txType);
+          usedGas = toContractBN(await mocHelper.getTxCost(mintTx));
         });
         it(`THEN the user has ${scenario.expect.bproToMint} more BitPros`, async function() {
           const UserBproBalance = await mocHelper.getBProBalance(userAccount);

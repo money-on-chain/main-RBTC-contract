@@ -67,7 +67,7 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
       case 'development':
         return (await MoCPriceProviderMock.deployed()).address;
       default:
-        return config.oracle;
+        return config.mocOracle;
     }
   };
 

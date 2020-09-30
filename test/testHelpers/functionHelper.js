@@ -58,10 +58,6 @@ const isBitProInterestEnabled = moc => async () => moc.isBitProInterestEnabled()
 const getBitProInterestAddress = moc => async () => moc.getBitProInterestAddress();
 
 const mintMoCToken = mocToken => async (anotherAccount, initialBalance, owner) =>  {
-  console.log("owner: ", owner);
-  console.log("anotherAccount: ", anotherAccount);
-  console.log("initialBalance: ", initialBalance);
-
   await mocToken.mint(anotherAccount, initialBalance, { from: owner });
 }
 
@@ -112,17 +108,17 @@ const rbtcNeededToMintBpro = (moc, mocState) => async bproAmount => {
   return btcTotal;
 };
 
-const mintBProAmount = (moc, mocState, mocInrate) => async (account, bproAmount) => {
+const mintBProAmount = (moc, mocState, mocInrate) => async (account, bproAmount, txType) => {
   if (!bproAmount) {
     return;
   }
 
   const btcTotal = await rbtcNeededToMintBpro(moc, mocState)(bproAmount);
 
-  // Sent more to pay commissions
-  const commissionRate = await mocInrate.getCommissionRate();
+  // Sent more to pay commissions: if RBTC fees are used then get commission value, otherwise commission is 0 RBTC
+  const commissionRate = (txType == await mocInrate.MINT_BPRO_FEES_RBTC()) ? await mocInrate.commissionRatesByTxType(txType) : 0;
   const mocPrecision = await moc.getMocPrecision();
-  const commissionRbtcAmount = btcTotal.mul(commissionRate).div(mocPrecision);
+  const commissionRbtcAmount = (commissionRate > 0) ? btcTotal.mul(commissionRate).div(mocPrecision) : 0;
   const value = toContract(new BigNumber(btcTotal).plus(commissionRbtcAmount));
   return moc.mintBPro(toContract(btcTotal), { from: account, value });
 };

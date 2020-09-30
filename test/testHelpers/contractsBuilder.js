@@ -209,7 +209,7 @@ const createContracts = params => async ({ owner, useMock }) => {
     docTmin,
     docTmax,
     docPower,
-    [], //await initializeCommissionRatesArray(moc, mocInrate), 
+    await initializeCommissionRatesArray(moc, mocInrate), 
     { from: owner }
   );
   const mockMoCSettlementChanger = await MoCSettlementChanger.new(
