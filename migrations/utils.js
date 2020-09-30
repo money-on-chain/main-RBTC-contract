@@ -347,7 +347,7 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
       config.dayBlockSpan * config.daysBitProHolderExecutePayment, // Blockspan to execute payment once a week
       targetAddressBitPro, // Target address of BitPro interest
       commissionSplitter.address, // Target address of commission payment
-      toContract(config.commissionRate * 10 ** 18), // commissionRate [mocPrecision]
+      //toContract(config.commissionRate * 10 ** 18), // commissionRate [mocPrecision]
       toContract(config.docTmin * 10 ** 18), // docTmin [using mocPrecision]
       toContract(config.docPower), // docPower [no precision]
       toContract(config.docTmax * 10 ** 18) // docTmax [using mocPrecision]
