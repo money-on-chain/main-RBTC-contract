@@ -76,20 +76,20 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount]) 
         let prevCommissionsAccountMoCBalance;
 
         beforeEach(async function() {
-          // console.log("bpro bal");
-          // prevUserBproBalance = await mocHelper.getBProBalance(userAccount);
-          // prevUserBtcBalance = toContractBN(await web3.eth.getBalance(userAccount));
-          // prevCommissionsAccountBtcBalance = toContractBN(await web3.eth.getBalance(commissionsAccount));
-          // prevMocBtcBalance = toContractBN(await web3.eth.getBalance(this.moc.address));
-          // console.log("mint");
-          // console.log("owner in func", owner);
-          // await mocHelper.mintMoCToken(userAccount, scenario.params.mocAmount, owner);
-          // console.log("end mint");
-          // console.log("resto");
-          // prevUserMoCBalance = await mocHelper.getMoCBalance(userAccount);
-          // prevCommissionsAccountMoCBalance = await mocHelper.getMoCBalance(commissionsAccount);
-          //const mintTx = await mocHelper.mintBProAmount(userAccount, scenario.params.bproToMint);
-          //usedGas = toContractBN(await mocHelper.getTxCost(mintTx));
+          console.log("bpro bal");
+          prevUserBproBalance = await mocHelper.getBProBalance(userAccount);
+          prevUserBtcBalance = toContractBN(await web3.eth.getBalance(userAccount));
+          prevCommissionsAccountBtcBalance = toContractBN(await web3.eth.getBalance(commissionsAccount));
+          prevMocBtcBalance = toContractBN(await web3.eth.getBalance(this.moc.address));
+          console.log("mint");
+          console.log("owner in func", owner);
+          await mocHelper.mintMoCToken(userAccount, scenario.params.mocAmount, owner);
+          console.log("end mint");
+          console.log("resto");
+          prevUserMoCBalance = await mocHelper.getMoCBalance(userAccount);
+          prevCommissionsAccountMoCBalance = await mocHelper.getMoCBalance(commissionsAccount);
+          const mintTx = await mocHelper.mintBProAmount(userAccount, scenario.params.bproToMint);
+          usedGas = toContractBN(await mocHelper.getTxCost(mintTx));
         });
         it(`THEN the user has ${scenario.expect.bproToMint} more BitPros`, async function() {
           const UserBproBalance = await mocHelper.getBProBalance(userAccount);
