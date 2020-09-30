@@ -15,7 +15,9 @@ contract MocInrateChanger is ChangeContract, Ownable{
   uint256 public btxcTmax;
   uint256 public btxcPower;
   uint256 public newBitProRate;
-  uint256 public newCommissionRate;
+  /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
+  /** DEPRECATED **/
+  uint256 public DEPRECATED_newCommissionRate;
   address payable public newBitProInterestAddress;
   address payable public newCommissionsAddress;
   uint256 public docTmin;
@@ -45,7 +47,7 @@ contract MocInrateChanger is ChangeContract, Ownable{
     uint256 _btxcTmax,
     uint256 _btxcPower,
     uint256 _newBProRate,
-    uint256 _newComRate,
+    //uint256 _newComRate,
     uint256 _docTmin,
     uint256 _docTmax,
     uint256 _docPower,
@@ -57,7 +59,7 @@ contract MocInrateChanger is ChangeContract, Ownable{
     btxcTmax = _btxcTmax;
     btxcPower = _btxcPower;
     newBitProRate = _newBProRate;
-    newCommissionRate = _newComRate;
+    //newCommissionRate = _newComRate;
     docTmin = _docTmin;
     docTmax = _docTmax;
     docPower = _docPower;
@@ -81,7 +83,7 @@ contract MocInrateChanger is ChangeContract, Ownable{
       mocInrate.setBitProInterestAddress(newBitProInterestAddress);
     }
 
-    mocInrate.setCommissionRate(newCommissionRate);
+    //mocInrate.setCommissionRate(newCommissionRate);
 
     mocInrate.setDoCTmin(docTmin);
     mocInrate.setDoCTmax(docTmax);
@@ -119,9 +121,9 @@ contract MocInrateChanger is ChangeContract, Ownable{
     newCommissionsAddress = _newCommissionsAddress;
   }
 
-  function setCommissionRate(uint256 _newCommissionRate) public onlyOwner(){
-    newCommissionRate = _newCommissionRate;
-  }
+  // function setCommissionRate(uint256 _newCommissionRate) public onlyOwner(){
+  //   newCommissionRate = _newCommissionRate;
+  // }
 
   function setDoCTmin(uint256 _docTmin) public onlyOwner(){
     docTmin = _docTmin;
@@ -138,7 +140,7 @@ contract MocInrateChanger is ChangeContract, Ownable{
   /**
     @dev initializes the commission rate fees by transaction type to use in the MoCInrate contract
   */
-  function initializeCommissionRates() public onlyOwner(){
+  function initializeCommissionRates() internal {
     require(commissionRates.length > 0);
 
     for (uint256 i = 0; i < commissionRates.length; i++) {

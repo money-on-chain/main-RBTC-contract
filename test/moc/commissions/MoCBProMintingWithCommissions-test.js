@@ -13,13 +13,16 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount]) 
     this.moc = mocHelper.moc;
     this.mockMocInrateChanger = mocHelper.mockMocInrateChanger;
     this.governor = mocHelper.governor;
+    // this.mocToken = mocHelper.mocToken;
+
+    // console.log("MoCToken owner: ", await this.mocToken.owner());
   });
 
   beforeEach(async function() {
     await mocHelper.revertState();
 
-    // set commissions rate
-    await mocHelper.mockMocInrateChanger.setCommissionRate(0.002 * mocHelper.MOC_PRECISION);
+    // Commission rates are set in contractsBuilder.js
+
     // set commissions address
     await mocHelper.mockMocInrateChanger.setCommissionsAddress(commissionsAccount);
     // update params
@@ -28,35 +31,65 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount]) 
 
   describe('BPro minting with commissions', function() {
     const scenarios = [
-      {
+      { 
         params: {
-          bproToMint: 1000
+          bproToMint: 1000,
+          mocAmount: 0
         },
         expect: {
           bproToMint: 1000,
           bproToMintOnRbtc: 1000,
-          // (bproToMint * commissionRate = 0.002)
-          commissionAmountRbtc: 2,
-          totalCostOnBtc: 1002
+          commissionAmountRbtc: 1,  // (bproToMint * MINT_BPRO_FEES_RBTC = 0.001)
+          totalCostOnBtc: 1001,
+          commissionAmountMoC: 0,
+          mocAmount: 0
+        }
+      },
+      {
+        params: {
+          bproToMint: 1000,
+          mocAmount: 1000
+        },
+        expect: {
+          bproToMint: 1000,
+          bproToMintOnRbtc: 1000,
+          commissionAmountRbtc: 0,
+          totalCostOnBtc: 1000,
+          commissionAmountMoC: 7, // (bproToMint * MINT_BPRO_FEES_MOC = 0.007)
+          mocAmount: 993
         }
       }
     ];
     scenarios.forEach(async scenario => {
-      describe(`GIVEN ${scenario.params.bproToMint} BitPro are minted`, function() {
+      console.log("owner: ", owner);
+      console.log("userAccount: ", userAccount);
+      console.log("scenario.params.mocAmount: ", scenario.params.mocAmount);
+
+
+      describe.only(`GIVEN ${scenario.params.bproToMint} BitPro are minted and ${scenario.params.mocAmount} MoC are available in user account`, function() {
         let prevUserBtcBalance;
         let prevUserBproBalance;
         let prevCommissionsAccountBtcBalance;
         let prevMocBtcBalance;
         let usedGas;
+        let prevUserMoCBalance; // If user has MoC balance, then commission fees will be in MoC
+        let prevCommissionsAccountMoCBalance;
+
         beforeEach(async function() {
-          prevUserBproBalance = await mocHelper.getBProBalance(userAccount);
-          prevUserBtcBalance = toContractBN(await web3.eth.getBalance(userAccount));
-          prevCommissionsAccountBtcBalance = toContractBN(
-            await web3.eth.getBalance(commissionsAccount)
-          );
-          prevMocBtcBalance = toContractBN(await web3.eth.getBalance(this.moc.address));
-          const mintTx = await mocHelper.mintBProAmount(userAccount, scenario.params.bproToMint);
-          usedGas = toContractBN(await mocHelper.getTxCost(mintTx));
+          // console.log("bpro bal");
+          // prevUserBproBalance = await mocHelper.getBProBalance(userAccount);
+          // prevUserBtcBalance = toContractBN(await web3.eth.getBalance(userAccount));
+          // prevCommissionsAccountBtcBalance = toContractBN(await web3.eth.getBalance(commissionsAccount));
+          // prevMocBtcBalance = toContractBN(await web3.eth.getBalance(this.moc.address));
+          // console.log("mint");
+          // console.log("owner in func", owner);
+          // await mocHelper.mintMoCToken(userAccount, scenario.params.mocAmount, owner);
+          // console.log("end mint");
+          // console.log("resto");
+          // prevUserMoCBalance = await mocHelper.getMoCBalance(userAccount);
+          // prevCommissionsAccountMoCBalance = await mocHelper.getMoCBalance(commissionsAccount);
+          //const mintTx = await mocHelper.mintBProAmount(userAccount, scenario.params.bproToMint);
+          //usedGas = toContractBN(await mocHelper.getTxCost(mintTx));
         });
         it(`THEN the user has ${scenario.expect.bproToMint} more BitPros`, async function() {
           const UserBproBalance = await mocHelper.getBProBalance(userAccount);
@@ -95,6 +128,25 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount]) 
             diff,
             scenario.expect.commissionAmountRbtc,
             'commissions account balance is incorrect'
+          );
+        });
+
+        it(`THEN the user MoC balance has decreased by ${scenario.expect.commissionAmountMoC} MoCs by commissions`, async function() {
+          const userMoCBalance = await mocHelper.getMoCBalance(userAccount);
+          const diff = prevUserMoCBalance.sub(userMoCBalance);
+          mocHelper.assertBigRBTC(
+            diff,
+            scenario.expect.mocAmount,
+            'user MoC balance is incorrect'
+          );
+        });
+        it(`THEN the commissions account MoC balance has increased by ${scenario.expect.commissionAmountMoC} MoCs`, async function() {
+          const commissionsAccountMoCBalance = await mocHelper.getMoCBalance(commissionsAccount);
+          const diff = commissionsAccountMoCBalance.sub(prevCommissionsAccountMoCBalance);
+          mocHelper.assertBigRBTC(
+            diff,
+            scenario.expect.commissionAmountRbtc,
+            'commissions account MoC balance is incorrect'
           );
         });
       });

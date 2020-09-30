@@ -43,8 +43,10 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
 
   // Target addres to transfer commissions of mint/redeem
   address payable public commissionsAddress;
+  /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
+  /** DEPRECATED **/
   // commissionRate [using mocPrecision]
-  uint256 public commissionRate;
+  uint256 public DEPRECATED_commissionRate;
 
   /**CONTRACTS**/
   MoCState internal mocState;
@@ -111,7 +113,7 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
     uint256 blockSpanBitPro,
     address payable bitProInterestTargetAddress,
     address payable commissionsAddressTarget,
-    uint256 commissionRateParam,
+    //uint256 commissionRateParam,
     uint256 _docTmin,
     uint256 _docPower,
     uint256 _docTmax
@@ -126,7 +128,7 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
       btcxTmax,
       _bitProRate,
       commissionsAddressTarget,
-      commissionRateParam,
+      //commissionRateParam,
       blockSpanBitPro,
       bitProInterestTargetAddress,
       _docTmin,
@@ -199,9 +201,9 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
     return bitProRate;
   }
 
-  function getCommissionRate() public view returns(uint256) {
-    return commissionRate;
-  }
+  // function getCommissionRate() public view returns(uint256) {
+  //   return commissionRate;
+  // }
 
    /**
     @dev Sets BitPro Holders rate
@@ -243,13 +245,13 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
     commissionsAddress = newCommissionsAddress;
   }
 
-   /**
-    @dev Sets the commission rate for Mint/Redeem transactions
-    @param newCommissionRate New commission rate
-   */
-  function setCommissionRate(uint256 newCommissionRate) public onlyAuthorizedChanger() {
-    commissionRate = newCommissionRate;
-  }
+  //  /**
+  //   @dev Sets the commission rate for Mint/Redeem transactions
+  //   @param newCommissionRate New commission rate
+  //  */
+  // function setCommissionRate(uint256 newCommissionRate) public onlyAuthorizedChanger() {
+  //   commissionRate = newCommissionRate;
+  // }
 
   /**
     @dev Calculates interest rate for BProx Minting, redeem and Free Doc Redeem
@@ -548,7 +550,7 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
     uint256 btcxMax,
     uint256 _bitProRate,
     address payable commissionsAddressTarget,
-    uint256 commissionRateParam,
+    //uint256 commissionRateParam,
     uint256 blockSpanBitPro,
     address payable bitProInterestsTarget,
     uint256 _docTmin,
@@ -562,7 +564,7 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
     bitProRate = _bitProRate;
     bitProInterestAddress = bitProInterestsTarget;
     bitProInterestBlockSpan = blockSpanBitPro;
-    commissionRate = commissionRateParam;
+    //commissionRate = commissionRateParam;
     commissionsAddress = commissionsAddressTarget;
     docTmin = _docTmin;
     docPower = _docPower;

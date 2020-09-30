@@ -57,6 +57,14 @@ const isBitProInterestEnabled = moc => async () => moc.isBitProInterestEnabled()
 
 const getBitProInterestAddress = moc => async () => moc.getBitProInterestAddress();
 
+const mintMoCToken = mocToken => async (anotherAccount, initialBalance, owner) =>  {
+  console.log("owner: ", owner);
+  console.log("anotherAccount: ", anotherAccount);
+  console.log("initialBalance: ", initialBalance);
+
+  await mocToken.mint(anotherAccount, initialBalance, { from: owner });
+}
+
 const mintBPro = moc => async (from, reserveAmount, applyPrecision = true) => {
   const reservePrecision = await moc.getReservePrecision();
 
@@ -169,6 +177,8 @@ const getDoCBalance = docToken => async address => docToken.balanceOf(address);
 
 const getBProBalance = bproToken => async address => bproToken.balanceOf(address);
 
+const getMoCBalance = mocToken => async address => mocToken.balanceOf(address);
+
 const getReserveBalance = async address => new BN(await web3.eth.getBalance(address));
 
 // Runs settlement with a default fixed step count
@@ -276,7 +286,8 @@ module.exports = async contracts => {
     mocInrate,
     governor,
     mockMocStateChanger,
-    commissionSplitter
+    commissionSplitter,
+    mocToken
   } = contracts;
 
   return {
@@ -309,6 +320,8 @@ module.exports = async contracts => {
     logBucket: logBucket(mocState),
     getRedeemRequestAt: getRedeemRequestAt(moc),
     setFinalCommissionAddress: setFinalCommissionAddress(commissionSplitter, governor),
-    setMocCommissionProportion: setMocCommissionProportion(commissionSplitter, governor)
+    setMocCommissionProportion: setMocCommissionProportion(commissionSplitter, governor),
+    mintMoCToken: mintMoCToken(mocToken),
+    getMoCBalance: getMoCBalance(mocToken),
   };
 };

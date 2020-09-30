@@ -12,6 +12,7 @@ const MoCConverter = artifacts.require('./contracts/MoCConverter.sol');
 const MoCExchange = artifacts.require('./contracts/MoCExchange.sol');
 const MoCInrate = artifacts.require('./contracts/MoCInrate.sol');
 const MoCSettlementMock = artifacts.require('./contracts/mocks/MoCSettlementMock.sol');
+const MoCPriceProviderMock = artifacts.require('./contracts/mocks/MoCPriceProviderMock.sol');
 
 const BPro = artifacts.require('./contracts/BProToken.sol');
 const BProxManager = artifacts.require('./contracts/MoCBProxManager.sol');
@@ -56,6 +57,7 @@ const { toContract } = require('../../utils/numberHelper');
 
 const baseParams = {
   btcPrice: toContract(10000 * 10 ** 18), // mocPrecision
+  mocPrice: toContract(10000 * 10 ** 18), // mocPrecision
   smoothingFactor: toContract(0.01653 * 10 ** 18), // coefficientPrecision
   c0Cobj: toContract(3 * 10 ** 18), // mocPrecision
   x2Cobj: toContract(2 * 10 ** 18), // mocPrecision
@@ -70,7 +72,7 @@ const baseParams = {
   btcxPower: toContract(1),
   bitProRate: toContract(0.000047945 * 10 ** 18), // mocPrecision -- weekly 0.0025 / 365 * 7
   emaBlockSpan: toContract(40),
-  commissionRate: toContract(0 * 10 ** 18), // mocPrecision
+  //commissionRate: toContract(0 * 10 ** 18), // mocPrecision
   peg: toContract(1),
 
   maxMintBPro: toContract(5000 * 10 ** 18),
@@ -93,11 +95,30 @@ const transferPausingRole = async (token, address) => {
   await token.renouncePauser();
 };
 
+const initializeCommissionRatesArray = async (moc, mocInrate) => {
+  const MOC_PRECISION = await moc.getMocPrecision();
+  return [
+    { txType: (await mocInrate.MINT_BPRO_FEES_RBTC()).toString(), fee: (0.001 * MOC_PRECISION).toString() },
+    { txType: (await mocInrate.REDEEM_BPRO_FEES_RBTC()).toString(), fee: (0.002 * MOC_PRECISION).toString() },
+    { txType: (await mocInrate.MINT_DOC_FEES_RBTC()).toString(), fee: (0.003 * MOC_PRECISION).toString() },
+    { txType: (await mocInrate.REDEEM_DOC_FEES_RBTC()).toString(), fee: (0.004 * MOC_PRECISION).toString() },
+    { txType: (await mocInrate.MINT_BTCX_FEES_RBTC()).toString(), fee: (0.005 * MOC_PRECISION).toString() },
+    { txType: (await mocInrate.REDEEM_BTCX_FEES_RBTC()).toString(), fee: (0.006 * MOC_PRECISION).toString() },
+    { txType: (await mocInrate.MINT_BPRO_FEES_MOC()).toString(), fee: (0.007 * MOC_PRECISION).toString() },
+    { txType: (await mocInrate.REDEEM_BPRO_FEES_MOC()).toString(), fee: (0.008 * MOC_PRECISION).toString() },
+    { txType: (await mocInrate.MINT_DOC_FEES_MOC()).toString(), fee: (0.009 * MOC_PRECISION).toString() },
+    { txType: (await mocInrate.REDEEM_DOC_FEES_MOC()).toString(), fee: (0.00010 * MOC_PRECISION).toString() },
+    { txType: (await mocInrate.MINT_BTCX_FEES_MOC()).toString(), fee: (0.00011 * MOC_PRECISION).toString() },
+    { txType: (await mocInrate.REDEEM_BTCX_FEES_MOC()).toString(), fee: (0.00012 * MOC_PRECISION).toString() },
+  ];
+};
+
 const createContracts = params => async ({ owner, useMock }) => {
   const project = await TestHelper();
 
   const {
     btcPrice,
+    mocPrice,
     smoothingFactor,
     c0Cobj,
     x2Cobj,
@@ -111,7 +132,7 @@ const createContracts = params => async ({ owner, useMock }) => {
     btcxTmax,
     emaBlockSpan,
     bitProRate,
-    commissionRate,
+    //commissionRate,
     peg,
     maxMintBPro,
     docTmin,
@@ -131,6 +152,7 @@ const createContracts = params => async ({ owner, useMock }) => {
   const doc = await DoC.new({ from: owner });
   const btcPriceProvider = await BtcPriceProviderMock.new(btcPrice);
   const mocToken = await MoCToken.new({ from: owner });
+  const mocPriceProvider = await MoCPriceProviderMock.new(mocPrice);
 
   // Upgradeable
   const mocSettlementProxy = await project.createProxy(settlementContractProxy);
@@ -173,6 +195,7 @@ const createContracts = params => async ({ owner, useMock }) => {
     smoothingFactor,
     emaBlockSpan,
     maxMintBPro,
+    mocPriceProvider.address,
     { from: owner }
   );
   const mockMocInrateChanger = await MocInrateChanger.new(
@@ -182,10 +205,11 @@ const createContracts = params => async ({ owner, useMock }) => {
     btcxTmax,
     btcxPower,
     bitProRate,
-    commissionRate,
+    //commissionRate,
     docTmin,
     docTmax,
     docPower,
+    [], //await initializeCommissionRatesArray(moc, mocInrate), 
     { from: owner }
   );
   const mockMoCSettlementChanger = await MoCSettlementChanger.new(
@@ -240,7 +264,8 @@ const createContracts = params => async ({ owner, useMock }) => {
     btcPrice,
     smoothingFactor,
     emaBlockSpan,
-    maxMintBPro
+    maxMintBPro,
+    mocPriceProvider.address
   );
   await mocInrate.initialize(
     mocConnector.address,
@@ -252,7 +277,7 @@ const createContracts = params => async ({ owner, useMock }) => {
     dayBlockSpan * 7,
     owner,
     owner,
-    commissionRate,
+    //commissionRate,
     docTmin,
     docPower,
     docTmax
@@ -310,7 +335,8 @@ const createContracts = params => async ({ owner, useMock }) => {
     mockMocChanger,
     mockMoCStallSettlementChanger,
     mockMoCRestartSettlementChanger,
-    revertingContract
+    revertingContract,
+    mocToken
   };
 };
 
