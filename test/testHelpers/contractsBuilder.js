@@ -96,21 +96,22 @@ const transferPausingRole = async (token, address) => {
 };
 
 const initializeCommissionRatesArray = async (moc, mocInrate) => {
-  const MOC_PRECISION = await moc.getMocPrecision();
-  return [
-    { txType: (await mocInrate.MINT_BPRO_FEES_RBTC()).toString(), fee: (0.001 * MOC_PRECISION).toString() },
-    { txType: (await mocInrate.REDEEM_BPRO_FEES_RBTC()).toString(), fee: (0.002 * MOC_PRECISION).toString() },
-    { txType: (await mocInrate.MINT_DOC_FEES_RBTC()).toString(), fee: (0.003 * MOC_PRECISION).toString() },
-    { txType: (await mocInrate.REDEEM_DOC_FEES_RBTC()).toString(), fee: (0.004 * MOC_PRECISION).toString() },
-    { txType: (await mocInrate.MINT_BTCX_FEES_RBTC()).toString(), fee: (0.005 * MOC_PRECISION).toString() },
-    { txType: (await mocInrate.REDEEM_BTCX_FEES_RBTC()).toString(), fee: (0.006 * MOC_PRECISION).toString() },
-    { txType: (await mocInrate.MINT_BPRO_FEES_MOC()).toString(), fee: (0.007 * MOC_PRECISION).toString() },
-    { txType: (await mocInrate.REDEEM_BPRO_FEES_MOC()).toString(), fee: (0.008 * MOC_PRECISION).toString() },
-    { txType: (await mocInrate.MINT_DOC_FEES_MOC()).toString(), fee: (0.009 * MOC_PRECISION).toString() },
-    { txType: (await mocInrate.REDEEM_DOC_FEES_MOC()).toString(), fee: (0.00010 * MOC_PRECISION).toString() },
-    { txType: (await mocInrate.MINT_BTCX_FEES_MOC()).toString(), fee: (0.00011 * MOC_PRECISION).toString() },
-    { txType: (await mocInrate.REDEEM_BTCX_FEES_MOC()).toString(), fee: (0.00012 * MOC_PRECISION).toString() },
+  const mocPrecision = 10 ** 18; // mocPrecision
+  const ret = [
+    { txType: (await mocInrate.MINT_BPRO_FEES_RBTC()).toString(), fee: (0.001 * mocPrecision).toString() },
+    { txType: (await mocInrate.REDEEM_BPRO_FEES_RBTC()).toString(), fee: (0.002 * mocPrecision).toString() },
+    { txType: (await mocInrate.MINT_DOC_FEES_RBTC()).toString(), fee: (0.003 * mocPrecision).toString() },
+    { txType: (await mocInrate.REDEEM_DOC_FEES_RBTC()).toString(), fee: (0.004 * mocPrecision).toString() },
+    { txType: (await mocInrate.MINT_BTCX_FEES_RBTC()).toString(), fee: (0.005 * mocPrecision).toString() },
+    { txType: (await mocInrate.REDEEM_BTCX_FEES_RBTC()).toString(), fee: (0.006 * mocPrecision).toString() },
+    { txType: (await mocInrate.MINT_BPRO_FEES_MOC()).toString(), fee: (0.007 * mocPrecision).toString() },
+    { txType: (await mocInrate.REDEEM_BPRO_FEES_MOC()).toString(), fee: (0.008 * mocPrecision).toString() },
+    { txType: (await mocInrate.MINT_DOC_FEES_MOC()).toString(), fee: (0.009 * mocPrecision).toString() },
+    { txType: (await mocInrate.REDEEM_DOC_FEES_MOC()).toString(), fee: (0.00010 * mocPrecision).toString() },
+    { txType: (await mocInrate.MINT_BTCX_FEES_MOC()).toString(), fee: (0.00011 * mocPrecision).toString() },
+    { txType: (await mocInrate.REDEEM_BTCX_FEES_MOC()).toString(), fee: (0.00012 * mocPrecision).toString() },
   ];
+  return ret;
 };
 
 const createContracts = params => async ({ owner, useMock }) => {

@@ -19,6 +19,8 @@ contract MoCEvents {
   event BucketLiquidation(bytes32 bucket);
 
   event SetMoCContract(address mocAddress);
+
+  event TestEv(uint256 totalBtcSpent, uint256 value);
 }
 
 contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
@@ -118,6 +120,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
       // Check commission rate in RBTC according to transaction type
       totalBtcSpent = totalBtcSpent.add(btcCommission);
       require(totalBtcSpent <= value, "amount is not enough");
+      emit TestEv(totalBtcSpent, value);
     }
     return totalBtcSpent;
   }
