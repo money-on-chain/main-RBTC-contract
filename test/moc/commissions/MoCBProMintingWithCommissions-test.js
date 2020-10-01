@@ -35,7 +35,7 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount]) 
           mocAmount: 0
         },
         expect: {
-          bproToMint: 1000,
+          bproToMint: 1010,
           bproToMintOnRbtc: 1000,
           commissionAmountRbtc: 1,  // (bproToMint * MINT_BPRO_FEES_RBTC = 0.001)
           totalCostOnBtc: 1001,
@@ -70,19 +70,35 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount]) 
         let prevCommissionsAccountMoCBalance;
 
         beforeEach(async function() {
+          // prevUserBproBalance = await mocHelper.getBProBalance(userAccount);
+          // prevUserBtcBalance = toContractBN(await web3.eth.getBalance(userAccount));
+          // prevCommissionsAccountBtcBalance = toContractBN(await web3.eth.getBalance(commissionsAccount));
+          // prevMocBtcBalance = toContractBN(await web3.eth.getBalance(this.moc.address));
+          // await mocHelper.mintMoCToken(userAccount, scenario.params.mocAmount, owner);
+          // prevUserMoCBalance = await mocHelper.getMoCBalance(userAccount);
+          // console.log("prevUserMoCBalance:", prevUserMoCBalance);
+          // prevCommissionsAccountMoCBalance = await mocHelper.getMoCBalance(commissionsAccount);
+          // // Set transaction type according to scenario
+          // const txType = (scenario.params.mocAmount == 0) ? await mocHelper.mocInrate.MINT_BPRO_FEES_RBTC() : await mocHelper.mocInrate.MINT_BPRO_FEES_MOC();
+          // const mintTx = await mocHelper.mintBProAmount(userAccount, scenario.params.bproToMint, txType);
+          // usedGas = toContractBN(await mocHelper.getTxCost(mintTx));
+        });
+        it.only(`THEN the user has ${scenario.expect.bproToMint} more BitPros`, async function() {
           prevUserBproBalance = await mocHelper.getBProBalance(userAccount);
           prevUserBtcBalance = toContractBN(await web3.eth.getBalance(userAccount));
           prevCommissionsAccountBtcBalance = toContractBN(await web3.eth.getBalance(commissionsAccount));
           prevMocBtcBalance = toContractBN(await web3.eth.getBalance(this.moc.address));
+          console.log("mint moc");
           await mocHelper.mintMoCToken(userAccount, scenario.params.mocAmount, owner);
           prevUserMoCBalance = await mocHelper.getMoCBalance(userAccount);
+          console.log("prevUserMoCBalance:", prevUserMoCBalance);
           prevCommissionsAccountMoCBalance = await mocHelper.getMoCBalance(commissionsAccount);
           // Set transaction type according to scenario
           const txType = (scenario.params.mocAmount == 0) ? await mocHelper.mocInrate.MINT_BPRO_FEES_RBTC() : await mocHelper.mocInrate.MINT_BPRO_FEES_MOC();
+          console.log("mint bpro");
           const mintTx = await mocHelper.mintBProAmount(userAccount, scenario.params.bproToMint, txType);
           usedGas = toContractBN(await mocHelper.getTxCost(mintTx));
-        });
-        it(`THEN the user has ${scenario.expect.bproToMint} more BitPros`, async function() {
+          
           const UserBproBalance = await mocHelper.getBProBalance(userAccount);
           const diff = UserBproBalance.sub(prevUserBproBalance);
           mocHelper.assertBigRBTC(
@@ -103,7 +119,6 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount]) 
         it('THEN global balance increases by the correct amount of BTCs', async function() {
           const mocBtcBalance = await web3.eth.getBalance(this.moc.address);
           const diff = new BN(mocBtcBalance).sub(new BN(prevMocBtcBalance));
-
           mocHelper.assertBigRBTC(
             diff,
             scenario.expect.bproToMintOnRbtc,
@@ -121,7 +136,6 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount]) 
             'commissions account balance is incorrect'
           );
         });
-
         it(`THEN the user MoC balance has decreased by ${scenario.expect.commissionAmountMoC} MoCs by commissions`, async function() {
           const userMoCBalance = await mocHelper.getMoCBalance(userAccount);
           const diff = prevUserMoCBalance.sub(userMoCBalance);
