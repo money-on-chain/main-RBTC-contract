@@ -141,7 +141,7 @@ contract MocInrateChanger is ChangeContract, Ownable{
     @dev initializes the commission rate fees by transaction type to use in the MoCInrate contract
   */
   function initializeCommissionRates() internal {
-    require(commissionRates.length > 0);
+    require(commissionRates.length > 0, "commissionRates cannot be empty");
 
     for (uint256 i = 0; i < commissionRates.length; i++) {
         mocInrate.setCommissionRateByTxType(commissionRates[i].txType, commissionRates[i].fee);
