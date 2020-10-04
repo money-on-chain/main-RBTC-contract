@@ -57,9 +57,13 @@ const isBitProInterestEnabled = moc => async () => moc.isBitProInterestEnabled()
 
 const getBitProInterestAddress = moc => async () => moc.getBitProInterestAddress();
 
-const mintMoCToken = mocToken => async (anotherAccount, initialBalance, owner) =>  {
-  await mocToken.mint(anotherAccount, initialBalance, { from: owner });
-}
+const mintMoCToken = mocToken => async (anotherAccount, initialBalance, owner) => {
+  await mocToken.mint(anotherAccount, web3.utils.toWei(initialBalance.toString()), { from: owner });
+};
+
+const approveMocToken = mocToken => async (anotherAccount, amount, owner) => {
+  await mocToken.approve(anotherAccount, web3.utils.toWei(amount.toString()), { from: owner });
+};
 
 const mintBPro = moc => async (from, reserveAmount, applyPrecision = true) => {
   const reservePrecision = await moc.getReservePrecision();
@@ -119,7 +123,7 @@ const mintBProAmount = (moc, mocState, mocInrate) => async (account, bproAmount,
   // Sent more to pay commissions: if RBTC fees are used then get commission value, otherwise commission is 0 RBTC
   const txTypeToNumber = txType.toNumber();
   const commissionRate = (txTypeToNumber == await mocInrate.MINT_BPRO_FEES_RBTC()) ? await mocInrate.commissionRatesByTxType(txTypeToNumber) : 0;
-  console.log("mocInrate.commissionRatesByTxType(txTypeToNumber): ", await mocInrate.commissionRatesByTxType(txTypeToNumber));
+  console.log("mocInrate.commissionRatesByTxType(txTypeToNumber): ", (await mocInrate.commissionRatesByTxType(txTypeToNumber)).toString());
   console.log("txType: ", txTypeToNumber);
   console.log("MINT_BPRO_FEES_RBTC(): ", await mocInrate.MINT_BPRO_FEES_RBTC());
   console.log("commissionRate: ", web3.utils.hexToNumberString(commissionRate));
@@ -329,5 +333,6 @@ module.exports = async contracts => {
     setMocCommissionProportion: setMocCommissionProportion(commissionSplitter, governor),
     mintMoCToken: mintMoCToken(mocToken),
     getMoCBalance: getMoCBalance(mocToken),
+    approveMocToken: approveMocToken(mocToken),
   };
 };

@@ -31,14 +31,14 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount]) 
       // RBTC commission
       { 
         params: {
-          bproToMint: 1000,
+          bproToMint: 100,
           mocAmount: 0
         },
         expect: {
-          bproToMint: 1010,
-          bproToMintOnRbtc: 1000,
-          commissionAmountRbtc: 1,  // (bproToMint * MINT_BPRO_FEES_RBTC = 0.001)
-          totalCostOnBtc: 1001,
+          bproToMint: 100,
+          bproToMintOnRbtc: 100,
+          commissionAmountRbtc: 1, // (bproToMint * MINT_BPRO_FEES_RBTC = 0.001)
+          totalCostOnBtc: 100.1,
           commissionAmountMoC: 0,
           mocAmount: 0
         }
@@ -46,16 +46,16 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount]) 
       // MoC commission
       {
         params: {
-          bproToMint: 1000,
-          mocAmount: 1000
+          bproToMint: 100,
+          mocAmount: 100
         },
         expect: {
-          bproToMint: 1000,
-          bproToMintOnRbtc: 1000,
+          bproToMint: 100,
+          bproToMintOnRbtc: 100,
           commissionAmountRbtc: 0,
-          totalCostOnBtc: 1000,
+          totalCostOnBtc: 100,
           commissionAmountMoC: 7, // (bproToMint * MINT_BPRO_FEES_MOC = 0.007)
-          mocAmount: 993
+          mocAmount: 99.3
         }
       }
     ];
@@ -90,8 +90,14 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount]) 
           prevMocBtcBalance = toContractBN(await web3.eth.getBalance(this.moc.address));
           console.log("mint moc");
           await mocHelper.mintMoCToken(userAccount, scenario.params.mocAmount, owner);
+          await mocHelper.approveMocToken(
+            mocHelper.moc.address,
+            scenario.params.mocAmount,
+            userAccount
+          );
           prevUserMoCBalance = await mocHelper.getMoCBalance(userAccount);
-          console.log("prevUserMoCBalance:", prevUserMoCBalance);
+          console.log("prevUserMoCBalance:", prevUserMoCBalance.toString());
+          console.log("prevUserMoCAllowance:", (await mocHelper.mocToken.allowance(userAccount, mocHelper.moc.address)).toString());
           prevCommissionsAccountMoCBalance = await mocHelper.getMoCBalance(commissionsAccount);
           // Set transaction type according to scenario
           const txType = (scenario.params.mocAmount == 0) ? await mocHelper.mocInrate.MINT_BPRO_FEES_RBTC() : await mocHelper.mocInrate.MINT_BPRO_FEES_MOC();
@@ -100,6 +106,7 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount]) 
           usedGas = toContractBN(await mocHelper.getTxCost(mintTx));
           
           const UserBproBalance = await mocHelper.getBProBalance(userAccount);
+          console.log("prevUserMoCBalance:", prevUserMoCBalance.toString());
           const diff = UserBproBalance.sub(prevUserBproBalance);
           mocHelper.assertBigRBTC(
             diff,

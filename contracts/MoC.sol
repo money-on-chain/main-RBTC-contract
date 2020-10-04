@@ -119,7 +119,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
     } else {
       // Check commission rate in RBTC according to transaction type
       totalBtcSpent = totalBtcSpent.add(btcCommission);
-      //require(totalBtcSpent <= value, "amount is not enough");
+      require(totalBtcSpent <= value, "amount is not enough");
       emit TestEv(totalBtcSpent, value);
     }
     return totalBtcSpent;
