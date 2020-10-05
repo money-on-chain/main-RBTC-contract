@@ -179,7 +179,6 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
     
       // Check commission rate in RBTC according to transaction type
       btcCommission = mocInrate.calcCommissionValue(btcAmount, mocInrate.MINT_BPRO_FEES_RBTC());
-      btcAmount = finalBProAmount.add(btcCommission);
     }
 
     mintBPro(account, btcCommission, finalBProAmount, btcAmount, mocCommission);
