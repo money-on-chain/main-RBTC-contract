@@ -4,11 +4,12 @@ pragma experimental ABIEncoderV2;
 import "../MoCInrate.sol";
 import "moc-governance/contracts/Governance/ChangeContract.sol";
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
+
 /**
  * @dev This contract is used to update the configuration of MocInrate v017
  * with MoC --- governance.
  */
-contract MocInrateChanger is ChangeContract, Ownable{
+contract MocInrateChanger is ChangeContract, Ownable {
   MoCInrate private mocInrate;
   uint256 public bitProInterestBlockSpan;
   uint256 public btxcTmin;
@@ -34,8 +35,8 @@ contract MocInrateChanger is ChangeContract, Ownable{
   CommissionRates[] public commissionRates;
 
   struct CommissionRates {
-      uint8 txType;
-      uint256 fee;
+    uint8 txType;
+    uint256 fee;
   }
 
   /** END UPDATE V0110: 24/09/2020 **/
@@ -63,7 +64,7 @@ contract MocInrateChanger is ChangeContract, Ownable{
     docTmin = _docTmin;
     docTmax = _docTmax;
     docPower = _docPower;
-    
+
     for (uint256 i = 0; i < _commissionRates.length; i++){
       commissionRates.push(_commissionRates[i]);
     }
@@ -144,7 +145,7 @@ contract MocInrateChanger is ChangeContract, Ownable{
     require(commissionRates.length > 0, "commissionRates cannot be empty");
 
     for (uint256 i = 0; i < commissionRates.length; i++) {
-        mocInrate.setCommissionRateByTxType(commissionRates[i].txType, commissionRates[i].fee);
+      mocInrate.setCommissionRateByTxType(commissionRates[i].txType, commissionRates[i].fee);
     }
   }
 }

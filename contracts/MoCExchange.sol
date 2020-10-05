@@ -7,7 +7,6 @@ import "./MoCInrate.sol";
 import "./base/MoCBase.sol";
 import "./MoC.sol";
 
-
 contract MoCExchangeEvents {
   event RiskProMint(
     address indexed account,
@@ -176,7 +175,6 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
     if (mocBalance < mocCommission || mocAllowance < mocCommission) {
       // Insufficient funds
       mocCommission = 0;
-    
       // Check commission rate in RBTC according to transaction type
       btcCommission = mocInrate.calcCommissionValue(btcAmount, mocInrate.MINT_BPRO_FEES_RBTC());
     }
@@ -215,7 +213,6 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
     if (mocBalance < mocCommission || mocAllowance < mocCommission) {
       // Insufficient funds
       mocCommission = 0;
-    
       // Check commission rate in RBTC according to transaction type
       btcCommission = mocInrate.calcCommissionValue(totalBtc, mocInrate.REDEEM_BPRO_FEES_RBTC());
     }
@@ -286,7 +283,6 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
       if (mocBalance < mocCommission || mocAllowance < mocCommission) {
         // Insufficient funds
         mocCommission = 0;
-      
         // Check commission rate in RBTC according to transaction type
         btcCommission = mocInrate.calcCommissionValue(finalBtcAmount, mocInrate.REDEEM_DOC_FEES_RBTC());
       }
@@ -347,7 +343,7 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
       if (mocBalance < mocCommission || mocAllowance < mocCommission) {
         // Insufficient funds
         mocCommission = 0;
-      
+
         // Check commission rate in RBTC according to transaction type
         btcCommission = mocInrate.calcCommissionValue(totalCost, mocInrate.MINT_DOC_FEES_RBTC());
       }
@@ -518,7 +514,7 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
       if (mocBalance < mocCommission || mocAllowance < mocCommission) {
         // Insufficient funds
         mocCommission = 0;
-      
+
         // Check commission rate in RBTC according to transaction type
         btcCommission = mocInrate.calcCommissionValue(finalBtcToMint, mocInrate.MINT_BTCX_FEES_RBTC());
       }
@@ -556,8 +552,8 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
   function redeemBProx(
     address payable account,
     bytes32 bucket,
-    uint256 bproxAmount, 
-    uint256 mocBalance, 
+    uint256 bproxAmount,
+    uint256 mocBalance,
     uint256 mocAllowance
   ) public onlyWhitelisted(msg.sender) returns (uint256, uint256, uint256) {
     // Revert could cause not evaluating state changing
@@ -586,8 +582,8 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
   function redeemBProxInternal(
     address payable account,
     bytes32 bucket,
-    uint256 bproxAmount, 
-    uint256 mocBalance, 
+    uint256 bproxAmount,
+    uint256 mocBalance,
     uint256 mocAllowance
   ) internal returns (uint256, uint256, uint256) {
     RiskProxRedeemStruct memory details;
@@ -625,7 +621,7 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
     if (mocBalance < details.mocCommission || mocAllowance < details.mocCommission) {
       // Insufficient funds
       details.mocCommission = 0;
-    
+
       // Check commission rate in RBTC according to transaction type
       details.btcCommission = mocInrate.calcCommissionValue(rbtcToRedeem, mocInrate.REDEEM_BTCX_FEES_RBTC());
     }
@@ -771,13 +767,13 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
     mocInrate = MoCInrate(connector.mocInrate());
   }
 
-  
+
   /************************************/
   /***** UPGRADE v0110      ***********/
   /************************************/
 
   /** START UPDATE V0110: 24/09/2020  **/
-  /** Upgrade to support multiple commission rates **/  
+  /** Upgrade to support multiple commission rates **/
   struct RiskProxRedeemStruct{
     uint256 btcCommission;
     uint256 btcTotalWithoutCommission;

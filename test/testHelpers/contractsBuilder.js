@@ -72,7 +72,7 @@ const baseParams = {
   btcxPower: toContract(1),
   bitProRate: toContract(0.000047945 * 10 ** 18), // mocPrecision -- weekly 0.0025 / 365 * 7
   emaBlockSpan: toContract(40),
-  //commissionRate: toContract(0 * 10 ** 18), // mocPrecision
+  // commissionRate: toContract(0 * 10 ** 18), // mocPrecision
   peg: toContract(1),
 
   maxMintBPro: toContract(5000 * 10 ** 18),
@@ -98,18 +98,54 @@ const transferPausingRole = async (token, address) => {
 const initializeCommissionRatesArray = async (moc, mocInrate) => {
   const mocPrecision = 10 ** 18; // mocPrecision
   const ret = [
-    { txType: (await mocInrate.MINT_BPRO_FEES_RBTC()).toString(), fee: (0.001 * mocPrecision).toString() },
-    { txType: (await mocInrate.REDEEM_BPRO_FEES_RBTC()).toString(), fee: (0.002 * mocPrecision).toString() },
-    { txType: (await mocInrate.MINT_DOC_FEES_RBTC()).toString(), fee: (0.003 * mocPrecision).toString() },
-    { txType: (await mocInrate.REDEEM_DOC_FEES_RBTC()).toString(), fee: (0.004 * mocPrecision).toString() },
-    { txType: (await mocInrate.MINT_BTCX_FEES_RBTC()).toString(), fee: (0.005 * mocPrecision).toString() },
-    { txType: (await mocInrate.REDEEM_BTCX_FEES_RBTC()).toString(), fee: (0.006 * mocPrecision).toString() },
-    { txType: (await mocInrate.MINT_BPRO_FEES_MOC()).toString(), fee: (0.007 * mocPrecision).toString() },
-    { txType: (await mocInrate.REDEEM_BPRO_FEES_MOC()).toString(), fee: (0.008 * mocPrecision).toString() },
-    { txType: (await mocInrate.MINT_DOC_FEES_MOC()).toString(), fee: (0.009 * mocPrecision).toString() },
-    { txType: (await mocInrate.REDEEM_DOC_FEES_MOC()).toString(), fee: (0.00010 * mocPrecision).toString() },
-    { txType: (await mocInrate.MINT_BTCX_FEES_MOC()).toString(), fee: (0.00011 * mocPrecision).toString() },
-    { txType: (await mocInrate.REDEEM_BTCX_FEES_MOC()).toString(), fee: (0.00012 * mocPrecision).toString() },
+    {
+      txType: (await mocInrate.MINT_BPRO_FEES_RBTC()).toString(),
+      fee: (0.001 * mocPrecision).toString()
+    },
+    {
+      txType: (await mocInrate.REDEEM_BPRO_FEES_RBTC()).toString(),
+      fee: (0.002 * mocPrecision).toString()
+    },
+    {
+      txType: (await mocInrate.MINT_DOC_FEES_RBTC()).toString(),
+      fee: (0.003 * mocPrecision).toString()
+    },
+    {
+      txType: (await mocInrate.REDEEM_DOC_FEES_RBTC()).toString(),
+      fee: (0.004 * mocPrecision).toString()
+    },
+    {
+      txType: (await mocInrate.MINT_BTCX_FEES_RBTC()).toString(),
+      fee: (0.005 * mocPrecision).toString()
+    },
+    {
+      txType: (await mocInrate.REDEEM_BTCX_FEES_RBTC()).toString(),
+      fee: (0.006 * mocPrecision).toString()
+    },
+    {
+      txType: (await mocInrate.MINT_BPRO_FEES_MOC()).toString(),
+      fee: (0.007 * mocPrecision).toString()
+    },
+    {
+      txType: (await mocInrate.REDEEM_BPRO_FEES_MOC()).toString(),
+      fee: (0.008 * mocPrecision).toString()
+    },
+    {
+      txType: (await mocInrate.MINT_DOC_FEES_MOC()).toString(),
+      fee: (0.009 * mocPrecision).toString()
+    },
+    {
+      txType: (await mocInrate.REDEEM_DOC_FEES_MOC()).toString(),
+      fee: (0.0001 * mocPrecision).toString()
+    },
+    {
+      txType: (await mocInrate.MINT_BTCX_FEES_MOC()).toString(),
+      fee: (0.00011 * mocPrecision).toString()
+    },
+    {
+      txType: (await mocInrate.REDEEM_BTCX_FEES_MOC()).toString(),
+      fee: (0.00012 * mocPrecision).toString()
+    }
   ];
   return ret;
 };
@@ -133,7 +169,7 @@ const createContracts = params => async ({ owner, useMock }) => {
     btcxTmax,
     emaBlockSpan,
     bitProRate,
-    //commissionRate,
+    // commissionRate,
     peg,
     maxMintBPro,
     docTmin,
@@ -206,11 +242,11 @@ const createContracts = params => async ({ owner, useMock }) => {
     btcxTmax,
     btcxPower,
     bitProRate,
-    //commissionRate,
+    // commissionRate,
     docTmin,
     docTmax,
     docPower,
-    await initializeCommissionRatesArray(moc, mocInrate), 
+    await initializeCommissionRatesArray(moc, mocInrate),
     { from: owner }
   );
   const mockMoCSettlementChanger = await MoCSettlementChanger.new(
@@ -278,7 +314,7 @@ const createContracts = params => async ({ owner, useMock }) => {
     dayBlockSpan * 7,
     owner,
     owner,
-    //commissionRate,
+    // commissionRate,
     docTmin,
     docPower,
     docTmax
