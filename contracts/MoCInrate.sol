@@ -594,7 +594,7 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
   mapping(uint8 => uint256) public commissionRatesByTxType;
 
   function setCommissionRateByTxType(uint8 txType, uint256 value) public onlyAuthorizedChanger() {
-      commissionRatesByTxType[txType] = value;
+    commissionRatesByTxType[txType] = value;
   }
 
   /** END UPDATE V0110: 24/09/2020 **/

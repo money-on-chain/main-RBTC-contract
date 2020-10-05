@@ -118,22 +118,18 @@ const mintBProAmount = (moc, mocState, mocInrate) => async (account, bproAmount,
   }
 
   const btcTotal = await rbtcNeededToMintBpro(moc, mocState)(bproAmount);
-  // console.log("btcTotal: ", web3.utils.hexToNumberString(btcTotal));
-
-  // Sent more to pay commissions: if RBTC fees are used then get commission value, otherwise commission is 0 RBTC
+  // Sent more to pay commissions: if RBTC fees are used then get commission value,
+  // otherwise commission is 0 RBTC
   const txTypeToNumber = txType.toNumber();
-  const commissionRate = (txTypeToNumber == await mocInrate.MINT_BPRO_FEES_RBTC()) ? await mocInrate.commissionRatesByTxType(txTypeToNumber) : 0;
-  // console.log("mocInrate.commissionRatesByTxType(txTypeToNumber): ", (await mocInrate.commissionRatesByTxType(txTypeToNumber)).toString());
-  // console.log("txType: ", txTypeToNumber);
-  // console.log("MINT_BPRO_FEES_RBTC(): ", await mocInrate.MINT_BPRO_FEES_RBTC());
-  // console.log("commissionRate: ", web3.utils.hexToNumberString(commissionRate));
-
+  const commissionRate =
+    txTypeToNumber === (await mocInrate.MINT_BPRO_FEES_RBTC())
+      ? await mocInrate.commissionRatesByTxType(txTypeToNumber)
+      : 0;
   const mocPrecision = await moc.getMocPrecision();
-  const commissionRbtcAmount = (commissionRate > 0) ? btcTotal.mul(commissionRate).div(mocPrecision) : 0;
-  // console.log("commissionRbtcAmount: ", web3.utils.hexToNumberString(commissionRbtcAmount));
-
+  const commissionRbtcAmount =
+    commissionRate > 0 ? btcTotal.mul(commissionRate).div(mocPrecision) : 0;
   const value = toContract(new BigNumber(btcTotal).plus(commissionRbtcAmount));
-  // console.log("value: ", value);
+
   return moc.mintBPro(toContract(btcTotal), { from: account, value });
 };
 
@@ -333,6 +329,6 @@ module.exports = async contracts => {
     setMocCommissionProportion: setMocCommissionProportion(commissionSplitter, governor),
     mintMoCToken: mintMoCToken(mocToken),
     getMoCBalance: getMoCBalance(mocToken),
-    approveMocToken: approveMocToken(mocToken),
+    approveMocToken: approveMocToken(mocToken)
   };
 };

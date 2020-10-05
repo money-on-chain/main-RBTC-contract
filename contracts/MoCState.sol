@@ -66,7 +66,15 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
     initializePrecisions();
     initializeBase(connectorAddress);
     initializeContracts();
-    initializeValues(_governor, _btcPriceProvider,_liq, _utpdu, _maxDiscRate, _dayBlockSpan, _maxMintBPro, _mocPriceProvider);
+    initializeValues(
+      _governor,
+      _btcPriceProvider,
+      _liq,
+      _utpdu,
+      _maxDiscRate,
+      _dayBlockSpan,
+      _maxMintBPro,
+      _mocPriceProvider);
     initializeMovingAverage(_ema, _smoothFactor, _emaBlockSpan);
   }
 
@@ -741,7 +749,7 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
   * @dev Gets the MoCPrice
   * @return price MoC price
   **/
- function getMoCPrice() public view returns(uint256) {
+  function getMoCPrice() public view returns(uint256) {
     (bytes32 price, bool has) = mocPriceProvider.peek();
     require(has, "Oracle have no MoC Price");
 

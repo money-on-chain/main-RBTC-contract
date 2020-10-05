@@ -19,8 +19,6 @@ contract MoCEvents {
   event BucketLiquidation(bytes32 bucket);
 
   event SetMoCContract(address mocAddress);
-
-  event TestEv(uint256 totalBtcSpent, uint256 value);
 }
 
 contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
@@ -108,8 +106,9 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
     settlement.alterRedeemRequestAmount(isAddition, delta, msg.sender);
   }
 
-
-  function mintWithMocFees(address sender, uint256 value, uint256 totalBtcSpent, uint256 btcCommission, uint256 mocCommission) internal returns(uint256) {
+  function mintWithMocFees(address sender, uint256 value, uint256 totalBtcSpent, uint256 btcCommission, uint256 mocCommission)
+  internal returns(uint256) {
+    uint256 updatedTotalBtcSpent = totalBtcSpent;
     // Check if there is enough balance of MoC
     if (mocCommission > 0) {
       // Transfer MoC from sender to this contract
@@ -118,11 +117,10 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
       mocToken.transfer(mocInrate.commissionsAddress(), mocCommission);
     } else {
       // Check commission rate in RBTC according to transaction type
-      totalBtcSpent = totalBtcSpent.add(btcCommission);
-      require(totalBtcSpent <= value, "amount is not enough");
-      emit TestEv(totalBtcSpent, value);
+      updatedTotalBtcSpent = totalBtcSpent.add(btcCommission);
+      require(updatedTotalBtcSpent <= value, "amount is not enough");
     }
-    return totalBtcSpent;
+    return updatedTotalBtcSpent;
   }
 
   /**
@@ -139,7 +137,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
     // Calculate commissions in exchange
     uint256 totalBtcSpent;
     uint256 btcCommission;
-    uint256 mocCommission; 
+    uint256 mocCommission;
     (totalBtcSpent, btcCommission, mocCommission) = mocExchange.mintBPro(msg.sender, btcToMint, mocBalance, mocAllowance);
 
     totalBtcSpent = mintWithMocFees(msg.sender, msg.value, totalBtcSpent, btcCommission, mocCommission);
@@ -181,7 +179,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
     // Calculate commissions in exchange
     uint256 btcAmount;
     uint256 btcCommission;
-    uint256 mocCommission; 
+    uint256 mocCommission;
     (btcAmount, btcCommission, mocCommission) = mocExchange.redeemBPro(msg.sender, bproAmount, mocBalance, mocAllowance);
 
     doTransfer(msg.sender, btcAmount);
@@ -205,7 +203,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
     // Calculate commissions in exchange
     uint256 totalBtcSpent;
     uint256 btcCommission;
-    uint256 mocCommission; 
+    uint256 mocCommission;
     (totalBtcSpent, btcCommission, mocCommission) = mocExchange.mintDoc(msg.sender, btcToMint, mocBalance, mocAllowance);
 
     totalBtcSpent = mintWithMocFees(msg.sender, msg.value, totalBtcSpent, btcCommission, mocCommission);
@@ -239,7 +237,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
     // Calculate commissions in exchange
     uint256 totalBtcRedeemed;
     uint256 btcCommission;
-    uint256 mocCommission; 
+    uint256 mocCommission;
     (totalBtcRedeemed, btcCommission, mocCommission) = mocExchange.redeemBProx(msg.sender, bucket, bproxAmount, mocBalance, mocAllowance);
 
     doTransfer(msg.sender, totalBtcRedeemed);
@@ -266,7 +264,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
     // Calculate commissions in exchange
     uint256 totalBtcSpent;
     uint256 btcCommission;
-    uint256 mocCommission; 
+    uint256 mocCommission;
     (totalBtcSpent, btcCommission, mocCommission) = mocExchange.mintBProx(msg.sender, bucket, btcToMint, mocBalance, mocAllowance);
 
     totalBtcSpent = mintWithMocFees(msg.sender, msg.value, totalBtcSpent, btcCommission, mocCommission);
@@ -296,7 +294,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
     // Calculate commissions in exchange
     uint256 btcAmount;
     uint256 btcCommission;
-    uint256 mocCommission; 
+    uint256 mocCommission;
     (btcAmount, btcCommission, mocCommission) = mocExchange.redeemFreeDoc(msg.sender, docAmount, mocBalance, mocAllowance);
 
     doTransfer(msg.sender, btcAmount);
