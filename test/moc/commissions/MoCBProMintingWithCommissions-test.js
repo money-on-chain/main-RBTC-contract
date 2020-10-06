@@ -74,7 +74,7 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount]) 
 
         beforeEach(async function() {
           await mocHelper.mintMoCToken(userAccount, scenario.params.mocAmount, owner);
-          await mocHelper.approveMocToken(
+          await mocHelper.approveMoCToken(
             mocHelper.moc.address,
             scenario.params.mocAmount,
             userAccount
