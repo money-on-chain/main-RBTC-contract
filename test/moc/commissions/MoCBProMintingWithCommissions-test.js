@@ -182,6 +182,65 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount]) 
         await expectRevert.unspecified(mintBpro);
       });
     });
+    describe('GIVEN since the user does not have MoC, but there is MoC allowance AND RBTC balance', function() {
+      it('WHEN a user tries to mint BPros with MoC allowance, THEN commission is paid in RBTC', async function() {
+        const accounts = await web3.eth.getAccounts();
+        //console.log("accounts: ", accounts);
+        const otherAddress = accounts[1];
+        //console.log("otherAddress: ", otherAddress);
+        // DO NOT mint MoC token on purpose
+        await mocHelper.approveMoCToken(mocHelper.moc.address, 1000, otherAddress);
+
+        const prevUserMoCBalanceOtherAddress = new BN(0); // No MoC balance
+        const expectedMoCAmount = 0;
+        const expectedMoCCommission = 0;
+        const mintAmount = 100;
+        const expectedRbtcCommission = 0.1;  // mintAmount * MINT_BPRO_FEES_RBTC()
+        const prevUserBtcBalanceOtherAddress = toContractBN(await web3.eth.getBalance(otherAddress));
+        const expectedRbtcAmount = 100.1;  // total cost
+        const prevCommissionsAccountBtcBalance = toContractBN(
+          await web3.eth.getBalance(commissionsAccount)
+        );
+
+        const txType = await mocHelper.mocInrate.MINT_BPRO_FEES_RBTC();
+        // Mint
+        const mintBpro = await mocHelper.mintBProAmount(otherAddress, mintAmount, txType);
+        const usedGas = toContractBN(await mocHelper.getTxCost(mintBpro));
+
+        const userMoCBalanceOtherAddress = await mocHelper.getMoCBalance(otherAddress);
+        const diffMoCAmount = prevUserMoCBalanceOtherAddress.sub(new BN(expectedMoCCommission));
+        const diffMoCCommission = prevUserMoCBalanceOtherAddress.sub(userMoCBalanceOtherAddress);
+
+        // RBTC commission
+        const commissionsAccountBtcBalance = toContractBN(
+          await web3.eth.getBalance(commissionsAccount)
+        );
+        const diffRbtcCommission = commissionsAccountBtcBalance.sub(prevCommissionsAccountBtcBalance);
+        const userBtcBalanceOtherAccount = toContractBN(await web3.eth.getBalance(otherAddress));
+        const diffRbtcAmount = prevUserBtcBalanceOtherAddress.sub(userBtcBalanceOtherAccount).sub(usedGas);
+
+        mocHelper.assertBigRBTC(
+          diffMoCAmount,
+          expectedMoCAmount,
+          'user MoC balance is incorrect'
+        );
+        mocHelper.assertBigRBTC(
+          diffMoCCommission,
+          expectedMoCCommission,
+          'MoC commission is incorrect'
+        );
+        mocHelper.assertBigRBTC(
+          diffRbtcAmount,
+          expectedRbtcAmount,
+          'user rbtc balance is incorrect'
+        );
+        mocHelper.assertBigRBTC(
+          diffRbtcCommission,
+          expectedRbtcCommission,
+          'commissions account balance is incorrect'
+        );
+      });
+    });
     describe('GIVEN since the user does not have MoC nor RBTC balance, but there is MoC allowance', function() {
       it('WHEN a user tries to mint BPros, THEN expect exception', async function() {
         const password = '!@superpassword';
@@ -197,8 +256,11 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount]) 
           await mocHelper.mintMoCToken(failingAddress, 0, owner);
           await mocHelper.approveMoCToken(mocHelper.moc.address, 0, failingAddress);
           const txType = await mocHelper.mocInrate.MINT_BPRO_FEES_MOC();
-          const mintBpro = mocHelper.mintBPro(failingAddress, 10, txType);
-          assert(mintBpro === null, 'This should not happen');
+          const mintBpro = await mocHelper.mintBPro(failingAddress, 10, txType);
+          assert(
+            mintBpro === null,
+            'This should not happen'
+          );
         } catch (err) {
           assert(
             err.message.search(NOT_ENOUGH_FUNDS_ERROR) >= 0,

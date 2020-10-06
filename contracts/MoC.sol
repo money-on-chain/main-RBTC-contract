@@ -106,9 +106,9 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
     settlement.alterRedeemRequestAmount(isAddition, delta, msg.sender);
   }
 
-  function mintWithMocFees(address sender, uint256 value, uint256 totalBtcSpent, uint256 btcCommission, uint256 mocCommission)
+  // solium-disable-next-line security/no-assign-params
+  function mintWithMocFees(address sender, uint256 value, uint256 totalBtcSpent, uint256 btcCommission, uint256 mocCommission) 
   internal returns(uint256) {
-    uint256 updatedTotalBtcSpent = totalBtcSpent;
     // Check if there is enough balance of MoC
     if (mocCommission > 0) {
       // Transfer MoC from sender to this contract
@@ -117,10 +117,10 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
       mocToken.transfer(mocInrate.commissionsAddress(), mocCommission);
     } else {
       // Check commission rate in RBTC according to transaction type
-      updatedTotalBtcSpent = totalBtcSpent.add(btcCommission);
-      require(updatedTotalBtcSpent <= value, "amount is not enough");
+      totalBtcSpent = totalBtcSpent.add(btcCommission);
+      require(totalBtcSpent <= value, "amount is not enough");
     }
-    return updatedTotalBtcSpent;
+    return totalBtcSpent;
   }
 
   /**

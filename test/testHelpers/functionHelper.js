@@ -120,10 +120,9 @@ const mintBProAmount = (moc, mocState, mocInrate) => async (account, bproAmount,
   const btcTotal = await rbtcNeededToMintBpro(moc, mocState)(bproAmount);
   // Sent more to pay commissions: if RBTC fees are used then get commission value,
   // otherwise commission is 0 RBTC
-  const txTypeToNumber = txType.toNumber();
   const commissionRate =
-    txTypeToNumber === (await mocInrate.MINT_BPRO_FEES_RBTC())
-      ? await mocInrate.commissionRatesByTxType(txTypeToNumber)
+    txType.eq(await mocInrate.MINT_BPRO_FEES_RBTC())
+      ? await mocInrate.commissionRatesByTxType(txType)
       : 0;
   const mocPrecision = await moc.getMocPrecision();
   const commissionRbtcAmount =
