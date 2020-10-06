@@ -61,7 +61,7 @@ const mintMoCToken = mocToken => async (anotherAccount, initialBalance, owner) =
   await mocToken.mint(anotherAccount, web3.utils.toWei(initialBalance.toString()), { from: owner });
 };
 
-const approveMocToken = mocToken => async (anotherAccount, amount, owner) => {
+const approveMoCToken = mocToken => async (anotherAccount, amount, owner) => {
   await mocToken.approve(anotherAccount, web3.utils.toWei(amount.toString()), { from: owner });
 };
 
@@ -329,6 +329,6 @@ module.exports = async contracts => {
     setMocCommissionProportion: setMocCommissionProportion(commissionSplitter, governor),
     mintMoCToken: mintMoCToken(mocToken),
     getMoCBalance: getMoCBalance(mocToken),
-    approveMocToken: approveMocToken(mocToken)
+    approveMoCToken: approveMoCToken(mocToken)
   };
 };

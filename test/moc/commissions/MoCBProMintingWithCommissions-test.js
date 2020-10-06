@@ -1,12 +1,13 @@
 const { expectRevert } = require('openzeppelin-test-helpers');
 const testHelperBuilder = require('../../mocHelper.js');
-// const getConfig = require('./changerHelper');
-// const Accounts = require('web3-eth-accounts');
 
 let mocHelper;
 let toContractBN;
 
 const { BN } = web3.utils;
+
+// eslint-disable-next-line quotes
+const NOT_ENOUGH_FUNDS_ERROR = `sender·doesn't·have·enough·funds·to·send·tx`;
 
 contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount]) {
   before(async function() {
@@ -181,24 +182,29 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount]) 
         await expectRevert.unspecified(mintBpro);
       });
     });
-    describe.only('GIVEN since the user does not have MoC nor RBTC balance, but there is MoC allowance', function() {
-      it('WHEN a user tries to mint BPros, THEN expect revert', async function() {
+    describe('GIVEN since the user does not have MoC nor RBTC balance, but there is MoC allowance', function() {
+      it('WHEN a user tries to mint BPros, THEN expect exception', async function() {
         const password = '!@superpassword';
         const failingAddress = await web3.eth.personal.newAccount(password);
         await web3.eth.personal.unlockAccount(failingAddress, password, 600);
 
-        console.log('failingAddress: ', failingAddress);
-        await web3.eth.sendTransaction({
-          from: owner,
-          to: failingAddress,
-          value: '10000000000000'
-        });
-        console.log('new rbtc balance: ', await web3.eth.getBalance(failingAddress));
-        await mocHelper.mintMoCToken(failingAddress, 0, owner);
-        await mocHelper.approveMocToken(mocHelper.moc.address, 0, failingAddress);
-        const txType = await mocHelper.mocInrate.MINT_BPRO_FEES_MOC();
-        const mintBpro = mocHelper.mintBPro(failingAddress, 10, txType);
-        await expectRevert.unspecified(mintBpro);
+        try {
+          await web3.eth.sendTransaction({
+            from: owner,
+            to: failingAddress,
+            value: '10000000000000'
+          });
+          await mocHelper.mintMoCToken(failingAddress, 0, owner);
+          await mocHelper.approveMoCToken(mocHelper.moc.address, 0, failingAddress);
+          const txType = await mocHelper.mocInrate.MINT_BPRO_FEES_MOC();
+          const mintBpro = mocHelper.mintBPro(failingAddress, 10, txType);
+          assert(mintBpro === null, 'This should not happen');
+        } catch (err) {
+          assert(
+            err.message.search(NOT_ENOUGH_FUNDS_ERROR) >= 0,
+            'Sender does not have enough funds'
+          );
+        }
       });
     });
   });
