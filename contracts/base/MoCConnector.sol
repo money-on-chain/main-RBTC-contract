@@ -23,6 +23,10 @@ contract MoCConnector is MoCWhitelist, Initializable {
 
   bool internal initialized;
 
+  event MoCTokenChanged (
+    address mocTokenAddress
+  );
+
   function initialize(
     address payable mocAddress,
     address docAddress,
@@ -59,7 +63,23 @@ contract MoCConnector is MoCWhitelist, Initializable {
     add(exchangeAddress);
     add(inrateAddress);
     add(burnoutBookAddress);
-    add(mocTokenAddress);
+
+    setMoCToken(mocTokenAddress);
+  }
+
+  // TODO: this is public, should be changed by governance
+  // Suggestion: create a "MoCConnectorChanger" contract
+  function setMoCToken(address mocTokenAddress) public {
+    address oldMoCTokenAddress = mocToken;
+    mocToken = mocTokenAddress;
+
+    if (address(mocTokenAddress) != address(0)) {
+      add(mocTokenAddress);
+    } else {
+      remove(oldMoCTokenAddress);
+    }
+
+    emit MoCTokenChanged(mocTokenAddress);
   }
 
   // Leave a gap betweeen inherited contracts variables in order to be

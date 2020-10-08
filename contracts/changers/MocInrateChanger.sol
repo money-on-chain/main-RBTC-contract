@@ -148,4 +148,11 @@ contract MocInrateChanger is ChangeContract, Ownable {
       mocInrate.setCommissionRateByTxType(commissionRates[i].txType, commissionRates[i].fee);
     }
   }
+
+  /**
+    @dev returns the commission rate fees array length
+  */
+  function commissionRatesLength() public view returns (uint256) {
+    return commissionRates.length;
+  }
 }
