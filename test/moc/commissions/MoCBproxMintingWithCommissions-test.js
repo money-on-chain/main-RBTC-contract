@@ -15,8 +15,9 @@ contract('MoC : MoCExchange', function([owner, userAccount, commissionsAccount])
 
   beforeEach(async function() {
     await mocHelper.revertState();
-    // set commissions rate
-    await mocHelper.mockMocInrateChanger.setCommissionRate(0.002 * mocHelper.MOC_PRECISION);
+
+    // Commission rates are set in contractsBuilder.js
+
     // set commissions address
     await mocHelper.mockMocInrateChanger.setCommissionsAddress(commissionsAccount);
     // update params
@@ -25,9 +26,11 @@ contract('MoC : MoCExchange', function([owner, userAccount, commissionsAccount])
 
   describe('BProx minting with commissions', function() {
     const scenarios = [
+      // RBTC commission
       {
         params: {
-          nBProx: 5
+          nBProx: 5,
+          mocAmount: 0
         },
         expect: {
           nBProx: '5',
@@ -35,7 +38,9 @@ contract('MoC : MoCExchange', function([owner, userAccount, commissionsAccount])
           totalCostOnBtc: '5.01',
           commission: {
             nBtc: '0.01'
-          }
+          },
+          commissionAmountMoC: 0,
+          mocAmount: 0
         }
       },
       {
@@ -51,13 +56,20 @@ contract('MoC : MoCExchange', function([owner, userAccount, commissionsAccount])
           }
         }
       }
+      // MoC commission
     ];
 
     describe('GIVEN the user have 18 BPro and 8000 DOCs and no interest is charged', function() {
       beforeEach(async function() {
         await this.mocState.setDaysToSettlement(toContractBN(0, 'DAY'));
-        await mocHelper.mintBProAmount(userAccount, 18);
-        await mocHelper.mintDocAmount(userAccount, 80000);
+        // Mint according to scenario
+        const txTypeMint =
+          scenario.params.mocAmount === 0
+            ? await mocHelper.mocInrate.MINT_BPRO_FEES_RBTC()
+            : await mocHelper.mocInrate.MINT_BPRO_FEES_MOC();
+        await mocHelper.mintBProAmount(userAccount, scenario.params.bproToMint, txTypeMint);
+        await mocHelper.mintBProAmount(userAccount, 18, txTypeMint);
+        await mocHelper.mintDocAmount(userAccount, 80000, txTypeMint);
       });
 
       scenarios.forEach(async s => {

@@ -1,5 +1,6 @@
 const { TestHelper } = require('zos');
 const { Contracts, ZWeb3 } = require('zos-lib');
+const BigNumber = require('bignumber.js');
 
 ZWeb3.initialize(web3.currentProvider);
 
@@ -100,51 +101,75 @@ const initializeCommissionRatesArray = async (moc, mocInrate) => {
   const ret = [
     {
       txType: (await mocInrate.MINT_BPRO_FEES_RBTC()).toString(),
-      fee: (0.001 * mocPrecision).toString()
+      fee: BigNumber(0.001)
+        .times(mocPrecision)
+        .toString()
     },
     {
       txType: (await mocInrate.REDEEM_BPRO_FEES_RBTC()).toString(),
-      fee: (0.002 * mocPrecision).toString()
+      fee: BigNumber(0.002)
+        .times(mocPrecision)
+        .toString()
     },
     {
       txType: (await mocInrate.MINT_DOC_FEES_RBTC()).toString(),
-      fee: (0.003 * mocPrecision).toString()
+      fee: BigNumber(0.003)
+        .times(mocPrecision)
+        .toString()
     },
     {
       txType: (await mocInrate.REDEEM_DOC_FEES_RBTC()).toString(),
-      fee: (0.004 * mocPrecision).toString()
+      fee: BigNumber(0.004)
+        .times(mocPrecision)
+        .toString()
     },
     {
       txType: (await mocInrate.MINT_BTCX_FEES_RBTC()).toString(),
-      fee: (0.005 * mocPrecision).toString()
+      fee: BigNumber(0.005)
+        .times(mocPrecision)
+        .toString()
     },
     {
       txType: (await mocInrate.REDEEM_BTCX_FEES_RBTC()).toString(),
-      fee: (0.006 * mocPrecision).toString()
+      fee: BigNumber(0.006)
+        .times(mocPrecision)
+        .toString()
     },
     {
       txType: (await mocInrate.MINT_BPRO_FEES_MOC()).toString(),
-      fee: (0.007 * mocPrecision).toString()
+      fee: BigNumber(0.007)
+        .times(mocPrecision)
+        .toString()
     },
     {
       txType: (await mocInrate.REDEEM_BPRO_FEES_MOC()).toString(),
-      fee: (0.008 * mocPrecision).toString()
+      fee: BigNumber(0.008)
+        .times(mocPrecision)
+        .toString()
     },
     {
       txType: (await mocInrate.MINT_DOC_FEES_MOC()).toString(),
-      fee: (0.009 * mocPrecision).toString()
+      fee: BigNumber(0.009)
+        .times(mocPrecision)
+        .toString()
     },
     {
       txType: (await mocInrate.REDEEM_DOC_FEES_MOC()).toString(),
-      fee: (0.0001 * mocPrecision).toString()
+      fee: BigNumber(0.0001)
+        .times(mocPrecision)
+        .toString()
     },
     {
       txType: (await mocInrate.MINT_BTCX_FEES_MOC()).toString(),
-      fee: (0.00011 * mocPrecision).toString()
+      fee: BigNumber(0.00011)
+        .times(mocPrecision)
+        .toString()
     },
     {
       txType: (await mocInrate.REDEEM_BTCX_FEES_MOC()).toString(),
-      fee: (0.00012 * mocPrecision).toString()
+      fee: BigNumber(0.00012)
+        .times(mocPrecision)
+        .toString()
     }
   ];
   return ret;

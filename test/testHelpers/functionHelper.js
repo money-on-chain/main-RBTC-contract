@@ -1,6 +1,6 @@
 const { BigNumber } = require('bignumber.js');
 const chai = require('chai');
-const { toContract } = require('../../utils/numberHelper');
+const { toContract, toBigNumber } = require('../../utils/numberHelper');
 const { toContractBNNoPrec } = require('./formatHelper');
 
 // Changers
@@ -131,24 +131,37 @@ const mintBProAmount = (moc, mocState, mocInrate) => async (account, bproAmount,
   return moc.mintBPro(toContract(btcTotal), { from: account, value });
 };
 
-const mintDocAmount = (moc, btcPriceProvider, mocInrate) => async (account, docsToMint) => {
+const mintDocAmount = (moc, btcPriceProvider, mocInrate) => async (account, docsToMint, txType) => {
   if (!docsToMint) {
     return;
   }
   const reservePrecision = await moc.getReservePrecision();
   const mocPrecision = await moc.getMocPrecision();
-
-  const formattedAmount = docsToMint * mocPrecision;
+  const formattedAmount = toBigNumber(docsToMint).times(mocPrecision);
   const btcPrice = await getBitcoinPrice(btcPriceProvider)();
-  const btcTotal = (formattedAmount / btcPrice) * reservePrecision;
-  const commissionRate = await mocInrate.getCommissionRate();
+  const btcTotal = formattedAmount.div(btcPrice).times(reservePrecision);
+  // Sent more to pay commissions: if RBTC fees are used then get commission value,
+  // otherwise commission is 0 RBTC
+  const commissionRate = txType.eq(await mocInrate.MINT_DOC_FEES_RBTC())
+    ? await mocInrate.commissionRatesByTxType(txType)
+    : 0;
 
-  const commissionRbtcAmount = (btcTotal * commissionRate) / mocPrecision;
-  const value = toContract(btcTotal + commissionRbtcAmount);
+  const commissionRbtcAmount =
+    commissionRate > 0
+      ? toBigNumber(btcTotal)
+          .times(commissionRate)
+          .div(mocPrecision)
+      : 0;
+  const value = toContract(btcTotal.plus(commissionRbtcAmount));
   return moc.mintDoc(toContract(btcTotal), { from: account, value });
 };
 
-const mintBProxAmount = (moc, mocState, mocInrate) => async (account, bucket, bproxAmount) => {
+const mintBProxAmount = (moc, mocState, mocInrate) => async (
+  account,
+  bucket,
+  bproxAmount,
+  txType
+) => {
   if (!bproxAmount) {
     return;
   }
@@ -158,10 +171,14 @@ const mintBProxAmount = (moc, mocState, mocInrate) => async (account, bucket, bp
 
   const btcInterestAmount = await mocInrate.calcMintInterestValues(bucket, btcTotal);
 
+  // Sent more to pay commissions: if RBTC fees are used then get commission value,
+  // otherwise commission is 0 RBTC
+  const commissionRate = txType.eq(await mocInrate.MINT_BPROX_FEES_RBTC())
+    ? await mocInrate.commissionRatesByTxType(txType)
+    : 0;
   const mocPrecision = await moc.getMocPrecision();
-  const commissionRate = await mocInrate.getCommissionRate();
-
-  const commissionRbtcAmount = btcTotal.mul(commissionRate).div(mocPrecision);
+  const commissionRbtcAmount =
+    commissionRate > 0 ? btcTotal.mul(commissionRate).div(mocPrecision) : 0;
 
   // Multiply commission by 3 to avoid rounding issues
   const value = btcInterestAmount
