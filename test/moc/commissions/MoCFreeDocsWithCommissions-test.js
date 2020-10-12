@@ -29,7 +29,8 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
             docsToRedeem: 100,
             commissionsRate: 4, // REDEEM_DOC_FEES_RBTC = 0.004
             bproToMint: 1,
-            mocAmount: 0
+            mocAmount: 0,
+            initialBtcPrice: 10000
           },
           expect: {
             docsToRedeem: 100,
@@ -46,7 +47,8 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
             docsToMint: 500,
             docsToRedeem: 600,
             commissionsRate: 0.2,
-            bproToMint: 1
+            bproToMint: 1,
+            initialBtcPrice: 10000
           },
           expect: {
             docsToRedeem: 500,
@@ -62,7 +64,8 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
             docsToMint: 1000,
             docsToRedeem: 100,
             commissionsRate: 0.2, //REDEEM_DOC_FEES_MOC
-            bproToMint: 1
+            bproToMint: 1,
+            initialBtcPrice: 10000
           },
           expect: {
             docsToRedeem: 100,
@@ -77,7 +80,8 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
             docsToMint: 500,
             docsToRedeem: 600,
             commissionsRate: 0.2,
-            bproToMint: 1
+            bproToMint: 1,
+            initialBtcPrice: 10000
           },
           expect: {
             docsToRedeem: 500,

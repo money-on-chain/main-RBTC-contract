@@ -210,17 +210,13 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
           await mocHelper.mocInrate.MINT_BPRO_FEES_MOC()
         );
       });
-      describe('WHEN a user tries to mint 10000 Docs using MoC commission', function() {
+      describe.only('WHEN a user tries to mint 10000 Docs using MoC commission', function() {
         let prevBtcBalance;
-        let prevCommissionsAccountBtcBalance;
         let txCost;
         let prevUserMoCBalance; // If user has MoC balance, then commission fees will be in MoC
         let prevCommissionsAccountMoCBalance;
         beforeEach(async function() {
           prevBtcBalance = toContractBN(await web3.eth.getBalance(userAccount));
-          prevCommissionsAccountBtcBalance = toContractBN(
-            await web3.eth.getBalance(commissionsAccount)
-          );
           prevUserMoCBalance = await mocHelper.getMoCBalance(userAccount);
           prevCommissionsAccountMoCBalance = await mocHelper.getMoCBalance(commissionsAccount);
 
@@ -235,7 +231,7 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
           // commission = 5000 * 0.009
           const btcBalance = toContractBN(await web3.eth.getBalance(userAccount));
           const diff = prevBtcBalance.sub(toContractBN(btcBalance)).sub(new BN(txCost));
-          const expectedMoCCommission = 4500000000000000;
+          const expectedMoCCommission = '4500000000000000';
           const diffAmountMoC = new BN(prevUserMoCBalance).sub(new BN(expectedMoCCommission));
 
           mocHelper.assertBig(diff, '500000000000000000', 'Balance does not decrease by 0.5 RBTC');
@@ -246,47 +242,52 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
             'Balance in MoC does not decrease by 0.0045 MoC'
           );
         });
-        // it('AND User only spent on comissions for 0.0045 MoC', async function() {
-        //   const btcBalance = toContractBN(await web3.eth.getBalance(userAccount));
-        //   const userMoCBalance = toContractBN(await mocHelper.getMoCBalance(userAccount));
-        //   const diff = prevBtcBalance
-        //     .sub(toContractBN(btcBalance))
-        //     .sub(new BN(txCost))
-        //     .sub(toContractBN(500000000000000000));
-        //   const expectedMoCCommission = 4500000000000000;
-        //   const diffCommissionMoC = new BN(prevUserMoCBalance).sub(new BN(userMoCBalance));
+        it('AND User only spent on comissions for 0.0045 MoC', async function() {
+          const btcBalance = await web3.eth.getBalance(userAccount);
+          const userMoCBalance = await mocHelper.getMoCBalance(userAccount);
+          const diff = prevBtcBalance
+            .sub(toContractBN(btcBalance))
+            .sub(txCost)
+            .sub(toContractBN('500000000000000000'));
+          const expectedMoCCommission = '4500000000000000';
+          const diffCommissionMoC = new BN(prevUserMoCBalance).sub(new BN(userMoCBalance));
 
-        //   console.log("prevUserMoCBalance: ", prevUserMoCBalance.toString());
-        //   console.log("userMoCBalance: ", userMoCBalance.toString());
-        //   console.log("diffCommissionMoC: ", diffCommissionMoC.toString());
+          console.log("mocHelper.mocInrate.MINT_DOC_FEES_MOC(): ", (await mocHelper.mocInrate.MINT_DOC_FEES_MOC()).toString());
+          console.log("mocHelper.mocInrate.commissionRatesByTxType(9): ", (await mocHelper.mocInrate.commissionRatesByTxType(9)).toString());
+          console.log("mocHelper.mocInrate.calcComissionValue(): ", (await mocHelper.mocInrate.calcCommissionValue('1000000000000000000',9)).toString());
+          console.log("prevUserMoCBalance: ", prevUserMoCBalance.toString());
+          console.log("userMoCBalance: ", userMoCBalance.toString());
+          console.log("diffCommissionMoC: ", diffCommissionMoC.toString());
 
-        //   mocHelper.assertBig(
-        //     diff,
-        //     0,
-        //     'RBTC balance should not decrease by comission cost, which is paid in MoC'
-        //   );
+          mocHelper.assertBig(
+            diff,
+            0,
+            'RBTC balance should not decrease by comission cost, which is paid in MoC'
+          );
 
-        //   mocHelper.assertBig(
-        //     diffCommissionMoC,
-        //     expectedMoCCommission,
-        //     'Balance in MoC does not decrease by 0.045 MoC'
-        //   );
-        // });
-        // it('AND commissions account increase balance by 0.0045 MoC', async function() {
-        //   const commissionsAccountMoCBalance = await mocHelper.getMoCBalance(commissionsAccount);
-        //   const expectedMoCCommission = 4500000000000000;
-        //   const diff = new BN(commissionsAccountMoCBalance).sub(new BN(prevCommissionsAccountMoCBalance));
+          mocHelper.assertBig(
+            diffCommissionMoC,
+            expectedMoCCommission,
+            'Balance in MoC does not decrease by 0.045 MoC'
+          );
+        });
+        it('AND commissions account increase balance by 0.0045 MoC', async function() {
+          const commissionsAccountMoCBalance = await mocHelper.getMoCBalance(commissionsAccount);
+          const expectedMoCCommission = '4500000000000000';
+          const diff = new BN(commissionsAccountMoCBalance).sub(
+            new BN(prevCommissionsAccountMoCBalance)
+          );
 
-        //   console.log("prevCommissionsAccountMoCBalance: ", prevCommissionsAccountMoCBalance.toString());
-        //   console.log("commissionsAccountMoCBalance: ", commissionsAccountMoCBalance.toString());
-        //   console.log("diff: ", diff.toString());
+          console.log("prevCommissionsAccountMoCBalance: ", prevCommissionsAccountMoCBalance.toString());
+          console.log("commissionsAccountMoCBalance: ", commissionsAccountMoCBalance.toString());
+          console.log("diff: ", diff.toString());
 
-        //   mocHelper.assertBigRBTC(
-        //     diff,
-        //     expectedMoCCommission,
-        //     'Balance in MoC does not increase by 0.0045 RBTC'
-        //   );
-        // });
+          mocHelper.assertBig(
+            diff.toString(),
+            expectedMoCCommission,
+            'Balance in MoC does not increase by 0.0045 RBTC'
+          );
+        });
       });
     });
 

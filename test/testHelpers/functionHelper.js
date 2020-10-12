@@ -1,6 +1,6 @@
 const { BigNumber } = require('bignumber.js');
 const chai = require('chai');
-const { toContract } = require('../../utils/numberHelper');
+const { toContract, toBigNumber } = require('../../utils/numberHelper');
 const { toContractBNNoPrec } = require('./formatHelper');
 
 // Changers
@@ -137,18 +137,22 @@ const mintDocAmount = (moc, btcPriceProvider, mocInrate) => async (account, docs
   }
   const reservePrecision = await moc.getReservePrecision();
   const mocPrecision = await moc.getMocPrecision();
-  const formattedAmount = docsToMint * mocPrecision;
+  const formattedAmount = toBigNumber(docsToMint).times(mocPrecision);
   const btcPrice = await getBitcoinPrice(btcPriceProvider)();
-  const btcTotal = (formattedAmount / btcPrice) * reservePrecision;
+  const btcTotal = formattedAmount.div(btcPrice).times(reservePrecision);
   // Sent more to pay commissions: if RBTC fees are used then get commission value,
   // otherwise commission is 0 RBTC
   const commissionRate = txType.eq(await mocInrate.MINT_DOC_FEES_RBTC())
     ? await mocInrate.commissionRatesByTxType(txType)
     : 0;
 
-  const commissionRbtcAmount = commissionRate > 0 ? (btcTotal * commissionRate) / mocPrecision : 0;
-  const value = toContract(btcTotal + commissionRbtcAmount);
-
+  const commissionRbtcAmount =
+    commissionRate > 0
+      ? toBigNumber(btcTotal)
+          .times(commissionRate)
+          .div(mocPrecision)
+      : 0;
+  const value = toContract(btcTotal.plus(commissionRbtcAmount));
   return moc.mintDoc(toContract(btcTotal), { from: account, value });
 };
 
