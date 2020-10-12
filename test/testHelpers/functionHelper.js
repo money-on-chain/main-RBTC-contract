@@ -1,7 +1,7 @@
 const { BigNumber } = require('bignumber.js');
 const chai = require('chai');
 const { toContract } = require('../../utils/numberHelper');
-const { toContractBN, toContractBNNoPrec } = require('./formatHelper');
+const { toContractBNNoPrec } = require('./formatHelper');
 
 // Changers
 const SetCommissionFinalAddressChanger = artifacts.require(
@@ -146,14 +146,18 @@ const mintDocAmount = (moc, btcPriceProvider, mocInrate) => async (account, docs
     ? await mocInrate.commissionRatesByTxType(txType)
     : 0;
 
-  const commissionRbtcAmount =
-    commissionRate > 0 ? (btcTotal * commissionRate) / mocPrecision : 0;
+  const commissionRbtcAmount = commissionRate > 0 ? (btcTotal * commissionRate) / mocPrecision : 0;
   const value = toContract(btcTotal + commissionRbtcAmount);
 
   return moc.mintDoc(toContract(btcTotal), { from: account, value });
 };
 
-const mintBProxAmount = (moc, mocState, mocInrate) => async (account, bucket, bproxAmount, txType) => {
+const mintBProxAmount = (moc, mocState, mocInrate) => async (
+  account,
+  bucket,
+  bproxAmount,
+  txType
+) => {
   if (!bproxAmount) {
     return;
   }
