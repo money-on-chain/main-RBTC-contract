@@ -27,8 +27,8 @@ contract('MoC: Doc Redeem on Settlement with commissions', function([
       // update params
       await mocHelper.governor.executeChange(mocHelper.mockMocInrateChanger.address);
 
-      const txTypeMintBpro = "";
-      const txTypeMintDoc = "";
+      const txTypeMintBpro = await mocHelper.mocInrate.MINT_BPRO_FEES_RBTC();
+      const txTypeMintDoc = await mocHelper.mocInrate.MINT_DOC_FEES_RBTC();
 
       const usersAccounts = accounts.slice(0, 3);
       await Promise.all(usersAccounts.map(account => mocHelper.mintBProAmount(account, 1000, txTypeMintBpro)));
@@ -54,15 +54,15 @@ contract('MoC: Doc Redeem on Settlement with commissions', function([
         await mocHelper.executeSettlement();
       });
 
-      it('THEN commissions account increase balance by 0.000006 RBTC', async function() {
+      it('THEN commissions account increase balance by 0.000012 RBTC', async function() {
         const btcBalance = toContractBN(await web3.eth.getBalance(commissionsAccount));
         const diff = btcBalance.sub(prevCommissionsAccountBtcBalance);
-        mocHelper.assertBigRBTC(diff, '0.000006', 'commissions account rbtc balance is incorrect');
+        mocHelper.assertBigRBTC(diff, '0.000012', 'commissions account rbtc balance is incorrect');
       });
-      it('THEN user account increase balance by 0.000998 RBTC ', async function() {
+      it('THEN user account increase balance by 0.000996 RBTC ', async function() {
         const userBtcBalance = toContractBN(await web3.eth.getBalance(accounts[0]));
         const diff = userBtcBalance.sub(prevUserBtcBalance);
-        mocHelper.assertBigRBTC(diff, '0.000998', 'commissions account rbtc balance is incorrect');
+        mocHelper.assertBigRBTC(diff, '0.000996', 'commissions account rbtc balance is incorrect');
       });
     });
   });

@@ -72,9 +72,9 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount]) 
           bproRedeemed: 100,
           bproToRedeemOnRBTC: 100,
           commissionAmountRbtc: 0,
-          commissionAmountMoC: 0.8, // (mocAmount * REDEEM_BPRO_FEES_MOC = 0.008)
-          mocAmount: 998.5 // mocAmount - (mocAmount * MINT_BPRO_FEES_MOC) = 1000 - 0.007 = 999.3
-          // => 999.3 - (mocAmount * REDEEM_BPRO_FEES_MOC)
+          commissionAmountMoC: 0.8, // (bproToRedeem * REDEEM_BPRO_FEES_MOC = 0.008)
+          mocAmount: 998.5 // mocAmount - (bproToRedeem * MINT_BPRO_FEES_MOC) = 1000 - 0.7 = 999.3
+          // => 999.3 - (bproToRedeem * REDEEM_BPRO_FEES_MOC)
         }
       },
       {
@@ -87,9 +87,9 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount]) 
           bproRedeemed: 50,
           commissionAmountRbtc: 0,
           bproToRedeemOnRBTC: 50,
-          commissionAmountMoC: 0.4, // (bproToMint * REDEEM_BPRO_FEES_MOC = 0.008)
-          mocAmount: 998.9 // mocAmount - (mocAmount * MINT_BPRO_FEES_MOC) = 1000 - 0.007 = 999.3
-          // => 999.3 - (mocAmount * REDEEM_BPRO_FEES_MOC)
+          commissionAmountMoC: 0.4, // (bproToRedeem * REDEEM_BPRO_FEES_MOC = 0.008)
+          mocAmount: 998.9 // mocAmount - (bproToRedeem * MINT_BPRO_FEES_MOC) = 1000 - 0.007 = 999.3
+          // => 999.3 - (bproToRedeem * REDEEM_BPRO_FEES_MOC)
         }
       }
     ];
@@ -296,7 +296,7 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount]) 
       });
     });
     describe('GIVEN since the address of the MoCToken is 0x0', function() {
-      it('WHEN a user tries to mint BPros, THEN commission is paid in RBTC', async function() {
+      it('WHEN a user tries to redeem BPros, THEN commission is paid in RBTC', async function() {
         const accounts = await web3.eth.getAccounts();
         const otherAddress = accounts[1];
         const mocTokenAddress = this.mocToken.address;
