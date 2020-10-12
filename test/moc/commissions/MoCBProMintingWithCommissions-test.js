@@ -168,6 +168,7 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount]) 
         });
       });
     });
+    // TODO: check if it should revert
     describe('GIVEN since the user sends not enough amount to pay comission in RBTC', function() {
       it('WHEN a user tries to mint BPros with 10 RBTCs and does not send to pay commission', async function() {
         const txType = await mocHelper.mocInrate.MINT_BPRO_FEES_RBTC();
@@ -175,6 +176,7 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount]) 
         await expectRevert.unspecified(mintBpro);
       });
     });
+    // TODO: check if it should revert
     describe('GIVEN since there is no allowance to pay comission in MoC', function() {
       it('WHEN a user tries to mint BPros with no MoC allowance, THEN expect revert', async function() {
         await mocHelper.mintMoCToken(userAccount, 1000, owner);
