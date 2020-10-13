@@ -42,7 +42,7 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount]) 
         expect: {
           bproRedeemed: 100,
           bproToRedeemOnRBTC: 99.8, // (bproToRedeem) - (bproToRedeem * commissionRate)
-          commissionAmountRbtc: 0.2, // (bproToMint * REDEEM_BPRO_FEES_RBTC = 0.002)
+          commissionAmountRbtc: 0.2, // (bproToRedeem * REDEEM_BPRO_FEES_RBTC = 0.002)
           commissionAmountMoC: 0,
           mocAmount: 0
         }
@@ -55,7 +55,7 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount]) 
         },
         expect: {
           bproRedeemed: 50,
-          commissionAmountRbtc: 0.1, // (bproToMint * REDEEM_BPRO_FEES_RBTC = 0.002)
+          commissionAmountRbtc: 0.1, // (bproToRedeem * REDEEM_BPRO_FEES_RBTC = 0.002)
           bproToRedeemOnRBTC: 49.9, // (bproToRedeem) - (bproToRedeem * commissionRate)
           commissionAmountMoC: 0,
           mocAmount: 0

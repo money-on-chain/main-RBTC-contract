@@ -18,7 +18,7 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
     this.mocConnector = mocHelper.mocConnector;
   });
 
-  describe.only('Doc minting paying Commissions', function() {
+  describe('Doc minting paying Commissions', function() {
     beforeEach(async function() {
       await mocHelper.revertState();
 
@@ -85,22 +85,6 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
           const diff = btcBalance.sub(toContractBN(prevCommissionsAccountBtcBalance));
           mocHelper.assertBig(diff, '1500000000000000', 'Balance does not increase by 0.0015 RBTC');
         });
-      });
-    });
-
-    describe('GIVEN since the user sends not enough amount to pay comission', function() {
-      it('WHEN a user tries to mint DOCs with 1 RBTCs and does not send to pay commission', async function() {
-        await mocHelper.mintBProAmount(
-          userAccount,
-          10,
-          await mocHelper.mocInrate.MINT_BPRO_FEES_RBTC()
-        );
-        const mintDoc = mocHelper.mintDoc(
-          userAccount,
-          1,
-          await mocHelper.mocInrate.MINT_DOC_FEES_RBTC()
-        );
-        await expectRevert.unspecified(mintDoc);
       });
     });
 
@@ -283,7 +267,23 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
         });
       });
     });
-
+    // TODO: check if it should revert
+    describe('GIVEN since the user sends not enough amount to pay comission', function() {
+      it('WHEN a user tries to mint DOCs with 1 RBTCs and does not send to pay commission', async function() {
+        await mocHelper.mintBProAmount(
+          userAccount,
+          10,
+          await mocHelper.mocInrate.MINT_BPRO_FEES_RBTC()
+        );
+        const mintDoc = mocHelper.mintDoc(
+          userAccount,
+          1,
+          await mocHelper.mocInrate.MINT_DOC_FEES_RBTC()
+        );
+        await expectRevert.unspecified(mintDoc);
+      });
+    });
+    // TODO: check if it should revert
     describe('GIVEN since there is no allowance to pay comission in MoC', function() {
       it('WHEN a user tries to mint DoC with no MoC allowance, THEN ??? expect revert', async function() {
         await mocHelper.mintMoCToken(userAccount, 1000, owner);

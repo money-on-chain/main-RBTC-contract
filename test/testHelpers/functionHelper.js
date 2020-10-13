@@ -153,6 +153,7 @@ const mintDocAmount = (moc, btcPriceProvider, mocInrate) => async (account, docs
           .div(mocPrecision)
       : 0;
   const value = toContract(btcTotal.plus(commissionRbtcAmount));
+
   return moc.mintDoc(toContract(btcTotal), { from: account, value });
 };
 
@@ -173,7 +174,7 @@ const mintBProxAmount = (moc, mocState, mocInrate) => async (
 
   // Sent more to pay commissions: if RBTC fees are used then get commission value,
   // otherwise commission is 0 RBTC
-  const commissionRate = txType.eq(await mocInrate.MINT_BPROX_FEES_RBTC())
+  const commissionRate = txType.eq(await mocInrate.MINT_BTCX_FEES_RBTC())
     ? await mocInrate.commissionRatesByTxType(txType)
     : 0;
   const mocPrecision = await moc.getMocPrecision();
@@ -182,7 +183,7 @@ const mintBProxAmount = (moc, mocState, mocInrate) => async (
 
   // Multiply commission by 3 to avoid rounding issues
   const value = btcInterestAmount
-    .add(commissionRbtcAmount)
+    .add(toContractBNNoPrec(commissionRbtcAmount))
     .add(btcTotal)
     .add(btcTotal);
 
