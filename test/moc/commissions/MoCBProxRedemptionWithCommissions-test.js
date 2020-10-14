@@ -23,7 +23,7 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
     this.mocConnector = mocHelper.mocConnector;
   });
 
-  describe('BProx redeem with commissions and without interests', function() {
+  describe.only('BProx redeem with commissions and without interests', function() {
     describe('Redeem BProxs', function() {
       const scenarios = [
         // RBTC commission
@@ -64,9 +64,46 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
             commissionAmountMoC: 0,
             mocAmount: 0
           }
-        }
+        },
         // MoC commission
-
+        {
+          // redeem 1 BProx
+          params: {
+            docsToMint: 10000,
+            bproxsToRedeem: 1,
+            commissionRate: 0,
+            bproxToMint: 1,
+            bproToMint: 100,
+            mocAmount: 1000
+          },
+          expect: {
+            bproxsToRedeem: 1,
+            bproxsToRedeemOnRBTC: 1,
+            commissionAddressBalance: 0,
+            commissionsOnRBTC: 0,
+            commissionAmountMoC: 0.00012, // (bproxsToRedeem * REDEEM_BTCX_FEES_MOC = 0.00012)
+            mocAmount: '999.29077'  // mocAmount - commissionAmountMoC - commissionMintBpro (0.7) - commissionMintDoc (0.009) - commissionMintBprox (0.00011)
+          }
+        },
+        {
+          // Redeeming limited by max available to redeem.
+          params: {
+            docsToMint: 50000,
+            bproxsToRedeem: 50,
+            commissionRate: 0,
+            bproxToMint: 5,
+            bproToMint: 100,
+            mocAmount: 1000
+          },
+          expect: {
+            bproxsToRedeem: 5,
+            bproxsToRedeemOnRBTC: 5,
+            commissionAddressBalance: 0,
+            commissionsOnRBTC: 0,
+            commissionAmountMoC: 0.0006, // (bproxsToRedeem * REDEEM_BTCX_FEES_MOC = 0.00012)
+            mocAmount: '999.25385'  // mocAmount - commissionAmountMoC - commissionMintBpro (0.7) - commissionMintDoc (0.045) - commissionMintBprox (0.00055)
+          }
+        }
       ];
 
       scenarios.forEach(async scenario => {
@@ -110,7 +147,7 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
               scenario.params.mocAmount === 0
                 ? await mocHelper.mocInrate.MINT_BTCX_FEES_RBTC()
                 : await mocHelper.mocInrate.MINT_BTCX_FEES_MOC();
-            await mocHelper.mintBProAmount(owner, scenario.params.bproToMint, txTypeMintBPro);
+            await mocHelper.mintBProAmount(userAccount, scenario.params.bproToMint, txTypeMintBPro);
             await mocHelper.mintDocAmount(userAccount, scenario.params.docsToMint, txTypeMintDoc);
             await mocHelper.mintBProxAmount(userAccount, BUCKET_X2, scenario.params.bproxToMint, txTypeMintBtcx);
 
