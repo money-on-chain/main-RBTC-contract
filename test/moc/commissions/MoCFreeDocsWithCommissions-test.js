@@ -1,3 +1,4 @@
+const { BigNumber } = require('bignumber.js');
 const testHelperBuilder = require('../../mocHelper.js');
 
 let mocHelper;
@@ -20,7 +21,6 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
     this.mocConnector = mocHelper.mocConnector;
   });
 
-  // TODO: fix values/test
   describe('Free Doc redeem with commissions and without interests', function() {
     describe('Redeem free docs', function() {
       const scenarios = [
@@ -78,9 +78,8 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
             docsToRedeem: 100,
             docsToRedeemOnRBTC: 0.01,
             commissionAddressBalance: 0,
-            commissionAmountMoC: 0.01, // docsToRedeem * REDEEM_DOC_FEES_MOC = 0.0001
-            mocAmount: 999.29 // mocAmount - (docsToRedeem * MINT_BPRO_FEES_MOC) = 1000 - 0.7 = 999.3
-            // => 999.3 - (docsToRedeem * REDEEM_DOC_FEES_MOC)
+            commissionAmountMoC: 0.000001, // (docsToRedeem / mocPrice) * REDEEM_DOC_FEES_MOC = 0.0001
+            mocAmount: '999.992099' // mocAmount - commissionAmountMoC - commissionMintBpro (0.007) - commissionMintDoc (0.0009)
           }
         },
         {
@@ -97,9 +96,8 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
             docsToRedeem: 500,
             docsToRedeemOnRBTC: 0.05,
             commissionAddressBalance: 0,
-            commissionAmountMoC: 0.05, // docsToRedeem * REDEEM_DOC_FEES_MOC = 0.0001
-            mocAmount: 999.25 // mocAmount - (docsToRedeem * MINT_BPRO_FEES_MOC) = 1000 - 0.7 = 999.3
-            // => 999.3 - (docsToRedeem * REDEEM_DOC_FEES_MOC)
+            commissionAmountMoC: 0.000005, // (docsToRedeem / mocPrice) * REDEEM_DOC_FEES_MOC = 0.0001
+            mocAmount: 999.992545 // mocAmount - commissionAmountMoC - commissionMintBpro (0.007) - commissionMintDoc (0.00045)
           }
         }
       ];
@@ -158,7 +156,7 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
             );
             usedGas = await mocHelper.getTxCost(redeemTx);
           });
-          describe(`WHEN ${scenario.params.docsToMint} doc are redeeming`, function() {
+          describe(`WHEN ${scenario.params.docsToRedeem} doc are redeeming`, function() {
             it(`THEN the user has ${scenario.expect.docsToRedeemOnRBTC} more rbtc`, async function() {
               const userBtcBalance = toContractBN(await web3.eth.getBalance(userAccount));
               const diff = userBtcBalance.sub(prevUserBtcBalance).add(usedGas);
@@ -188,10 +186,21 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
             });
             it(`THEN the user MoC balance has decreased by ${scenario.expect.commissionAmountMoC} MoCs by commissions`, async function() {
               const userMoCBalance = await mocHelper.getMoCBalance(userAccount);
-              const diffAmount = toContractBN(prevUserMoCBalance).sub(
-                toContractBN(scenario.expect.commissionAmountMoC.toString())
-              );
+              // const diffAmount = new BigNumber(prevUserMoCBalance).minus(
+              //   new BigNumber(scenario.expect.commissionAmountMoC.toString())
+              // );
+              const commissionWithPrecision = scenario.expect.commissionAmountMoC * mocHelper.MOC_PRECISION;
               const diffCommission = prevUserMoCBalance.sub(userMoCBalance);
+              const diffAmount = prevUserMoCBalance.sub(
+                toContractBN(commissionWithPrecision.toString())
+              );
+
+              console.log("comm am tocontractbn: ", toContractBN(scenario.expect.commissionAmountMoC.toString()).toString());
+              console.log("comm am: ", scenario.expect.commissionAmountMoC.toString());
+              //console.log("comm am BigNumber", new BigNumber(scenario.expect.commissionAmountMoC.toString()));
+              console.log(scenario.expect.commissionAmountMoC * mocHelper.MOC_PRECISION);
+              console.log("toconbn com prec: ", toContractBN(commissionWithPrecision.toString()));
+              console.log("com prec tosting: ", commissionWithPrecision.toString());
 
               console.log(
                 'mocHelper.mocInrate.REDEEM_DOC_FEES_MOC(): ',
@@ -241,7 +250,7 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
       });
     });
 
-    describe('GIVEN since there is no allowance to pay comission in MoC', function() {
+    describe.only('GIVEN since there is no allowance to pay comission in MoC', function() {
       it('WHEN a user tries to redeem DoC with no MoC allowance, THEN commission is paid in RBTC', async function() {
         const mocAmountToMint = 1000;
         const mocAmountToApprove = 0;
@@ -263,7 +272,7 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
         mocHelper.assertBigRBTC(diffRbtc, rbtcExpectedBalance, 'user RBTC balance is incorrect');
       });
     });
-    describe('GIVEN since the user does not have MoC, but there is MoC allowance AND RBTC balance', function() {
+    describe.only('GIVEN since the user does not have MoC, but there is MoC allowance AND RBTC balance', function() {
       it('WHEN a user tries to redeem DoC with MoC allowance, THEN commission is paid in RBTC', async function() {
         const accounts = await web3.eth.getAccounts();
         const otherAddress = accounts[1];
@@ -335,7 +344,7 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
         );
       });
     });
-    describe('GIVEN since the user does not have MoC nor DoC balance, but there is MoC allowance', function() {
+    describe.only('GIVEN since the user does not have MoC nor DoC balance, but there is MoC allowance', function() {
       it('WHEN a user tries to redeem DoC, THEN expect exception', async function() {
         const password = '!@superpassword';
         const failingAddress = await web3.eth.personal.newAccount(password);
@@ -355,7 +364,7 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
         }
       });
     });
-    describe('GIVEN since the address of the MoCToken is 0x0', function() {
+    describe.only('GIVEN since the address of the MoCToken is 0x0', function() {
       it('WHEN a user tries to redeem DoC, THEN commission is paid in RBTC', async function() {
         const accounts = await web3.eth.getAccounts();
         const otherAddress = accounts[1];
