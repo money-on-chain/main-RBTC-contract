@@ -82,7 +82,7 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
             commissionAddressBalance: 0,
             commissionsOnRBTC: 0,
             commissionAmountMoC: 0.00012, // (bproxsToRedeem * REDEEM_BTCX_FEES_MOC = 0.00012)
-            mocAmount: '999.29077'  // mocAmount - commissionAmountMoC - commissionMintBpro (0.7) - commissionMintDoc (0.009) - commissionMintBprox (0.00011)
+            mocAmount: '999.29077' // mocAmount - commissionAmountMoC - commissionMintBpro (0.7) - commissionMintDoc (0.009) - commissionMintBprox (0.00011)
           }
         },
         {
@@ -101,7 +101,7 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
             commissionAddressBalance: 0,
             commissionsOnRBTC: 0,
             commissionAmountMoC: 0.0006, // (bproxsToRedeem * REDEEM_BTCX_FEES_MOC = 0.00012)
-            mocAmount: '999.25385'  // mocAmount - commissionAmountMoC - commissionMintBpro (0.7) - commissionMintDoc (0.045) - commissionMintBprox (0.00055)
+            mocAmount: '999.25385' // mocAmount - commissionAmountMoC - commissionMintBpro (0.7) - commissionMintDoc (0.045) - commissionMintBprox (0.00055)
           }
         }
       ];
@@ -141,15 +141,20 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
                 : await mocHelper.mocInrate.MINT_BPRO_FEES_MOC();
             const txTypeMintDoc =
               scenario.params.mocAmount === 0
-                  ? await mocHelper.mocInrate.MINT_DOC_FEES_RBTC()
-                  : await mocHelper.mocInrate.MINT_DOC_FEES_MOC();
+                ? await mocHelper.mocInrate.MINT_DOC_FEES_RBTC()
+                : await mocHelper.mocInrate.MINT_DOC_FEES_MOC();
             const txTypeMintBtcx =
               scenario.params.mocAmount === 0
                 ? await mocHelper.mocInrate.MINT_BTCX_FEES_RBTC()
                 : await mocHelper.mocInrate.MINT_BTCX_FEES_MOC();
             await mocHelper.mintBProAmount(userAccount, scenario.params.bproToMint, txTypeMintBPro);
             await mocHelper.mintDocAmount(userAccount, scenario.params.docsToMint, txTypeMintDoc);
-            await mocHelper.mintBProxAmount(userAccount, BUCKET_X2, scenario.params.bproxToMint, txTypeMintBtcx);
+            await mocHelper.mintBProxAmount(
+              userAccount,
+              BUCKET_X2,
+              scenario.params.bproxToMint,
+              txTypeMintBtcx
+            );
 
             // Calculate balances before redeeming
             prevUserBtcBalance = toContractBN(await web3.eth.getBalance(userAccount));
@@ -220,7 +225,9 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
               );
             });
             it(`THEN the commissions account MoC balance has increased by ${scenario.expect.commissionAmountMoC} MoCs`, async function() {
-              const commissionsAccountMoCBalance = await mocHelper.getMoCBalance(commissionsAccount);
+              const commissionsAccountMoCBalance = await mocHelper.getMoCBalance(
+                commissionsAccount
+              );
               const diff = commissionsAccountMoCBalance.sub(prevCommissionsAccountMoCBalance);
 
               mocHelper.assertBigRBTC(
@@ -285,7 +292,12 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
 
         const txType = await mocHelper.mocInrate.MINT_BTCX_FEES_RBTC();
         // Mint
-        const mintBprox = await mocHelper.mintBProxAmount(otherAddress, BUCKET_X2, mintAmount, txType);
+        const mintBprox = await mocHelper.mintBProxAmount(
+          otherAddress,
+          BUCKET_X2,
+          mintAmount,
+          txType
+        );
         const redeemBprox = await this.moc.redeemBProx(
           BUCKET_X2,
           toContractBN(redeemAmount * mocHelper.RESERVE_PRECISION),
@@ -383,7 +395,12 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
 
         const txType = await mocHelper.mocInrate.MINT_BTCX_FEES_RBTC();
         // Mint
-        const mintBprox = await mocHelper.mintBProxAmount(otherAddress, BUCKET_X2, mintAmount, txType);
+        const mintBprox = await mocHelper.mintBProxAmount(
+          otherAddress,
+          BUCKET_X2,
+          mintAmount,
+          txType
+        );
         const redeemBprox = await this.moc.redeemBProx(
           BUCKET_X2,
           toContractBN(redeemAmount * mocHelper.RESERVE_PRECISION),

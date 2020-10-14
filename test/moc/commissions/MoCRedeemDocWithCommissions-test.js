@@ -19,7 +19,6 @@ contract('MoC: Doc Redeem on Settlement with commissions', function([
     let prevUserBtcBalance;
 
     before(async function() {
-
       // Commission rates are set in contractsBuilder.js
 
       // set commissions address
@@ -31,8 +30,12 @@ contract('MoC: Doc Redeem on Settlement with commissions', function([
       const txTypeMintDoc = await mocHelper.mocInrate.MINT_DOC_FEES_RBTC();
 
       const usersAccounts = accounts.slice(0, 3);
-      await Promise.all(usersAccounts.map(account => mocHelper.mintBProAmount(account, 1000, txTypeMintBpro)));
-      await Promise.all(usersAccounts.map(account => mocHelper.mintDocAmount(account, 10, txTypeMintDoc)));
+      await Promise.all(
+        usersAccounts.map(account => mocHelper.mintBProAmount(account, 1000, txTypeMintBpro))
+      );
+      await Promise.all(
+        usersAccounts.map(account => mocHelper.mintDocAmount(account, 10, txTypeMintDoc))
+      );
       await Promise.all(
         usersAccounts.map(account =>
           this.moc.redeemDocRequest(toContractBN(10 * mocHelper.MOC_PRECISION), {

@@ -1,5 +1,5 @@
-const testHelperBuilder = require('../../mocHelper.js');
 const { expectRevert } = require('openzeppelin-test-helpers');
+const testHelperBuilder = require('../../mocHelper.js');
 
 let mocHelper;
 let toContractBN;
@@ -22,7 +22,7 @@ contract('MoC : MoCExchange', function([owner, userAccount, commissionsAccount])
   });
 
   beforeEach(async function() {
-    console.log("REVERTING STATE");
+    console.log('REVERTING STATE');
     await mocHelper.revertState();
 
     // Commission rates are set in contractsBuilder.js
@@ -46,7 +46,7 @@ contract('MoC : MoCExchange', function([owner, userAccount, commissionsAccount])
           nBtc: '5',
           totalCostOnBtc: '5.025',
           commission: {
-            nBtc: '0.025'  // (nBProx * MINT_BTCX_FEES_RBTC = 0.005)
+            nBtc: '0.025' // (nBProx * MINT_BTCX_FEES_RBTC = 0.005)
           },
           commissionAmountMoC: 0,
           mocAmount: 0
@@ -62,7 +62,7 @@ contract('MoC : MoCExchange', function([owner, userAccount, commissionsAccount])
           nBtc: '8',
           totalCostOnBtc: '8.04',
           commission: {
-            nBtc: '0.04'  // (nBProx * MINT_BTCX_FEES_RBTC = 0.005)
+            nBtc: '0.04' // (nBProx * MINT_BTCX_FEES_RBTC = 0.005)
           },
           commissionAmountMoC: 0,
           mocAmount: 0
@@ -104,7 +104,6 @@ contract('MoC : MoCExchange', function([owner, userAccount, commissionsAccount])
     ];
 
     describe('GIVEN the user have 18 BPro and 8000 DOCs and no interest is charged', function() {
-
       scenarios.forEach(async s => {
         describe(`WHEN a user sends BTC to mint ${s.params.nBProx} Bprox`, function() {
           let initialCommissionAccountBalance;
@@ -115,11 +114,7 @@ contract('MoC : MoCExchange', function([owner, userAccount, commissionsAccount])
 
           beforeEach(async function() {
             await mocHelper.mintMoCToken(userAccount, s.params.mocAmount, owner);
-            await mocHelper.approveMoCToken(
-              mocHelper.moc.address,
-              s.params.mocAmount,
-              userAccount
-            );
+            await mocHelper.approveMoCToken(mocHelper.moc.address, s.params.mocAmount, userAccount);
 
             await this.mocState.setDaysToSettlement(toContractBN(0, 'DAY'));
             // Mint according to scenario
@@ -128,9 +123,9 @@ contract('MoC : MoCExchange', function([owner, userAccount, commissionsAccount])
                 ? await mocHelper.mocInrate.MINT_BPRO_FEES_RBTC()
                 : await mocHelper.mocInrate.MINT_BPRO_FEES_MOC();
             const txTypeMintDoc =
-                s.params.mocAmount === 0
-                  ? await mocHelper.mocInrate.MINT_DOC_FEES_RBTC()
-                  : await mocHelper.mocInrate.MINT_DOC_FEES_MOC();
+              s.params.mocAmount === 0
+                ? await mocHelper.mocInrate.MINT_DOC_FEES_RBTC()
+                : await mocHelper.mocInrate.MINT_DOC_FEES_MOC();
             await mocHelper.mintBProAmount(userAccount, 18, txTypeMintBPro);
             await mocHelper.mintDocAmount(userAccount, 80000, txTypeMintDoc);
 
@@ -147,11 +142,16 @@ contract('MoC : MoCExchange', function([owner, userAccount, commissionsAccount])
 
             // Set transaction type according to scenario
             const txType =
-            s.params.mocAmount === 0
-              ? await mocHelper.mocInrate.MINT_BTCX_FEES_RBTC()
-              : await mocHelper.mocInrate.MINT_BTCX_FEES_MOC();
+              s.params.mocAmount === 0
+                ? await mocHelper.mocInrate.MINT_BTCX_FEES_RBTC()
+                : await mocHelper.mocInrate.MINT_BTCX_FEES_MOC();
 
-            const tx = await mocHelper.mintBProxAmount(userAccount, BUCKET_X2, s.params.nBProx, txType);
+            const tx = await mocHelper.mintBProxAmount(
+              userAccount,
+              BUCKET_X2,
+              s.params.nBProx,
+              txType
+            );
             txCost = toContractBN(await mocHelper.getTxCost(tx));
 
             // console.log("txTypeMintBPro: ", txTypeMintBPro.toString());
@@ -214,7 +214,7 @@ contract('MoC : MoCExchange', function([owner, userAccount, commissionsAccount])
       it('WHEN a user tries to mint BProx with 10 RBTCs and does not send to pay commission', async function() {
         const txType = await mocHelper.mocInrate.MINT_BTCX_FEES_RBTC();
         const mint = await mocHelper.mintBProx(userAccount, BUCKET_X2, 10, 10);
-        //await expectRevert.unspecified(mint);
+        // await expectRevert.unspecified(mint);
       });
     });
     // TODO: check if it should revert
@@ -224,7 +224,7 @@ contract('MoC : MoCExchange', function([owner, userAccount, commissionsAccount])
         // DO NOT approve MoC token on purpose
         const txType = await mocHelper.mocInrate.MINT_BTCX_FEES_MOC();
         const mint = await mocHelper.mintBProx(userAccount, BUCKET_X2, 10);
-        //await expectRevert.unspecified(mint);
+        // await expectRevert.unspecified(mint);
       });
     });
     // TODO: fix this test ---> rtbc balances
@@ -250,9 +250,9 @@ contract('MoC : MoCExchange', function([owner, userAccount, commissionsAccount])
 
         const txType = await mocHelper.mocInrate.MINT_BTCX_FEES_RBTC();
         // Mint
-        //const mint = await mocHelper.mintBProxAmount(otherAddress, mintAmount, txType);
+        // const mint = await mocHelper.mintBProxAmount(otherAddress, mintAmount, txType);
         const mint = await mocHelper.mintBProxAmount(otherAddress, BUCKET_X2, mintAmount, txType);
-        //const mint = await mocHelper.mintBProx(otherAddress, BUCKET_X2, mintAmo);
+        // const mint = await mocHelper.mintBProx(otherAddress, BUCKET_X2, mintAmo);
         const usedGas = toContractBN(await mocHelper.getTxCost(mint));
 
         const userMoCBalanceOtherAddress = await mocHelper.getMoCBalance(otherAddress);
@@ -271,18 +271,24 @@ contract('MoC : MoCExchange', function([owner, userAccount, commissionsAccount])
           .sub(userBtcBalanceOtherAccount)
           .sub(usedGas);
 
-        console.log("prevUserBtcBalanceOtherAddress: ", prevUserBtcBalanceOtherAddress.toString());
-        console.log("userBtcBalanceOtherAccount: ", userBtcBalanceOtherAccount.toString());
-        console.log("prevCommissionsAccountBtcBalance: ", prevCommissionsAccountBtcBalance.toString());
-        console.log("commissionsAccountBtcBalance: ", commissionsAccountBtcBalance.toString());
-        console.log("usedGas: ", usedGas.toString());
-        console.log("diffRbtcAmount: ", diffRbtcAmount.toString());
-        console.log("diffRbtcCommission: ", diffRbtcCommission.toString());
-        //console.log("mocHelper.mocInrate.MINT_BTCX_FEES_MOC(): ", (await mocHelper.mocInrate.MINT_BTCX_FEES_MOC()).toString());
-        //console.log("mocHelper.mocInrate.commissionRatesByTxType(11): ", (await mocHelper.mocInrate.commissionRatesByTxType(11)).toString());
-        console.log("mocHelper.mocInrate.calcComissionValue(): ", (await mocHelper.mocInrate.calcCommissionValue('1000000000000000000',5)).toString());
-        console.log("prevUserMoCBalanceOtherAddress: ", prevUserMoCBalanceOtherAddress.toString());
-        console.log("userMoCBalanceOtherAddress: ", userMoCBalanceOtherAddress.toString());
+        console.log('prevUserBtcBalanceOtherAddress: ', prevUserBtcBalanceOtherAddress.toString());
+        console.log('userBtcBalanceOtherAccount: ', userBtcBalanceOtherAccount.toString());
+        console.log(
+          'prevCommissionsAccountBtcBalance: ',
+          prevCommissionsAccountBtcBalance.toString()
+        );
+        console.log('commissionsAccountBtcBalance: ', commissionsAccountBtcBalance.toString());
+        console.log('usedGas: ', usedGas.toString());
+        console.log('diffRbtcAmount: ', diffRbtcAmount.toString());
+        console.log('diffRbtcCommission: ', diffRbtcCommission.toString());
+        // console.log("mocHelper.mocInrate.MINT_BTCX_FEES_MOC(): ", (await mocHelper.mocInrate.MINT_BTCX_FEES_MOC()).toString());
+        // console.log("mocHelper.mocInrate.commissionRatesByTxType(11): ", (await mocHelper.mocInrate.commissionRatesByTxType(11)).toString());
+        console.log(
+          'mocHelper.mocInrate.calcComissionValue(): ',
+          (await mocHelper.mocInrate.calcCommissionValue('1000000000000000000', 5)).toString()
+        );
+        console.log('prevUserMoCBalanceOtherAddress: ', prevUserMoCBalanceOtherAddress.toString());
+        console.log('userMoCBalanceOtherAddress: ', userMoCBalanceOtherAddress.toString());
 
         mocHelper.assertBigRBTC(diffMoCAmount, expectedMoCAmount, 'user MoC balance is incorrect');
         mocHelper.assertBigRBTC(
@@ -374,18 +380,24 @@ contract('MoC : MoCExchange', function([owner, userAccount, commissionsAccount])
         // Set MoCToken address back to its original address
         await this.mocConnector.setMoCToken(mocTokenAddress);
 
-        console.log("prevUserBtcBalanceOtherAddress: ", prevUserBtcBalanceOtherAddress.toString());
-        console.log("userBtcBalanceOtherAccount: ", userBtcBalanceOtherAccount.toString());
-        console.log("prevCommissionsAccountBtcBalance: ", prevCommissionsAccountBtcBalance.toString());
-        console.log("commissionsAccountBtcBalance: ", commissionsAccountBtcBalance.toString());
-        console.log("usedGas: ", usedGas.toString());
-        console.log("diffRbtcAmount: ", diffRbtcAmount.toString());
-        console.log("diffRbtcCommission: ", diffRbtcCommission.toString());
-        //console.log("mocHelper.mocInrate.MINT_BTCX_FEES_MOC(): ", (await mocHelper.mocInrate.MINT_BTCX_FEES_MOC()).toString());
-        //console.log("mocHelper.mocInrate.commissionRatesByTxType(11): ", (await mocHelper.mocInrate.commissionRatesByTxType(11)).toString());
-        console.log("mocHelper.mocInrate.calcComissionValue(): ", (await mocHelper.mocInrate.calcCommissionValue('1000000000000000000',5)).toString());
-        console.log("prevUserMoCBalanceOtherAddress: ", prevUserMoCBalanceOtherAddress.toString());
-        console.log("userMoCBalanceOtherAddress: ", userMoCBalanceOtherAddress.toString());
+        console.log('prevUserBtcBalanceOtherAddress: ', prevUserBtcBalanceOtherAddress.toString());
+        console.log('userBtcBalanceOtherAccount: ', userBtcBalanceOtherAccount.toString());
+        console.log(
+          'prevCommissionsAccountBtcBalance: ',
+          prevCommissionsAccountBtcBalance.toString()
+        );
+        console.log('commissionsAccountBtcBalance: ', commissionsAccountBtcBalance.toString());
+        console.log('usedGas: ', usedGas.toString());
+        console.log('diffRbtcAmount: ', diffRbtcAmount.toString());
+        console.log('diffRbtcCommission: ', diffRbtcCommission.toString());
+        // console.log("mocHelper.mocInrate.MINT_BTCX_FEES_MOC(): ", (await mocHelper.mocInrate.MINT_BTCX_FEES_MOC()).toString());
+        // console.log("mocHelper.mocInrate.commissionRatesByTxType(11): ", (await mocHelper.mocInrate.commissionRatesByTxType(11)).toString());
+        console.log(
+          'mocHelper.mocInrate.calcComissionValue(): ',
+          (await mocHelper.mocInrate.calcCommissionValue('1000000000000000000', 5)).toString()
+        );
+        console.log('prevUserMoCBalanceOtherAddress: ', prevUserMoCBalanceOtherAddress.toString());
+        console.log('userMoCBalanceOtherAddress: ', userMoCBalanceOtherAddress.toString());
 
         mocHelper.assertBigRBTC(diffMoCAmount, expectedMoCAmount, 'user MoC balance is incorrect');
         mocHelper.assertBigRBTC(

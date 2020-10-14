@@ -6,7 +6,9 @@ let splitterPrecision;
 let toContractBN;
 
 const executeOperations = (user, operations) => {
-  const promises = operations.map(async op => mocHelper.mintBProAmount(user, op.reserve, await mocHelper.mocInrate.MINT_BPRO_FEES_RBTC()));
+  const promises = operations.map(async op =>
+    mocHelper.mintBProAmount(user, op.reserve, await mocHelper.mocInrate.MINT_BPRO_FEES_RBTC())
+  );
 
   return Promise.all(promises);
 };

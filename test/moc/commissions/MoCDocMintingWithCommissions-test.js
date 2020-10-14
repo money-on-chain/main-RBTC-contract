@@ -255,9 +255,12 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
             new BN(prevCommissionsAccountMoCBalance)
           );
 
-          console.log("prevCommissionsAccountMoCBalance: ", prevCommissionsAccountMoCBalance.toString());
-          console.log("commissionsAccountMoCBalance: ", commissionsAccountMoCBalance.toString());
-          console.log("diff: ", diff.toString());
+          console.log(
+            'prevCommissionsAccountMoCBalance: ',
+            prevCommissionsAccountMoCBalance.toString()
+          );
+          console.log('commissionsAccountMoCBalance: ', commissionsAccountMoCBalance.toString());
+          console.log('diff: ', diff.toString());
 
           mocHelper.assertBig(
             diff.toString(),
@@ -290,7 +293,7 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
         // DO NOT approve MoC token on purpose
         const txType = await mocHelper.mocInrate.MINT_DOC_FEES_MOC();
         const mint = mocHelper.mintDoc(userAccount, 10, txType);
-        //await expectRevert.unspecified(mint);
+        // await expectRevert.unspecified(mint);
       });
     });
     describe('GIVEN since the user does not have MoC, but there is MoC allowance AND RBTC balance', function() {
@@ -334,9 +337,9 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
           .sub(userBtcBalanceOtherAccount)
           .sub(usedGas);
 
-        console.log("prevUserBtcBalanceOtherAddress: ", prevUserBtcBalanceOtherAddress.toString());
-        console.log("userBtcBalanceOtherAccount: ", userBtcBalanceOtherAccount.toString());
-        console.log("diffRbtcAmount: ", diffRbtcAmount.toString());
+        console.log('prevUserBtcBalanceOtherAddress: ', prevUserBtcBalanceOtherAddress.toString());
+        console.log('userBtcBalanceOtherAccount: ', userBtcBalanceOtherAccount.toString());
+        console.log('diffRbtcAmount: ', diffRbtcAmount.toString());
 
         mocHelper.assertBigRBTC(diffMoCAmount, expectedMoCAmount, 'user MoC balance is incorrect');
         mocHelper.assertBigRBTC(
