@@ -18,7 +18,7 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
     this.mocConnector = mocHelper.mocConnector;
   });
 
-  describe.only('Doc minting paying Commissions', function() {
+  describe('Doc minting paying Commissions', function() {
     beforeEach(async function() {
       await mocHelper.revertState();
 
@@ -554,13 +554,11 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
               it('AND User MoC Balance decreases by the correct amount of MoCs', async function() {
                 const userMoCBalance = await mocHelper.getMoCBalance(userAccount);
                 const diff = new BN(prev.userMoCBalance)
-                  .sub(new BN(userMoCBalance))
-                  //.sub(new BN(txCost));
+                  .sub(new BN(userMoCBalance));
                 const totalSpent = payComissionAmount;
 
                 console.log("prev.userMoCBalance: ", prev.userMoCBalance.toString());
                 console.log("userMoCBalance: ", userMoCBalance.toString());
-                //console.log("txCost: ", txCost.toString());
                 console.log("totalSpent: ", totalSpent.toString());
 
                 mocHelper.assertBig(
