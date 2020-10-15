@@ -116,26 +116,28 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
     onlyWhitelisted(msg.sender)
     returns (uint256, uint256, uint256)
   {
+    RiskProMintStruct memory details;
+
     uint256 bproRegularPrice = mocState.bproTecPrice();
-    uint256 finalBProAmount = 0;
+    details.finalBProAmount = 0;
     uint256 btcValue = 0;
 
     if (mocState.state() == MoCState.States.BProDiscount) {
       uint256 discountPrice = mocState.bproDiscountPrice();
       uint256 bproDiscountAmount = mocConverter.btcToBProDisc(btcAmount);
 
-      finalBProAmount = Math.min(
+      details.finalBProAmount = Math.min(
         bproDiscountAmount,
         mocState.maxBProWithDiscount()
       );
-      btcValue = finalBProAmount == bproDiscountAmount
+      btcValue = details.finalBProAmount == bproDiscountAmount
         ? btcAmount
-        : mocConverter.bproDiscToBtc(finalBProAmount);
+        : mocConverter.bproDiscToBtc(details.finalBProAmount);
 
       emit RiskProWithDiscountMint(
         bproRegularPrice,
         discountPrice,
-        finalBProAmount
+        details.finalBProAmount
       );
     }
 
@@ -143,7 +145,7 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
       uint256 regularBProAmount = mocConverter.btcToBPro(
         btcAmount.sub(btcValue)
       );
-      finalBProAmount = finalBProAmount.add(regularBProAmount);
+      details.finalBProAmount = details.finalBProAmount.add(regularBProAmount);
     }
 
     // START Upgrade V017
@@ -151,12 +153,12 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
     // Only enter with no discount state
     if (mocState.state() != MoCState.States.BProDiscount) {
       uint256 availableBPro = Math.min(
-        finalBProAmount,
+        details.finalBProAmount,
         mocState.maxMintBProAvalaible()
       );
-      if (availableBPro != finalBProAmount) {
+      if (availableBPro != details.finalBProAmount) {
         btcAmount = mocConverter.bproToBtc(availableBPro);
-        finalBProAmount = availableBPro;
+        details.finalBProAmount = availableBPro;
 
         if (btcAmount <= 0) {
           return (0, 0, 0);
@@ -167,21 +169,21 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
 
     /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
     // Check commission rate in MoC according to transaction type
-    uint256 mocCommissionInBtc = mocInrate.calcCommissionValue(btcAmount, mocInrate.MINT_BPRO_FEES_MOC());
+    details.mocCommissionInBtc = mocInrate.calcCommissionValue(btcAmount, mocInrate.MINT_BPRO_FEES_MOC());
 
-    uint256 btcCommission = 0;
+    details.btcCommission = 0;
 
     // Check if there is enough balance of MoC
-    if (mocBalance < mocCommissionInBtc || mocAllowance < mocCommissionInBtc) {
+    if (mocBalance < details.mocCommissionInBtc || mocAllowance < details.mocCommissionInBtc) {
       // Insufficient funds
-      mocCommissionInBtc = 0;
+      details.mocCommissionInBtc = 0;
       // Check commission rate in RBTC according to transaction type
-      btcCommission = mocInrate.calcCommissionValue(btcAmount, mocInrate.MINT_BPRO_FEES_RBTC());
+      details.btcCommission = mocInrate.calcCommissionValue(btcAmount, mocInrate.MINT_BPRO_FEES_RBTC());
     }
 
-    mintBPro(account, btcCommission, finalBProAmount, btcAmount, mocCommissionInBtc);
+    uint256 mocCommission = mintBPro(account, details.btcCommission, details.finalBProAmount, btcAmount, details.mocCommissionInBtc);
 
-    return (btcAmount, btcCommission, mocCommissionInBtc);
+    return (btcAmount, details.btcCommission, details.mocCommission);
     /** END UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
   }
 
@@ -249,7 +251,7 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
       mocPrice
     );
 
-    return (details.btcTotalWithoutCommission, details.btcCommission, details.mocCommissionInBtc);
+    return (details.btcTotalWithoutCommission, details.btcCommission, details.mocCommission);
   }
 
   /**
@@ -317,7 +319,7 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
         mocPrice
       );
 
-      return (details.finalBtcAmount.sub(details.btcCommission), details.btcCommission, details.mocCommissionInBtc);
+      return (details.finalBtcAmount.sub(details.btcCommission), details.btcCommission, details.mocCommission);
     }
   }
 
@@ -380,7 +382,7 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
         mocPrice
       );
 
-      return (totalCost, btcCommission, mocCommissionInBtc);
+      return (totalCost, btcCommission, mocCommission);
     }
 
     return (0, 0, 0);
@@ -471,7 +473,8 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
     uint256 bproAmount,
     uint256 rbtcValue,
     uint256 mocCommissionInBtc
-  ) public onlyWhitelisted(msg.sender) {
+  ) public onlyWhitelisted(msg.sender) 
+    returns (uint256) {
     bproToken.mint(account, bproAmount);
     bproxManager.addValuesToBucket(BUCKET_C0, rbtcValue, 0, bproAmount);
 
@@ -490,6 +493,8 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
       mocCommission,
       mocPrice
     );
+
+    return mocCommission;
   }
 
   /**
@@ -568,7 +573,7 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
         mocPrice
       );
 
-      return (details.finalBtcToMint.add(details.btcInterestAmount), details.btcCommission, details.mocCommissionInBtc);
+      return (details.finalBtcToMint.add(details.btcInterestAmount), details.btcCommission, details.mocCommission);
     }
 
     return (0, 0, 0);
@@ -683,7 +688,7 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
       mocPrice
     );
 
-    return (details.btcTotalWithoutCommission.add(details.rbtcInterests), details.btcCommission, details.mocCommissionInBtc);
+    return (details.btcTotalWithoutCommission.add(details.rbtcInterests), details.btcCommission, details.mocCommission);
   }
 
   /**
@@ -847,6 +852,13 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
     uint256 finalBtcAmount;
     uint256 btcCommission;
     uint256 btcInterestAmount;
+    uint256 mocCommission;
+    uint256 mocCommissionInBtc;
+  }
+
+  struct RiskProMintStruct{
+    uint256 finalBProAmount;
+    uint256 btcCommission;
     uint256 mocCommission;
     uint256 mocCommissionInBtc;
   }
