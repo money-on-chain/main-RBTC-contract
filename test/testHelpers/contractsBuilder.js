@@ -155,19 +155,19 @@ const initializeCommissionRatesArray = async (moc, mocInrate) => {
     },
     {
       txType: (await mocInrate.REDEEM_DOC_FEES_MOC()).toString(),
-      fee: BigNumber(0.0001)
+      fee: BigNumber(0.01)
         .times(mocPrecision)
         .toString()
     },
     {
       txType: (await mocInrate.MINT_BTCX_FEES_MOC()).toString(),
-      fee: BigNumber(0.00011)
+      fee: BigNumber(0.011)
         .times(mocPrecision)
         .toString()
     },
     {
       txType: (await mocInrate.REDEEM_BTCX_FEES_MOC()).toString(),
-      fee: BigNumber(0.00012)
+      fee: BigNumber(0.012)
         .times(mocPrecision)
         .toString()
     }
