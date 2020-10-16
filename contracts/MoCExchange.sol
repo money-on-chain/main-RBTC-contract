@@ -453,7 +453,15 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
     // If send fails we don't burn the tokens
     if (moc.sendToAddress(destination, totalRbtc)) {
       docToken.burn(origin, userDocBalance);
-      emit StableTokenRedeem(origin, userDocBalance, totalRbtc, 0, liqPrice, 0, 0);
+      emit StableTokenRedeem(
+        origin,
+        userDocBalance,
+        totalRbtc,
+        0,
+        liqPrice,
+        0,
+        0
+      );
 
       return totalRbtc;
     } else {
@@ -473,7 +481,7 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
     uint256 bproAmount,
     uint256 rbtcValue,
     uint256 mocCommissionInBtc
-  ) public onlyWhitelisted(msg.sender) 
+  ) public onlyWhitelisted(msg.sender)
     returns (uint256) {
     bproToken.mint(account, bproAmount);
     bproxManager.addValuesToBucket(BUCKET_C0, rbtcValue, 0, bproAmount);
