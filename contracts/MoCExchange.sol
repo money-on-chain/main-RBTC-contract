@@ -181,7 +181,7 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
       details.btcCommission = mocInrate.calcCommissionValue(btcAmount, mocInrate.MINT_BPRO_FEES_RBTC());
     }
 
-    uint256 mocCommission = mintBPro(account, details.btcCommission, details.finalBProAmount, btcAmount, details.mocCommissionInBtc);
+    details.mocCommission = mintBPro(account, details.btcCommission, details.finalBProAmount, btcAmount, details.mocCommissionInBtc);
 
     return (btcAmount, details.btcCommission, details.mocCommission);
     /** END UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
