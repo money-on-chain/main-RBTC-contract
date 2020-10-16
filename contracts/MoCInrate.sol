@@ -43,8 +43,10 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
 
   // Target addres to transfer commissions of mint/redeem
   address payable public commissionsAddress;
+  /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
+  /** DEPRECATED **/
   // commissionRate [using mocPrecision]
-  uint256 public commissionRate;
+  uint256 public DEPRECATED_commissionRate;
 
   /**CONTRACTS**/
   MoCState internal mocState;
@@ -101,30 +103,6 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
 
   /** END UPDATE V017: 01/11/2019 **/
 
-
-  /** Upgrade to support multiple commission rates: 18/09/2020 **/
-
-  uint8 public constant MINT_BPRO_FEES_RBTC = 1;
-  uint8 public constant REDEEM_BPRO_FEES_RBTC = 2;
-  uint8 public constant MINT_DOC_FEES_RBTC = 3;
-  uint8 public constant REDEEM_DOC_FEES_RBTC = 4;
-  uint8 public constant MINT_BTCX_FEES_RBTC = 5;
-  uint8 public constant REDEEM_BTCX_FEES_RBTC = 6;
-  uint8 public constant MINT_BPRO_FEES_MOC = 7;
-  uint8 public constant REDEEM_BPRO_FEES_MOC = 8;
-  uint8 public constant MINT_DOC_FEES_MOC = 9;
-  uint8 public constant REDEEM_DOC_FEES_MOC = 10;
-  uint8 public constant MINT_BTCX_FEES_MOC = 11;
-  uint8 public constant REDEEM_BTCX_FEES_MOC = 12;
-
-  mapping(uint8 => uint256) public commissionRatesByTxType;
-
-  function setCommissionRateByTxType(uint8 txType, uint256 value) public onlyAuthorizedChanger() {
-      commissionRatesByTxType[txType] = value;
-  }
-
-  /** End Upgrade: 18/09/2020 **/
-
   function initialize(
     address connectorAddress,
     address _governor,
@@ -135,7 +113,7 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
     uint256 blockSpanBitPro,
     address payable bitProInterestTargetAddress,
     address payable commissionsAddressTarget,
-    uint256 commissionRateParam,
+    //uint256 commissionRateParam,
     uint256 _docTmin,
     uint256 _docPower,
     uint256 _docTmax
@@ -150,7 +128,7 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
       btcxTmax,
       _bitProRate,
       commissionsAddressTarget,
-      commissionRateParam,
+      //commissionRateParam,
       blockSpanBitPro,
       bitProInterestTargetAddress,
       _docTmin,
@@ -223,9 +201,9 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
     return bitProRate;
   }
 
-  function getCommissionRate() public view returns(uint256) {
-    return commissionRate;
-  }
+  // function getCommissionRate() public view returns(uint256) {
+  //   return commissionRate;
+  // }
 
    /**
     @dev Sets BitPro Holders rate
@@ -267,13 +245,13 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
     commissionsAddress = newCommissionsAddress;
   }
 
-   /**
-    @dev Sets the commission rate for Mint/Redeem transactions
-    @param newCommissionRate New commission rate
-   */
-  function setCommissionRate(uint256 newCommissionRate) public onlyAuthorizedChanger() {
-    commissionRate = newCommissionRate;
-  }
+  //  /**
+  //   @dev Sets the commission rate for Mint/Redeem transactions
+  //   @param newCommissionRate New commission rate
+  //  */
+  // function setCommissionRate(uint256 newCommissionRate) public onlyAuthorizedChanger() {
+  //   commissionRate = newCommissionRate;
+  // }
 
   /**
     @dev Calculates interest rate for BProx Minting, redeem and Free Doc Redeem
@@ -370,13 +348,17 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
   }
 
   /**
-    @dev calculates the Commission rate from the passed RBTC amount for mint/redeem operations
+    @dev calculates the Commission rate from the passed RBTC amount and the transaction type for mint/redeem operations
     @param rbtcAmount Total value from which apply the Commission rate [using reservePrecision]
+    @param txType Transaction type according to constant values defined in this contract
     @return finalCommissionAmount [using reservePrecision]
   */
-  function calcCommissionValue(uint256 rbtcAmount)
+  function calcCommissionValue(uint256 rbtcAmount, uint8 txType)
   public view returns(uint256) {
-    uint256 finalCommissionAmount = rbtcAmount.mul(commissionRate).div(mocLibConfig.mocPrecision);
+    // Validate txType
+    require (txType > 0, "Invalid transaction type 'txType'");
+
+    uint256 finalCommissionAmount = rbtcAmount.mul(commissionRatesByTxType[txType]).div(mocLibConfig.mocPrecision);
     return finalCommissionAmount;
   }
 
@@ -568,7 +550,7 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
     uint256 btcxMax,
     uint256 _bitProRate,
     address payable commissionsAddressTarget,
-    uint256 commissionRateParam,
+    //uint256 commissionRateParam,
     uint256 blockSpanBitPro,
     address payable bitProInterestsTarget,
     uint256 _docTmin,
@@ -582,12 +564,40 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
     bitProRate = _bitProRate;
     bitProInterestAddress = bitProInterestsTarget;
     bitProInterestBlockSpan = blockSpanBitPro;
-    commissionRate = commissionRateParam;
+    //commissionRate = commissionRateParam;
     commissionsAddress = commissionsAddressTarget;
     docTmin = _docTmin;
     docPower = _docPower;
     docTmax = _docTmax;
   }
+
+  /************************************/
+  /***** UPGRADE v0110      ***********/
+  /************************************/
+
+  /** START UPDATE V0110: 24/09/2020  **/
+  /** Upgrade to support multiple commission rates **/
+
+  uint8 public constant MINT_BPRO_FEES_RBTC = 1;
+  uint8 public constant REDEEM_BPRO_FEES_RBTC = 2;
+  uint8 public constant MINT_DOC_FEES_RBTC = 3;
+  uint8 public constant REDEEM_DOC_FEES_RBTC = 4;
+  uint8 public constant MINT_BTCX_FEES_RBTC = 5;
+  uint8 public constant REDEEM_BTCX_FEES_RBTC = 6;
+  uint8 public constant MINT_BPRO_FEES_MOC = 7;
+  uint8 public constant REDEEM_BPRO_FEES_MOC = 8;
+  uint8 public constant MINT_DOC_FEES_MOC = 9;
+  uint8 public constant REDEEM_DOC_FEES_MOC = 10;
+  uint8 public constant MINT_BTCX_FEES_MOC = 11;
+  uint8 public constant REDEEM_BTCX_FEES_MOC = 12;
+
+  mapping(uint8 => uint256) public commissionRatesByTxType;
+
+  function setCommissionRateByTxType(uint8 txType, uint256 value) public onlyAuthorizedChanger() {
+    commissionRatesByTxType[txType] = value;
+  }
+
+  /** END UPDATE V0110: 24/09/2020 **/
 
   // Leave a gap betweeen inherited contracts variables in order to be
   // able to add more variables in them later

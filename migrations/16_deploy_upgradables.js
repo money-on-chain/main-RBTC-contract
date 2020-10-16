@@ -15,7 +15,7 @@ module.exports = async (deployer, currentNetwork, [owner]) => {
     owner,
     deployer
   );
-  const index = 10;
+  const index = 9;
   if (utils.isDevelopment(currentNetwork))
     await deployUpgradable(MoCSettlementMock, MoCStateMock, index);
   else await deployUpgradable(MoCSettlement, MoCState, index);

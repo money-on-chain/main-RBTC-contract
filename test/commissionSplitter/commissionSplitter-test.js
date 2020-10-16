@@ -6,7 +6,9 @@ let splitterPrecision;
 let toContractBN;
 
 const executeOperations = (user, operations) => {
-  const promises = operations.map(async op => mocHelper.mintBProAmount(user, op.reserve));
+  const promises = operations.map(async op =>
+    mocHelper.mintBProAmount(user, op.reserve, await mocHelper.mocInrate.MINT_BPRO_FEES_RBTC())
+  );
 
   return Promise.all(promises);
 };
@@ -30,7 +32,7 @@ contract('CommissionSplitter', function([owner, userAccount, commissionsAccount]
           }
         ],
         proportion: 0,
-        commissionAmount: 2,
+        commissionAmount: 1,
         mocAmount: 0
       },
       {
@@ -44,7 +46,7 @@ contract('CommissionSplitter', function([owner, userAccount, commissionsAccount]
         ],
         proportion: 1,
         commissionAmount: 0,
-        mocAmount: 6.666
+        mocAmount: 3.333
       },
       {
         mintOperations: [
@@ -59,8 +61,8 @@ contract('CommissionSplitter', function([owner, userAccount, commissionsAccount]
           }
         ],
         proportion: 0.5,
-        commissionAmount: 1.5,
-        mocAmount: 1.5
+        commissionAmount: 0.75,
+        mocAmount: 0.75
       }
     ];
 
@@ -70,8 +72,9 @@ contract('CommissionSplitter', function([owner, userAccount, commissionsAccount]
           await mocHelper.revertState();
           // deploying Commission splitter
           splitterPrecision = await commissionSplitter.PRECISION();
-          // set commissions rate
-          await mocHelper.mockMocInrateChanger.setCommissionRate(toContractBN(0.002, 'RAT'));
+
+          // Commission rates are set in contractsBuilder.js
+
           // set commissions address
           await mocHelper.mockMocInrateChanger.setCommissionsAddress(commissionSplitter.address);
           // update params

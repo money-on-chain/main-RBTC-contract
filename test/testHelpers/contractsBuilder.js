@@ -1,5 +1,6 @@
 const { TestHelper } = require('zos');
 const { Contracts, ZWeb3 } = require('zos-lib');
+const BigNumber = require('bignumber.js');
 
 ZWeb3.initialize(web3.currentProvider);
 
@@ -12,6 +13,7 @@ const MoCConverter = artifacts.require('./contracts/MoCConverter.sol');
 const MoCExchange = artifacts.require('./contracts/MoCExchange.sol');
 const MoCInrate = artifacts.require('./contracts/MoCInrate.sol');
 const MoCSettlementMock = artifacts.require('./contracts/mocks/MoCSettlementMock.sol');
+const MoCPriceProviderMock = artifacts.require('./contracts/mocks/MoCPriceProviderMock.sol');
 
 const BPro = artifacts.require('./contracts/BProToken.sol');
 const BProxManager = artifacts.require('./contracts/MoCBProxManager.sol');
@@ -50,10 +52,13 @@ const StopperProxy = Contracts.getFromLocal('Stopper');
 const CommissionSplitterProxy = Contracts.getFromLocal('CommissionSplitter');
 const RevertingOnSend = artifacts.require('./contracts/test-contracts/RevertingOnSend.sol');
 
+const MoCToken = artifacts.require('./contracts/MoCToken.sol');
+
 const { toContract } = require('../../utils/numberHelper');
 
 const baseParams = {
   btcPrice: toContract(10000 * 10 ** 18), // mocPrecision
+  mocPrice: toContract(10000 * 10 ** 18), // mocPrecision
   smoothingFactor: toContract(0.01653 * 10 ** 18), // coefficientPrecision
   c0Cobj: toContract(3 * 10 ** 18), // mocPrecision
   x2Cobj: toContract(2 * 10 ** 18), // mocPrecision
@@ -68,7 +73,7 @@ const baseParams = {
   btcxPower: toContract(1),
   bitProRate: toContract(0.000047945 * 10 ** 18), // mocPrecision -- weekly 0.0025 / 365 * 7
   emaBlockSpan: toContract(40),
-  commissionRate: toContract(0 * 10 ** 18), // mocPrecision
+  // commissionRate: toContract(0 * 10 ** 18), // mocPrecision
   peg: toContract(1),
 
   maxMintBPro: toContract(5000 * 10 ** 18),
@@ -91,11 +96,91 @@ const transferPausingRole = async (token, address) => {
   await token.renouncePauser();
 };
 
+const initializeCommissionRatesArray = async (moc, mocInrate) => {
+  const mocPrecision = 10 ** 18; // mocPrecision
+  const ret = [
+    {
+      txType: (await mocInrate.MINT_BPRO_FEES_RBTC()).toString(),
+      fee: BigNumber(0.001)
+        .times(mocPrecision)
+        .toString()
+    },
+    {
+      txType: (await mocInrate.REDEEM_BPRO_FEES_RBTC()).toString(),
+      fee: BigNumber(0.002)
+        .times(mocPrecision)
+        .toString()
+    },
+    {
+      txType: (await mocInrate.MINT_DOC_FEES_RBTC()).toString(),
+      fee: BigNumber(0.003)
+        .times(mocPrecision)
+        .toString()
+    },
+    {
+      txType: (await mocInrate.REDEEM_DOC_FEES_RBTC()).toString(),
+      fee: BigNumber(0.004)
+        .times(mocPrecision)
+        .toString()
+    },
+    {
+      txType: (await mocInrate.MINT_BTCX_FEES_RBTC()).toString(),
+      fee: BigNumber(0.005)
+        .times(mocPrecision)
+        .toString()
+    },
+    {
+      txType: (await mocInrate.REDEEM_BTCX_FEES_RBTC()).toString(),
+      fee: BigNumber(0.006)
+        .times(mocPrecision)
+        .toString()
+    },
+    {
+      txType: (await mocInrate.MINT_BPRO_FEES_MOC()).toString(),
+      fee: BigNumber(0.007)
+        .times(mocPrecision)
+        .toString()
+    },
+    {
+      txType: (await mocInrate.REDEEM_BPRO_FEES_MOC()).toString(),
+      fee: BigNumber(0.008)
+        .times(mocPrecision)
+        .toString()
+    },
+    {
+      txType: (await mocInrate.MINT_DOC_FEES_MOC()).toString(),
+      fee: BigNumber(0.009)
+        .times(mocPrecision)
+        .toString()
+    },
+    {
+      txType: (await mocInrate.REDEEM_DOC_FEES_MOC()).toString(),
+      fee: BigNumber(0.01)
+        .times(mocPrecision)
+        .toString()
+    },
+    {
+      txType: (await mocInrate.MINT_BTCX_FEES_MOC()).toString(),
+      fee: BigNumber(0.011)
+        .times(mocPrecision)
+        .toString()
+    },
+    {
+      txType: (await mocInrate.REDEEM_BTCX_FEES_MOC()).toString(),
+      fee: BigNumber(0.012)
+        .times(mocPrecision)
+        .toString()
+    }
+  ];
+  return ret;
+};
+
 const createContracts = params => async ({ owner, useMock }) => {
   const project = await TestHelper();
 
   const {
     btcPrice,
+    mocPrice,
     smoothingFactor,
     c0Cobj,
     x2Cobj,
@@ -109,7 +194,7 @@ const createContracts = params => async ({ owner, useMock }) => {
     btcxTmax,
     emaBlockSpan,
     bitProRate,
-    commissionRate,
+    // commissionRate,
     peg,
     maxMintBPro,
     docTmin,
@@ -128,6 +213,8 @@ const createContracts = params => async ({ owner, useMock }) => {
   const bpro = await BPro.new({ from: owner });
   const doc = await DoC.new({ from: owner });
   const btcPriceProvider = await BtcPriceProviderMock.new(btcPrice);
+  const mocToken = await MoCToken.new({ from: owner });
+  const mocPriceProvider = await MoCPriceProviderMock.new(mocPrice);
 
   // Upgradeable
   const mocSettlementProxy = await project.createProxy(settlementContractProxy);
@@ -170,6 +257,7 @@ const createContracts = params => async ({ owner, useMock }) => {
     smoothingFactor,
     emaBlockSpan,
     maxMintBPro,
+    mocPriceProvider.address,
     { from: owner }
   );
   const mockMocInrateChanger = await MocInrateChanger.new(
@@ -179,10 +267,11 @@ const createContracts = params => async ({ owner, useMock }) => {
     btcxTmax,
     btcxPower,
     bitProRate,
-    commissionRate,
+    // commissionRate,
     docTmin,
     docTmax,
     docPower,
+    await initializeCommissionRatesArray(moc, mocInrate),
     { from: owner }
   );
   const mockMoCSettlementChanger = await MoCSettlementChanger.new(
@@ -219,7 +308,8 @@ const createContracts = params => async ({ owner, useMock }) => {
     mocConverter.address,
     mocExchange.address,
     mocInrate.address,
-    mocBurnout.address
+    mocBurnout.address,
+    mocToken.address
   );
   await mocConverter.initialize(mocConnector.address);
   await moc.initialize(mocConnector.address, governor.address, stopper.address, startStoppable);
@@ -236,7 +326,8 @@ const createContracts = params => async ({ owner, useMock }) => {
     btcPrice,
     smoothingFactor,
     emaBlockSpan,
-    maxMintBPro
+    maxMintBPro,
+    mocPriceProvider.address
   );
   await mocInrate.initialize(
     mocConnector.address,
@@ -248,7 +339,7 @@ const createContracts = params => async ({ owner, useMock }) => {
     dayBlockSpan * 7,
     owner,
     owner,
-    commissionRate,
+    // commissionRate,
     docTmin,
     docPower,
     docTmax
@@ -306,7 +397,8 @@ const createContracts = params => async ({ owner, useMock }) => {
     mockMocChanger,
     mockMoCStallSettlementChanger,
     mockMoCRestartSettlementChanger,
-    revertingContract
+    revertingContract,
+    mocToken
   };
 };
 

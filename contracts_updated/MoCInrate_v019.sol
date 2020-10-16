@@ -7,12 +7,12 @@ import "./MoCBProxManager.sol";
 import "./MoCConverter.sol";
 import "./base/MoCBase.sol";
 
-contract MoCInrateEventsCommFees {
+contract MoCInrateEvents_v019 {
   event InrateDailyPay(uint256 amount, uint256 daysToSettlement, uint256 nReserveBucketC0);
   event RiskProHoldersInterestPay(uint256 amount, uint256 nReserveBucketC0BeforePay);
 }
 
-contract MoCInrateStructsCommFees {
+contract MoCInrateStructs_v019 {
   struct InrateParams {
     uint256 tMax;
     uint256 tMin;
@@ -27,7 +27,7 @@ contract MoCInrateStructsCommFees {
 }
 
 
-contract MoCInrateCommFees is MoCInrateEventsCommFees, MoCInrateStructsCommFees, MoCBase, MoCLibConnection, Governed {
+contract MoCInrate_v019 is MoCInrateEvents_v019, MoCInrateStructs_v019, MoCBase, MoCLibConnection, Governed {
   using SafeMath for uint256;
 
   // Last block when a payment was executed
@@ -47,7 +47,7 @@ contract MoCInrateCommFees is MoCInrateEventsCommFees, MoCInrateStructsCommFees,
   uint256 public commissionRate;
 
   /**CONTRACTS**/
-  MoCState internal mocState;
+  MoCState_v019 internal mocState;
   MoCConverter internal mocConverter;
   MoCBProxManager internal bproxManager;
 
@@ -100,30 +100,6 @@ contract MoCInrateCommFees is MoCInrateEventsCommFees, MoCInrateStructsCommFees,
   }
 
   /** END UPDATE V017: 01/11/2019 **/
-
-
-  /** Upgrade to support multiple commission rates: 18/09/2020 **/
-
-  uint8 public constant MINT_BPRO_FEES_RBTC = 1;
-  uint8 public constant REDEEM_BPRO_FEES_RBTC = 2;
-  uint8 public constant MINT_DOC_FEES_RBTC = 3;
-  uint8 public constant REDEEM_DOC_FEES_RBTC = 4;
-  uint8 public constant MINT_BTCX_FEES_RBTC = 5;
-  uint8 public constant REDEEM_BTCX_FEES_RBTC = 6;
-  uint8 public constant MINT_BPRO_FEES_MOC = 7;
-  uint8 public constant REDEEM_BPRO_FEES_MOC = 8;
-  uint8 public constant MINT_DOC_FEES_MOC = 9;
-  uint8 public constant REDEEM_DOC_FEES_MOC = 10;
-  uint8 public constant MINT_BTCX_FEES_MOC = 11;
-  uint8 public constant REDEEM_BTCX_FEES_MOC = 12;
-
-  mapping(uint8 => uint256) public commissionRatesByTxType;
-
-  function setCommissionRateByTxType(uint8 txType, uint256 value) public onlyAuthorizedChanger() {
-      commissionRatesByTxType[txType] = value;
-  }
-
-  /** End Upgrade: 18/09/2020 **/
 
   function initialize(
     address connectorAddress,
@@ -323,7 +299,7 @@ contract MoCInrateCommFees is MoCInrateEventsCommFees, MoCInrateStructsCommFees,
 
   /**
     @dev Extract the inrate from the passed RBTC value for Bprox minting operation
-    @param bucket Bucket to use to calculate interés
+    @param bucket Bucket to use to calculate inter�s
     @param rbtcAmount Total value from which extract the interest rate [using reservePrecision]
     @return RBTC to pay in concept of interests [using reservePrecision]
   */
@@ -374,12 +350,9 @@ contract MoCInrateCommFees is MoCInrateEventsCommFees, MoCInrateStructsCommFees,
     @param rbtcAmount Total value from which apply the Commission rate [using reservePrecision]
     @return finalCommissionAmount [using reservePrecision]
   */
-  function calcCommissionValue(uint256 rbtcAmount, uint8 txType)
+  function calcCommissionValue(uint256 rbtcAmount)
   public view returns(uint256) {
-    // Validate txType
-    require (txType > 0, "Invalid transaction type 'txType'");
-
-    uint256 finalCommissionAmount = rbtcAmount.mul(commissionRatesByTxType[txType]).div(mocLibConfig.mocPrecision);
+    uint256 finalCommissionAmount = rbtcAmount.mul(commissionRate).div(mocLibConfig.mocPrecision);
     return finalCommissionAmount;
   }
 
@@ -549,7 +522,7 @@ contract MoCInrateCommFees is MoCInrateEventsCommFees, MoCInrateStructsCommFees,
    */
   function initializeContracts() internal {
     bproxManager = MoCBProxManager(connector.bproxManager());
-    mocState = MoCState(connector.mocState());
+    mocState = MoCState_v019(_connector.mocState());
     mocConverter = MoCConverter(connector.mocConverter());
   }
 
@@ -595,4 +568,4 @@ contract MoCInrateCommFees is MoCInrateEventsCommFees, MoCInrateStructsCommFees,
   // Leave a gap betweeen inherited contracts variables in order to be
   // able to add more variables in them later
   uint256[50] private upgradeGap;
-}
+} 

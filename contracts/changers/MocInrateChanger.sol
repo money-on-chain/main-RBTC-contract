@@ -1,24 +1,45 @@
 pragma solidity 0.5.8;
+pragma experimental ABIEncoderV2;
+
 import "../MoCInrate.sol";
 import "moc-governance/contracts/Governance/ChangeContract.sol";
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
+
 /**
  * @dev This contract is used to update the configuration of MocInrate v017
  * with MoC --- governance.
  */
-contract MocInrateChanger is ChangeContract, Ownable{
+contract MocInrateChanger is ChangeContract, Ownable {
   MoCInrate private mocInrate;
   uint256 public bitProInterestBlockSpan;
   uint256 public btxcTmin;
   uint256 public btxcTmax;
   uint256 public btxcPower;
   uint256 public newBitProRate;
-  uint256 public newCommissionRate;
+  /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
+  /** DEPRECATED **/
+  uint256 public DEPRECATED_newCommissionRate;
   address payable public newBitProInterestAddress;
   address payable public newCommissionsAddress;
   uint256 public docTmin;
   uint256 public docTmax;
   uint256 public docPower;
+
+  /************************************/
+  /***** UPGRADE v0110      ***********/
+  /************************************/
+
+  /** START UPDATE V0110: 24/09/2020  **/
+  /** Upgrade to support multiple commission rates **/
+
+  CommissionRates[] public commissionRates;
+
+  struct CommissionRates {
+    uint8 txType;
+    uint256 fee;
+  }
+
+  /** END UPDATE V0110: 24/09/2020 **/
 
   constructor(
     MoCInrate _mocInrate,
@@ -27,10 +48,11 @@ contract MocInrateChanger is ChangeContract, Ownable{
     uint256 _btxcTmax,
     uint256 _btxcPower,
     uint256 _newBProRate,
-    uint256 _newComRate,
+    //uint256 _newComRate,
     uint256 _docTmin,
     uint256 _docTmax,
-    uint256 _docPower
+    uint256 _docPower,
+    CommissionRates[] memory _commissionRates
   ) public {
     mocInrate = _mocInrate;
     bitProInterestBlockSpan = _bProIntBlockSpan;
@@ -38,10 +60,14 @@ contract MocInrateChanger is ChangeContract, Ownable{
     btxcTmax = _btxcTmax;
     btxcPower = _btxcPower;
     newBitProRate = _newBProRate;
-    newCommissionRate = _newComRate;
+    //newCommissionRate = _newComRate;
     docTmin = _docTmin;
     docTmax = _docTmax;
     docPower = _docPower;
+
+    for (uint256 i = 0; i < _commissionRates.length; i++){
+      commissionRates.push(_commissionRates[i]);
+    }
   }
 
   function execute() external {
@@ -58,11 +84,14 @@ contract MocInrateChanger is ChangeContract, Ownable{
       mocInrate.setBitProInterestAddress(newBitProInterestAddress);
     }
 
-    mocInrate.setCommissionRate(newCommissionRate);
+    //mocInrate.setCommissionRate(newCommissionRate);
 
     mocInrate.setDoCTmin(docTmin);
     mocInrate.setDoCTmax(docTmax);
     mocInrate.setDoCPower(docPower);
+
+    /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
+    initializeCommissionRates();
   }
 
   function setBitProInterestBlockSpan(uint256 _bitProInterestBlockSpan) public onlyOwner(){
@@ -93,9 +122,9 @@ contract MocInrateChanger is ChangeContract, Ownable{
     newCommissionsAddress = _newCommissionsAddress;
   }
 
-  function setCommissionRate(uint256 _newCommissionRate) public onlyOwner(){
-    newCommissionRate = _newCommissionRate;
-  }
+  // function setCommissionRate(uint256 _newCommissionRate) public onlyOwner(){
+  //   newCommissionRate = _newCommissionRate;
+  // }
 
   function setDoCTmin(uint256 _docTmin) public onlyOwner(){
     docTmin = _docTmin;
@@ -109,4 +138,21 @@ contract MocInrateChanger is ChangeContract, Ownable{
     docPower = _docPower;
   }
 
+  /**
+    @dev initializes the commission rate fees by transaction type to use in the MoCInrate contract
+  */
+  function initializeCommissionRates() internal {
+    require(commissionRates.length > 0, "commissionRates cannot be empty");
+
+    for (uint256 i = 0; i < commissionRates.length; i++) {
+      mocInrate.setCommissionRateByTxType(commissionRates[i].txType, commissionRates[i].fee);
+    }
+  }
+
+  /**
+    @dev returns the commission rate fees array length
+  */
+  function commissionRatesLength() public view returns (uint256) {
+    return commissionRates.length;
+  }
 }
