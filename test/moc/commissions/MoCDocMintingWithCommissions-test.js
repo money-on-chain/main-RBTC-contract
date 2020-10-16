@@ -263,9 +263,8 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
         });
       });
     });
-    // TODO: check if it should revert
     describe('GIVEN since the user sends not enough amount to pay comission', function() {
-      it('WHEN a user tries to mint DOCs with 1 RBTCs and does not send to pay commission', async function() {
+      it('WHEN a user tries to mint DOCs with 1 RBTCs and does not send to pay commission, THEN expect revert', async function() {
         await mocHelper.mintBProAmount(
           userAccount,
           10,
@@ -276,12 +275,11 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
           1,
           await mocHelper.mocInrate.MINT_DOC_FEES_RBTC()
         );
-        //await expectRevert.unspecified(mintDoc);
+        await expectRevert.unspecified(mintDoc);
       });
     });
-    // TODO: check if it should revert
     describe('GIVEN since there is no allowance to pay comission in MoC', function() {
-      it('WHEN a user tries to mint DoC with no MoC allowance, THEN ??? expect revert', async function() {
+      it('WHEN a user tries to mint DoC with no MoC allowance, THEN expect revert', async function() {
         await mocHelper.mintMoCToken(userAccount, 1000, owner);
         // DO NOT approve MoC token on purpose
         await mocHelper.mintBProAmount(
@@ -294,7 +292,7 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
           1,
           await mocHelper.mocInrate.MINT_DOC_FEES_RBTC()
         );
-        // await expectRevert.unspecified(mintDoc);
+        await expectRevert.unspecified(mintDoc);
       });
     });
     describe('GIVEN since the user does not have MoC, but there is MoC allowance AND RBTC balance', function() {
