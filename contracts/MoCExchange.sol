@@ -174,7 +174,8 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
     details.btcCommission = 0;
 
     // Check if there is enough balance of MoC
-    if (mocBalance < details.mocCommissionInBtc || mocAllowance < details.mocCommissionInBtc) {
+    if ((mocBalance < details.mocCommissionInBtc || mocAllowance < details.mocCommissionInBtc) ||
+      (details.mocCommissionInBtc == 0)) {
       // Insufficient funds
       details.mocCommissionInBtc = 0;
       // Check commission rate in RBTC according to transaction type
@@ -214,7 +215,8 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
     details.btcCommission = 0;
 
     // Check if there is enough balance of MoC
-    if (mocBalance < details.mocCommissionInBtc || mocAllowance < details.mocCommissionInBtc) {
+    if ((mocBalance < details.mocCommissionInBtc || mocAllowance < details.mocCommissionInBtc) ||
+      (details.mocCommissionInBtc == 0)) {
       // Insufficient funds
       details.mocCommissionInBtc = 0;
       // Check commission rate in RBTC according to transaction type
@@ -291,7 +293,8 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
       details.btcCommission = 0;
 
       // Check if there is enough balance of MoC
-      if (mocBalance < details.mocCommissionInBtc || mocAllowance < details.mocCommissionInBtc) {
+      if ((mocBalance < details.mocCommissionInBtc || mocAllowance < details.mocCommissionInBtc) ||
+        (details.mocCommissionInBtc == 0)) {
         // Insufficient funds
         details.mocCommissionInBtc = 0;
         // Check commission rate in RBTC according to transaction type
@@ -357,7 +360,8 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
       uint256 btcCommission = 0;
 
       // Check if there is enough balance of MoC
-      if (mocBalance < mocCommissionInBtc || mocAllowance < mocCommissionInBtc) {
+      if ((mocBalance < mocCommissionInBtc || mocAllowance < mocCommissionInBtc) ||
+        (mocCommissionInBtc == 0)) {
         // Insufficient funds
         mocCommissionInBtc = 0;
 
@@ -553,7 +557,8 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
       details.btcCommission = 0;
 
       // Check if there is enough balance of MoC
-      if (mocBalance < details.mocCommissionInBtc || mocAllowance < details.mocCommissionInBtc) {
+      if ((mocBalance < details.mocCommissionInBtc || mocAllowance < details.mocCommissionInBtc) ||
+        (details.mocCommissionInBtc == 0)) {
         // Insufficient funds
         details.mocCommissionInBtc = 0;
 
@@ -666,7 +671,8 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
     details.btcCommission = 0;
 
     // Check if there is enough balance of MoC
-    if (mocBalance < details.mocCommissionInBtc || mocAllowance < details.mocCommissionInBtc) {
+    if ((mocBalance < details.mocCommissionInBtc || mocAllowance < details.mocCommissionInBtc) ||
+      (details.mocCommissionInBtc == 0)) {
       // Insufficient funds
       details.mocCommissionInBtc = 0;
 
@@ -681,7 +687,7 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
     uint256 mocPrice = mocState.getMoCPrice();
 
     // Calculate amount in MoC
-    uint256 mocCommission = btcPrice.mul(details.mocCommissionInBtc).div(mocPrice);
+    details.mocCommission = btcPrice.mul(details.mocCommissionInBtc).div(mocPrice);
 
     emit RiskProxRedeem(
       bucket,
