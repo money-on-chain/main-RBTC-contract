@@ -351,6 +351,9 @@ const createContracts = params => async ({ owner, useMock }) => {
   await commissionSplitter.initialize(moc.address, owner, mocProportion, governor.address);
   await upgradeDelegator.initialize(governor.address, proxyAdmin.address);
 
+  // Execute changes in MoCInrate
+  await governor.executeChange(mockMocInrateChanger.address);
+
   // Transfer roles
   await transferOwnershipAndMinting(doc, mocExchange.address);
   await transferOwnershipAndMinting(bpro, mocExchange.address);

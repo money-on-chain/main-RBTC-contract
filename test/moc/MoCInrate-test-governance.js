@@ -6,8 +6,6 @@ const NOT_AUTHORIZED_CHANGER = 'not_authorized_changer';
 // eslint-disable-next-line quotes
 const INVALID_TXTYPE_ERROR = "Invalid transaction type 'txType'";
 
-// Commission rates are set in contractsBuilder.js
-
 const scenario = {
   btcxTmin: 4,
   btcxTmax: 7777777,
@@ -15,7 +13,7 @@ const scenario = {
   bitProInterestBlockSpan: 50 * 80 * 12,
   bitProRate: 78,
   rbtcAmount: 20,
-  commissionAmount: 4,
+  commissionAmount: 0.04,
   invalidTxType: 0,
   validTxType: 2,
   nonexistentTxType: 15,
@@ -30,8 +28,7 @@ contract('MoCInrate Governed', function([owner, account2]) {
     this.governor = mocHelper.governor;
     this.mockMocInrateChanger = mocHelper.mockMocInrateChanger;
 
-    // Execute change to initialize commission rates array
-    await this.governor.executeChange(this.mockMocInrateChanger.address);
+    // Commission rates are set in contractsBuilder.js
   });
 
   beforeEach(function() {
@@ -108,13 +105,13 @@ contract('MoCInrate Governed', function([owner, account2]) {
       });
     });
 
-    describe.only('GIVEN different transaction types and their fees to calculate commission rate (calcCommissionValue)', function() {
+    describe('GIVEN different transaction types and their fees to calculate commission rate (calcCommissionValue)', function() {
       it(`THEN transaction type ${scenario.invalidTxType} is invalid`, async function() {
         try {
-          const newCommisionRateInvalidTxType = toContractBN(await this.mocInrate.calcCommissionValue(
+          const newCommisionRateInvalidTxType = await this.mocInrate.calcCommissionValue(
             (scenario.rbtcAmount * mocHelper.MOC_PRECISION).toString(),
             scenario.invalidTxType
-          ));
+          );
           assert(newCommisionRateInvalidTxType === null, 'This should not happen');
         } catch (err) {
           assert(
@@ -124,23 +121,21 @@ contract('MoCInrate Governed', function([owner, account2]) {
         }
       });
       it(`THEN transaction type ${scenario.validTxType} is valid`, async function() {
-        const newCommisionRateValidTxType = toContractBN(await this.mocInrate.calcCommissionValue(
+        const newCommisionRateValidTxType = await this.mocInrate.calcCommissionValue(
           (scenario.rbtcAmount * mocHelper.MOC_PRECISION).toString(),
           scenario.validTxType.toString()
-        ));
-        console.log('scenario.validTxType: ', scenario.validTxType);
-        console.log('newCommisionRateValidTxType: ', newCommisionRateValidTxType.toString());
+        );
         mocHelper.assertBig(
-          web3.utils.fromWei(newCommisionRateValidTxType.toString()),
-          scenario.commissionAmount,
+          newCommisionRateValidTxType.toString(),
+          (scenario.commissionAmount * mocHelper.MOC_PRECISION).toString(),
           `final commission amount should be ${scenario.commissionAmount} ether`
         );
       });
       it(`THEN transaction type ${scenario.nonexistentTxType} is non-existent`, async function() {
-        const newCommisionRateNonExistentTxType = toContractBN(await this.mocInrate.calcCommissionValue(
+        const newCommisionRateNonExistentTxType = await this.mocInrate.calcCommissionValue(
           (scenario.rbtcAmount * mocHelper.MOC_PRECISION).toString(),
           scenario.nonexistentTxType
-        ));
+        );
         mocHelper.assertBig(
           newCommisionRateNonExistentTxType,
           scenario.commissionAmountZero,
@@ -149,26 +144,18 @@ contract('MoCInrate Governed', function([owner, account2]) {
       });
     });
 
-    describe.only('GIVEN different *valid* transaction types and their fees to calculate commission rate (calcCommissionValue)', function() {
+    describe('GIVEN different *valid* transaction types and their fees to calculate commission rate (calcCommissionValue)', function() {
       it('THEN the transaction types defined in the "commissionRates" array are valid', async function() {
         const commissionRatesArrayLength = await this.mockMocInrateChanger.commissionRatesLength();
-        console.log('length: ', commissionRatesArrayLength);
-
         // Iterate through array
         for (let i = 0; i < commissionRatesArrayLength; i++) {
           const commissionRate = await this.mockMocInrateChanger.commissionRates(i);
-          console.log('commissionRate ' + i + ': ' + commissionRate);
-          const newCommisionRateValidTxType = toContractBN(await this.mocInrate.calcCommissionValue(
+          const newCommisionRateValidTxType = await this.mocInrate.calcCommissionValue(
             (scenario.rbtcAmount * mocHelper.MOC_PRECISION).toString(),
             commissionRate.txType
-          ));
-          console.log('commissionRate.txType: ', commissionRate.txType.toString());
-          console.log('commissionRate.fee: ', commissionRate.fee.toString());
-          console.log('newCommisionRateValidTxType: ', newCommisionRateValidTxType.toString());
+          );
           // The fee from the commissionRatesArray is already converted to wei
           const testCommissionValue = scenario.rbtcAmount * commissionRate.fee;
-          console.log('testCommissionValue: ', testCommissionValue.toString());
-
           mocHelper.assertBig(
             newCommisionRateValidTxType.toString(),
             testCommissionValue.toString(),
