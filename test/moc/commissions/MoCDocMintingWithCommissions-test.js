@@ -270,7 +270,7 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
           10,
           await mocHelper.mocInrate.MINT_BPRO_FEES_RBTC()
         );
-        const mintDoc = mocHelper.mintDoc(
+        const mintDoc = await mocHelper.mintDoc(
           userAccount,
           1,
           await mocHelper.mocInrate.MINT_DOC_FEES_RBTC()
@@ -454,7 +454,7 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
       });
     });
 
-    describe('(MoC commission) GIVEN BTC price is 10000', function() {
+    describe.only('(MoC commission) GIVEN BTC price is 10000', function() {
       let payAmount;
       let payComissionAmount;
       const btcPrice = 10000;
@@ -501,7 +501,7 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
                 const tx = await mocHelper.mintDocAmount(
                   userAccount,
                   docAmount,
-                  await mocHelper.mocInrate.MINT_DOC_FEES_RBTC()
+                  await mocHelper.mocInrate.MINT_DOC_FEES_MOC()
                 );
                 const _payAmount = (docAmount * mocHelper.MOC_PRECISION) / btcPrice;
                 payAmount = toContractBN(_payAmount);
