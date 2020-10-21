@@ -44,6 +44,10 @@ const revertState = async () => {
       },
       (error, res) => {
         resolve(res.result);
+
+        if (error) {
+          reject(error);
+        }
       }
     )
   );

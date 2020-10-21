@@ -139,7 +139,7 @@ const mintDocAmount = (moc, btcPriceProvider, mocInrate) => async (account, docs
   const mocPrecision = await moc.getMocPrecision();
   const formattedAmount = toBigNumber(docsToMint).times(mocPrecision);
   const btcPrice = await getBitcoinPrice(btcPriceProvider)();
-  const btcTotal = formattedAmount.div(btcPrice).times(reservePrecision);
+  const btcTotal = formattedAmount.times(reservePrecision).div(btcPrice);
   // Sent more to pay commissions: if RBTC fees are used then get commission value,
   // otherwise commission is 0 RBTC
   const commissionRate = txType.eq(await mocInrate.MINT_DOC_FEES_RBTC())
@@ -153,6 +153,10 @@ const mintDocAmount = (moc, btcPriceProvider, mocInrate) => async (account, docs
           .div(mocPrecision)
       : 0;
   const value = toContract(btcTotal.plus(commissionRbtcAmount));
+  console.log("mint doc btctotal: ", btcTotal.toString());
+  console.log("mint doc commission rbtc: ", commissionRbtcAmount.toString());
+  console.log("mint doc value: ", value.toString());
+
 
   return moc.mintDoc(toContract(btcTotal), { from: account, value });
 };
