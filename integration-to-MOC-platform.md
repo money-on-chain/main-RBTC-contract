@@ -87,8 +87,8 @@ This means that most wallets like Nifty and MetaMask can handle them if you tell
 That BitPro is an _ERC20_ Token also means that any user that has already some tokens can trade them to you in exchange for a service or for another token.
 ​
 But in some circumstances you may not find such a user (maybe they are keeping the tokens to themselves ESTO ES OPCIONAL). In those cases, you may be happy to know that you can create them(or mint them, as it is usually said) using the Smart Contracts.
-​
-​## Minting BitPros
+
+## Minting BitPros
 
 In this tutorial the method (or function) that is of interest to us is `function mintBPro(uint256 btcToMint) public payable` As you can see this function is payable, this means that it is prepared to receive RBTCs.
 
@@ -433,7 +433,7 @@ A DOC, Dollar On Chain, is a bitcoin-collateralized stable-coin. Its value is pe
 
 That DOC is an _ERC20_ Token means that any user that has already some tokens can trade them to you in exchange for a service or for another token. You can find specific information about ERC-20 tokens [here](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-20.md).
 
-​## Minting DOCs
+## Minting DOCs
 
 DOC can only be minted in exchange for RBTC. Given an amount of RBTC paid to the contract, the system calculates the corresponding DOCs amount to mint, RBTC and DOC balances are added to the Money on Chain system and the new tokens are sent to the user.
 
@@ -924,8 +924,8 @@ There is a relation between DOCS and BTC2X. The more DOCs minted, the more BTC2X
 The BTC2X token does not implement an ERC20 interface and can not be traded freely because leveraged instruments cannot change owner. BTC2X are assigned to the user BTCX positions can be canceled any time though.
 
 The daily rate can be obtained invoking the `dailyInrate()` view of the **MocInrate** contract.
-​
-​## Minting BTC2X
+
+## Minting BTC2X
 
 BTC2X can only be minted in exchange for RBTC.
 
