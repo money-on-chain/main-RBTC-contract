@@ -12,6 +12,7 @@
 1.  [Getting BTC2X](#getting-btc2x)
     1.  [Minting BTC2X](#minting-btc2x)
     1.  [Redeeming BTC2X](#redeeming-btc2x)
+1.  [Commission fees values](#commission-fees-values)
 1.  [From outside the blockchain](#from-outside-of-the-blockchain)
     1.  [Using RSK nodes](#using-rsk-nodes)
     1.  [Using web3](#using-web3)
@@ -34,7 +35,7 @@ MoC system is a network of cooperative smart contracts working together to ultim
 
 - _MoC state Contracts_: They keep MoC state variables and logic (MoC, MoCState, MoCBucketContainer, MoCSettlement, MoCBurnout)
 - _MoC pure logic Contracts & Libraries_: Functional extensions of the above merely to have responsibility separation and contracts size (aka deploy fee) low. (MoCHelperLib, MoCLibConnection, MoCConverter, MoCExchange, MoCConnector, MoCBProxManager, MoCInrate, MoCWhitelist, MoCBase)
-- _Tokens_: Tokens backed by the system (OwnerBurnableToken, DocToken, BProToken)
+- _Tokens_: Tokens backed by the system (OwnerBurnableToken, DocToken, BProToken, MoCToken)
 - _External Dependencies_: External contracts the system relies on, in this case the Oracle or price provider; this could evolve independently of MoC system as along as the interface is maintained. (PriceProvider)
 
 Also you can read official information about [MoC architecture and Money on Chain's smart contracts](https://github.com/money-on-chain/main-RBTC-contract/blob/master/MOC.md)
@@ -86,8 +87,8 @@ This means that most wallets like Nifty and MetaMask can handle them if you tell
 That BitPro is an _ERC20_ Token also means that any user that has already some tokens can trade them to you in exchange for a service or for another token.
 ​
 But in some circumstances you may not find such a user (maybe they are keeping the tokens to themselves ESTO ES OPCIONAL). In those cases, you may be happy to know that you can create them(or mint them, as it is usually said) using the Smart Contracts.
-​
-​## Minting BitPros
+
+## Minting BitPros
 
 In this tutorial the method (or function) that is of interest to us is `function mintBPro(uint256 btcToMint) public payable` As you can see this function is payable, this means that it is prepared to receive RBTCs.
 
@@ -103,12 +104,14 @@ Maybe, depending on the state of the contract, a value lesser than btcToMint wil
 
 The amount sent in RBTCs to the contract can be considered as a parameter of the transaction, which is why it will be explained in this section. You have to take into consideration that it will be split in three.
 The first part will be used to mint some BitPro, the size of this part depends directly on the btcToMint, and, as explained in the previous section, it may be smaller than btcToMint.
-The second part will be used to pay the commission, this part is a percentage of the previous part. The exact percentage of it is set in the variable **commissionRate** of the **MocInrate** contract. The current value is 0.001 and can be consulted through the method `commissionRate()​` as this parameter is public(Note that this parameter when consulted through said method has also a precision of 18 decimals, i.e. a 1 \* 10^15 in that parameter means that 0.1% is being charged as a commission).
+
+The second part will be used to pay the commission, this part is a percentage of the previous part. The commission fees are explained in [this](#commission-fees-values) section.
+
 The third part is always returned, so if you have doubts of how much you should send, keep in mind that if you send too much RBTCs we will return everything that it is not used for commissions or minting.
-In conclusion the amount sent has to be at least the btcToMint plus the commission, the commission being btcToMint times the commission rate.
+In conclusion the amount sent has to be at least the btcToMint plus the commission (if paid in RBTC), the commission being btcToMint times the commission rate.
 
 ```
-btcSent (msg.value) >= btcToMint + btcToMint * commissionRate
+btcSent (msg.value) >= btcToMint + btcToMint * commissionRateInRbtc
 ```
 
 #### Gas limit and gas price
@@ -168,7 +171,6 @@ To deploy the contracts you can use
 
 ```
 npm run deploy-reset-development
-
 ```
 
 ​
@@ -188,14 +190,15 @@ Receive the address in the constructor in order to be able to interact with it l
 constructor (MoC _mocContract, MoCInrate _mocInrateContract, rest of your params...) {
 //....rest of your constructor....
 }
-​
 ```
 
 ​and, finally, when you receive a commission, exchange it for some BitPros
 ​
 
 ```js
-uint256 commissionOfMoC = mocInrate.calcCommissionValue(msg.value);
+uint8 transactionType = mocInrate.MINT_BPRO_FEES_RBTC(); // or mocInrate.MINT_BPRO_FEES_MOC();
+uint256 commissionOfMoC = mocInrate.calcCommissionValue(msg.value, transactionType);
+// If commission is paid in RBTC, substract it from value
 moc.mintBPro.value(msg.value)(msg.value-commissionOfMoC);
 ```
 
@@ -234,9 +237,11 @@ contract YourMintingBproContract {
     }
 ​
     function doTask() public payable {
+        //We set transaction type according to the way fees are paid
+        uint8 transactionType = mocInrate.MINT_BPRO_FEES_RBTC(); // or mocInrate.MINT_BPRO_FEES_MOC();
         //We compute the commision.
-​        uint256 commission = mocInrate.calcCommissionValue(msg.value);
-        //We compute the btcToMint.
+​        uint256 commission = mocInrate.calcCommissionValue(msg.value, transactionType);
+        //We compute the btcToMint. If commission is paid in RBTC, substract it from value
         uint256 btcToMint = msg.value - commission;
         // Mint some new BitPro
         moc.mintBPro.value(msg.value)(btcToMint);
@@ -246,8 +251,6 @@ contract YourMintingBproContract {
     }
     // rest of your contract
 }
-​
-​
 ```
 
 And that is it, the only thing left to do is to add in the [truffle migrations](https://www.trufflesuite.com/docs/truffle/getting-started/running-migrations) scripts the address to MoC and BPro when deploying YourContract and you are done.
@@ -277,7 +280,6 @@ The first part transforms the amount **bproAmount** into an RBTC amount, but 3 t
 ```
 userBalance = bproToken.balanceOf(user);
 userAmount  = Math.min(bproAmount, userBalance);
-
 ```
 
 - The userAmount must not exceed the absolute maximum amount of allowed BitPros. If this occurs then absoluteMaxBPro will be used to transform it to RBTC.
@@ -286,13 +288,13 @@ userAmount  = Math.min(bproAmount, userBalance);
 bproFinalAmount = Math.min(userAmount, absoluteMaxBPro);
 ```
 
-The second part will be used to pay the commission, this part is a percentage of the previous part. The exact percentage is established in the variable **commissionRate** of the contract **MocInrate**. The current value is 0.002 and can be queried through the `getCommissionRate()` function since this parameter is public (note that this parameter when queried through that method also has an accuracy of 18 decimal places, that is, a 2 \ \* 10 ^ 15 in that parameter means that 0.2% is charged as commission).
+The second part will be used to pay the commission, this part is a percentage of the previous part. The commission fees are explained in [this](#commission-fees-values) section.
 
 The third part returns the amount in RBTC discounting the previously calculated commissions.
 
 ```
 totalBtc = bproToBtc(bproFinalAmount);
-btcReceived = totalBtc - totalBtc * commissionRate
+btcReceived = totalBtc - totalBtc * commissionRateInRbtc
 ```
 
 #### Gas limit and gas price
@@ -342,7 +344,6 @@ To deploy the contracts you can use
 
 ```
 npm run deploy-reset-development
-
 ```
 
 ​
@@ -385,7 +386,6 @@ Receive the address in the constructor in order to be able to interact with it l
 constructor (MoC _mocContract, MoCInrate _mocInrateContract, rest of your params...) {
 //....rest of your constructor....
 }
-​
 ```
 
 You can send it immediately to you so you can start using it right away. In order to do this you should add a few more lines similar to the ones before, only that you will have to use the bpro token.
@@ -422,7 +422,6 @@ contract YourRedeemingBproContract {
     }
     // rest of your contract
 }​
-​
 ```
 
 And that is it, the only thing left to do is to add in the [truffle migrations](https://www.trufflesuite.com/docs/truffle/getting-started/running-migrations) scripts the address to MoC and BPro when deploying YourContract and you are done.
@@ -434,7 +433,7 @@ A DOC, Dollar On Chain, is a bitcoin-collateralized stable-coin. Its value is pe
 
 That DOC is an _ERC20_ Token means that any user that has already some tokens can trade them to you in exchange for a service or for another token. You can find specific information about ERC-20 tokens [here](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-20.md).
 
-​## Minting DOCs
+## Minting DOCs
 
 DOC can only be minted in exchange for RBTC. Given an amount of RBTC paid to the contract, the system calculates the corresponding DOCs amount to mint, RBTC and DOC balances are added to the Money on Chain system and the new tokens are sent to the user.
 
@@ -453,12 +452,12 @@ It could be the case, depending on the state of the contract, that a value less 
 The amount sent in RBTCs to the contract can be considered as a parameter of the transaction, this is why it will be explained in this section. You have to take into consideration, that will be split in three.
 
 - The first part will be used to mint some DOC, the size of this part depends directly on the **btcToMint**. For security reasons, the system allows to mint a maximum amount of DOCs that can be obtained by invoking the `absoluteMaxDoc()` function of the **MoCState** contract.
-- The second part will be used to pay the commission, this part is a percentage of the previous part. The exact percentage of it is set in the variable **commissionRate** of the **MocInrate** contract. The current value is 0.001 and can be consulted through the method `commissionRate()​` as this parameter is public(Note that this parameter when consulted through said method has also a precision of 18 decimals, i.e. a 1 \* 10^15 in that parameter means that 0.1% is being charged as a commission).
+- The second part will be used to pay the commission, this part is a percentage of the previous part. The commission fees are explained in [this](#commission-fees-values) section.
 - The third part is always returned, so if you have doubts of how much you should send, keep in mind that if you send too much RBTCs we will return everything that is not used for commissions or minting.
-  In conclusion the amount sent has to be at least the btcToMint plus the commission, the commission being btcToMint times the commission rate.
+  In conclusion the amount sent has to be at least the btcToMint plus the commission (if paid in RBTC), the commission being btcToMint times the commission rate.
 
 ```
-btcSent (msg.value) >= btcToMint + btcToMint * commissionRate
+btcSent (msg.value) >= btcToMint + btcToMint * commissionRateInRbtc
 ```
 
 #### Gas limit and gas price
@@ -524,14 +523,15 @@ Receive the address in the constructor in order to be able to interact with it l
 constructor (MoC _mocContract, MoCInrate _mocInrateContract, rest of your params...) {
 //....rest of your constructor....
 }
-​
 ```
 
 ​and, finally, when you receive a commission, exchange it for some BitPros
 ​
 
 ```js
-uint256 commissionOfMoC = mocInrate.calcCommissionValue(msg.value);
+uint8 transactionType = mocInrate.MINT_DOC_FEES_RBTC(); // or mocInrate.MINT_DOC_FEES_MOC();
+uint256 commissionOfMoC = mocInrate.calcCommissionValue(msg.value, transactionType);
+// If commission is paid in RBTC, substract it from value
 moc.mintDoc.value(msg.value)(msg.value-commissionOfMoC);
 ```
 
@@ -570,9 +570,11 @@ contract YourMintingDocContract {
     }
 ​
     function doTask() public payable {
+        //We set transaction type according to the way fees are paid
+        uint8 transactionType = mocInrate.MINT_DOC_FEES_RBTC(); // or mocInrate.MINT_DOC_FEES_MOC();
         //We compute the commision.
-​        uint256 commission = mocInrate.calcCommissionValue(msg.value);
-        //We compute the btcToMint.
+​        uint256 commission = mocInrate.calcCommissionValue(msg.value, transactionType);
+        //We compute the btcToMint. If commission is paid in RBTC, substract it from value
         uint256 btcToMint = msg.value - commission;
         // Mint some new DOC
         moc.mintDoc.value(msg.value)(btcToMint);
@@ -582,8 +584,6 @@ contract YourMintingDocContract {
     }
     // rest of your contract
 }
-​
-​
 ```
 
 And that is it, the only thing left to do is to add in the [truffle migrations](https://www.trufflesuite.com/docs/truffle/getting-started/running-migrations) scripts the address to MoC and BPro when deploying YourContract and you are done.
@@ -645,7 +645,7 @@ If this situation occurs then you can contact the [Money on Chain team](https://
 #### Commissions
 
 The redeemDocRequest operation has no commissions, but when the settlement runs, the total amount of
-redeem requests will be used to pay the commission, this part is a percentage of the previous part. The exact percentage is established in the variable **commissionRate** of the contract **MocInrate**. The current value is 0.001 and can be queried through the `getCommissionRate()` function since this parameter is public (note that this parameter when queried through that method also has an accuracy of 18 decimal places, that is, a 1 \ \* 10 ^ 15 in those parameters means that 0.1% is charged as commission).
+redeem requests will be used to pay the commission, this part is a percentage of the previous part. The commission fees are explained in [this](#commission-fees-values) section.
 
 ### Redeeming DOCs on Settlement: alterRedeemRequestAmount
 
@@ -697,7 +697,7 @@ If this situation occurs then you can contact the [Money on Chain team](https://
 #### Commissions
 
 The alterRedeemRequestAmount operation has no commissions, but when the settlement runs, the total amount of
-redeem requests will be used to pay the commission, this part is a percentage of the previous part. The exact percentage is established in the variable **commissionRate** of the contract **MocInrate**. The current value is 0.001 and can be queried through the `getCommissionRate()` function since this parameter is public (note that this parameter when queried through that method also has an accuracy of 18 decimal places, that is, a 1 \ \* 10 ^ 15 in those parameters means that 0.1% is charged as commission).
+redeem requests will be used to pay the commission, this part is a percentage of the previous part. The commission fees are explained in [this](#commission-fees-values) section.
 
 ### Redeeming DOCs on Settlement: redeemFreeDoc
 
@@ -735,12 +735,12 @@ The first part transforms the amount **docAmount** into an RBTC amount, but 3 th
 
 The second part will be used to compute and pay the interests of the operation that depends on the abundance of DOCs in the MOC system. The value can be obtained by invoking the function `calcDocRedInterestValues(finalDocAmount, docsBtcValue)` of the contract **MocInrate** and also has an accuracy of 18 decimal places.
 
-The third part will be used to pay the commission, this part is a percentage of the previous part. The exact percentage is established in the variable **commissionRate** of the contract **MocInrate**. The current value is 0.001 and can be queried through the `getCommissionRate()` function since this parameter is public (note that this parameter when queried through that method also has an accuracy of 18 decimal places, that is, a 1 \ \* 10 ^ 15 in those parameters means that 0.1% is charged as commission).
+The third part will be used to pay the commission, this part is a percentage of the previous part. The commission fees are explained in [this](#commission-fees-values) section.
 
-The fourth part returns the amount in RBTC discounting the previously calculated commissions and interests. In conclusion, the user receives the amount of RBTC discounting the commissions
+The fourth part returns the amount in RBTC discounting the previously calculated commissions and interests. In conclusion, the user receives the amount of RBTC discounting the commissions (if paid in RBTC)
 
 ```
-    btcReceived = finalBtcAmount - finalBtcAmount * commisionRate;
+    btcReceived = finalBtcAmount - finalBtcAmount * commisionRateInRbtc;
 ```
 
 ##### Gas limit and gas price
@@ -823,7 +823,6 @@ Receive the address in the constructor in order to be able to interact with it l
 constructor (MoC _mocContract, MoCInrate _mocInrateContract, rest of your params...) {
 //....rest of your constructor....
 }
-​
 ```
 
 ```js
@@ -925,8 +924,8 @@ There is a relation between DOCS and BTC2X. The more DOCs minted, the more BTC2X
 The BTC2X token does not implement an ERC20 interface and can not be traded freely because leveraged instruments cannot change owner. BTC2X are assigned to the user BTCX positions can be canceled any time though.
 
 The daily rate can be obtained invoking the `dailyInrate()` view of the **MocInrate** contract.
-​
-​## Minting BTC2X
+
+## Minting BTC2X
 
 BTC2X can only be minted in exchange for RBTC.
 
@@ -959,13 +958,13 @@ The amount sent in RBTCs to the contract can be considered as a parameter of the
 
 - The second part will be used to compute and pay interests that can be queried with the `calcMintInterestValues(bucket, finalBtcToMint)` of the **MocInrate** contract.
 
-- The third part will be used to pay the commission, this part is a percentage of the first part. The exact percentage of it is set in the variable **commissionRate** of the **MocInrate** contract. The current value is 0.001 and can be consulted through the method `commissionRate()​` as this parameter is public(Note that this parameter when consulted through said method has also a precision of 18 decimals, i.e. a 1 \* 10^15 in that parameter means that 0.1% is being charged as a commission).
+- The third part will be used to pay the commission, this part is a percentage of the first part. The commission fees are explained in [this](#commission-fees-values) section.
 
 - The fourth part is always returned, so if you have doubts of how much you should send, keep in mind that if you send too much RBTCs we will return everything that it is not used for commissions or interests.
-  In conclusion the amount sent has to be at least the btcToMint plus the interests, the commission being btcToMint times the commission rate.
+  In conclusion the amount sent has to be at least the btcToMint plus the interests, the commission being btcToMint times the commission rate (if paid in RBTC).
 
 ```
-btcSent (msg.value) >= btcToMint + interests + btcToMint * commissionRate
+btcSent (msg.value) >= btcToMint + interests + btcToMint * commissionRateInRbtc
 ```
 
 #### Gas limit and gas price
@@ -1043,7 +1042,6 @@ Receive the address in the constructor in order to be able to interact with it l
 constructor (MoC _mocContract, MoCInrate _mocInrateContract, rest of your params...) {
 //....rest of your constructor....
 }
-​
 ```
 
 ​and, finally, when you receive a commission, exchange it for some BitPros
@@ -1051,7 +1049,9 @@ constructor (MoC _mocContract, MoCInrate _mocInrateContract, rest of your params
 
 ```js
 bytes32 constant public BUCKET_X2 = "X2";
-uint256 commissionOfMoC = mocInrate.calcCommissionValue(msg.value);
+uint8 transactionType = mocInrate.MINT_BTCX_FEES_RBTC(); // or mocInrate.MINT_BTCX_FEES_MOC();
+uint256 commissionOfMoC = mocInrate.calcCommissionValue(msg.value, transactionType);
+// If commission is paid in RBTC, substract it from value
 moc.mintBProx.value(msg.value)(BUCKET_X2, msg.value-commissionOfMoC);
 ```
 
@@ -1084,9 +1084,11 @@ contract YourMintingBtc2xContract {
     }
 ​
     function doTask() public payable {
+        //We set transaction type according to the way fees are paid
+        uint8 transactionType = mocInrate.MINT_BTCX_FEES_RBTC(); // or mocInrate.MINT_BTCX_FEES_MOC();
         //We compute the commision.
-​        uint256 commission = mocInrate.calcCommissionValue(msg.value);
-        //We compute the btcToMint.
+​        uint256 commission = mocInrate.calcCommissionValue(msg.value, transactionType);
+        //We compute the btcToMint. If commission is paid in RBTC, substract it from value
         uint256 btcToMint = msg.value - commission;
         // Mint some new BitPro
         moc.mintBProx.value(msg.value)(BUCKET_X2, btcToMint);
@@ -1094,8 +1096,6 @@ contract YourMintingBtc2xContract {
     }
     // rest of your contract
 }
-​
-​
 ```
 
 ​
@@ -1139,12 +1139,12 @@ The first part transforms the amount **bproxAmount** into an RBTC amount, but 2 
 
 The second part computes interests to be paid to the user.
 
-The third part will be used to pay the commission, this part is a percentage of the first part. The exact percentage is established in the variable **commissionRate** of the contract **MocInrate**. The current value is 0.001 and can be queried through the `getCommissionRate()` function since this parameter is public (note that when this parameter is queried through that method it has an accuracy of 18 decimal places, that is, a 1 \ \* 10 ^ 15 in those parameters means that 0.1% is charged as commission).
+The third part will be used to pay the commission, this part is a percentage of the first part. The commission fees are explained in [this](#commission-fees-values) section.
 
-The fourth part returns the amount in RBTC adding the computed interest and discounting the previously calculated commissions.
+The fourth part returns the amount in RBTC adding the computed interest and discounting the previously calculated commissions (if paid in RBTC).
 
 ```
-btcReceived = totalBtc + interests - totalBtc * commissionRate
+btcReceived = totalBtc + interests - totalBtc * commissionRateInRbtc
 ```
 
 #### Gas limit and gas price
@@ -1216,7 +1216,6 @@ Receive the address in the constructor in order to be able to interact with it l
 constructor (MoC _mocContract, MoCInrate _mocInrateContract, rest of your params...) {
 //....rest of your constructor....
 }
-​
 ```
 
 ​and, finally, when you receive a commission, exchange it for some BitPros
@@ -1262,9 +1261,28 @@ contract YourRedeemingBtc2xContract {
     }
     // rest of your contract
 }
-​
-​
 ```
+
+
+# Commission fees values
+ Depending on the desired operation and the token used to pay commissions, this value is calculated according the following table. Keep in mind that if the account has balance and allowance of MoC token, commissions will be paid with this token; otherwise commissions will be paid in RBTC. The exact percentage of the commission is set in the variable **commissionRatesByTxType** (which maps a transaction type with its commission) of the **MocInrate** contract. The transactions types are constants defined in the same contract and are detailed next. The current commission fees are yet to be defined. The different valid transaction types are the following:
+| Transaction Type | Description | Value |
+| --- | --- | --- |
+| `MINT_BPRO_FEES_RBTC` | Mint BPRO with fees in RBTC | mbpr% |
+| `REDEEM_BPRO_FEES_RBTC` | Redeem BPRO with fees in RBTC | rbpr% |
+| `MINT_DOC_FEES_RBTC` | Mint DOC with fees in RBTC | mdcr% |
+| `REDEEM_DOC_FEES_RBTC` | Redeem DOC with fees in RBTC | rdcr% |
+| `MINT_BTCX_FEES_RBTC` | Mint BTCx with fees in RBTC | mbxr% |
+| `REDEEM_BTCX_FEES_RBTC` | Redeem BTCx with fees in RBTC | rbxr% |
+| `MINT_BPRO_FEES_MOC` | Mint BPRO with fees in MoC | mbpm% |
+| `REDEEM_BPRO_FEES_MOC` | Redeem BPRO with fees in MoC | rbpm% |
+| `MINT_DOC_FEES_MOC` | Mint DOC with fees in MoC | mdcm% |
+| `REDEEM_DOC_FEES_MOC` | Redeem DOC with fees in MoC | rdcm% |
+| `MINT_BTCX_FEES_MOC` | Mint BTCx with fees in MoC | mbxm% |
+| `REDEEM_BTCX_FEES_MOC` | Redeem BTCx with fees in MoC | rbxm% |
+
+Note that these commissions have also a precision of 18 decimals, i.e. a 1 \* 10^15 in that parameter means that 0.1% is being charged as a commission).
+
 
 # From outside the blockchain
 
@@ -1415,10 +1433,11 @@ const execute = async () => {
     const from = "0x088f4B1313D161D83B4D8A5EB90905C263ce0DbD";
     const weiAmount = web3.utils.toWei(btcAmount, "ether");
     // Computes commision value
+    const transactionType = mocInrate.MINT_BPRO_FEES_RBTC(); // or mocInrate.MINT_BPRO_FEES_MOC();
     const commissionValue = new BigNumber(
-      await mocInrate.methods.calcCommissionValue(weiAmount).call()
+      await mocInrate.methods.calcCommissionValue(weiAmount, transactionType).call()
     );
-    // Computes totalBtcAmount to call mintBpro
+    // Computes totalBtcAmount to call mintBpro. If commission is paid in RBTC, add it to value
     const totalBtcAmount = toContract(commissionValue.plus(weiAmount));
     console.log(
       `Calling Bpro minting with account: ${from} and amount: ${weiAmount}.`
