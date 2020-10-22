@@ -22,7 +22,10 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
     beforeEach(async function() {
       await mocHelper.revertState();
 
-      // Commission rates are set in contractsBuilder.js
+      // Commission rates for test are set in functionHelper.js
+      await mocHelper.mockMocInrateChanger.setCommissionRates(
+        await mocHelper.getCommissionsArrayNonZero()
+      );
 
       // set commissions address
       await mocHelper.mockMocInrateChanger.setCommissionsAddress(commissionsAccount);

@@ -67,9 +67,7 @@ contract MocInrateChanger is ChangeContract, Ownable {
     docTmax = _docTmax;
     docPower = _docPower;
 
-    for (uint256 i = 0; i < _commissionRates.length; i++){
-      commissionRates.push(_commissionRates[i]);
-    }
+    setCommissionRatesInternal(_commissionRates);
   }
 
   function execute() external {
@@ -155,6 +153,10 @@ contract MocInrateChanger is ChangeContract, Ownable {
     return commissionRates.length;
   }
 
+  function setCommissionRates(CommissionRates[] memory _commissionRates) public onlyOwner(){
+    setCommissionRatesInternal(_commissionRates);
+  }
+
   /** END UPDATE V0110: 24/09/2020 **/
 
   /************************************/
@@ -173,6 +175,12 @@ contract MocInrateChanger is ChangeContract, Ownable {
 
     for (uint256 i = 0; i < commissionRates.length; i++) {
       mocInrate.setCommissionRateByTxType(commissionRates[i].txType, commissionRates[i].fee);
+    }
+  }
+
+  function setCommissionRatesInternal(CommissionRates[] memory _commissionRates) internal {
+    for (uint256 i = 0; i < _commissionRates.length; i++){
+      commissionRates.push(_commissionRates[i]);
     }
   }
 

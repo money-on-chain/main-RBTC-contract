@@ -24,7 +24,10 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount]) 
   beforeEach(async function() {
     await mocHelper.revertState();
 
-    // Commission rates are set in contractsBuilder.js
+    // Commission rates for test are set in functionHelper.js
+    await mocHelper.mockMocInrateChanger.setCommissionRates(
+      await mocHelper.getCommissionsArrayNonZero()
+    );
 
     // set commissions address
     await mocHelper.mockMocInrateChanger.setCommissionsAddress(commissionsAccount);
@@ -32,7 +35,7 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount]) 
     await mocHelper.governor.executeChange(mocHelper.mockMocInrateChanger.address);
   });
 
-  describe('BPro minting with commissions', function() {
+  describe.only('BPro minting with commissions', function() {
     const scenarios = [
       // RBTC commission
       {

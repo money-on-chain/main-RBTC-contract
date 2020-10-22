@@ -19,7 +19,10 @@ contract('MoC: Doc Redeem on Settlement with commissions', function([
     let prevUserBtcBalance;
 
     before(async function() {
-      // Commission rates are set in contractsBuilder.js
+      // Commission rates for test are set in functionHelper.js
+      await mocHelper.mockMocInrateChanger.setCommissionRates(
+        await mocHelper.getCommissionsArrayNonZero()
+      );
 
       // set commissions address
       await mocHelper.mockMocInrateChanger.setCommissionsAddress(commissionsAccount);
