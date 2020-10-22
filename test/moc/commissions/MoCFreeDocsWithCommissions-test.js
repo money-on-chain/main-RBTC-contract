@@ -119,7 +119,10 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
             // this make the interests zero
             await this.mocState.setDaysToSettlement(0);
 
-            // Commission rates are set in contractsBuilder.js
+            // Commission rates for test are set in functionHelper.js
+            await mocHelper.mockMocInrateChanger.setCommissionRates(
+              await mocHelper.getCommissionsArrayNonZero()
+            );
 
             // set commissions address
             await mocHelper.mockMocInrateChanger.setCommissionsAddress(commissionsAccount);
@@ -231,7 +234,10 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
         // this make the interests zero
         await this.mocState.setDaysToSettlement(0);
 
-        // Commission rates are set in contractsBuilder.js
+        // Commission rates for test are set in functionHelper.js
+        await mocHelper.mockMocInrateChanger.setCommissionRates(
+          await mocHelper.getCommissionsArrayNonZero()
+        );
 
         // set commissions address
         await mocHelper.mockMocInrateChanger.setCommissionsAddress(commissionsAccount);

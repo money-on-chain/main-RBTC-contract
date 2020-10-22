@@ -323,6 +323,89 @@ const setMocCommissionProportion = (commissionSplitter, governor) => async propo
   return governor.executeChange(setCommissionMocProportionChanger.address);
 };
 
+const getCommissionsArrayNonZero = (moc, mocInrate) => async () => {
+  let mocPrecision = 10 ** 18;
+  if (typeof moc !== 'undefined') {
+    mocPrecision = await moc.getMocPrecision();
+  }
+
+  const ret = [
+    {
+      txType: (await mocInrate.MINT_BPRO_FEES_RBTC()).toString(),
+      fee: BigNumber(0.001)
+        .times(mocPrecision)
+        .toString()
+    },
+    {
+      txType: (await mocInrate.REDEEM_BPRO_FEES_RBTC()).toString(),
+      fee: BigNumber(0.002)
+        .times(mocPrecision)
+        .toString()
+    },
+    {
+      txType: (await mocInrate.MINT_DOC_FEES_RBTC()).toString(),
+      fee: BigNumber(0.003)
+        .times(mocPrecision)
+        .toString()
+    },
+    {
+      txType: (await mocInrate.REDEEM_DOC_FEES_RBTC()).toString(),
+      fee: BigNumber(0.004)
+        .times(mocPrecision)
+        .toString()
+    },
+    {
+      txType: (await mocInrate.MINT_BTCX_FEES_RBTC()).toString(),
+      fee: BigNumber(0.005)
+        .times(mocPrecision)
+        .toString()
+    },
+    {
+      txType: (await mocInrate.REDEEM_BTCX_FEES_RBTC()).toString(),
+      fee: BigNumber(0.006)
+        .times(mocPrecision)
+        .toString()
+    },
+    {
+      txType: (await mocInrate.MINT_BPRO_FEES_MOC()).toString(),
+      fee: BigNumber(0.007)
+        .times(mocPrecision)
+        .toString()
+    },
+    {
+      txType: (await mocInrate.REDEEM_BPRO_FEES_MOC()).toString(),
+      fee: BigNumber(0.008)
+        .times(mocPrecision)
+        .toString()
+    },
+    {
+      txType: (await mocInrate.MINT_DOC_FEES_MOC()).toString(),
+      fee: BigNumber(0.009)
+        .times(mocPrecision)
+        .toString()
+    },
+    {
+      txType: (await mocInrate.REDEEM_DOC_FEES_MOC()).toString(),
+      fee: BigNumber(0.01)
+        .times(mocPrecision)
+        .toString()
+    },
+    {
+      txType: (await mocInrate.MINT_BTCX_FEES_MOC()).toString(),
+      fee: BigNumber(0.011)
+        .times(mocPrecision)
+        .toString()
+    },
+    {
+      txType: (await mocInrate.REDEEM_BTCX_FEES_MOC()).toString(),
+      fee: BigNumber(0.012)
+        .times(mocPrecision)
+        .toString()
+    }
+  ];
+  return ret;
+};
+
 module.exports = async contracts => {
   const {
     doc,
@@ -373,6 +456,7 @@ module.exports = async contracts => {
     getMoCBalance: getMoCBalance(mocToken),
     approveMoCToken: approveMoCToken(mocToken),
     getMoCAllowance: getMoCAllowance(mocToken),
-    comissionsTxType
+    comissionsTxType,
+    getCommissionsArrayNonZero: getCommissionsArrayNonZero(moc, mocInrate)
   };
 };

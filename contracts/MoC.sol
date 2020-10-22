@@ -423,7 +423,6 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
     mocExchange = MoCExchange(connector.mocExchange());
     mocInrate = MoCInrate(connector.mocInrate());
     mocBurnout = MoCBurnout(connector.mocBurnout());
-    mocToken = MoCToken(mocState.getMoCToken());
   }
 
   function initializeGovernanceContracts(address stopperAddress, address governorAddress, bool startStoppable) internal {
@@ -450,6 +449,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
     // Check if there is enough balance of MoC
     if (mocCommission > 0) {
       // Transfer MoC from sender to this contract
+      MoCToken mocToken = MoCToken(mocState.getMoCToken());
       mocToken.transferFrom(sender, address(this), mocCommission);
       // Transfer MoC to commissions address
       mocToken.transfer(mocInrate.commissionsAddress(), mocCommission);
@@ -464,6 +464,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
   function redeemWithMocFees(address sender, uint256 btcCommission, uint256 mocCommission) internal {
     // Check if there is enough balance of MoC
     if (mocCommission > 0) {
+      MoCToken mocToken = MoCToken(mocState.getMoCToken());
       // Transfer MoC from sender to this contract
       mocToken.transferFrom(sender, address(this), mocCommission);
       // Transfer MoC to commissions address
@@ -478,6 +479,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
     uint256 mocBalance = 0;
     uint256 mocAllowance = 0;
 
+    MoCToken mocToken = MoCToken(mocState.getMoCToken());
     if (address(mocToken) != address(0)) {
       // Get balance and allowance from sender
       mocBalance = mocToken.balanceOf(owner);
@@ -557,17 +559,6 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
     else
       _;
   }
-
-
-  /************************************/
-  /***** UPGRADE v0110      ***********/
-  /************************************/
-
-  /** START UPDATE V0110: 24/09/2020  **/
-  /** Upgrade to support multiple commission rates **/
-  //MoCToken mocToken;
-  MoCToken mocToken;
-  /** END UPDATE V0110: 24/09/2020 **/
 
   // Leave a gap betweeen inherited contracts variables in order to be
   // able to add more variables in them later

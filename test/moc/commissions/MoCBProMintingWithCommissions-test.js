@@ -24,7 +24,10 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount]) 
   beforeEach(async function() {
     await mocHelper.revertState();
 
-    // Commission rates are set in contractsBuilder.js
+    // Commission rates for test are set in functionHelper.js
+    await mocHelper.mockMocInrateChanger.setCommissionRates(
+      await mocHelper.getCommissionsArrayNonZero()
+    );
 
     // set commissions address
     await mocHelper.mockMocInrateChanger.setCommissionsAddress(commissionsAccount);
@@ -95,7 +98,11 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount]) 
           );
           prevMocBtcBalance = toContractBN(await web3.eth.getBalance(this.moc.address));
           prevUserMoCBalance = await mocHelper.getMoCBalance(userAccount);
-          prevCommissionsAccountMoCBalance = await mocHelper.getMoCBalance(commissionsAccount);
+          prevCommissionsAccountMoCBalance = await mocHelper.getMoCAllowance(
+            commissionsAccount,
+            userAccount
+          );
+
           const mintTx = await mocHelper.mintBProAmount(
             userAccount,
             scenario.params.bproToMint,

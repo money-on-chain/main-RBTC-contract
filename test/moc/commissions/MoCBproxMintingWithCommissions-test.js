@@ -26,7 +26,10 @@ contract('MoC : MoCExchange', function([owner, userAccount, commissionsAccount])
 
     await this.mocState.setDaysToSettlement(toContractBN(0, 'DAY'));
 
-    // Commission rates are set in contractsBuilder.js
+    // Commission rates for test are set in functionHelper.js
+    await mocHelper.mockMocInrateChanger.setCommissionRates(
+      await mocHelper.getCommissionsArrayNonZero()
+    );
 
     // set commissions address
     await mocHelper.mockMocInrateChanger.setCommissionsAddress(commissionsAccount);

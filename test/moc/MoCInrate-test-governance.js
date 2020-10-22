@@ -27,7 +27,11 @@ contract('MoCInrate Governed', function([owner, account2]) {
     this.governor = mocHelper.governor;
     this.mockMocInrateChanger = mocHelper.mockMocInrateChanger;
 
-    // Commission rates are set in contractsBuilder.js
+    // Commission rates for test are set in functionHelper.js
+    await mocHelper.mockMocInrateChanger.setCommissionRates(
+      await mocHelper.getCommissionsArrayNonZero()
+    );
+    await this.governor.executeChange(this.mockMocInrateChanger.address);
   });
 
   beforeEach(function() {
