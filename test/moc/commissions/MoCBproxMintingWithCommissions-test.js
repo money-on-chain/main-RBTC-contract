@@ -18,7 +18,7 @@ contract('MoC : MoCExchange', function([owner, userAccount, commissionsAccount])
     this.mocState = mocHelper.mocState;
     ({ BUCKET_X2 } = mocHelper);
     this.mocToken = mocHelper.mocToken;
-    this.mocConnector = mocHelper.mocConnector;
+    this.mockMocStateChanger = mocHelper.mockMocStateChanger;
   });
 
   beforeEach(async function() {
@@ -209,7 +209,7 @@ contract('MoC : MoCExchange', function([owner, userAccount, commissionsAccount])
         });
       });
     });
-    describe.only('GIVEN since the user sends not enough amount to pay comission in RBTC', function() {
+    describe('GIVEN since the user sends not enough amount to pay comission in RBTC', function() {
       it('WHEN a user tries to mint BProx with 10 RBTCs and does not send to pay commission', async function() {
         // console.log de balances de bpro y doc para saber si esta minteando
         await mocHelper.mintBProAmount(
@@ -227,7 +227,7 @@ contract('MoC : MoCExchange', function([owner, userAccount, commissionsAccount])
         await expectRevert.unspecified(mint);
       });
     });
-    describe.only('GIVEN since there is no allowance to pay comission in MoC', function() {
+    describe('GIVEN since there is no allowance to pay comission in MoC', function() {
       it('WHEN a user tries to mint BProx with no MoC allowance, THEN expect revert', async function() {
         await mocHelper.mintMoCToken(userAccount, 1000, owner);
         // DO NOT approve MoC token on purpose
@@ -370,7 +370,8 @@ contract('MoC : MoCExchange', function([owner, userAccount, commissionsAccount])
         const mocTokenAddress = this.mocToken.address;
         // Set MoCToken address to 0
         const zeroAddress = '0x0000000000000000000000000000000000000000';
-        await this.mocConnector.setMoCToken(zeroAddress);
+        await this.mockMocStateChanger.setMoCToken(zeroAddress);
+        await mocHelper.governor.executeChange(mocHelper.mockMocStateChanger.address);
 
         const prevUserMoCBalanceOtherAddress = await mocHelper.getMoCBalance(otherAddress); // No MoC balance
         const expectedMoCAmount = 0;
@@ -419,7 +420,8 @@ contract('MoC : MoCExchange', function([owner, userAccount, commissionsAccount])
           .sub(usedGas);
 
         // Set MoCToken address back to its original address
-        await this.mocConnector.setMoCToken(mocTokenAddress);
+        await this.mockMocStateChanger.setMoCToken(mocTokenAddress);
+        await mocHelper.governor.executeChange(mocHelper.mockMocStateChanger.address);
 
         console.log('prevUserBtcBalanceOtherAddress: ', prevUserBtcBalanceOtherAddress.toString());
         console.log('userBtcBalanceOtherAccount: ', userBtcBalanceOtherAccount.toString());
