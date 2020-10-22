@@ -184,7 +184,7 @@ contract('MoCState Governed', function([owner, account2]) {
       });
     });
 
-    describe.only('GIVEN on old mocPriceProvider', function() {
+    describe('GIVEN on old mocPriceProvider', function() {
       describe('AND an authorized contract tries to set a new MoCPriceProvider', function() {
         let tx;
         let newMoCPriceProvider;
@@ -233,32 +233,21 @@ contract('MoCState Governed', function([owner, account2]) {
       });
     });
 
-    describe.only('GIVEN on old mocToken', function() {
+    describe('GIVEN on old mocToken', function() {
       describe('AND an authorized contract tries to set a new MoCToken', function() {
         let tx;
-        let oldMoCToken;
-        let zeroAddress = '0x0000000000000000000000000000000000000000';
+        const zeroAddress = '0x0000000000000000000000000000000000000000';
         beforeEach(async function() {
-          oldMoCToken = await mocHelper.mocState.getMoCToken();
           await mocHelper.mockMocStateChanger.setMoCToken(zeroAddress);
           tx = await mocHelper.governor.executeChange(mocHelper.mockMocStateChanger.address);
         });
         it('THEN the MoCToken address must be updated', async function() {
           const mocTokenAddress = await mocHelper.mocState.getMoCToken();
-          assert(
-            mocTokenAddress === zeroAddress,
-            'MoC Token not updates.'
-          );
+          assert(mocTokenAddress === zeroAddress, 'MoC Token not updates.');
         });
         it('THEN MoCTokenChanged event is emitted', async function() {
-          const [mocTokenChangedEvent] = await mocHelper.findEvents(
-            tx,
-            'MoCTokenChanged'
-          );
-          assert(
-            mocTokenChangedEvent.mocTokenAddress === zeroAddress,
-            'New address is different'
-          );
+          const [mocTokenChangedEvent] = await mocHelper.findEvents(tx, 'MoCTokenChanged');
+          assert(mocTokenChangedEvent.mocTokenAddress === zeroAddress, 'New address is different');
         });
       });
 

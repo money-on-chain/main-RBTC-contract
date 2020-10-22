@@ -46,6 +46,7 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
   /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
   /** DEPRECATED **/
   // commissionRate [using mocPrecision]
+  // solium-disable-next-line mixedcase
   uint256 public DEPRECATED_commissionRate;
 
   /**CONTRACTS**/
@@ -426,6 +427,24 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
     return bitProInterest;
   }
 
+  /************************************/
+  /***** UPGRADE v0110      ***********/
+  /************************************/
+
+  /** START UPDATE V0110: 24/09/2020  **/
+  /** Upgrade to support multiple commission rates **/
+  /** Public functions **/
+  /**
+    @dev Sets the commission rate to a particular transaction type
+    @param txType Transaction type according to constant values defined in this contract
+    @param value Commission rate
+  */
+  function setCommissionRateByTxType(uint8 txType, uint256 value) public onlyAuthorizedChanger() {
+    commissionRatesByTxType[txType] = value;
+  }
+
+  /** END UPDATE V0110: 24/09/2020 **/
+
   /**
     @dev Calculates the interest rate to pay until the settlement day
     @param inrate Spot interest rate
@@ -578,6 +597,7 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
   /** START UPDATE V0110: 24/09/2020  **/
   /** Upgrade to support multiple commission rates **/
 
+  // Transaction types
   uint8 public constant MINT_BPRO_FEES_RBTC = 1;
   uint8 public constant REDEEM_BPRO_FEES_RBTC = 2;
   uint8 public constant MINT_DOC_FEES_RBTC = 3;
@@ -592,10 +612,6 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
   uint8 public constant REDEEM_BTCX_FEES_MOC = 12;
 
   mapping(uint8 => uint256) public commissionRatesByTxType;
-
-  function setCommissionRateByTxType(uint8 txType, uint256 value) public onlyAuthorizedChanger() {
-    commissionRatesByTxType[txType] = value;
-  }
 
   /** END UPDATE V0110: 24/09/2020 **/
 

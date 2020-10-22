@@ -294,7 +294,7 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
           const bproxToMint = 1;
           const bproxsToRedeem = 1;
           const bproToMint = 100;
-          // commission = bproToMint * MINT_BPRO_FEES_RBTC() + docsToMint * MINT_DOC_FEES_RBTC() + bproxToMint * MINT_BTCX_FEES_RBTC() + bproxsToRedeem * REDEEM_BTCX_FEES_RBTC()
+          // commission = bproxsToRedeem * REDEEM_BTCX_FEES_RBTC()
           const expectedRbtcCommission = 0.006;
           const expectedRbtcAmount = 0.994;
 
@@ -403,7 +403,7 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
           const bproxToMint = 1;
           const bproxsToRedeem = 1;
           const bproToMint = 100;
-          // commission = bproToMint * MINT_BPRO_FEES_RBTC() + docsToMint * MINT_DOC_FEES_RBTC() + bproxToMint * MINT_BTCX_FEES_RBTC() + bproxsToRedeem * REDEEM_BTCX_FEES_RBTC()
+          // commission = bproxsToRedeem * REDEEM_BTCX_FEES_RBTC()
           const expectedRbtcCommission = 0.006;
           const expectedRbtcAmount = 0.994;
 
@@ -458,17 +458,6 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
           // Set MoCToken address back to its original address
           await this.mockMocStateChanger.setMoCToken(mocTokenAddress);
           await mocHelper.governor.executeChange(mocHelper.mockMocStateChanger.address);
-
-          console.log('prevUserBtcBalance: ', prevUserBtcBalance.toString());
-          console.log('userBtcBalance: ', userBtcBalance.toString());
-          console.log(
-            'prevCommissionsAccountBtcBalance: ',
-            prevCommissionsAccountBtcBalance.toString()
-          );
-          console.log('commissionsAccountBtcBalance: ', commissionsAccountBtcBalance.toString());
-          console.log('usedGas: ', usedGas.toString());
-          console.log('diffRbtcAmount: ', diffRbtcAmount.toString());
-          console.log('diffRbtcCommission: ', diffRbtcCommission.toString());
 
           mocHelper.assertBigRBTC(
             diffMoCAmount,

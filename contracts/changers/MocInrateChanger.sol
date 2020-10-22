@@ -1,4 +1,5 @@
 pragma solidity 0.5.8;
+// solium-disable-next-line no-experimental
 pragma experimental ABIEncoderV2;
 
 import "../MoCInrate.sol";
@@ -18,6 +19,7 @@ contract MocInrateChanger is ChangeContract, Ownable {
   uint256 public newBitProRate;
   /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
   /** DEPRECATED **/
+  // solium-disable-next-line mixedcase
   uint256 public DEPRECATED_newCommissionRate;
   address payable public newBitProInterestAddress;
   address payable public newCommissionsAddress;
@@ -138,6 +140,31 @@ contract MocInrateChanger is ChangeContract, Ownable {
     docPower = _docPower;
   }
 
+  /************************************/
+  /***** UPGRADE v0110      ***********/
+  /************************************/
+
+  /** START UPDATE V0110: 24/09/2020  **/
+  /** Upgrade to support multiple commission rates **/
+  /** Public functions **/
+
+  /**
+    @dev returns the commission rate fees array length
+  */
+  function commissionRatesLength() public view returns (uint256) {
+    return commissionRates.length;
+  }
+
+  /** END UPDATE V0110: 24/09/2020 **/
+
+  /************************************/
+  /***** UPGRADE v0110      ***********/
+  /************************************/
+
+  /** START UPDATE V0110: 24/09/2020  **/
+  /** Upgrade to support multiple commission rates **/
+  /** Internal functions **/
+
   /**
     @dev initializes the commission rate fees by transaction type to use in the MoCInrate contract
   */
@@ -149,10 +176,5 @@ contract MocInrateChanger is ChangeContract, Ownable {
     }
   }
 
-  /**
-    @dev returns the commission rate fees array length
-  */
-  function commissionRatesLength() public view returns (uint256) {
-    return commissionRates.length;
-  }
+  /** END UPDATE V0110: 24/09/2020 **/
 }

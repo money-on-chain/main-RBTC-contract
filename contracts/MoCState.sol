@@ -628,6 +628,125 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
       emit StateTransition(state);
   }
 
+  /************************************/
+  /***** UPGRADE v017       ***********/
+  /************************************/
+
+  /** START UPDATE V017: 01/11/2019 **/
+  /** Public functions **/
+
+  /**
+  * @param _maxMintBPro [using mocPrecision]
+  **/
+  function setMaxMintBPro(uint256 _maxMintBPro) public onlyAuthorizedChanger() {
+    maxMintBPro = _maxMintBPro;
+  }
+
+   /**
+   * @dev return Max value posible to mint of BPro
+   * @return maxMintBPro
+   */
+  function getMaxMintBPro() public view returns(uint256) {
+    return maxMintBPro;
+  }
+
+  /**
+  * @dev return the bpro available to mint
+  * @return maxMintBProAvalaible  [using mocPrecision]
+  */
+  function maxMintBProAvalaible() public view returns(uint256) {
+
+    uint256 totalBPro = bproTotalSupply();
+    uint256 maxiMintBPro = getMaxMintBPro();
+
+    if (totalBPro >= maxiMintBPro) {
+      return 0;
+    }
+
+    uint256 availableMintBPro = maxiMintBPro.sub(totalBPro);
+
+    return availableMintBPro;
+  }
+
+  /** END UPDATE V017: 01/11/2019 **/
+
+    /************************************/
+  /***** UPGRADE v0110      ***********/
+  /************************************/
+
+  /** START UPDATE V0110: 24/09/2020  **/
+  /** Upgrade to support multiple commission rates **/
+  /** and rename price interfaces **/
+  /** Public functions **/
+
+  /**********************
+    MoC PRICE PROVIDER
+   *********************/
+
+  /**
+  * @dev Sets a new MoCProvider contract
+  * @param mocProviderAddress MoC price provider address
+  **/
+  function setMoCPriceProvider(address mocProviderAddress) public onlyAuthorizedChanger() {
+    address oldMoCPriceProviderAddress = address(mocPriceProvider);
+    mocPriceProvider = PriceProvider(mocProviderAddress);
+    emit MoCPriceProviderUpdated(oldMoCPriceProviderAddress, address(mocPriceProvider));
+  }
+
+  /**
+  * @dev Gets the MoCPriceProviderAddress
+  * @return mocPriceProvider MoC price provider address
+  **/
+  function getMoCPriceProvider() public view returns(address) {
+    return address(mocPriceProvider);
+  }
+
+  /**
+  * @dev Gets the MoCPrice
+  * @return price MoC price
+  **/
+  function getMoCPrice() public view returns(uint256) {
+    (bytes32 price, bool has) = mocPriceProvider.peek();
+    require(has, "Oracle have no MoC Price");
+
+    return uint256(price);
+  }
+
+  /**********************
+    MoC TOKEN
+   *********************/
+
+  // TODO: Suggestion: create a "MoCConnectorChanger" contract and whitelist the address
+  function setMoCToken(address mocTokenAddress) public onlyAuthorizedChanger() {
+    setMoCTokenInternal(mocTokenAddress);
+  }
+
+  function getMoCToken() public view returns(address) {
+    return address(mocToken);
+  }
+
+  /** END UPDATE V0110: 24/09/2020 **/
+
+  /************************************/
+  /***** UPGRADE v0110      ***********/
+  /************************************/
+
+  /** START UPDATE V0110: 24/09/2020  **/
+  /** Upgrade to support multiple commission rates **/
+  /** and rename price interfaces **/
+  /** Internal functions **/
+
+  /**********************
+    MoC TOKEN
+   *********************/
+
+  function setMoCTokenInternal(address mocTokenAddress) internal {
+    mocToken = mocTokenAddress;
+
+    emit MoCTokenChanged(mocTokenAddress);
+  }
+
+  /** END UPDATE V0110: 24/09/2020 **/
 
   /**
     @dev Calculates price at liquidation event as the relation between
@@ -677,52 +796,21 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
   /************************************/
 
   /** START UPDATE V017: 01/11/2019 **/
+  /** Variables **/
 
   // Max value posible to mint of BPro
   uint256 public maxMintBPro;
 
-  /**
-  * @param _maxMintBPro [using mocPrecision]
-  **/
-  function setMaxMintBPro(uint256 _maxMintBPro) public onlyAuthorizedChanger() {
-    maxMintBPro = _maxMintBPro;
-  }
-
-   /**
-   * @dev return Max value posible to mint of BPro
-   * @return maxMintBPro
-   */
-  function getMaxMintBPro() public view returns(uint256) {
-    return maxMintBPro;
-  }
-
-  /**
-  * @dev return the bpro available to mint
-  * @return maxMintBProAvalaible  [using mocPrecision]
-  */
-  function maxMintBProAvalaible() public view returns(uint256) {
-
-    uint256 totalBPro = bproTotalSupply();
-    uint256 maxiMintBPro = getMaxMintBPro();
-
-    if (totalBPro >= maxiMintBPro) {
-      return 0;
-    }
-
-    uint256 availableMintBPro = maxiMintBPro.sub(totalBPro);
-
-    return availableMintBPro;
-  }
-
   /** END UPDATE V017: 01/11/2019 **/
 
   /************************************/
-  /***** UPGRADE v020       ***********/
+  /***** UPGRADE v0110      ***********/
   /************************************/
 
-  /** START UPDATE V020: 24/09/2020 **/
+  /** START UPDATE V0110: 24/09/2020  **/
   /** Upgrade to support multiple commission rates **/
   /** and rename price interfaces **/
+  /** Variables and events **/
 
   PriceProvider internal mocPriceProvider;
   address internal mocToken;
@@ -731,55 +819,7 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
     address mocTokenAddress
   );
 
-  /**********************
-    MoC PRICE PROVIDER
-   *********************/
-
-  /**
-  * @dev Sets a new MoCProvider contract
-  * @param mocProviderAddress MoC price provider address
-  **/
-  function setMoCPriceProvider(address mocProviderAddress) public onlyAuthorizedChanger() {
-    address oldMoCPriceProviderAddress = address(mocPriceProvider);
-    mocPriceProvider = PriceProvider(mocProviderAddress);
-    emit MoCPriceProviderUpdated(oldMoCPriceProviderAddress, address(mocPriceProvider));
-  }
-
-  /**
-  * @dev Gets the MoCPriceProviderAddress
-  * @return mocPriceProvider MoC price provider address
-  **/
-  function getMoCPriceProvider() public view returns(address) {
-    return address(mocPriceProvider);
-  }
-
-  /**
-  * @dev Gets the MoCPrice
-  * @return price MoC price
-  **/
-  function getMoCPrice() public view returns(uint256) {
-    (bytes32 price, bool has) = mocPriceProvider.peek();
-    require(has, "Oracle have no MoC Price");
-
-    return uint256(price);
-  }
-
-  // TODO: Suggestion: create a "MoCConnectorChanger" contract and whitelist the address
-  function setMoCToken(address mocTokenAddress) public onlyAuthorizedChanger() {
-    setMoCTokenInternal(mocTokenAddress);
-  }
-
-  function setMoCTokenInternal(address mocTokenAddress) internal {
-    mocToken = mocTokenAddress;
-
-    emit MoCTokenChanged(mocTokenAddress);
-  }
-
-  function getMoCToken() public view returns(address) {
-    return address(mocToken);
-  }
-
-  /** END UPDATE V020: 24/09/2020 **/
+  /** END UPDATE V0110: 24/09/2020 **/
 
   // Leave a gap betweeen inherited contracts variables in order to be
   // able to add more variables in them later

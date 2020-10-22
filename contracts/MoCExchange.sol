@@ -624,6 +624,67 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
   }
 
   /**
+    @dev Burns user BProx and sends the equivalent amount of RBTC
+    to the account without caring if transaction succeeds
+    @param bucket Bucket where the BProxs are hold
+    @param account user address to redeem bprox from
+    @param bproxAmount Amount of BProx to redeem [using mocPrecision]
+    @param bproxPrice Price of one BProx in RBTC [using reservePrecision]
+    @return result of the RBTC sending transaction [using reservePrecision]
+  **/
+  function forceRedeemBProx(
+    bytes32 bucket,
+    address payable account,
+    uint256 bproxAmount,
+    uint256 bproxPrice
+  ) public onlyWhitelisted(msg.sender) returns (bool) {
+    // Do burning part of the redemption
+    uint256 btcTotalAmount = burnBProxFor(
+      bucket,
+      account,
+      bproxAmount,
+      bproxPrice
+    );
+
+    // Send transaction can only fail for external code
+    // if transaction fails, user will lost his RBTC and BProx
+    return moc.sendToAddress(account, btcTotalAmount);
+  }
+
+  /**
+    @dev Burns user BProx
+    @param bucket Bucket where the BProxs are hold
+    @param account user address to redeem bprox from
+    @param bproxAmount Amount of BProx to redeem [using mocPrecision]
+    @param bproxPrice Price of one BProx in RBTC [using reservePrecision]
+    @return Bitcoin total value of the redemption [using reservePrecision]
+
+  **/
+  function burnBProxFor(
+    bytes32 bucket,
+    address payable account,
+    uint256 bproxAmount,
+    uint256 bproxPrice
+  ) public onlyWhitelisted(msg.sender) returns (uint256) {
+    // Calculate total RBTC
+    uint256 btcTotalAmount = mocConverter.bproToBtcWithPrice(
+      bproxAmount,
+      bproxPrice
+    );
+    bproxManager.removeBProx(bucket, account, bproxAmount, btcTotalAmount);
+
+    return btcTotalAmount;
+  }
+
+  /************************************/
+  /***** UPGRADE v0110      ***********/
+  /************************************/
+
+  /** START UPDATE V0110: 24/09/2020  **/
+  /** Upgrade to support multiple commission rates **/
+  /** Internal functions **/
+
+    /**
    * @dev Internal function to avoid stack too deep errors
    * @param account user address to redeem bprox from
    * @param bucket Bucket where the BProxs are hold
@@ -705,58 +766,7 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
     return (details.btcTotalWithoutCommission.add(details.rbtcInterests), details.btcCommission, details.mocCommission);
   }
 
-  /**
-    @dev Burns user BProx and sends the equivalent amount of RBTC
-    to the account without caring if transaction succeeds
-    @param bucket Bucket where the BProxs are hold
-    @param account user address to redeem bprox from
-    @param bproxAmount Amount of BProx to redeem [using mocPrecision]
-    @param bproxPrice Price of one BProx in RBTC [using reservePrecision]
-    @return result of the RBTC sending transaction [using reservePrecision]
-  **/
-  function forceRedeemBProx(
-    bytes32 bucket,
-    address payable account,
-    uint256 bproxAmount,
-    uint256 bproxPrice
-  ) public onlyWhitelisted(msg.sender) returns (bool) {
-    // Do burning part of the redemption
-    uint256 btcTotalAmount = burnBProxFor(
-      bucket,
-      account,
-      bproxAmount,
-      bproxPrice
-    );
-
-    // Send transaction can only fail for external code
-    // if transaction fails, user will lost his RBTC and BProx
-    return moc.sendToAddress(account, btcTotalAmount);
-  }
-
-  /**
-    @dev Burns user BProx
-    @param bucket Bucket where the BProxs are hold
-    @param account user address to redeem bprox from
-    @param bproxAmount Amount of BProx to redeem [using mocPrecision]
-    @param bproxPrice Price of one BProx in RBTC [using reservePrecision]
-    @return Bitcoin total value of the redemption [using reservePrecision]
-
-  **/
-  function burnBProxFor(
-    bytes32 bucket,
-    address payable account,
-    uint256 bproxAmount,
-    uint256 bproxPrice
-  ) public onlyWhitelisted(msg.sender) returns (uint256) {
-    // Calculate total RBTC
-    uint256 btcTotalAmount = mocConverter.bproToBtcWithPrice(
-      bproxAmount,
-      bproxPrice
-    );
-    bproxManager.removeBProx(bucket, account, bproxAmount, btcTotalAmount);
-
-    return btcTotalAmount;
-  }
+  /** END UPDATE V0110: 24/09/2020 **/
 
   /**
     @dev Calculates the amount of RBTC that one bucket should move to another in
@@ -834,6 +844,8 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
 
   /** START UPDATE V0110: 24/09/2020  **/
   /** Upgrade to support multiple commission rates **/
+  /** Structs **/
+
   struct RiskProxRedeemStruct{
     uint256 btcCommission;
     uint256 btcTotalWithoutCommission;
