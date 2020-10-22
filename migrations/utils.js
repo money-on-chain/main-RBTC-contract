@@ -308,8 +308,7 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
       mocConverter.address,
       mocExchange.address,
       mocInrate.address,
-      mocBurnout.address,
-      mocToken.address
+      mocBurnout.address
     );
     console.log('MoCConnector Initialized');
 
@@ -385,7 +384,8 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
       toContract(config.smoothFactor * 10 ** 18), // _smoothFactor
       config.dayBlockSpan, // _emaBlockSpan
       toContract(config.maxMintBPro * 10 ** 18),
-      mocOracleAddress
+      mocOracleAddress,
+      mocToken.address
     );
     console.log('State Initialized');
 

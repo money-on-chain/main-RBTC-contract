@@ -20,7 +20,7 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
     this.governor = mocHelper.governor;
     ({ BUCKET_X2 } = mocHelper);
     this.mocToken = mocHelper.mocToken;
-    this.mocConnector = mocHelper.mocConnector;
+    this.mockMocStateChanger = mocHelper.mockMocStateChanger;
   });
 
   describe('BProx redeem with commissions and without interests', function() {
@@ -241,7 +241,7 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
       });
     });
 
-    describe.only('Non-scenario tests', function() {
+    describe('Non-scenario tests', function() {
       beforeEach(async function() {
         await mocHelper.revertState();
         // this make the interests zero
@@ -410,14 +410,15 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
           }
         });
       });
-      describe('GIVEN since the address of the MoCToken is 0x0', function() {
+      describe.only('GIVEN since the address of the MoCToken is 0x0', function() {
         it('WHEN a user tries to redeem BProx, THEN commission is paid in RBTC', async function() {
           const accounts = await web3.eth.getAccounts();
           const otherAddress = accounts[1];
           const mocTokenAddress = this.mocToken.address;
           // Set MoCToken address to 0
           const zeroAddress = '0x0000000000000000000000000000000000000000';
-          await this.mocConnector.setMoCToken(zeroAddress);
+          await this.mockMocStateChanger.setMoCToken(zeroAddress);
+          await mocHelper.governor.executeChange(mocHelper.mockMocStateChanger.address);
 
           const prevUserMoCBalanceOtherAddress = await mocHelper.getMoCBalance(otherAddress); // No MoC balance
           const expectedMoCAmount = 0;
@@ -485,7 +486,8 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
             .sub(usedGas);
 
           // Set MoCToken address back to its original address
-          await this.mocConnector.setMoCToken(mocTokenAddress);
+          await this.mockMocStateChanger.setMoCToken(mocTokenAddress);
+          await mocHelper.governor.executeChange(mocHelper.mockMocStateChanger.address);
 
           console.log('prevUserBtcBalanceOtherAddress: ', prevUserBtcBalanceOtherAddress.toString());
           console.log('userBtcBalanceOtherAccount: ', userBtcBalanceOtherAccount.toString());

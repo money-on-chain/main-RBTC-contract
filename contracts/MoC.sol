@@ -118,7 +118,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
     } else {
       // Check commission rate in RBTC according to transaction type
       totalBtcSpent = totalBtcSpent.add(btcCommission);
-      require(totalBtcSpent <= value, "MoC: amount is not enough");
+      require(totalBtcSpent <= value, "amount is not enough");
     }
     return totalBtcSpent;
   }
@@ -467,7 +467,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
     mocExchange = MoCExchange(connector.mocExchange());
     mocInrate = MoCInrate(connector.mocInrate());
     mocBurnout = MoCBurnout(connector.mocBurnout());
-    mocToken = MoCToken(connector.mocToken());
+    mocToken = MoCToken(mocState.getMoCToken());
   }
 
   function initializeGovernanceContracts(address stopperAddress, address governorAddress, bool startStoppable) internal {

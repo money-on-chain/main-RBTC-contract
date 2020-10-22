@@ -18,7 +18,7 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
     this.mocState = mocHelper.mocState;
     this.mockMocInrateChanger = mocHelper.mockMocInrateChanger;
     this.mocToken = mocHelper.mocToken;
-    this.mocConnector = mocHelper.mocConnector;
+    this.mockMocStateChanger = mocHelper.mockMocStateChanger;
   });
 
   describe('Free Doc redeem with commissions and without interests', function() {
@@ -364,7 +364,8 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
           const mocTokenAddress = this.mocToken.address;
           // Set MoCToken address to 0
           const zeroAddress = '0x0000000000000000000000000000000000000000';
-          await this.mocConnector.setMoCToken(zeroAddress);
+          await this.mockMocStateChanger.setMoCToken(zeroAddress);
+          await mocHelper.governor.executeChange(mocHelper.mockMocStateChanger.address);
 
           const prevUserMoCBalanceOtherAddress = await mocHelper.getMoCBalance(otherAddress);// No MoC balance
           const expectedMoCAmount = 0;
@@ -416,7 +417,8 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
             .sub(usedGas);
 
           // Set MoCToken address back to its original address
-          await this.mocConnector.setMoCToken(mocTokenAddress);
+          await this.mockMocStateChanger.setMoCToken(mocTokenAddress);
+          await mocHelper.governor.executeChange(mocHelper.mockMocStateChanger.address);
 
           console.log("txTypeMintBpro: ", txTypeMintBpro.toString());
           console.log("txTypeMintDoc: ", txTypeMintDoc.toString());

@@ -20,7 +20,8 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
   States public state;
 
   event StateTransition(States newState);
-  event PriceProviderUpdated(address oldAddress, address newAddress);
+  event BtcPriceProviderUpdated(address oldAddress, address newAddress);
+  event MoCPriceProviderUpdated(address oldAddress, address newAddress);
   // Contracts
   PriceProvider internal btcPriceProvider;
   MoCSettlement internal mocSettlement;
@@ -61,11 +62,12 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
     uint256 _smoothFactor,
     uint256 _emaBlockSpan,
     uint256 _maxMintBPro,
-    address _mocPriceProvider
+    address _mocPriceProvider,
+    address _mocTokenAddress
   ) public initializer {
     initializePrecisions();
     initializeBase(connectorAddress);
-    initializeContracts();
+    initializeContracts(_mocTokenAddress);
     initializeValues(
       _governor,
       _btcPriceProvider,
@@ -110,7 +112,7 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
   function setBtcPriceProvider(address btcProviderAddress) public onlyAuthorizedChanger() {
     address oldBtcPriceProviderAddress = address(btcPriceProvider);
     btcPriceProvider = PriceProvider(btcProviderAddress);
-    emit PriceProviderUpdated(oldBtcPriceProviderAddress, address(btcPriceProvider));
+    emit BtcPriceProviderUpdated(oldBtcPriceProviderAddress, address(btcPriceProvider));
   }
 
   /**
@@ -661,12 +663,13 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
     mocPriceProvider = PriceProvider(_mocPriceProvider);
   }
 
-  function initializeContracts() internal  {
+  function initializeContracts(address _mocTokenAddress) internal  {
     mocSettlement = MoCSettlement(connector.mocSettlement());
     docToken = DocToken(connector.docToken());
     bproToken = BProToken(connector.bproToken());
     bproxManager = MoCBProxManager(connector.bproxManager());
     mocConverter = MoCConverter(connector.mocConverter());
+    setMoCTokenInternal(_mocTokenAddress);
   }
 
   /************************************/
@@ -722,6 +725,11 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
   /** and rename price interfaces **/
 
   PriceProvider internal mocPriceProvider;
+  address internal mocToken;
+
+  event MoCTokenChanged (
+    address mocTokenAddress
+  );
 
   /**********************
     MoC PRICE PROVIDER
@@ -734,7 +742,7 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
   function setMoCPriceProvider(address mocProviderAddress) public onlyAuthorizedChanger() {
     address oldMoCPriceProviderAddress = address(mocPriceProvider);
     mocPriceProvider = PriceProvider(mocProviderAddress);
-    emit PriceProviderUpdated(oldMoCPriceProviderAddress, address(mocPriceProvider));
+    emit MoCPriceProviderUpdated(oldMoCPriceProviderAddress, address(mocPriceProvider));
   }
 
   /**
@@ -754,6 +762,21 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
     require(has, "Oracle have no MoC Price");
 
     return uint256(price);
+  }
+
+  // TODO: Suggestion: create a "MoCConnectorChanger" contract and whitelist the address
+  function setMoCToken(address mocTokenAddress) public onlyAuthorizedChanger() {
+    setMoCTokenInternal(mocTokenAddress);
+  }
+
+  function setMoCTokenInternal(address mocTokenAddress) internal {
+    mocToken = mocTokenAddress;
+
+    emit MoCTokenChanged(mocTokenAddress);
+  }
+
+  function getMoCToken() public view returns(address) {
+    return address(mocToken);
   }
 
   /** END UPDATE V020: 24/09/2020 **/

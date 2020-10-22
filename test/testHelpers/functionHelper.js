@@ -153,10 +153,6 @@ const mintDocAmount = (moc, btcPriceProvider, mocInrate) => async (account, docs
           .div(mocPrecision)
       : 0;
   const value = toContract(btcTotal.plus(commissionRbtcAmount));
-  console.log("mint doc btctotal: ", btcTotal.toString());
-  console.log("mint doc commission rbtc: ", commissionRbtcAmount.toString());
-  console.log("mint doc value: ", value.toString());
-
 
   return moc.mintDoc(toContract(btcTotal), { from: account, value });
 };

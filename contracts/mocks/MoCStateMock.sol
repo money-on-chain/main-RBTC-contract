@@ -19,7 +19,8 @@ contract MoCStateMock is MoCState {
     uint256 _smoothFactor,
     uint256 _emaBlockSpan,
     uint256 _maxMintBPro,
-    address _mocPriceProvider
+    address _mocPriceProvider,
+    address _mocTokenAddress
   ) public initializer {
     _daysToSettlement = 4;
     super.initialize(
@@ -34,7 +35,8 @@ contract MoCStateMock is MoCState {
       _smoothFactor,
       _emaBlockSpan,
       _maxMintBPro,
-      _mocPriceProvider
+      _mocPriceProvider,
+      _mocTokenAddress
     );
   }
 
