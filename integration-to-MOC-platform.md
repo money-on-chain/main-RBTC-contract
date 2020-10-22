@@ -148,7 +148,7 @@ To know if this is the case you can ask to **MoC** if it's **paused()**.
 
 If the funds you sent doesn't cover the amount you specified on btcToMint.
 
-If this is the case the transaction will revert, all your funds will be returned (except the fee paid to the network). The error message will be "MoC: amount is not enough".
+If this is the case the transaction will revert, all your funds will be returned (except the fee paid to the network). The error message will be "amount is not enough".
 
 #### Not enough gas:
 
@@ -493,7 +493,7 @@ To know if this is the case you can ask to **MoC** if it's **paused()**.
 
 If the funds you sent doesn't cover the amount you specified on btcToMint.
 
-If this is the case the transaction will revert, all your funds will be returned (except the fee paid to the network). The error message will be "MoC: amount is not enough".
+If this is the case the transaction will revert, all your funds will be returned (except the fee paid to the network). The error message will be "amount is not enough".
 
 #### Not enough gas:
 
@@ -1011,7 +1011,7 @@ Currently, only the BTC2X bucket called 'X2' exists. If you call the function wi
 
 If the funds you sent doesn't cover the amount you specified on btcToMint.
 
-If this is the case the transaction will revert, all your funds will be returned (except the fee paid to the network). The error message will be "MoC: amount is not enough".
+If this is the case the transaction will revert, all your funds will be returned (except the fee paid to the network). The error message will be "amount is not enough".
 
 #### Not enough gas:
 
