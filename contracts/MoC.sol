@@ -106,23 +106,6 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
     settlement.alterRedeemRequestAmount(isAddition, delta, msg.sender);
   }
 
-  // solium-disable-next-line security/no-assign-params
-  function transferMocComission(address sender, uint256 value, uint256 totalBtcSpent, uint256 btcCommission, uint256 mocCommission)
-  internal returns(uint256) {
-    // Check if there is enough balance of MoC
-    if (mocCommission > 0) {
-      // Transfer MoC from sender to this contract
-      mocToken.transferFrom(sender, address(this), mocCommission);
-      // Transfer MoC to commissions address
-      mocToken.transfer(mocInrate.commissionsAddress(), mocCommission);
-    } else {
-      // Check commission rate in RBTC according to transaction type
-      totalBtcSpent = totalBtcSpent.add(btcCommission);
-      require(totalBtcSpent <= value, "amount is not enough");
-    }
-    return totalBtcSpent;
-  }
-
   /**
     @dev Mints BPRO and pays the comissions of the operation.
     @param btcToMint Amount un BTC to mint
@@ -149,33 +132,6 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
     doTransfer(msg.sender, change);
     // Transfer commissions to commissions address
     doTransfer(mocInrate.commissionsAddress(), btcCommission);
-  }
-
-
-  function redeemWithMocFees(address sender, uint256 btcCommission, uint256 mocCommission) internal {
-    // Check if there is enough balance of MoC
-    if (mocCommission > 0) {
-      // Transfer MoC from sender to this contract
-      mocToken.transferFrom(sender, address(this), mocCommission);
-      // Transfer MoC to commissions address
-      mocToken.transfer(mocInrate.commissionsAddress(), mocCommission);
-    } else {
-      // Transfer commissions to commissions address
-      doTransfer(mocInrate.commissionsAddress(), btcCommission);
-    }
-  }
-
-  function getMocTokenBalance(address owner, address spender) internal view returns (uint256, uint256) {
-    uint256 mocBalance = 0;
-    uint256 mocAllowance = 0;
-
-    if (address(mocToken) != address(0)) {
-      // Get balance and allowance from sender
-      mocBalance = mocToken.balanceOf(owner);
-      mocAllowance = mocToken.allowance(owner, spender);
-    }
-
-    return (mocBalance, mocAllowance);
   }
 
   /**
@@ -479,6 +435,59 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
       bproToken.pause();
     }
   }
+
+  /************************************/
+  /***** UPGRADE v0110      ***********/
+  /************************************/
+
+  /** START UPDATE V0110: 24/09/2020  **/
+  /** Upgrade to support multiple commission rates **/
+  /** Internal functions **/
+
+  // solium-disable-next-line security/no-assign-params
+  function transferMocComission(address sender, uint256 value, uint256 totalBtcSpent, uint256 btcCommission, uint256 mocCommission)
+  internal returns(uint256) {
+    // Check if there is enough balance of MoC
+    if (mocCommission > 0) {
+      // Transfer MoC from sender to this contract
+      mocToken.transferFrom(sender, address(this), mocCommission);
+      // Transfer MoC to commissions address
+      mocToken.transfer(mocInrate.commissionsAddress(), mocCommission);
+    } else {
+      // Check commission rate in RBTC according to transaction type
+      totalBtcSpent = totalBtcSpent.add(btcCommission);
+      require(totalBtcSpent <= value, "amount is not enough");
+    }
+    return totalBtcSpent;
+  }
+
+  function redeemWithMocFees(address sender, uint256 btcCommission, uint256 mocCommission) internal {
+    // Check if there is enough balance of MoC
+    if (mocCommission > 0) {
+      // Transfer MoC from sender to this contract
+      mocToken.transferFrom(sender, address(this), mocCommission);
+      // Transfer MoC to commissions address
+      mocToken.transfer(mocInrate.commissionsAddress(), mocCommission);
+    } else {
+      // Transfer commissions to commissions address
+      doTransfer(mocInrate.commissionsAddress(), btcCommission);
+    }
+  }
+
+  function getMocTokenBalance(address owner, address spender) internal view returns (uint256, uint256) {
+    uint256 mocBalance = 0;
+    uint256 mocAllowance = 0;
+
+    if (address(mocToken) != address(0)) {
+      // Get balance and allowance from sender
+      mocBalance = mocToken.balanceOf(owner);
+      mocAllowance = mocToken.allowance(owner, spender);
+    }
+
+    return (mocBalance, mocAllowance);
+  }
+
+  /** END UPDATE V0110: 24/09/2020 **/
 
   /**
   * @dev Transfer using transfer function and updates global RBTC register in MoCState
