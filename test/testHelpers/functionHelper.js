@@ -19,6 +19,21 @@ const { BN, isBN } = web3.utils;
 
 chai.use(require('chai-bn')(BN)).should();
 
+const comissionsTxType = {
+  MINT_BPRO_FEES_RBTC: new BN(1),
+  REDEEM_BPRO_FEES_RBTC: new BN(2),
+  MINT_DOC_FEES_RBTC: new BN(3),
+  REDEEM_DOC_FEES_RBTC: new BN(4),
+  MINT_BTCX_FEES_RBTC: new BN(5),
+  REDEEM_BTCX_FEES_RBTC: new BN(6),
+  MINT_BPRO_FEES_MOC: new BN(7),
+  REDEEM_BPRO_FEES_MOC: new BN(8),
+  MINT_DOC_FEES_MOC: new BN(9),
+  REDEEM_DOC_FEES_MOC: new BN(10),
+  MINT_BTCX_FEES_MOC: new BN(11),
+  REDEEM_BTCX_FEES_MOC: new BN(12)
+};
+
 // Mock BTC price provider doesn't use second and third parameter
 const setBitcoinPrice = btcPriceProvider => async btcPrice =>
   btcPriceProvider.post(toContract(btcPrice), 0, btcPriceProvider.address);
@@ -112,7 +127,11 @@ const rbtcNeededToMintBpro = (moc, mocState) => async bproAmount => {
   return btcTotal;
 };
 
-const mintBProAmount = (moc, mocState, mocInrate) => async (account, bproAmount, txType) => {
+const mintBProAmount = (moc, mocState, mocInrate) => async (
+  account,
+  bproAmount,
+  txType = comissionsTxType.MINT_BPRO_FEES_RBTC
+) => {
   if (!bproAmount) {
     return;
   }
@@ -131,7 +150,11 @@ const mintBProAmount = (moc, mocState, mocInrate) => async (account, bproAmount,
   return moc.mintBPro(toContract(btcTotal), { from: account, value });
 };
 
-const mintDocAmount = (moc, btcPriceProvider, mocInrate) => async (account, docsToMint, txType) => {
+const mintDocAmount = (moc, btcPriceProvider, mocInrate) => async (
+  account,
+  docsToMint,
+  txType = comissionsTxType.MINT_DOC_FEES_RBTC
+) => {
   if (!docsToMint) {
     return;
   }
@@ -161,7 +184,7 @@ const mintBProxAmount = (moc, mocState, mocInrate) => async (
   account,
   bucket,
   bproxAmount,
-  txType
+  txType = comissionsTxType.MINT_BTCX_FEES_RBTC
 ) => {
   if (!bproxAmount) {
     return;
@@ -349,6 +372,7 @@ module.exports = async contracts => {
     mintMoCToken: mintMoCToken(mocToken),
     getMoCBalance: getMoCBalance(mocToken),
     approveMoCToken: approveMoCToken(mocToken),
-    getMoCAllowance: getMoCAllowance(mocToken)
+    getMoCAllowance: getMoCAllowance(mocToken),
+    comissionsTxType
   };
 };
