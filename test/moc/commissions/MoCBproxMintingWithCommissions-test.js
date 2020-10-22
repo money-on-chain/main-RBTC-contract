@@ -104,7 +104,7 @@ contract('MoC : MoCExchange', function([owner, userAccount, commissionsAccount])
       }
     ];
 
-    describe('GIVEN the user have 18 BPro and 8000 DOCs and no interest is charged', function() {
+    describe.only('GIVEN the user have 18 BPro and 8000 DOCs and no interest is charged', function() {
       scenarios.forEach(async s => {
         describe(`WHEN a user sends BTC to mint ${s.params.nBProx} Bprox`, function() {
           let initialCommissionAccountBalance;
@@ -209,7 +209,7 @@ contract('MoC : MoCExchange', function([owner, userAccount, commissionsAccount])
         });
       });
     });
-    describe.only('GIVEN since the user sends not enough amount to pay comission in RBTC', function() {
+    describe('GIVEN since the user sends not enough amount to pay comission in RBTC', function() {
       it('WHEN a user tries to mint BProx with 10 RBTCs and does not send to pay commission', async function() {
         // console.log de balances de bpro y doc para saber si esta minteando
         await mocHelper.mintBProAmount(
@@ -217,17 +217,12 @@ contract('MoC : MoCExchange', function([owner, userAccount, commissionsAccount])
           18,
           await mocHelper.mocInrate.MINT_BPRO_FEES_RBTC()
         );
-        await mocHelper.mintDoc(
-          userAccount,
-          1000,
-          await mocHelper.mocInrate.MINT_DOC_FEES_RBTC()
-        );
-        //const txType = await mocHelper.mocInrate.MINT_BTCX_FEES_RBTC();
-        const mint = await mocHelper.mintBProx(userAccount, BUCKET_X2, 8, 8);
-        await expectRevert.unspecified(mint);
+        await mocHelper.mintDoc(userAccount, 1000);
+        const mint = mocHelper.mintBProx(userAccount, BUCKET_X2, 8, 8);
+        await expectRevert(mint, 'amount is not enough');
       });
     });
-    describe.only('GIVEN since there is no allowance to pay comission in MoC', function() {
+    describe('GIVEN since there is no allowance to pay comission in MoC', function() {
       it('WHEN a user tries to mint BProx with no MoC allowance, THEN expect revert', async function() {
         await mocHelper.mintMoCToken(userAccount, 1000, owner);
         // DO NOT approve MoC token on purpose
@@ -236,18 +231,13 @@ contract('MoC : MoCExchange', function([owner, userAccount, commissionsAccount])
           18,
           await mocHelper.mocInrate.MINT_BPRO_FEES_RBTC()
         );
-        await mocHelper.mintDoc(
-          userAccount,
-          1000,
-          await mocHelper.mocInrate.MINT_DOC_FEES_RBTC()
-        );
-        //const txType = await mocHelper.mocInrate.MINT_BTCX_FEES_MOC();
-        const mint = await mocHelper.mintBProx(userAccount, BUCKET_X2, 8, 8);
-        await expectRevert.unspecified(mint);
+        await mocHelper.mintDoc(userAccount, 1000);
+        const mint = mocHelper.mintBProx(userAccount, BUCKET_X2, 8, 8);
+        await expectRevert(mint, 'amount is not enough');
       });
     });
     // TODO: fix this test ---> rtbc balances
-    describe('GIVEN since the user does not have MoC, but there is MoC allowance AND RBTC balance', function() {
+    describe.only('GIVEN since the user does not have MoC, but there is MoC allowance AND RBTC balance', function() {
       it('WHEN a user tries to mint BProx with MoC allowance, THEN commission is paid in RBTC', async function() {
         const accounts = await web3.eth.getAccounts();
         const otherAddress = accounts[1];

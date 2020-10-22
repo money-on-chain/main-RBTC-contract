@@ -1,3 +1,4 @@
+const { assert } = require('chai');
 const { expectRevert } = require('openzeppelin-test-helpers');
 const testHelperBuilder = require('../../mocHelper.js');
 
@@ -168,22 +169,20 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount]) 
         });
       });
     });
-    // TODO: check if it should revert
+
     describe('GIVEN since the user sends not enough amount to pay comission in RBTC', function() {
       it('WHEN a user tries to mint BPros with 10 RBTCs and does not send to pay commission', async function() {
-        const txType = await mocHelper.mocInrate.MINT_BPRO_FEES_RBTC();
-        const mintBpro = mocHelper.mintBPro(userAccount, 10, txType);
-        await expectRevert.unspecified(mintBpro);
+        const mintBpro = mocHelper.mintBPro(userAccount, 10);
+        await expectRevert(mintBpro, 'amount is not enough');
       });
     });
-    // TODO: check if it should revert
+
     describe('GIVEN since there is no allowance to pay comission in MoC', function() {
       it('WHEN a user tries to mint BPros with no MoC allowance, THEN expect revert', async function() {
         await mocHelper.mintMoCToken(userAccount, 1000, owner);
         // DO NOT approve MoC token on purpose
-        const txType = await mocHelper.mocInrate.MINT_BPRO_FEES_MOC();
-        const mintBpro = mocHelper.mintBPro(userAccount, 10, txType);
-        await expectRevert.unspecified(mintBpro);
+        const mintBpro = mocHelper.mintBPro(userAccount, 10);
+        await expectRevert(mintBpro, 'amount is not enough');
       });
     });
     describe('GIVEN since the user does not have MoC, but there is MoC allowance AND RBTC balance', function() {
@@ -251,22 +250,16 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount]) 
         const failingAddress = await web3.eth.personal.newAccount(password);
         await web3.eth.personal.unlockAccount(failingAddress, password, 600);
 
+        await web3.eth.sendTransaction({
+          from: owner,
+          to: failingAddress,
+          value: '10000000000000'
+        });
         try {
-          await web3.eth.sendTransaction({
-            from: owner,
-            to: failingAddress,
-            value: '10000000000000'
-          });
-          await mocHelper.mintMoCToken(failingAddress, 0, owner);
-          await mocHelper.approveMoCToken(mocHelper.moc.address, 0, failingAddress);
-          const txType = await mocHelper.mocInrate.MINT_BPRO_FEES_MOC();
-          const mintBpro = await mocHelper.mintBPro(failingAddress, 10, txType);
-          assert(mintBpro === null, 'This should not happen');
+          await mocHelper.mintBPro(failingAddress, 10);
+          assert.fail('Minting BPro should have failed');
         } catch (err) {
-          assert(
-            err.message.search(NOT_ENOUGH_FUNDS_ERROR) >= 0,
-            'Sender does not have enough funds'
-          );
+          assert(err.message.search(NOT_ENOUGH_FUNDS_ERROR) >= 0, 'Sender does have enough funds');
         }
       });
     });

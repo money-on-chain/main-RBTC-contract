@@ -241,7 +241,7 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
       });
     });
 
-    describe.only('Non-scenario tests', function() {
+    describe('Non-scenario tests', function() {
       beforeEach(async function() {
         await mocHelper.revertState();
         // this make the interests zero
@@ -282,7 +282,7 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
           mocHelper.assertBigRBTC(diffRbtc, rbtcExpectedBalance, 'user RBTC balance is incorrect');
         });
       });
-      describe('GIVEN since the user does not have MoC, but there is MoC allowance AND RBTC balance', function() {
+      describe.only('GIVEN since the user does not have MoC, but there is MoC allowance AND RBTC balance', function() {
         it('WHEN a user tries to redeem BProx with MoC allowance, THEN commission is paid in RBTC', async function() {
           const accounts = await web3.eth.getAccounts();
           const otherAddress = accounts[1];
@@ -410,7 +410,7 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
           }
         });
       });
-      describe('GIVEN since the address of the MoCToken is 0x0', function() {
+      describe.only('GIVEN since the address of the MoCToken is 0x0', function() {
         it('WHEN a user tries to redeem BProx, THEN commission is paid in RBTC', async function() {
           const accounts = await web3.eth.getAccounts();
           const otherAddress = accounts[1];
