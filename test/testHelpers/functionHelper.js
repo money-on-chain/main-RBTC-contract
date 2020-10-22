@@ -201,6 +201,8 @@ const getBProBalance = bproToken => async address => bproToken.balanceOf(address
 
 const getMoCBalance = mocToken => async address => mocToken.balanceOf(address);
 
+const getMoCAllowance = mocToken => async (owner, spender) => mocToken.allowance(owner, spender);
+
 const getReserveBalance = async address => new BN(await web3.eth.getBalance(address));
 
 // Runs settlement with a default fixed step count
@@ -210,15 +212,16 @@ const getRedeemRequestAt = moc => async index => moc.getRedeemRequestAt(index);
 
 const getBProxBalance = bprox => async (bucket, address) => bprox.bproxBalanceOf(bucket, address);
 
-const getUserBalances = (bproToken, docToken, bproxManager) => async account => {
-  const [doc, bpro, bpro2x, rbtc] = await Promise.all([
+const getUserBalances = (bproToken, docToken, bproxManager, mocToken) => async account => {
+  const [doc, bpro, bpro2x, rbtc, moc] = await Promise.all([
     docToken.balanceOf(account),
     bproToken.balanceOf(account),
     bproxManager.bproxBalanceOf(BUCKET_X2, account),
-    web3.eth.getBalance(account)
+    web3.eth.getBalance(account),
+    mocToken.balanceOf(account)
   ]);
 
-  return { doc, bpro, bpro2x, rbtc };
+  return { doc, bpro, bpro2x, rbtc, moc };
 };
 
 const getGlobalState = mocState => async () => {
@@ -319,7 +322,7 @@ module.exports = async contracts => {
     getBProBalance: getBProBalance(bpro),
     getBProxBalance: getBProxBalance(bprox),
     getReserveBalance,
-    getUserBalances: getUserBalances(bpro, doc, bprox),
+    getUserBalances: getUserBalances(bpro, doc, bprox, mocToken),
     setSmoothingFactor: setSmoothingFactor(governor, mockMocStateChanger),
     redeemFreeDoc: redeemFreeDoc(moc),
     mintBPro: mintBPro(moc),
@@ -345,6 +348,7 @@ module.exports = async contracts => {
     setMocCommissionProportion: setMocCommissionProportion(commissionSplitter, governor),
     mintMoCToken: mintMoCToken(mocToken),
     getMoCBalance: getMoCBalance(mocToken),
-    approveMoCToken: approveMoCToken(mocToken)
+    approveMoCToken: approveMoCToken(mocToken),
+    getMoCAllowance: getMoCAllowance(mocToken)
   };
 };

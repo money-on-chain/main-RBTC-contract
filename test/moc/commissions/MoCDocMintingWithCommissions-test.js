@@ -412,7 +412,11 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
         const txTypeMintBpro = await mocHelper.mocInrate.MINT_BPRO_FEES_RBTC();
         const txTypeMintDoc = await mocHelper.mocInrate.MINT_DOC_FEES_RBTC();
         // Mint
-        const mintBpro = await mocHelper.mintBProAmount(userAccount, mintBproAmount, txTypeMintBpro);
+        const mintBpro = await mocHelper.mintBProAmount(
+          userAccount,
+          mintBproAmount,
+          txTypeMintBpro
+        );
         const mintDoc = await mocHelper.mintDocAmount(otherAddress, mintDocAmount, txTypeMintDoc);
         const usedGas = toContractBN(await mocHelper.getTxCost(mintBpro)).add(
           toContractBN(await mocHelper.getTxCost(mintDoc)));
@@ -553,8 +557,7 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
 
               it('AND User MoC Balance decreases by the correct amount of MoCs', async function() {
                 const userMoCBalance = await mocHelper.getMoCBalance(userAccount);
-                const diff = new BN(prev.userMoCBalance)
-                  .sub(new BN(userMoCBalance));
+                const diff = new BN(prev.userMoCBalance).sub(new BN(userMoCBalance));
                 const totalSpent = payComissionAmount;
 
                 console.log("prev.userMoCBalance: ", prev.userMoCBalance.toString());
