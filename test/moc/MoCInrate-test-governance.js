@@ -23,7 +23,6 @@ const scenario = {
 contract('MoCInrate Governed', function([owner, account2]) {
   before(async function() {
     mocHelper = await testHelperBuilder({ owner });
-    ({ toContractBN } = mocHelper);
     this.mocInrate = mocHelper.mocInrate;
     this.governor = mocHelper.governor;
     this.mockMocInrateChanger = mocHelper.mockMocInrateChanger;
@@ -149,11 +148,13 @@ contract('MoCInrate Governed', function([owner, account2]) {
         const commissionRatesArrayLength = await this.mockMocInrateChanger.commissionRatesLength();
         // Iterate through array
         for (let i = 0; i < commissionRatesArrayLength; i++) {
+          /* eslint-disable no-await-in-loop */
           const commissionRate = await this.mockMocInrateChanger.commissionRates(i);
           const newCommisionRateValidTxType = await this.mocInrate.calcCommissionValue(
             (scenario.rbtcAmount * mocHelper.MOC_PRECISION).toString(),
             commissionRate.txType
           );
+          /* eslint-enable no-await-in-loop */
           // The fee from the commissionRatesArray is already converted to wei
           const testCommissionValue = scenario.rbtcAmount * commissionRate.fee;
           mocHelper.assertBig(

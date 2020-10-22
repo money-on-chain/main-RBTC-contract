@@ -307,6 +307,7 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
         const expectedMoCCommission = 0;
         const mintBproAmount = 1;
         const mintDocAmount = 10;
+        // eslint-disable-next-line max-len
         // commission = mintBproAmount * MINT_BPRO_FEES_RBTC() +  mintDocAmount / btcPrice * MINT_DOC_FEES_RBTC()
         const expectedRbtcCommission = 0.001003;
         const prevUserBtcBalanceOtherAddress = toContractBN(
@@ -320,10 +321,15 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
         const txTypeMintBpro = await mocHelper.mocInrate.MINT_BPRO_FEES_RBTC();
         const txTypeMintDoc = await mocHelper.mocInrate.MINT_DOC_FEES_RBTC();
         // Mint
-        const mintBpro = await mocHelper.mintBProAmount(userAccount, mintBproAmount, txTypeMintBpro);
+        const mintBpro = await mocHelper.mintBProAmount(
+          userAccount,
+          mintBproAmount,
+          txTypeMintBpro
+        );
         const mintDoc = await mocHelper.mintDocAmount(otherAddress, mintDocAmount, txTypeMintDoc);
         const usedGas = toContractBN(await mocHelper.getTxCost(mintBpro)).add(
-          toContractBN(await mocHelper.getTxCost(mintDoc)));
+          toContractBN(await mocHelper.getTxCost(mintDoc))
+        );
 
         const userMoCBalanceOtherAddress = await mocHelper.getMoCBalance(otherAddress);
         const diffMoCAmount = prevUserMoCBalanceOtherAddress.sub(new BN(expectedMoCCommission));
@@ -399,6 +405,7 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
         const expectedMoCCommission = 0;
         const mintBproAmount = 1;
         const mintDocAmount = 10;
+        // eslint-disable-next-line max-len
         // commission = mintBproAmount * MINT_BPRO_FEES_RBTC() +  mintDocAmount / btcPrice * MINT_DOC_FEES_RBTC()
         const expectedRbtcCommission = 0.001003;
         const prevUserBtcBalanceOtherAddress = toContractBN(
@@ -419,7 +426,8 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
         );
         const mintDoc = await mocHelper.mintDocAmount(otherAddress, mintDocAmount, txTypeMintDoc);
         const usedGas = toContractBN(await mocHelper.getTxCost(mintBpro)).add(
-          toContractBN(await mocHelper.getTxCost(mintDoc)));
+          toContractBN(await mocHelper.getTxCost(mintDoc))
+        );
 
         const userMoCBalanceOtherAddress = await mocHelper.getMoCBalance(otherAddress);
         const diffMoCAmount = prevUserMoCBalanceOtherAddress.sub(new BN(expectedMoCCommission));
@@ -559,10 +567,6 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
                 const userMoCBalance = await mocHelper.getMoCBalance(userAccount);
                 const diff = new BN(prev.userMoCBalance).sub(new BN(userMoCBalance));
                 const totalSpent = payComissionAmount;
-
-                console.log("prev.userMoCBalance: ", prev.userMoCBalance.toString());
-                console.log("userMoCBalance: ", userMoCBalance.toString());
-                console.log("totalSpent: ", totalSpent.toString());
 
                 mocHelper.assertBig(
                   diff,
