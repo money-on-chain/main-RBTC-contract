@@ -406,6 +406,40 @@ const getCommissionsArrayNonZero = (moc, mocInrate) => async () => {
   return ret;
 };
 
+const getCommissionsArrayInvalidLength = async () => {
+  const ret = [];
+  const length = 60;
+  const mocPrecision = 10 ** 18;
+
+  for (let i = 1; i <= length; i++) {
+    ret.push({
+      txType: i.toString(),
+      fee: BigNumber(i)
+        .times(mocPrecision)
+        .toString()
+    });
+  }
+
+  return ret;
+};
+
+const getCommissionsArrayChangingTest = async () => {
+  const ret = [];
+  const length = 12;
+  const mocPrecision = 10 ** 18;
+
+  for (let i = 1; i <= length; i++) {
+    ret.push({
+      txType: i.toString(),
+      fee: BigNumber(i * 2)
+        .times(mocPrecision)
+        .toString()
+    });
+  }
+
+  return ret;
+};
+
 module.exports = async contracts => {
   const {
     doc,
@@ -457,6 +491,8 @@ module.exports = async contracts => {
     approveMoCToken: approveMoCToken(mocToken),
     getMoCAllowance: getMoCAllowance(mocToken),
     comissionsTxType,
-    getCommissionsArrayNonZero: getCommissionsArrayNonZero(moc, mocInrate)
+    getCommissionsArrayNonZero: getCommissionsArrayNonZero(moc, mocInrate),
+    getCommissionsArrayInvalidLength,
+    getCommissionsArrayChangingTest
   };
 };

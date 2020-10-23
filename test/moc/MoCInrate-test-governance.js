@@ -1,3 +1,4 @@
+const { expectRevert } = require('openzeppelin-test-helpers');
 const testHelperBuilder = require('../mocHelper.js');
 
 let mocHelper;
@@ -171,6 +172,40 @@ contract('MoCInrate Governed', function([owner, account2]) {
             `final commission amount should be ${testCommissionValue.toString()}`
           );
         }
+      });
+    });
+
+    describe('GIVEN the default commissionRates', function() {
+      it(`THEN an unauthorized account ${account2} tries to change commissionRates with another array`, async function() {
+        const setCommissionRates = this.mockMocInrateChanger.setCommissionRates(
+          await mocHelper.getCommissionsArrayChangingTest(),
+          { from: account2 }
+        );
+        await expectRevert(setCommissionRates, 'Ownable: caller is not the owner');
+      });
+      it('THEN an authorized contract tries to change commissionRate with another array', async function() {
+        await this.mockMocInrateChanger.setCommissionRates(
+          await mocHelper.getCommissionsArrayChangingTest()
+        );
+        await this.governor.executeChange(this.mockMocInrateChanger.address);
+        const newCommissionRate = await this.mocInrate.commissionRatesByTxType(
+          await mocHelper.mocInrate.MINT_BPRO_FEES_RBTC()
+        );
+        const expectedValue = '2000000000000000000';
+        mocHelper.assertBig(
+          newCommissionRate,
+          expectedValue,
+          `commissionRate should be ${expectedValue}`
+        );
+      });
+    });
+
+    describe('GIVEN a commissionRates array with invalid length', function() {
+      it('THEN setting this new array will fail and revert', async function() {
+        const setCommissionRates = this.mockMocInrateChanger.setCommissionRates(
+          await mocHelper.getCommissionsArrayInvalidLength()
+        );
+        await expectRevert(setCommissionRates, 'commissionRates length must be between 1 and 50');
       });
     });
 

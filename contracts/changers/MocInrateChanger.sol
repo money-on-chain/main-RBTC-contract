@@ -36,8 +36,6 @@ contract MocInrateChanger is ChangeContract, Ownable {
 
   CommissionRates[] public commissionRates;
   uint8 public constant COMMISSION_RATES_ARRAY_MAX_LENGTH = 50;
-  // Change the error message according to the value of the COMMISSION_RATES_ARRAY_MAX_LENGTH constant
-  string constant COMMISSION_RATES_ARRAY_ERROR_MESSAGE = "commissionRates size must be between 1 and 50";
 
   struct CommissionRates {
     uint8 txType;
@@ -175,7 +173,8 @@ contract MocInrateChanger is ChangeContract, Ownable {
   */
   function initializeCommissionRates() internal {
     require(commissionRates.length > 0, "commissionRates cannot be empty");
-    require(commissionRates.length <= COMMISSION_RATES_ARRAY_MAX_LENGTH, COMMISSION_RATES_ARRAY_ERROR_MESSAGE);
+    // Change the error message according to the value of the COMMISSION_RATES_ARRAY_MAX_LENGTH constant
+    require(commissionRates.length <= COMMISSION_RATES_ARRAY_MAX_LENGTH, "commissionRates length must be between 1 and 50");
 
     for (uint256 i = 0; i < commissionRates.length; i++) {
       mocInrate.setCommissionRateByTxType(commissionRates[i].txType, commissionRates[i].fee);
@@ -183,6 +182,10 @@ contract MocInrateChanger is ChangeContract, Ownable {
   }
 
   function setCommissionRatesInternal(CommissionRates[] memory _commissionRates) internal {
+    require(_commissionRates.length > 0, "commissionRates cannot be empty");
+    // Change the error message according to the value of the COMMISSION_RATES_ARRAY_MAX_LENGTH constant
+    require(_commissionRates.length <= COMMISSION_RATES_ARRAY_MAX_LENGTH, "commissionRates length must be between 1 and 50");
+
     delete commissionRates;
 
     for (uint256 i = 0; i < _commissionRates.length; i++){
