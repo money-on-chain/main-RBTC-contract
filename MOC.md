@@ -34,6 +34,7 @@
    1. [OwnerBurnableToken](#ownerburnabletoken)
    1. [BProToken](#bprotoken)
    1. [DocToken](#doctoken)
+   1. [MocToken](#moctoken)
    1. [PriceProvider](#priceprovider)
 1. [Contracts Mocks](#contracts-mocks)
 1. [Relevant patterns and choices](#relevant-patterns-and-choices)
