@@ -16,13 +16,16 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount]) 
     this.mockMocInrateChanger = mocHelper.mockMocInrateChanger;
     this.governor = mocHelper.governor;
     this.mocToken = mocHelper.mocToken;
-    this.mocConnector = mocHelper.mocConnector;
+    this.mockMocStateChanger = mocHelper.mockMocStateChanger;
   });
 
   beforeEach(async function() {
     await mocHelper.revertState();
 
-    // Commission rates are set in contractsBuilder.js
+    // Commission rates for test are set in functionHelper.js
+    await mocHelper.mockMocInrateChanger.setCommissionRates(
+      await mocHelper.getCommissionsArrayNonZero()
+    );
 
     // set commissions address
     await mocHelper.mockMocInrateChanger.setCommissionsAddress(commissionsAccount);
@@ -302,7 +305,8 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount]) 
         const mocTokenAddress = this.mocToken.address;
         // Set MoCToken address to 0
         const zeroAddress = '0x0000000000000000000000000000000000000000';
-        await this.mocConnector.setMoCToken(zeroAddress);
+        await this.mockMocStateChanger.setMoCToken(zeroAddress);
+        await mocHelper.governor.executeChange(mocHelper.mockMocStateChanger.address);
 
         const prevUserMoCBalanceOtherAddress = new BN(0); // No MoC balance
         const expectedMoCAmount = 0;
@@ -344,7 +348,8 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount]) 
           .sub(usedGas);
 
         // Set MoCToken address back to its original address
-        await this.mocConnector.setMoCToken(mocTokenAddress);
+        await this.mockMocStateChanger.setMoCToken(mocTokenAddress);
+        await mocHelper.governor.executeChange(mocHelper.mockMocStateChanger.address);
 
         mocHelper.assertBigRBTC(diffMoCAmount, expectedMoCAmount, 'user MoC balance is incorrect');
         mocHelper.assertBigRBTC(

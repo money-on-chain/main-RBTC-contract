@@ -5,6 +5,7 @@
 [MoC]: #MoC
 [MoC-docToken-contract-DocToken]: #MoC-docToken-contract-DocToken
 [MoC-bproToken-contract-BProToken]: #MoC-bproToken-contract-BProToken
+[MoC-mocToken-contract-MoCToken]: #MoC-mocToken-contract-MoCToken
 [MoC-bproxManager-contract-MoCBProxManager]: #MoC-bproxManager-contract-MoCBProxManager
 [MoC-mocState-contract-MoCState]: #MoC-mocState-contract-MoCState
 [MoC-mocConverter-contract-MoCConverter]: #MoC-mocConverter-contract-MoCConverter
@@ -220,6 +221,7 @@
 [MoCInrate-getBitProInterestAddress--]: #MoCInrate-getBitProInterestAddress--
 [MoCInrate-setBitProInterestAddress-address-payable-]: #MoCInrate-setBitProInterestAddress-address-payable-
 [MoCInrate-setCommissionsAddress-address-payable-]: #MoCInrate-setCommissionsAddress-address-payable-
+[MoCInrate-setCommissionRateByTxType-uint256-uint256-]: #MoCInrate-setCommissionRateByTxType-uint256-uint256-
 [MoCInrate-setCommissionRate-uint256-]: #MoCInrate-setCommissionRate-uint256-
 [MoCInrate-spotInrate--]: #MoCInrate-spotInrate--
 [MoCInrate-btcxInrateAvg-bytes32-uint256-bool-]: #MoCInrate-btcxInrateAvg-bytes32-uint256-bool-
@@ -276,6 +278,7 @@
 [MoCState]: #MoCState
 [MoCState-state-enum-MoCState-States]: #MoCState-state-enum-MoCState-States
 [MoCState-btcPriceProvider-contract-BtcPriceProvider]: #MoCState-btcPriceProvider-contract-BtcPriceProvider
+[MoCState-mocPriceProvider-contract-MoCPriceProvider]: #MoCState-mocPriceProvider-contract-MoCPriceProvider
 [MoCState-mocSettlement-contract-MoCSettlement]: #MoCState-mocSettlement-contract-MoCSettlement
 [MoCState-mocConverter-contract-MoCConverter]: #MoCState-mocConverter-contract-MoCConverter
 [MoCState-docToken-contract-DocToken]: #MoCState-docToken-contract-DocToken
@@ -350,6 +353,11 @@
 [MoCState-setMaxMintBPro-uint256-]: #MoCState-setMaxMintBPro-uint256-
 [MoCState-getMaxMintBPro--]: #MoCState-getMaxMintBPro--
 [MoCState-maxMintBProAvalaible--]: #MoCState-maxMintBProAvalaible--
+[MoCState-setMoCPriceProvider-mocProviderAddress]: #MoCState-setMoCPriceProvider-mocProviderAddress
+[MoCState-getMoCPriceProvider--]: #MoCState-getMoCPriceProvider--
+[MoCState-getMoCPrice--]: #MoCState-getMoCPrice--
+[MoCState-setMoCToken-mocTokenAddress]: #MoCState-setMoCToken-mocTokenAddress
+[MoCState-getMoCToken--]: #MoCState-getMoCToken--
 [MoCState-StateTransition-enum-MoCState-States-]: #MoCState-StateTransition-enum-MoCState-States-
 [MoCState-PriceProviderUpdated-address-address-]: #MoCState-PriceProviderUpdated-address-address-
 [MoCBase]: #MoCBase
@@ -517,6 +525,10 @@
 [BtcPriceProviderMock-peek--]: #BtcPriceProviderMock-peek--
 [BtcPriceProviderMock-poke-uint128-uint32-]: #BtcPriceProviderMock-poke-uint128-uint32-
 [BtcPriceProviderMock-post-uint128-uint32-address-]: #BtcPriceProviderMock-post-uint128-uint32-address-
+[MoCPriceProviderMock-constructor-uint256-]: #MoCPriceProviderMock-constructor-uint256-
+[MoCPriceProviderMock-peek--]: #MoCPriceProviderMock-peek--
+[MoCPriceProviderMock-poke-uint128-uint32-]: #MoCPriceProviderMock-poke-uint128-uint32-
+[BMoCPriceProviderMock-post-uint128-uint32-address-]: #BMoCPriceProviderMock-post-uint128-uint32-address-
 [MoCHelperLibMock]: #MoCHelperLibMock
 [MoCHelperLibMock-UINT256_MAX-uint256]: #MoCHelperLibMock-UINT256_MAX-uint256
 [MoCHelperLibMock-mocLibConfig-struct-MoCHelperLib-MocLibConfig]: #MoCHelperLibMock-mocLibConfig-struct-MoCHelperLib-MocLibConfig
@@ -564,6 +576,8 @@
 [BProToken-fallback--]: #BProToken-fallback--
 [DocToken]: #DocToken
 [DocToken-fallback--]: #DocToken-fallback--
+[MoCToken]: #MoCToken
+[MoCToken-fallback--]: #MoCToken-fallback--
 [OwnerBurnableToken]:#OwnerBurnableToken
 [OwnerBurnableToken-burn-address-uint256-]:#OwnerBurnableToken-burn-address-uint256-
 
@@ -855,17 +869,17 @@ BitPro interests = Nb (bucket 0) * bitProRate.
 ## <span id="MoCExchangeEvents"></span> `MoCExchangeEvents`
 
 
-- [`RiskProMint(address account, uint256 amount, uint256 reserveTotal, uint256 commission, uint256 reservePrice)`][MoCExchangeEvents-RiskProMint-address-uint256-uint256-uint256-uint256-]
+- [`RiskProMint(address account, uint256 amount, uint256 reserveTotal, uint256 commission, uint256 reservePrice, uint256 mocCommissionValue, uint256 mocPrice)`][MoCExchangeEvents-RiskProMint-address-uint256-uint256-uint256-uint256-]
 - [`RiskProWithDiscountMint(uint256 riskProTecPrice, uint256 riskProDiscountPrice, uint256 amount)`][MoCExchangeEvents-RiskProWithDiscountMint-uint256-uint256-uint256-]
-- [`RiskProRedeem(address account, uint256 amount, uint256 reserveTotal, uint256 commission, uint256 reservePrice)`][MoCExchangeEvents-RiskProRedeem-address-uint256-uint256-uint256-uint256-]
-- [`StableTokenMint(address account, uint256 amount, uint256 reserveTotal, uint256 commission, uint256 reservePrice)`][MoCExchangeEvents-StableTokenMint-address-uint256-uint256-uint256-uint256-]
-- [`StableTokenRedeem(address account, uint256 amount, uint256 reserveTotal, uint256 commission, uint256 reservePrice)`][MoCExchangeEvents-StableTokenRedeem-address-uint256-uint256-uint256-uint256-]
-- [`FreeStableTokenRedeem(address account, uint256 amount, uint256 reserveTotal, uint256 commission, uint256 interests, uint256 reservePrice)`][MoCExchangeEvents-FreeStableTokenRedeem-address-uint256-uint256-uint256-uint256-uint256-]
-- [`RiskProxMint(bytes32 bucket, address account, uint256 amount, uint256 reserveTotal, uint256 interests, uint256 leverage, uint256 commission, uint256 reservePrice)`][MoCExchangeEvents-RiskProxMint-bytes32-address-uint256-uint256-uint256-uint256-uint256-uint256-]
-- [`RiskProxRedeem(bytes32 bucket, address account, uint256 commission, uint256 amount, uint256 reserveTotal, uint256 interests, uint256 leverage, uint256 reservePrice)`][MoCExchangeEvents-RiskProxRedeem-bytes32-address-uint256-uint256-uint256-uint256-uint256-uint256-]
+- [`RiskProRedeem(address account, uint256 amount, uint256 reserveTotal, uint256 commission, uint256 reservePrice, uint256 mocCommissionValue, uint256 mocPrice)`][MoCExchangeEvents-RiskProRedeem-address-uint256-uint256-uint256-uint256-]
+- [`StableTokenMint(address account, uint256 amount, uint256 reserveTotal, uint256 commission, uint256 reservePrice, uint256 mocCommissionValue, uint256 mocPrice)`][MoCExchangeEvents-StableTokenMint-address-uint256-uint256-uint256-uint256-]
+- [`StableTokenRedeem(address account, uint256 amount, uint256 reserveTotal, uint256 commission, uint256 reservePrice, uint256 mocCommissionValue, uint256 mocPrice)`][MoCExchangeEvents-StableTokenRedeem-address-uint256-uint256-uint256-uint256-]
+- [`FreeStableTokenRedeem(address account, uint256 amount, uint256 reserveTotal, uint256 commission, uint256 interests, uint256 reservePrice, uint256 mocCommissionValue, uint256 mocPrice)`][MoCExchangeEvents-FreeStableTokenRedeem-address-uint256-uint256-uint256-uint256-uint256-]
+- [`RiskProxMint(bytes32 bucket, address account, uint256 amount, uint256 reserveTotal, uint256 interests, uint256 leverage, uint256 commission, uint256 reservePrice, uint256 mocCommissionValue, uint256 mocPrice)`][MoCExchangeEvents-RiskProxMint-bytes32-address-uint256-uint256-uint256-uint256-uint256-uint256-]
+- [`RiskProxRedeem(bytes32 bucket, address account, uint256 commission, uint256 amount, uint256 reserveTotal, uint256 interests, uint256 leverage, uint256 reservePrice, uint256 mocCommissionValue, uint256 mocPrice)`][MoCExchangeEvents-RiskProxRedeem-bytes32-address-uint256-uint256-uint256-uint256-uint256-uint256-]
 
 ### <span id="MoCExchangeEvents-RiskProMint-address-uint256-uint256-uint256-uint256-"></span> 
-`RiskProMint(address account, uint256 amount, uint256 reserveTotal, uint256 commission, uint256 reservePrice)`
+`RiskProMint(address account, uint256 amount, uint256 reserveTotal, uint256 commission, uint256 reservePrice,     uint256 mocCommissionValue, uint256 mocPrice)`
 
 
 
@@ -879,42 +893,42 @@ BitPro interests = Nb (bucket 0) * bitProRate.
 
 
 ### <span id="MoCExchangeEvents-RiskProRedeem-address-uint256-uint256-uint256-uint256-"></span>
- `RiskProRedeem(address account, uint256 amount, uint256 reserveTotal, uint256 commission, uint256 reservePrice)`
+ `RiskProRedeem(address account, uint256 amount, uint256 reserveTotal, uint256 commission, uint256 reservePrice, uint256 mocCommissionValue, uint256 mocPrice)`
 
 
 
 
 
 ### <span id="MoCExchangeEvents-StableTokenMint-address-uint256-uint256-uint256-uint256-"></span> 
-`StableTokenMint(address account, uint256 amount, uint256 reserveTotal, uint256 commission, uint256 reservePrice)`
+`StableTokenMint(address account, uint256 amount, uint256 reserveTotal, uint256 commission, uint256 reservePrice, uint256 mocCommissionValue, uint256 mocPrice)`
 
 
 
 
 
 ### <span id="MoCExchangeEvents-StableTokenRedeem-address-uint256-uint256-uint256-uint256-"></span> 
-`StableTokenRedeem(address account, uint256 amount, uint256 reserveTotal, uint256 commission, uint256 reservePrice)`
+`StableTokenRedeem(address account, uint256 amount, uint256 reserveTotal, uint256 commission, uint256 reservePrice, uint256 mocCommissionValue, uint256 mocPrice)`
 
 
 
 
 
 ### <span id="MoCExchangeEvents-FreeStableTokenRedeem-address-uint256-uint256-uint256-uint256-uint256-"></span> 
-`FreeStableTokenRedeem(address account, uint256 amount, uint256 reserveTotal, uint256 commission, uint256 interests, uint256 reservePrice)`
+`FreeStableTokenRedeem(address account, uint256 amount, uint256 reserveTotal, uint256 commission, uint256 interests, uint256 reservePrice, uint256 mocCommissionValue, uint256 mocPrice)`
 
 
 
 
 
 ### <span id="MoCExchangeEvents-RiskProxMint-bytes32-address-uint256-uint256-uint256-uint256-uint256-uint256-"></span> 
-`RiskProxMint(bytes32 bucket, address account, uint256 amount, uint256 reserveTotal, uint256 interests, uint256 leverage, uint256 commission, uint256 reservePrice)`
+`RiskProxMint(bytes32 bucket, address account, uint256 amount, uint256 reserveTotal, uint256 interests, uint256 leverage, uint256 commission, uint256 reservePrice, uint256 mocCommissionValue, uint256 mocPrice)`
 
 
 
 
 
 ### <span id="MoCExchangeEvents-RiskProxRedeem-bytes32-address-uint256-uint256-uint256-uint256-uint256-uint256-"></span> 
-`RiskProxRedeem(bytes32 bucket, address account, uint256 commission, uint256 amount, uint256 reserveTotal, uint256 interests, uint256 leverage, uint256 reservePrice)`
+`RiskProxRedeem(bytes32 bucket, address account, uint256 commission, uint256 amount, uint256 reserveTotal, uint256 interests, uint256 leverage, uint256 reservePrice, uint256 mocCommissionValue, uint256 mocPrice)`
 
 
 
@@ -929,29 +943,29 @@ It is [MoCExchangeEvents], [MoCLibConnection]
 
 
 
-- [`mintBPro(address account, uint256 btcAmount)`][MoCExchange-mintBPro-address-uint256-]
-- [`redeemBPro(address account, uint256 bproAmount)`][MoCExchange-redeemBPro-address-uint256-]
-- [`redeemFreeDoc(address account, uint256 docAmount)`][MoCExchange-redeemFreeDoc-address-uint256-]
-- [`mintDoc(address account, uint256 btcToMint)`][MoCExchange-mintDoc-address-uint256-]
+- [`mintBPro(address account, uint256 btcAmount, uint256 mocBalance, uint256 mocAllowance)`][MoCExchange-mintBPro-address-uint256-]
+- [`redeemBPro(address account, uint256 bproAmount, uint256 mocBalance, uint256 mocAllowance)`][MoCExchange-redeemBPro-address-uint256-]
+- [`redeemFreeDoc(address account, uint256 docAmount, uint256 mocBalance, uint256 mocAllowance)`][MoCExchange-redeemFreeDoc-address-uint256-]
+- [`mintDoc(address account, uint256 btcToMint, uint256 mocBalance, uint256 mocAllowance)`][MoCExchange-mintDoc-address-uint256-]
 - [`redeemDocWithPrice(address payable userAddress, uint256 amount, uint256 btcPrice)`][MoCExchange-redeemDocWithPrice-address-payable-uint256-uint256-]
 - [`redeemAllDoc(address origin, address payable destination)`][MoCExchange-redeemAllDoc-address-address-payable-]
-- [`mintBPro(address account, uint256 btcCommission, uint256 bproAmount, uint256 rbtcValue)`][MoCExchange-mintBPro-address-uint256-uint256-uint256-]
-- [`mintBProx(address payable account, bytes32 bucket, uint256 btcToMint)`][MoCExchange-mintBProx-address-payable-bytes32-uint256-]
-- [`redeemBProx(address payable account, bytes32 bucket, uint256 bproxAmount)`][MoCExchange-redeemBProx-address-payable-bytes32-uint256-]
+- [`mintBPro(address account, uint256 btcCommission, uint256 bproAmount, uint256 rbtcValue, uint256 mocCommissionInRbtc)`][MoCExchange-mintBPro-address-uint256-uint256-uint256-]
+- [`mintBProx(address payable account, bytes32 bucket, uint256 btcToMint, uint256 mocBalance, uint256 mocAllowance)`][MoCExchange-mintBProx-address-payable-bytes32-uint256-]
+- [`redeemBProx(address payable account, bytes32 bucket, uint256 bproxAmount, uint256 mocBalance, uint256 mocAllowance)`][MoCExchange-redeemBProx-address-payable-bytes32-uint256-]
 - [`forceRedeemBProx(bytes32 bucket, address payable account, uint256 bproxAmount, uint256 bproxPrice)`][MoCExchange-forceRedeemBProx-bytes32-address-payable-uint256-uint256-]
-- [`burnBProxFor(bytes32 bucket, address payable account, uint256 bproxAmount, uint256 bproxPrice)`][MoCExchange-burnBProxFor-bytes32-address-payable-uint256-uint256-]]
+- [`burnBProxFor(bytes32 bucket, address payable account, uint256 bproxAmount, uint256 bproxPrice)`][MoCExchange-burnBProxFor-bytes32-address-payable-uint256-uint256-]
 - [`initialize(address connectorAddress)`][MoCExchange-initialize-address-]
 
 
 ### <span id="MoCExchange-mintBPro-address-uint256-"></span> 
-`mintBPro(address account, uint256 btcAmount) → uint256, uint256` (public)
+`mintBPro(address account, uint256 btcAmount, uint256 mocBalance, uint256 mocAllowance) → uint256, uint256, uint256` (public)
 
 
 
 <font size="3">Mint BPros and give it to the msg.sender
 
 ### <span id="MoCExchange-redeemBPro-address-uint256-"></span> 
-`redeemBPro(address account, uint256 bproAmount) → uint256, uint256` (public)
+`redeemBPro(address account, uint256 bproAmount, uint256 mocBalance, uint256 mocAllowance) → uint256, uint256, uint256` (public)
 
 
 
@@ -959,7 +973,7 @@ It is [MoCExchangeEvents], [MoCLibConnection]
 
 
 ### <span id="MoCExchange-redeemFreeDoc-address-uint256-"></span> 
-`redeemFreeDoc(address account, uint256 docAmount) → uint256, uint256` (public)
+`redeemFreeDoc(address account, uint256 docAmount, uint256 mocBalance, uint256 mocAllowance) → uint256, uint256, uint256` (public)
 
 
 
@@ -967,7 +981,7 @@ It is [MoCExchangeEvents], [MoCLibConnection]
 
 
 ### <span id="MoCExchange-mintDoc-address-uint256-"></span> 
-`mintDoc(address account, uint256 btcToMint) → uint256, uint256` (public)
+`mintDoc(address account, uint256 btcToMint, uint256 mocBalance, uint256 mocAllowance) → uint256, uint256, uint256` (public)
 
 
 
@@ -990,8 +1004,8 @@ It is [MoCExchangeEvents], [MoCLibConnection]
 <font size="3">Allow redeem on liquidation state, user DoCs get burned and he receives the equivalent RBTCs according to liquidationPrice
 
 
-### <span id="MoCExchange-mintBPro-address-uint256-uint256-uint256-"></span> 
-`mintBPro(address account, uint256 btcCommission, uint256 bproAmount, uint256 rbtcValue)` (public)
+### <span id="MoCExchange-mintBPro-address-uint256-uint256-uint256-"></span>
+`mintBPro(address account, uint256 btcCommission, uint256 bproAmount, uint256 rbtcValue, uint256 mocCommissionInRbtc)` (public)
 
 
 
@@ -999,7 +1013,7 @@ It is [MoCExchangeEvents], [MoCLibConnection]
 
 
 ### <span id="MoCExchange-mintBProx-address-payable-bytes32-uint256-"></span>
- `mintBProx(address payable account, bytes32 bucket, uint256 btcToMint) → uint256, uint256` (public)
+ `mintBProx(address payable account, bytes32 bucket, uint256 btcToMint, uint256 mocBalance, uint256 mocAllowance) → uint256, uint256, uint256` (public)
 
 
 
@@ -1007,7 +1021,7 @@ It is [MoCExchangeEvents], [MoCLibConnection]
 
 
 ### <span id="MoCExchange-redeemBProx-address-payable-bytes32-uint256-"></span>
- `redeemBProx(address payable account, bytes32 bucket, uint256 bproxAmount) → uint256, uint256` (public)
+ `redeemBProx(address payable account, bytes32 bucket, uint256 bproxAmount, uint256 mocBalance, uint256 mocAllowance) → uint256, uint256, uint256` (public)
 
 
 
@@ -1095,6 +1109,11 @@ It is [MoCLibConnection], [MoCEMACalculator]
 - [`setMaxMintBPro(uint256 _maxMintBPro)`][MoCState-setMaxMintBPro-uint256-]
 - [`getMaxMintBPro()`][MoCState-getMaxMintBPro--]
 - [`maxMintBProAvalaible()`][MoCState-maxMintBProAvalaible--]
+- [`setMoCPriceProvider(address mocProviderAddress)`][MoCState-setMoCPriceProvider-mocProviderAddress]
+- [`getMoCPriceProvider()`][MoCState-getMoCPriceProvider--]
+- [`getMoCPrice()`][MoCState-getMoCPrice--]
+- [`setMoCToken(address mocTokenAddress)`][MoCState-setMoCToken-mocTokenAddress]
+- [`getMoCToken()`][MoCState-getMoCToken--]
 - [`StateTransition(enum MoCState.States newState)`][MoCState-StateTransition-enum-MoCState-States-]
 - [`PriceProviderUpdated(address oldAddress, address newAddress)`][MoCState-PriceProviderUpdated-address-address-]
 - [`initialize(address connectorAddress, address _governor, address _btcPriceProvider, uint256 _liq, uint256 _utpdu, uint256 _maxDiscRate, uint256 _dayBlockSpan, uint256 _ema, uint256 _smoothFactor, uint256 _emaBlockSpan, uint256 _maxMintBPro)`][MoCState-initialize-address-address-address-uint256-uint256-uint256-uint256-uint256-uint256-uint256-uint256-]
@@ -1461,6 +1480,7 @@ return the value of the BPro max discount rate configuration param
 
 
 
+
 ********************
 **************************BTC PRICE PROVIDER**************************
 
@@ -1554,12 +1574,33 @@ return the value of the BPro max discount rate configuration param
 <font size="3">Return Max value posible to mint of BPro
 
 
-### <span id="MoCState-maxMintBProAvalaible--"></span> 
-`maxMintBProAvalaible() → uint256` (public)
+### <span id="MoCState-maxMintBProAvalaible--"></span>
+`maxMintBProAvalaible()
 
 
 
 <font size="3">Return the bpro available to mint
+
+********************
+**************************MOC PRICE PROVIDER**************************
+
+### <span id="MoCState-setMoCPriceProvider-mocProviderAddress"></span>
+`setMoCPriceProvider(address mocProviderAddress)` (public)
+
+### <span id="MoCState-getMoCPriceProvider--"></span>
+`getMoCPriceProvider() → uint256` (public)
+
+### <span id="MoCState-getMoCPrice--"></span>
+`getMoCPrice() → uint256` (public)
+
+********************
+**************************MOC TOKEN**************************
+
+### <span id="MoCState-setMoCToken-mocTokenAddress"></span>
+`setMoCToken(address mocProviderAddress)` (public)
+
+### <span id="MoCState-getMoCToken--"></span>
+`getMoCToken() → MoCToken` (public)
 
 
 ### <span id="MoCState-StateTransition-enum-MoCState-States-"></span> 
@@ -1858,6 +1899,19 @@ It is [OwnerBurnableToken].
 ### <span id="DocToken-fallback--"></span>
  `fallback()` (external)
 
+
+## <span id="MoCToken"></span> `MoCToken`
+
+
+
+It is [OwnerBurnableToken].
+
+
+- [`fallback()`][MoCToken-fallback--]
+
+
+### <span id="MoCToken-fallback--"></span>
+ `fallback()` (external)
 
 
 
@@ -2661,7 +2715,7 @@ It is [Governed](https://github.com/money-on-chain/Areopagus-Governance), [MoCIn
 - [`getBitProInterestAddress()`][MoCInrate-getBitProInterestAddress--]
 - [`setBitProInterestAddress(address payable newBitProInterestAddress)`][MoCInrate-setBitProInterestAddress-address-payable-]
 - [`setCommissionsAddress(address payable newCommissionsAddress)`][MoCInrate-setCommissionsAddress-address-payable-]
-- [`setCommissionRate(uint256 newCommissionRate)`][MoCInrate-setCommissionRate-uint256-]
+- [`setCommissionRateByTxType(uint8 txType, uint256 value)`][MoCInrate-setCommissionRateByTxType-uint256-uint256-]
 - [`spotInrate()`][MoCInrate-spotInrate--]
 - [`btcxInrateAvg(bytes32 bucket, uint256 btcAmount, bool onMinting)`][MoCInrate-btcxInrateAvg-bytes32-uint256-bool-]
 - [`dailyInrate()`][MoCInrate-dailyInrate--]
@@ -2852,12 +2906,12 @@ It is [Governed](https://github.com/money-on-chain/Areopagus-Governance), [MoCIn
 <font size="3">Sets the target address to transfer commissions of Mint/Redeem transactions
 
 
-### <span id="MoCInrate-setCommissionRate-uint256-"></span>
- `setCommissionRate(uint256 newCommissionRate)` (public)
+### <span id="MoCInrate-setCommissionRateByTxType-uint256-uint256"></span>
+ `setCommissionRateByTxType(uint8 txType, uint256 value)` (public)
 
 
 
-<font size="3">Sets the commission rate for Mint/Redeem transactions
+<font size="3">Sets the commission rates for Mint/Redeem transactions and commissions paid in RBTC and MoC. Valid transaction types are defined as constants in this contract.
 
 
 ### <span id="MoCInrate-spotInrate--"></span>
@@ -2907,12 +2961,12 @@ It is [Governed](https://github.com/money-on-chain/Areopagus-Governance), [MoCIn
 <font size="3">This function calculates the interest to return to the user in a BPRox redemption. It uses a mechanism to counteract the effect of free docs redemption. It will be replaced with FreeDoC redemption interests in the future.
 
 
-### <span id="MoCInrate-calcCommissionValue-uint256-"></span>
- `calcCommissionValue(uint256 rbtcAmount) → uint256` (public)
+### <span id="MoCInrate-calcCommissionValue-uint256-uint256-"></span>
+ `calcCommissionValue(uint256 rbtcAmount, uint8 txType) → uint256` (public)
 
 
 
-<font size="3">Calculates the Commission rate from the passed RBTC amount for mint/redeem operations.
+<font size="3">Calculates the Commission rate from the passed RBTC amount for mint/redeem operations and the corresponding transaction type, which indicates if commissions are paid in RBTC or MoC.
 
 
 ### <span id="MoCInrate-calcRedeemInterestValue-bytes32-uint256-"></span>
@@ -3243,6 +3297,42 @@ This productive contract to remove a new PriceFeeder with moc---gobernanza.
  `post(uint128 val_, uint32, address)` (external)
 
 
+## <span id="MoCPriceProviderMock"></span> `MoCPriceProviderMock`
+
+
+
+
+
+- [`constructor(uint256 price)`][MoCPriceProviderMock-constructor-uint256-]
+- [`peek()`][MoCPriceProviderMock-peek--]
+- [`poke(uint128 val_, uint32)`][MoCPriceProviderMock-poke-uint128-uint32-]
+- [`post(uint128 val_, uint32, address)`][BMoCPriceProviderMock-post-uint128-uint32-address-]
+
+### <span id="MoCPriceProviderMock-constructor-uint256-"></span>
+ `constructor(uint256 price)` (public)
+
+
+
+
+
+### <span id="MoCPriceProviderMock-peek--"></span>
+ `peek() → bytes32, bool` (external)
+
+
+
+
+
+### <span id="MoCPriceProviderMock-poke-uint128-uint32-"></span>
+`poke(uint128 val_, uint32)` (external)
+
+
+
+
+
+### <span id="MoCPriceProviderMock-post-uint128-uint32-address-"></span>
+ `post(uint128 val_, uint32, address)` (external)
+
+
 
 
 ## <span id="MoCHelperLibMock"></span> `MoCHelperLibMock`
@@ -3516,4 +3606,3 @@ It is [UpgraderTemplate](https://github.com/money-on-chain/Areopagus-Governance)
 `redeemDoCRequest(uint256 docAmount)` (public)
 ### <span id="RevertingOnSend-constructor-address-payable-"></span>
  `constructor(address payable mocAddress)` (public)
-

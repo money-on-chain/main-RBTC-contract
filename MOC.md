@@ -34,6 +34,7 @@
    1. [OwnerBurnableToken](#ownerburnabletoken)
    1. [BProToken](#bprotoken)
    1. [DocToken](#doctoken)
+   1. [MocToken](#moctoken)
    1. [PriceProvider](#priceprovider)
 1. [Contracts Mocks](#contracts-mocks)
 1. [Relevant patterns and choices](#relevant-patterns-and-choices)
@@ -81,6 +82,10 @@ The more DocS minted, the more BTC2X can be minted, since they are used for leve
 It's targeted towards users seeking to _hodl_ Bitcoins and also receive a passive income from it.
 It's implemented as an ERC20 token, it can be traded freely, but minted/burned only by the Moc system.
 The more BitPros minted (introducing RBTC to the system), the more coverage the system has, since they add value to the system without locking any.
+
+### MoC
+TBD
+It's implemented as an ERC20 token, it can be traded freely, but minted/burned only by the Moc system.
 
 ## Leveraged instruments
 
@@ -251,7 +256,7 @@ MoC system is a network of cooperative contracts working together to ultimately 
 
 - _MoC state Contracts_: They keep MoC state variables and logic (MoC, MoCState, MoCBucketContainer, MoCSettlement, MoCBurnout)
 - _MoC pure logic Contracts & Libraries_: Functional extensions of the above merely to have responsibility separation and contracts size (aka deploy fee) low. (MoCHelperLib, MoCLibConnection, MoCConverter, MoCExchange, MoCConnector, MoCBProxManager, MoCInrate, MoCWhitelist, MoCBase)
-- _Tokens_: Tokens backed by the system (OwnerBurnableToken, DocToken, BProToken)
+- _Tokens_: Tokens backed by the system (OwnerBurnableToken, DocToken, BProToken, MoCToken)
 - _External Dependencies_: External contracts the system relies on, in this case the Oracle or price provider; this could evolved independently of MoC system as along as the interface is maintained. (PriceProvider)
 
 ## MoC
@@ -499,7 +504,25 @@ It also defines the State enum options:
 - Symbol: BITPRO
 - Decimals: 18
 
+## MoCToken
+
+- Referenced by: MoC, MoCExchange, MoCState
+- References/uses:
+- Inherits from: ERC20Mintable, ERC20Detailed, ERC20Pausable, OwnerBurnableToken
+- Name: MOC
+- Symbol: MOC
+- Decimals: 18
+
 ## PriceProvider
+
+- Referenced by: MocState, MoC
+- References/uses: SafeMath
+  Provides the price of a token in US dollars.
+  Currently it's a mock of the future functionality, since the price can be set by anyone and there isn't any consensus mechanism.
+  It's assumed that in a future production release there will be a reliable, decentralized price providing oracle.
+  It's used by MocState to get the token price and moving average.
+
+  ### BtCPriceProvider
 
 - Referenced by: MocState, MoC
 - References/uses: SafeMath
@@ -507,6 +530,15 @@ It also defines the State enum options:
   Currently it's a mock of the future functionality, since the price can be set by anyone and there isn't any consensus mechanism.
   It's assumed that in a future production release there will be a reliable, decentralized price providing oracle.
   It's used by MocState to get the bitcoin price and moving average.
+
+  ### MoCPriceProvider
+
+- Referenced by: MocState, MoC
+- References/uses: SafeMath
+  Provides the price of MoC token in US dollars.
+  Currently it's a mock of the future functionality, since the price can be set by anyone and there isn't any consensus mechanism.
+  It's assumed that in a future production release there will be a reliable, decentralized price providing oracle.
+  It's used by MocState to get the MoC token price.
 
 # Contract Mocks
 

@@ -8,6 +8,7 @@ import "./MoCLibConnection.sol";
 import "./MoCBProxManager.sol";
 import "./token/DocToken.sol";
 import "./token/BProToken.sol";
+import "./token/MoCToken.sol";
 import "./MoCSettlement.sol";
 import "moc-governance/contracts/Governance/Governed.sol";
 import "moc-governance/contracts/Governance/IGovernor.sol";
@@ -20,7 +21,8 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
   States public state;
 
   event StateTransition(States newState);
-  event PriceProviderUpdated(address oldAddress, address newAddress);
+  event BtcPriceProviderUpdated(address oldAddress, address newAddress);
+  event MoCPriceProviderUpdated(address oldAddress, address newAddress);
   // Contracts
   PriceProvider internal btcPriceProvider;
   MoCSettlement internal mocSettlement;
@@ -61,11 +63,12 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
     uint256 _smoothFactor,
     uint256 _emaBlockSpan,
     uint256 _maxMintBPro,
-    address _mocPriceProvider
+    address _mocPriceProvider,
+    address _mocTokenAddress
   ) public initializer {
     initializePrecisions();
     initializeBase(connectorAddress);
-    initializeContracts();
+    initializeContracts(_mocTokenAddress);
     initializeValues(
       _governor,
       _btcPriceProvider,
@@ -110,7 +113,7 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
   function setBtcPriceProvider(address btcProviderAddress) public onlyAuthorizedChanger() {
     address oldBtcPriceProviderAddress = address(btcPriceProvider);
     btcPriceProvider = PriceProvider(btcProviderAddress);
-    emit PriceProviderUpdated(oldBtcPriceProviderAddress, address(btcPriceProvider));
+    emit BtcPriceProviderUpdated(oldBtcPriceProviderAddress, address(btcPriceProvider));
   }
 
   /**
@@ -626,57 +629,12 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
       emit StateTransition(state);
   }
 
-
-  /**
-    @dev Calculates price at liquidation event as the relation between
-    the doc total supply and the amount of RBTC available to distribute
-   */
-  function setLiquidationPrice() internal {
-    // When coverage is below 1, the amount to
-    // distribute is all the RBTC in the contract
-    uint256 rbtcAvailable = Math.min(globalLockedBitcoin(), rbtcInSystem);
-
-    liquidationPrice = mocLibConfig.liquidationPrice(rbtcAvailable, docTotalSupply());
-  }
-
-  function initializeValues(
-    address _governor,
-    address _btcPriceProvider,
-    uint256 _liq,
-    uint256 _utpdu,
-    uint256 _maxDiscRate,
-    uint256 _dayBlockSpan,
-    uint256 _maxMintBPro,
-    address _mocPriceProvider) internal {
-    liq = _liq;
-    utpdu = _utpdu;
-    bproMaxDiscountRate = _maxDiscRate;
-    dayBlockSpan = _dayBlockSpan;
-    governor = IGovernor(_governor);
-    btcPriceProvider = PriceProvider(_btcPriceProvider);
-    // Default values
-    state = States.AboveCobj;
-    peg = 1;
-    maxMintBPro = _maxMintBPro;
-    mocPriceProvider = PriceProvider(_mocPriceProvider);
-  }
-
-  function initializeContracts() internal  {
-    mocSettlement = MoCSettlement(connector.mocSettlement());
-    docToken = DocToken(connector.docToken());
-    bproToken = BProToken(connector.bproToken());
-    bproxManager = MoCBProxManager(connector.bproxManager());
-    mocConverter = MoCConverter(connector.mocConverter());
-  }
-
   /************************************/
   /***** UPGRADE v017       ***********/
   /************************************/
 
   /** START UPDATE V017: 01/11/2019 **/
-
-  // Max value posible to mint of BPro
-  uint256 public maxMintBPro;
+  /** Public functions **/
 
   /**
   * @param _maxMintBPro [using mocPrecision]
@@ -713,15 +671,14 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
 
   /** END UPDATE V017: 01/11/2019 **/
 
-  /************************************/
-  /***** UPGRADE v020       ***********/
+    /************************************/
+  /***** UPGRADE v0110      ***********/
   /************************************/
 
-  /** START UPDATE V020: 24/09/2020 **/
+  /** START UPDATE V0110: 24/09/2020  **/
   /** Upgrade to support multiple commission rates **/
   /** and rename price interfaces **/
-
-  PriceProvider internal mocPriceProvider;
+  /** Public functions **/
 
   /**********************
     MoC PRICE PROVIDER
@@ -734,7 +691,7 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
   function setMoCPriceProvider(address mocProviderAddress) public onlyAuthorizedChanger() {
     address oldMoCPriceProviderAddress = address(mocPriceProvider);
     mocPriceProvider = PriceProvider(mocProviderAddress);
-    emit PriceProviderUpdated(oldMoCPriceProviderAddress, address(mocPriceProvider));
+    emit MoCPriceProviderUpdated(oldMoCPriceProviderAddress, address(mocPriceProvider));
   }
 
   /**
@@ -756,7 +713,114 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
     return uint256(price);
   }
 
-  /** END UPDATE V020: 24/09/2020 **/
+  /**********************
+    MoC TOKEN
+   *********************/
+
+  // TODO: Suggestion: create a "MoCConnectorChanger" contract and whitelist the address
+  function setMoCToken(address mocTokenAddress) public onlyAuthorizedChanger() {
+    setMoCTokenInternal(mocTokenAddress);
+  }
+
+  function getMoCToken() public view returns(address) {
+    return address(mocToken);
+  }
+
+  /** END UPDATE V0110: 24/09/2020 **/
+
+  /************************************/
+  /***** UPGRADE v0110      ***********/
+  /************************************/
+
+  /** START UPDATE V0110: 24/09/2020  **/
+  /** Upgrade to support multiple commission rates **/
+  /** and rename price interfaces **/
+  /** Internal functions **/
+
+  /**********************
+    MoC TOKEN
+   *********************/
+
+  function setMoCTokenInternal(address mocTokenAddress) internal {
+    mocToken = MoCToken(mocTokenAddress);
+
+    emit MoCTokenChanged(mocTokenAddress);
+  }
+
+  /** END UPDATE V0110: 24/09/2020 **/
+
+  /**
+    @dev Calculates price at liquidation event as the relation between
+    the doc total supply and the amount of RBTC available to distribute
+   */
+  function setLiquidationPrice() internal {
+    // When coverage is below 1, the amount to
+    // distribute is all the RBTC in the contract
+    uint256 rbtcAvailable = Math.min(globalLockedBitcoin(), rbtcInSystem);
+
+    liquidationPrice = mocLibConfig.liquidationPrice(rbtcAvailable, docTotalSupply());
+  }
+
+  function initializeValues(
+    address _governor,
+    address _btcPriceProvider,
+    uint256 _liq,
+    uint256 _utpdu,
+    uint256 _maxDiscRate,
+    uint256 _dayBlockSpan,
+    uint256 _maxMintBPro,
+    address _mocPriceProvider) internal {
+    liq = _liq;
+    utpdu = _utpdu;
+    bproMaxDiscountRate = _maxDiscRate;
+    dayBlockSpan = _dayBlockSpan;
+    governor = IGovernor(_governor);
+    btcPriceProvider = PriceProvider(_btcPriceProvider);
+    // Default values
+    state = States.AboveCobj;
+    peg = 1;
+    maxMintBPro = _maxMintBPro;
+    mocPriceProvider = PriceProvider(_mocPriceProvider);
+  }
+
+  function initializeContracts(address _mocTokenAddress) internal  {
+    mocSettlement = MoCSettlement(connector.mocSettlement());
+    docToken = DocToken(connector.docToken());
+    bproToken = BProToken(connector.bproToken());
+    bproxManager = MoCBProxManager(connector.bproxManager());
+    mocConverter = MoCConverter(connector.mocConverter());
+    setMoCTokenInternal(_mocTokenAddress);
+  }
+
+  /************************************/
+  /***** UPGRADE v017       ***********/
+  /************************************/
+
+  /** START UPDATE V017: 01/11/2019 **/
+  /** Variables **/
+
+  // Max value posible to mint of BPro
+  uint256 public maxMintBPro;
+
+  /** END UPDATE V017: 01/11/2019 **/
+
+  /************************************/
+  /***** UPGRADE v0110      ***********/
+  /************************************/
+
+  /** START UPDATE V0110: 24/09/2020  **/
+  /** Upgrade to support multiple commission rates **/
+  /** and rename price interfaces **/
+  /** Variables and events **/
+
+  PriceProvider internal mocPriceProvider;
+  MoCToken internal mocToken;
+
+  event MoCTokenChanged (
+    address mocTokenAddress
+  );
+
+  /** END UPDATE V0110: 24/09/2020 **/
 
   // Leave a gap betweeen inherited contracts variables in order to be
   // able to add more variables in them later

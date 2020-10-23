@@ -19,6 +19,7 @@ contract MocStateChanger is ChangeContract, Ownable{
   uint256 public emaCalculationBlockSpan;
   uint256 public maxMintBPro;
   address public mocPriceProvider;
+  address public mocToken;
 
   constructor(
     MoCState _mocState,
@@ -31,7 +32,8 @@ contract MocStateChanger is ChangeContract, Ownable{
     uint256 _smoothingFactor,
     uint256 _emaCalculationBlockSpan,
     uint256 _maxMintBPro,
-    address _mocPriceProvider
+    address _mocPriceProvider,
+    address _mocTokenAddress
   ) public {
     mocState = _mocState;
     newPeg = _newPeg;
@@ -44,6 +46,7 @@ contract MocStateChanger is ChangeContract, Ownable{
     btcPriceProvider = _btcPriceProvider;
     maxMintBPro = _maxMintBPro;
     mocPriceProvider = _mocPriceProvider;
+    mocToken = _mocTokenAddress;
   }
 
   function execute() external {
@@ -57,6 +60,7 @@ contract MocStateChanger is ChangeContract, Ownable{
     mocState.setBtcPriceProvider(btcPriceProvider);
     mocState.setMaxMintBPro(maxMintBPro);
     mocState.setMoCPriceProvider(mocPriceProvider);
+    mocState.setMoCToken(mocToken);
   }
 
   function setMaxMintBPro(uint256 _maxMintBPro) public onlyOwner() {
@@ -69,6 +73,10 @@ contract MocStateChanger is ChangeContract, Ownable{
 
   function setMoCPriceProvider(address _mocPriceProvider) public onlyOwner() {
     mocPriceProvider = _mocPriceProvider;
+  }
+
+  function setMoCToken(address _mocTokenAddress) public onlyOwner() {
+    mocToken = _mocTokenAddress;
   }
 
   function setSmoothingFactor(uint256 factor) public onlyOwner() {

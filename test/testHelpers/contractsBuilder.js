@@ -1,6 +1,5 @@
 const { TestHelper } = require('zos');
 const { Contracts, ZWeb3 } = require('zos-lib');
-const BigNumber = require('bignumber.js');
 
 ZWeb3.initialize(web3.currentProvider);
 
@@ -96,80 +95,55 @@ const transferPausingRole = async (token, address) => {
   await token.renouncePauser();
 };
 
-const initializeCommissionRatesArray = async (moc, mocInrate) => {
-  const mocPrecision = 10 ** 18; // mocPrecision
+const getCommissionsArrayZero = async mocInrate => {
   const ret = [
     {
       txType: (await mocInrate.MINT_BPRO_FEES_RBTC()).toString(),
-      fee: BigNumber(0.001)
-        .times(mocPrecision)
-        .toString()
+      fee: 0
     },
     {
       txType: (await mocInrate.REDEEM_BPRO_FEES_RBTC()).toString(),
-      fee: BigNumber(0.002)
-        .times(mocPrecision)
-        .toString()
+      fee: '0'
     },
     {
       txType: (await mocInrate.MINT_DOC_FEES_RBTC()).toString(),
-      fee: BigNumber(0.003)
-        .times(mocPrecision)
-        .toString()
+      fee: '0'
     },
     {
       txType: (await mocInrate.REDEEM_DOC_FEES_RBTC()).toString(),
-      fee: BigNumber(0.004)
-        .times(mocPrecision)
-        .toString()
+      fee: '0'
     },
     {
       txType: (await mocInrate.MINT_BTCX_FEES_RBTC()).toString(),
-      fee: BigNumber(0.005)
-        .times(mocPrecision)
-        .toString()
+      fee: '0'
     },
     {
       txType: (await mocInrate.REDEEM_BTCX_FEES_RBTC()).toString(),
-      fee: BigNumber(0.006)
-        .times(mocPrecision)
-        .toString()
+      fee: '0'
     },
     {
       txType: (await mocInrate.MINT_BPRO_FEES_MOC()).toString(),
-      fee: BigNumber(0.007)
-        .times(mocPrecision)
-        .toString()
+      fee: '0'
     },
     {
       txType: (await mocInrate.REDEEM_BPRO_FEES_MOC()).toString(),
-      fee: BigNumber(0.008)
-        .times(mocPrecision)
-        .toString()
+      fee: '0'
     },
     {
       txType: (await mocInrate.MINT_DOC_FEES_MOC()).toString(),
-      fee: BigNumber(0.009)
-        .times(mocPrecision)
-        .toString()
+      fee: '0'
     },
     {
       txType: (await mocInrate.REDEEM_DOC_FEES_MOC()).toString(),
-      fee: BigNumber(0.01)
-        .times(mocPrecision)
-        .toString()
+      fee: '0'
     },
     {
       txType: (await mocInrate.MINT_BTCX_FEES_MOC()).toString(),
-      fee: BigNumber(0.011)
-        .times(mocPrecision)
-        .toString()
+      fee: '0'
     },
     {
       txType: (await mocInrate.REDEEM_BTCX_FEES_MOC()).toString(),
-      fee: BigNumber(0.012)
-        .times(mocPrecision)
-        .toString()
+      fee: '0'
     }
   ];
   return ret;
@@ -258,6 +232,7 @@ const createContracts = params => async ({ owner, useMock }) => {
     emaBlockSpan,
     maxMintBPro,
     mocPriceProvider.address,
+    mocToken.address,
     { from: owner }
   );
   const mockMocInrateChanger = await MocInrateChanger.new(
@@ -271,7 +246,7 @@ const createContracts = params => async ({ owner, useMock }) => {
     docTmin,
     docTmax,
     docPower,
-    await initializeCommissionRatesArray(moc, mocInrate),
+    await getCommissionsArrayZero(mocInrate),
     { from: owner }
   );
   const mockMoCSettlementChanger = await MoCSettlementChanger.new(
@@ -308,8 +283,7 @@ const createContracts = params => async ({ owner, useMock }) => {
     mocConverter.address,
     mocExchange.address,
     mocInrate.address,
-    mocBurnout.address,
-    mocToken.address
+    mocBurnout.address
   );
   await mocConverter.initialize(mocConnector.address);
   await moc.initialize(mocConnector.address, governor.address, stopper.address, startStoppable);
@@ -327,7 +301,8 @@ const createContracts = params => async ({ owner, useMock }) => {
     smoothingFactor,
     emaBlockSpan,
     maxMintBPro,
-    mocPriceProvider.address
+    mocPriceProvider.address,
+    mocToken.address
   );
   await mocInrate.initialize(
     mocConnector.address,
@@ -350,6 +325,9 @@ const createContracts = params => async ({ owner, useMock }) => {
   await governor.initialize(owner);
   await commissionSplitter.initialize(moc.address, owner, mocProportion, governor.address);
   await upgradeDelegator.initialize(governor.address, proxyAdmin.address);
+
+  // Execute changes in MoCInrate
+  await governor.executeChange(mockMocInrateChanger.address);
 
   // Transfer roles
   await transferOwnershipAndMinting(doc, mocExchange.address);

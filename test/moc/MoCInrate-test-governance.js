@@ -1,3 +1,4 @@
+const { expectRevert } = require('openzeppelin-test-helpers');
 const testHelperBuilder = require('../mocHelper.js');
 
 let mocHelper;
@@ -6,8 +7,6 @@ const NOT_AUTHORIZED_CHANGER = 'not_authorized_changer';
 // eslint-disable-next-line quotes
 const INVALID_TXTYPE_ERROR = "Invalid transaction type 'txType'";
 
-// Commission rates are set in contractsBuilder.js
-
 const scenario = {
   btcxTmin: 4,
   btcxTmax: 7777777,
@@ -15,7 +14,7 @@ const scenario = {
   bitProInterestBlockSpan: 50 * 80 * 12,
   bitProRate: 78,
   rbtcAmount: 20,
-  commissionAmount: 4,
+  commissionAmount: 0.04,
   invalidTxType: 0,
   validTxType: 2,
   nonexistentTxType: 15,
@@ -28,13 +27,16 @@ contract('MoCInrate Governed', function([owner, account2]) {
     this.mocInrate = mocHelper.mocInrate;
     this.governor = mocHelper.governor;
     this.mockMocInrateChanger = mocHelper.mockMocInrateChanger;
-
-    // Execute change to initialize commission rates array
-    await this.governor.executeChange(this.mockMocInrateChanger.address);
   });
 
-  beforeEach(function() {
-    return mocHelper.revertState();
+  beforeEach(async function() {
+    await mocHelper.revertState();
+
+    // Commission rates for test are set in functionHelper.js
+    await mocHelper.mockMocInrateChanger.setCommissionRates(
+      await mocHelper.getCommissionsArrayNonZero()
+    );
+    await this.governor.executeChange(this.mockMocInrateChanger.address);
   });
 
   describe('MoCInrate settings params', function() {
@@ -107,7 +109,6 @@ contract('MoCInrate Governed', function([owner, account2]) {
       });
     });
 
-    // TODO: FIX calcCommissionValue TESTS!
     describe('GIVEN different transaction types and their fees to calculate commission rate (calcCommissionValue)', function() {
       it(`THEN transaction type ${scenario.invalidTxType} is invalid`, async function() {
         try {
@@ -128,11 +129,9 @@ contract('MoCInrate Governed', function([owner, account2]) {
           (scenario.rbtcAmount * mocHelper.MOC_PRECISION).toString(),
           scenario.validTxType.toString()
         );
-        console.log('scenario.validTxType: ', scenario.validTxType);
-        console.log('newCommisionRateValidTxType: ', newCommisionRateValidTxType);
         mocHelper.assertBig(
-          web3.utils.fromWei(newCommisionRateValidTxType.toString()),
-          scenario.commissionAmount,
+          newCommisionRateValidTxType.toString(),
+          (scenario.commissionAmount * mocHelper.MOC_PRECISION).toString(),
           `final commission amount should be ${scenario.commissionAmount} ether`
         );
       });
@@ -152,24 +151,61 @@ contract('MoCInrate Governed', function([owner, account2]) {
     describe('GIVEN different *valid* transaction types and their fees to calculate commission rate (calcCommissionValue)', function() {
       it('THEN the transaction types defined in the "commissionRates" array are valid', async function() {
         const commissionRatesArrayLength = await this.mockMocInrateChanger.commissionRatesLength();
-        console.log('length: ', commissionRatesArrayLength);
 
         // Iterate through array
         for (let i = 0; i < commissionRatesArrayLength; i++) {
+          /* eslint-disable no-await-in-loop */
           const commissionRate = await this.mockMocInrateChanger.commissionRates(i);
-          console.log('commissionRate ' + i + ': ' + commissionRate);
+
           const newCommisionRateValidTxType = await this.mocInrate.calcCommissionValue(
             (scenario.rbtcAmount * mocHelper.MOC_PRECISION).toString(),
             commissionRate.txType
           );
+
+          /* eslint-enable no-await-in-loop */
           // The fee from the commissionRatesArray is already converted to wei
           const testCommissionValue = scenario.rbtcAmount * commissionRate.fee;
+
           mocHelper.assertBig(
             newCommisionRateValidTxType.toString(),
             testCommissionValue.toString(),
             `final commission amount should be ${testCommissionValue.toString()}`
           );
         }
+      });
+    });
+
+    describe('GIVEN the default commissionRates', function() {
+      it(`THEN an unauthorized account ${account2} tries to change commissionRates with another array`, async function() {
+        const setCommissionRates = this.mockMocInrateChanger.setCommissionRates(
+          await mocHelper.getCommissionsArrayChangingTest(),
+          { from: account2 }
+        );
+        await expectRevert(setCommissionRates, 'Ownable: caller is not the owner');
+      });
+      it('THEN an authorized contract tries to change commissionRate with another array', async function() {
+        await this.mockMocInrateChanger.setCommissionRates(
+          await mocHelper.getCommissionsArrayChangingTest()
+        );
+        await this.governor.executeChange(this.mockMocInrateChanger.address);
+        const newCommissionRate = await this.mocInrate.commissionRatesByTxType(
+          await mocHelper.mocInrate.MINT_BPRO_FEES_RBTC()
+        );
+        const expectedValue = '2000000000000000000';
+        mocHelper.assertBig(
+          newCommissionRate,
+          expectedValue,
+          `commissionRate should be ${expectedValue}`
+        );
+      });
+    });
+
+    describe('GIVEN a commissionRates array with invalid length', function() {
+      it('THEN setting this new array will fail and revert', async function() {
+        const setCommissionRates = this.mockMocInrateChanger.setCommissionRates(
+          await mocHelper.getCommissionsArrayInvalidLength()
+        );
+        await expectRevert(setCommissionRates, 'commissionRates length must be between 1 and 50');
       });
     });
 

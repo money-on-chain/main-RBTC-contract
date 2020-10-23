@@ -106,23 +106,6 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
     settlement.alterRedeemRequestAmount(isAddition, delta, msg.sender);
   }
 
-  // solium-disable-next-line security/no-assign-params
-  function mintWithMocFees(address sender, uint256 value, uint256 totalBtcSpent, uint256 btcCommission, uint256 mocCommission)
-  internal returns(uint256) {
-    // Check if there is enough balance of MoC
-    if (mocCommission > 0) {
-      // Transfer MoC from sender to this contract
-      mocToken.transferFrom(sender, address(this), mocCommission);
-      // Transfer MoC to commissions address
-      mocToken.transfer(mocInrate.commissionsAddress(), mocCommission);
-    } else {
-      // Check commission rate in RBTC according to transaction type
-      totalBtcSpent = totalBtcSpent.add(btcCommission);
-      require(totalBtcSpent <= value, "amount is not enough");
-    }
-    return totalBtcSpent;
-  }
-
   /**
     @dev Mints BPRO and pays the comissions of the operation.
     @param btcToMint Amount un BTC to mint
@@ -130,7 +113,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
   function mintBPro(uint256 btcToMint) public payable whenNotPaused() transitionState() {
     /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
     // Get balance and allowance from sender
-    (uint256 mocBalance, uint256 mocAllowance) = checkMoCToken(msg.sender, address(this));
+    (uint256 mocBalance, uint256 mocAllowance) = getMocTokenBalance(msg.sender, address(this));
 
     // Pass balance and allowance parameters to exchange
     // Calculate commissions in exchange
@@ -139,7 +122,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
     uint256 mocCommission;
     (totalBtcSpent, btcCommission, mocCommission) = mocExchange.mintBPro(msg.sender, btcToMint, mocBalance, mocAllowance);
 
-    totalBtcSpent = mintWithMocFees(msg.sender, msg.value, totalBtcSpent, btcCommission, mocCommission);
+    totalBtcSpent = transferMocComission(msg.sender, msg.value, totalBtcSpent, btcCommission, mocCommission);
     /** END UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
 
     // Need to update general State
@@ -151,40 +134,13 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
     doTransfer(mocInrate.commissionsAddress(), btcCommission);
   }
 
-
-  function redeemWithMocFees(address sender, uint256 btcCommission, uint256 mocCommission) internal {
-    // Check if there is enough balance of MoC
-    if (mocCommission > 0) {
-      // Transfer MoC from sender to this contract
-      mocToken.transferFrom(sender, address(this), mocCommission);
-      // Transfer MoC to commissions address
-      mocToken.transfer(mocInrate.commissionsAddress(), mocCommission);
-    } else {
-      // Transfer commissions to commissions address
-      doTransfer(mocInrate.commissionsAddress(), btcCommission);
-    }
-  }
-
-  function checkMoCToken(address owner, address spender) internal view returns (uint256, uint256) {
-    uint256 mocBalance = 0;
-    uint256 mocAllowance = 0;
-
-    if (address(mocToken) != address(0)) {
-      // Get balance and allowance from sender
-      mocBalance = mocToken.balanceOf(owner);
-      mocAllowance = mocToken.allowance(owner, spender);
-    }
-
-    return (mocBalance, mocAllowance);
-  }
-
   /**
    * @dev Redeems Bpro Tokens and pays the comissions of the operation in RBTC
      @param bproAmount Amout in Bpro
    */
   function redeemBPro(uint256 bproAmount) public whenNotPaused() transitionState() atLeastState(MoCState.States.AboveCobj) {
     /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
-    (uint256 mocBalance, uint256 mocAllowance) = checkMoCToken(msg.sender, address(this));
+    (uint256 mocBalance, uint256 mocAllowance) = getMocTokenBalance(msg.sender, address(this));
 
     // Pass balance and allowance parameters to exchange
     // Calculate commissions in exchange
@@ -207,7 +163,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
   function mintDoc(uint256 btcToMint) public payable whenNotPaused() transitionState() atLeastState(MoCState.States.AboveCobj) {
     /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
     // Get balance and allowance from sender
-    (uint256 mocBalance, uint256 mocAllowance) = checkMoCToken(msg.sender, address(this));
+    (uint256 mocBalance, uint256 mocAllowance) = getMocTokenBalance(msg.sender, address(this));
 
     // Pass balance and allowance parameters to exchange
     // Calculate commissions in exchange
@@ -216,7 +172,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
     uint256 mocCommission;
     (totalBtcSpent, btcCommission, mocCommission) = mocExchange.mintDoc(msg.sender, btcToMint, mocBalance, mocAllowance);
 
-    totalBtcSpent = mintWithMocFees(msg.sender, msg.value, totalBtcSpent, btcCommission, mocCommission);
+    totalBtcSpent = transferMocComission(msg.sender, msg.value, totalBtcSpent, btcCommission, mocCommission);
     /** END UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
 
     // Need to update general State
@@ -240,7 +196,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
   transitionState() bucketStateTransition(bucket) {
     /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
     // Get balance and allowance from sender
-    (uint256 mocBalance, uint256 mocAllowance) = checkMoCToken(msg.sender, address(this));
+    (uint256 mocBalance, uint256 mocAllowance) = getMocTokenBalance(msg.sender, address(this));
 
     // Pass balance and allowance parameters to exchange
     // Calculate commissions in exchange
@@ -266,7 +222,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
   transitionState() bucketStateTransition(bucket) {
     /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
     // Get balance and allowance from sender
-    (uint256 mocBalance, uint256 mocAllowance) = checkMoCToken(msg.sender, address(this));
+    (uint256 mocBalance, uint256 mocAllowance) = getMocTokenBalance(msg.sender, address(this));
 
     // Pass balance and allowance parameters to exchange
     // Calculate commissions in exchange
@@ -275,7 +231,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
     uint256 mocCommission;
     (totalBtcSpent, btcCommission, mocCommission) = mocExchange.mintBProx(msg.sender, bucket, btcToMint, mocBalance, mocAllowance);
 
-    totalBtcSpent = mintWithMocFees(msg.sender, msg.value, totalBtcSpent, btcCommission, mocCommission);
+    totalBtcSpent = transferMocComission(msg.sender, msg.value, totalBtcSpent, btcCommission, mocCommission);
     /** END UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
 
     // Need to update general State
@@ -295,7 +251,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
   function redeemFreeDoc(uint256 docAmount) public whenNotPaused() transitionState() {
     /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
     // Get balance and allowance from sender
-    (uint256 mocBalance, uint256 mocAllowance) = checkMoCToken(msg.sender, address(this));
+    (uint256 mocBalance, uint256 mocAllowance) = getMocTokenBalance(msg.sender, address(this));
 
     // Pass balance and allowance parameters to exchange
     // Calculate commissions in exchange
@@ -467,7 +423,6 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
     mocExchange = MoCExchange(connector.mocExchange());
     mocInrate = MoCInrate(connector.mocInrate());
     mocBurnout = MoCBurnout(connector.mocBurnout());
-    mocToken = MoCToken(connector.mocToken());
   }
 
   function initializeGovernanceContracts(address stopperAddress, address governorAddress, bool startStoppable) internal {
@@ -479,6 +434,62 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
       bproToken.pause();
     }
   }
+
+  /************************************/
+  /***** UPGRADE v0110      ***********/
+  /************************************/
+
+  /** START UPDATE V0110: 24/09/2020  **/
+  /** Upgrade to support multiple commission rates **/
+  /** Internal functions **/
+
+  // solium-disable-next-line security/no-assign-params
+  function transferMocComission(address sender, uint256 value, uint256 totalBtcSpent, uint256 btcCommission, uint256 mocCommission)
+  internal returns(uint256) {
+    // Check if there is enough balance of MoC
+    if (mocCommission > 0) {
+      // Transfer MoC from sender to this contract
+      MoCToken mocToken = MoCToken(mocState.getMoCToken());
+      mocToken.transferFrom(sender, address(this), mocCommission);
+      // Transfer MoC to commissions address
+      mocToken.transfer(mocInrate.commissionsAddress(), mocCommission);
+    } else {
+      // Check commission rate in RBTC according to transaction type
+      totalBtcSpent = totalBtcSpent.add(btcCommission);
+      require(totalBtcSpent <= value, "amount is not enough");
+    }
+    return totalBtcSpent;
+  }
+
+  function redeemWithMocFees(address sender, uint256 btcCommission, uint256 mocCommission) internal {
+    // Check if there is enough balance of MoC
+    if (mocCommission > 0) {
+      MoCToken mocToken = MoCToken(mocState.getMoCToken());
+      // Transfer MoC from sender to this contract
+      mocToken.transferFrom(sender, address(this), mocCommission);
+      // Transfer MoC to commissions address
+      mocToken.transfer(mocInrate.commissionsAddress(), mocCommission);
+    } else {
+      // Transfer commissions to commissions address
+      doTransfer(mocInrate.commissionsAddress(), btcCommission);
+    }
+  }
+
+  function getMocTokenBalance(address owner, address spender) internal view returns (uint256, uint256) {
+    uint256 mocBalance = 0;
+    uint256 mocAllowance = 0;
+
+    MoCToken mocToken = MoCToken(mocState.getMoCToken());
+    if (address(mocToken) != address(0)) {
+      // Get balance and allowance from sender
+      mocBalance = mocToken.balanceOf(owner);
+      mocAllowance = mocToken.allowance(owner, spender);
+    }
+
+    return (mocBalance, mocAllowance);
+  }
+
+  /** END UPDATE V0110: 24/09/2020 **/
 
   /**
   * @dev Transfer using transfer function and updates global RBTC register in MoCState
@@ -505,22 +516,22 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
 
   /***** STATE MODIFIERS *****/
   modifier whenSettlementReady() {
-    require(settlement.isSettlementReady(), "Only when settlement is ready");
+    require(settlement.isSettlementReady(), "Function can only be called when settlement is ready");
     _;
   }
 
   modifier atState(MoCState.States _state) {
-    require(mocState.state() == _state, "Cannot be called at this state");
+    require(mocState.state() == _state, "Function cannot be called at this state");
     _;
   }
 
   modifier atLeastState(MoCState.States _state) {
-    require(mocState.state() >= _state, "Cannot be called at this state");
+    require(mocState.state() >= _state, "Function cannot be called at this state");
     _;
   }
 
   modifier atMostState(MoCState.States _state) {
-    require(mocState.state() <= _state, "Cannot be called at this state");
+    require(mocState.state() <= _state, "Function cannot be called at this state");
     _;
   }
 
@@ -535,7 +546,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
   }
 
   modifier notBaseBucket(bytes32 bucket) {
-    require(!bproxManager.isBucketBase(bucket), "Shouldn't be a base type bucket");
+    require(!bproxManager.isBucketBase(bucket), "Bucket should not be a base type bucket");
     _;
   }
 
@@ -548,17 +559,6 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
     else
       _;
   }
-
-
-  /************************************/
-  /***** UPGRADE v0110      ***********/
-  /************************************/
-
-  /** START UPDATE V0110: 24/09/2020  **/
-  /** Upgrade to support multiple commission rates **/
-  //MoCToken mocToken;
-  MoCToken mocToken;
-  /** END UPDATE V0110: 24/09/2020 **/
 
   // Leave a gap betweeen inherited contracts variables in order to be
   // able to add more variables in them later

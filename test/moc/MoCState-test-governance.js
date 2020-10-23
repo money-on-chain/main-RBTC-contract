@@ -11,6 +11,8 @@ const scenario = {
 };
 
 const BtcPriceProviderMock = artifacts.require('./contracts/mocks/BtcPriceProviderMock.sol');
+const MoCPriceProviderMock = artifacts.require('./contracts/mocks/MoCPriceProviderMock.sol');
+
 contract('MoCState Governed', function([owner, account2]) {
   before(async function() {
     mocHelper = await testHelperBuilder({ owner });
@@ -154,7 +156,7 @@ contract('MoCState Governed', function([owner, account2]) {
         it('THEN BtcPriceProviderUpdated event is emitted', async function() {
           const [btcPriceProviderUpdatedEvent] = await mocHelper.findEvents(
             tx,
-            'PriceProviderUpdated'
+            'BtcPriceProviderUpdated'
           );
           assert(
             btcPriceProviderUpdatedEvent.oldAddress === oldBtcPriceProvider,
@@ -177,6 +179,88 @@ contract('MoCState Governed', function([owner, account2]) {
           assert(
             NOT_AUTORIZED_CHANGER === err.reason,
             `${account2} Should not be authorized to set BTCPriceProvider`
+          );
+        }
+      });
+    });
+
+    describe('GIVEN on old mocPriceProvider', function() {
+      describe('AND an authorized contract tries to set a new MoCPriceProvider', function() {
+        let tx;
+        let newMoCPriceProvider;
+        let oldMoCPriceProvider;
+        beforeEach(async function() {
+          oldMoCPriceProvider = await mocHelper.mocState.getMoCPriceProvider();
+          newMoCPriceProvider = await MoCPriceProviderMock.new(1000003333);
+          await mocHelper.mockMocStateChanger.setMoCPriceProvider(newMoCPriceProvider.address);
+          tx = await mocHelper.governor.executeChange(mocHelper.mockMocStateChanger.address);
+        });
+        it('THEN the MoCPriceProvider address must be updated', async function() {
+          const mocPriceProviderAddress = await mocHelper.mocState.getMoCPriceProvider();
+          assert(
+            mocPriceProviderAddress === newMoCPriceProvider.address,
+            'MoC Price provider not updates.'
+          );
+        });
+        it('THEN MoCPriceProviderUpdated event is emitted', async function() {
+          const [mocPriceProviderUpdatedEvent] = await mocHelper.findEvents(
+            tx,
+            'MoCPriceProviderUpdated'
+          );
+          assert(
+            mocPriceProviderUpdatedEvent.oldAddress === oldMoCPriceProvider,
+            'Old address is different'
+          );
+          assert(
+            mocPriceProviderUpdatedEvent.newAddress === newMoCPriceProvider.address,
+            'New address is different'
+          );
+        });
+      });
+
+      it(`THEN an unathorized account ${account2} tries to change MoCPriceProvider`, async function() {
+        try {
+          const newMoCPriceProvider = await MoCPriceProviderMock.new(1000003333);
+          await mocHelper.mocState.setMoCPriceProvider(newMoCPriceProvider.address, {
+            from: account2
+          });
+        } catch (err) {
+          assert(
+            NOT_AUTORIZED_CHANGER === err.reason,
+            `${account2} Should not be authorized to set MoCPriceProvider`
+          );
+        }
+      });
+    });
+
+    describe('GIVEN on old mocToken', function() {
+      describe('AND an authorized contract tries to set a new MoCToken', function() {
+        let tx;
+        const zeroAddress = '0x0000000000000000000000000000000000000000';
+        beforeEach(async function() {
+          await mocHelper.mockMocStateChanger.setMoCToken(zeroAddress);
+          tx = await mocHelper.governor.executeChange(mocHelper.mockMocStateChanger.address);
+        });
+        it('THEN the MoCToken address must be updated', async function() {
+          const mocTokenAddress = await mocHelper.mocState.getMoCToken();
+          assert(mocTokenAddress === zeroAddress, 'MoC Token not updates.');
+        });
+        it('THEN MoCTokenChanged event is emitted', async function() {
+          const [mocTokenChangedEvent] = await mocHelper.findEvents(tx, 'MoCTokenChanged');
+          assert(mocTokenChangedEvent.mocTokenAddress === zeroAddress, 'New address is different');
+        });
+      });
+
+      it(`THEN an unathorized account ${account2} tries to change MoCToken`, async function() {
+        try {
+          const zeroAddress = '0x0000000000000000000000000000000000000000';
+          await mocHelper.mocState.setMoCToken(zeroAddress, {
+            from: account2
+          });
+        } catch (err) {
+          assert(
+            NOT_AUTORIZED_CHANGER === err.reason,
+            `${account2} Should not be authorized to set MoCToken`
           );
         }
       });
