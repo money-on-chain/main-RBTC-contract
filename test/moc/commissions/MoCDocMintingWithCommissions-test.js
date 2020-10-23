@@ -273,7 +273,7 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
           10,
           await mocHelper.mocInrate.MINT_BPRO_FEES_RBTC()
         );
-        const mintDoc = await mocHelper.mintDoc(
+        const mintDoc = mocHelper.mintDoc(
           userAccount,
           1,
           await mocHelper.mocInrate.MINT_DOC_FEES_RBTC()
@@ -495,10 +495,11 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
                 await mocHelper.approveMoCToken(mocHelper.moc.address, 100, userAccount);
 
                 if (nDocs) {
+                  // owner mints
                   await mocHelper.mintDocAmount(
                     owner,
                     nDocs,
-                    await mocHelper.mocInrate.MINT_DOC_FEES_MOC()
+                    await mocHelper.mocInrate.MINT_DOC_FEES_RBTC()
                   );
                 }
                 [
@@ -515,6 +516,7 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
                   await mocHelper.getMoCBalance(commissionsAccount)
                 ]);
 
+                // userAccount mints
                 const tx = await mocHelper.mintDocAmount(
                   userAccount,
                   docAmount,

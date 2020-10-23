@@ -1,5 +1,4 @@
 pragma solidity 0.5.8;
-// solium-disable-next-line no-experimental
 pragma experimental ABIEncoderV2;
 
 import "../MoCInrate.sol";

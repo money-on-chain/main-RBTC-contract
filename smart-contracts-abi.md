@@ -221,6 +221,7 @@
 [MoCInrate-getBitProInterestAddress--]: #MoCInrate-getBitProInterestAddress--
 [MoCInrate-setBitProInterestAddress-address-payable-]: #MoCInrate-setBitProInterestAddress-address-payable-
 [MoCInrate-setCommissionsAddress-address-payable-]: #MoCInrate-setCommissionsAddress-address-payable-
+[MoCInrate-setCommissionRateByTxType-uint256-uint256-]: #MoCInrate-setCommissionRateByTxType-uint256-uint256-
 [MoCInrate-setCommissionRate-uint256-]: #MoCInrate-setCommissionRate-uint256-
 [MoCInrate-spotInrate--]: #MoCInrate-spotInrate--
 [MoCInrate-btcxInrateAvg-bytes32-uint256-bool-]: #MoCInrate-btcxInrateAvg-bytes32-uint256-bool-
@@ -352,6 +353,11 @@
 [MoCState-setMaxMintBPro-uint256-]: #MoCState-setMaxMintBPro-uint256-
 [MoCState-getMaxMintBPro--]: #MoCState-getMaxMintBPro--
 [MoCState-maxMintBProAvalaible--]: #MoCState-maxMintBProAvalaible--
+[MoCState-setMoCPriceProvider-mocProviderAddress]: #MoCState-setMoCPriceProvider-mocProviderAddress
+[MoCState-getMoCPriceProvider--]: #MoCState-getMoCPriceProvider--
+[MoCState-getMoCPrice--]: #MoCState-getMoCPrice--
+[MoCState-setMoCToken-mocTokenAddress]: #MoCState-setMoCToken-mocTokenAddress
+[MoCState-getMoCToken--]: #MoCState-getMoCToken--
 [MoCState-StateTransition-enum-MoCState-States-]: #MoCState-StateTransition-enum-MoCState-States-
 [MoCState-PriceProviderUpdated-address-address-]: #MoCState-PriceProviderUpdated-address-address-
 [MoCBase]: #MoCBase
@@ -519,6 +525,10 @@
 [BtcPriceProviderMock-peek--]: #BtcPriceProviderMock-peek--
 [BtcPriceProviderMock-poke-uint128-uint32-]: #BtcPriceProviderMock-poke-uint128-uint32-
 [BtcPriceProviderMock-post-uint128-uint32-address-]: #BtcPriceProviderMock-post-uint128-uint32-address-
+[MoCPriceProviderMock-constructor-uint256-]: #MoCPriceProviderMock-constructor-uint256-
+[MoCPriceProviderMock-peek--]: #MoCPriceProviderMock-peek--
+[MoCPriceProviderMock-poke-uint128-uint32-]: #MoCPriceProviderMock-poke-uint128-uint32-
+[BMoCPriceProviderMock-post-uint128-uint32-address-]: #BMoCPriceProviderMock-post-uint128-uint32-address-
 [MoCHelperLibMock]: #MoCHelperLibMock
 [MoCHelperLibMock-UINT256_MAX-uint256]: #MoCHelperLibMock-UINT256_MAX-uint256
 [MoCHelperLibMock-mocLibConfig-struct-MoCHelperLib-MocLibConfig]: #MoCHelperLibMock-mocLibConfig-struct-MoCHelperLib-MocLibConfig
@@ -566,6 +576,8 @@
 [BProToken-fallback--]: #BProToken-fallback--
 [DocToken]: #DocToken
 [DocToken-fallback--]: #DocToken-fallback--
+[MoCToken]: #MoCToken
+[MoCToken-fallback--]: #MoCToken-fallback--
 [OwnerBurnableToken]:#OwnerBurnableToken
 [OwnerBurnableToken-burn-address-uint256-]:#OwnerBurnableToken-burn-address-uint256-
 
@@ -3594,4 +3606,3 @@ It is [UpgraderTemplate](https://github.com/money-on-chain/Areopagus-Governance)
 `redeemDoCRequest(uint256 docAmount)` (public)
 ### <span id="RevertingOnSend-constructor-address-payable-"></span>
  `constructor(address payable mocAddress)` (public)
-

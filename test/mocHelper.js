@@ -8,9 +8,6 @@ const networkFunctions = require('./testHelpers/networkHelper');
 const eventsFunctions = require('./testHelpers/eventsHelper');
 const { toContractBN } = require('./testHelpers/formatHelper');
 
-const BUCKET_C0 = web3.utils.asciiToHex('C0', 32);
-const BUCKET_X2 = web3.utils.asciiToHex('X2', 32);
-
 const UINT_MAX_VALUE = 2 ** 256 - 1;
 
 const getContractReadyState = (unitsMapping, unitsPrecision) => state => {
@@ -62,8 +59,6 @@ module.exports = async ({ owner, useMock = true }) => {
   const asserts = await assertsHelper(precisions);
 
   return {
-    BUCKET_C0,
-    BUCKET_X2,
     toContractBN: toContractBN(precisions.unitsPrecision),
     getContractReadyState: getContractReadyState(
       precisions.unitsMapping,

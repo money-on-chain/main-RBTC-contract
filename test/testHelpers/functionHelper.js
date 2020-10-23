@@ -493,6 +493,8 @@ module.exports = async contracts => {
     comissionsTxType,
     getCommissionsArrayNonZero: getCommissionsArrayNonZero(moc, mocInrate),
     getCommissionsArrayInvalidLength,
-    getCommissionsArrayChangingTest
+    getCommissionsArrayChangingTest,
+    BUCKET_C0,
+    BUCKET_X2
   };
 };

@@ -45,7 +45,7 @@ fi
 truffle version
 
 if [ "$SOLIDITY_COVERAGE" = true ]; then
-  npx solidity-coverage
+  node_modules/.bin/solidity-coverage
 else
-  npx truffle test "$@"
+  node_modules/.bin/truffle test "$@"
 fi
