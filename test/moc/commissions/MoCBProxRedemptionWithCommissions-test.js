@@ -437,11 +437,7 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
               from: userAccount
             }
           );
-          // const usedGas = toContractBN(await mocHelper.getTxCost(mintBpro)).add(
-          //   toContractBN(await mocHelper.getTxCost(mintDoc))).add(
-          //   toContractBN(await mocHelper.getTxCost(mintBprox))).add(
-          //   toContractBN(await mocHelper.getTxCost(redeemBprox))
-          // );
+
           const usedGas = toContractBN(await mocHelper.getTxCost(redeemBprox));
 
           const userMoCBalance = await mocHelper.getMoCBalance(userAccount);

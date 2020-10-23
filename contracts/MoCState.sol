@@ -8,6 +8,7 @@ import "./MoCLibConnection.sol";
 import "./MoCBProxManager.sol";
 import "./token/DocToken.sol";
 import "./token/BProToken.sol";
+import "./token/MoCToken.sol";
 import "./MoCSettlement.sol";
 import "moc-governance/contracts/Governance/Governed.sol";
 import "moc-governance/contracts/Governance/IGovernor.sol";
@@ -741,7 +742,7 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
    *********************/
 
   function setMoCTokenInternal(address mocTokenAddress) internal {
-    mocToken = mocTokenAddress;
+    mocToken = MoCToken(mocTokenAddress);
 
     emit MoCTokenChanged(mocTokenAddress);
   }
@@ -813,7 +814,7 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
   /** Variables and events **/
 
   PriceProvider internal mocPriceProvider;
-  address internal mocToken;
+  MoCToken internal mocToken;
 
   event MoCTokenChanged (
     address mocTokenAddress

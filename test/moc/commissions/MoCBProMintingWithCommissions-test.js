@@ -35,7 +35,7 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount]) 
     await mocHelper.governor.executeChange(mocHelper.mockMocInrateChanger.address);
   });
 
-  describe.only('BPro minting with commissions', function() {
+  describe('BPro minting with commissions', function() {
     const scenarios = [
       // RBTC commission
       {
@@ -98,7 +98,11 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount]) 
           );
           prevMocBtcBalance = toContractBN(await web3.eth.getBalance(this.moc.address));
           prevUserMoCBalance = await mocHelper.getMoCBalance(userAccount);
-          prevCommissionsAccountMoCBalance = await mocHelper.getMoCBalance(commissionsAccount);
+          prevCommissionsAccountMoCBalance = await mocHelper.getMoCAllowance(
+            commissionsAccount,
+            userAccount
+          );
+
           const mintTx = await mocHelper.mintBProAmount(
             userAccount,
             scenario.params.bproToMint,
