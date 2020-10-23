@@ -98,10 +98,7 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount]) 
           );
           prevMocBtcBalance = toContractBN(await web3.eth.getBalance(this.moc.address));
           prevUserMoCBalance = await mocHelper.getMoCBalance(userAccount);
-          prevCommissionsAccountMoCBalance = await mocHelper.getMoCAllowance(
-            commissionsAccount,
-            userAccount
-          );
+          prevCommissionsAccountMoCBalance = await mocHelper.getMoCBalance(commissionsAccount);
 
           const mintTx = await mocHelper.mintBProAmount(
             userAccount,
