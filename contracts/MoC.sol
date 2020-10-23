@@ -516,22 +516,22 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
 
   /***** STATE MODIFIERS *****/
   modifier whenSettlementReady() {
-    require(settlement.isSettlementReady(), "Only when settlement is ready");
+    require(settlement.isSettlementReady(), "Function can only be called when settlement is ready");
     _;
   }
 
   modifier atState(MoCState.States _state) {
-    require(mocState.state() == _state, "Cannot be called at this state");
+    require(mocState.state() == _state, "Function cannot be called at this state");
     _;
   }
 
   modifier atLeastState(MoCState.States _state) {
-    require(mocState.state() >= _state, "Cannot be called at this state");
+    require(mocState.state() >= _state, "Function cannot be called at this state");
     _;
   }
 
   modifier atMostState(MoCState.States _state) {
-    require(mocState.state() <= _state, "Cannot be called at this state");
+    require(mocState.state() <= _state, "Function cannot be called at this state");
     _;
   }
 
@@ -546,7 +546,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
   }
 
   modifier notBaseBucket(bytes32 bucket) {
-    require(!bproxManager.isBucketBase(bucket), "Shouldn't be a base type bucket");
+    require(!bproxManager.isBucketBase(bucket), "Bucket should not be a base type bucket");
     _;
   }
 
