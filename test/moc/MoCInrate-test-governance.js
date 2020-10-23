@@ -26,16 +26,16 @@ contract('MoCInrate Governed', function([owner, account2]) {
     this.mocInrate = mocHelper.mocInrate;
     this.governor = mocHelper.governor;
     this.mockMocInrateChanger = mocHelper.mockMocInrateChanger;
+  });
+
+  beforeEach(async function() {
+    await mocHelper.revertState();
 
     // Commission rates for test are set in functionHelper.js
     await mocHelper.mockMocInrateChanger.setCommissionRates(
       await mocHelper.getCommissionsArrayNonZero()
     );
     await this.governor.executeChange(this.mockMocInrateChanger.address);
-  });
-
-  beforeEach(function() {
-    return mocHelper.revertState();
   });
 
   describe('MoCInrate settings params', function() {
@@ -150,17 +150,21 @@ contract('MoCInrate Governed', function([owner, account2]) {
     describe('GIVEN different *valid* transaction types and their fees to calculate commission rate (calcCommissionValue)', function() {
       it('THEN the transaction types defined in the "commissionRates" array are valid', async function() {
         const commissionRatesArrayLength = await this.mockMocInrateChanger.commissionRatesLength();
+
         // Iterate through array
         for (let i = 0; i < commissionRatesArrayLength; i++) {
           /* eslint-disable no-await-in-loop */
           const commissionRate = await this.mockMocInrateChanger.commissionRates(i);
+
           const newCommisionRateValidTxType = await this.mocInrate.calcCommissionValue(
             (scenario.rbtcAmount * mocHelper.MOC_PRECISION).toString(),
             commissionRate.txType
           );
+
           /* eslint-enable no-await-in-loop */
           // The fee from the commissionRatesArray is already converted to wei
           const testCommissionValue = scenario.rbtcAmount * commissionRate.fee;
+
           mocHelper.assertBig(
             newCommisionRateValidTxType.toString(),
             testCommissionValue.toString(),
