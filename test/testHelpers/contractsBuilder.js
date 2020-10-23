@@ -95,7 +95,7 @@ const transferPausingRole = async (token, address) => {
   await token.renouncePauser();
 };
 
-const initializeCommissionRatesArray = async (moc, mocInrate) => {
+const getCommissionsArrayZero = async mocInrate => {
   const ret = [
     {
       txType: (await mocInrate.MINT_BPRO_FEES_RBTC()).toString(),
@@ -246,7 +246,7 @@ const createContracts = params => async ({ owner, useMock }) => {
     docTmin,
     docTmax,
     docPower,
-    await initializeCommissionRatesArray(moc, mocInrate),
+    await getCommissionsArrayZero(mocInrate),
     { from: owner }
   );
   const mockMoCSettlementChanger = await MoCSettlementChanger.new(
