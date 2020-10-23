@@ -278,7 +278,7 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
           1,
           await mocHelper.mocInrate.MINT_DOC_FEES_RBTC()
         );
-        await expectRevert.unspecified(mintDoc);
+        await expectRevert(mintDoc, 'amount is not enough');
       });
     });
     describe('GIVEN since there is no allowance to pay comission in MoC', function() {
@@ -295,7 +295,7 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
           1,
           await mocHelper.mocInrate.MINT_DOC_FEES_RBTC()
         );
-        await expectRevert.unspecified(mintDoc);
+        await expectRevert(mintDoc, 'amount is not enough');
       });
     });
     describe('GIVEN since the user does not have MoC, but there is MoC allowance AND RBTC balance', function() {
