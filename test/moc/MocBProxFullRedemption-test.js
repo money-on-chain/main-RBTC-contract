@@ -115,8 +115,8 @@ contract('MoC: RedeemBProx', function([owner, ...accounts]) {
           });
         });
       });
-      describe(`WHEN all users redeem their ${BUCKET_X2} positions`, function() {
-        it(`THEN ${BUCKET_X2} bucket should be empty`, async function() {
+      describe('WHEN all users redeem their BUCKET_X2 positions', function() {
+        it('THEN BUCKET_X2 bucket should be empty', async function() {
           await new Promise(resolve => {
             s.users.forEach(async (user, index) => {
               const userBProxBalance = await mocHelper.getBProxBalance(
