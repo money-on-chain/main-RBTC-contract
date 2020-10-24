@@ -58,7 +58,7 @@
     "mocha": "6.2.0",
     "openzeppelin-test-helpers": "0.4.0",
     "prettier": "1.18.2",
-    "solidity-coverage": "0.6.4",
+    "solidity-coverage": "0.6.5",
     "standard-version": "7.1.0",
     "truffle": "5.0.26",
     "truffle-hdwallet-provider": "1.0.13",
