@@ -1,8 +1,8 @@
-/* eslint-disable no-console */
 const Web3 = require('web3');
 const HDWalletProvider = require('truffle-hdwallet-provider');
 const abiDecoder = require('abi-decoder');
 const _ = require('lodash');
+const jsonfile = require('jsonfile');
 const { scripts, ConfigVariablesInitializer } = require('zos');
 const truffleConfig = require('../../truffle');
 const config = require('./script-config.json');

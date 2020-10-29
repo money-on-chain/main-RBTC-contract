@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 const { deployContract, getConfig } = require('./changerHelper');
 const changerAbi = require('../../build/contracts/CommissionsAddressChanger.json');
 
