@@ -8,6 +8,73 @@ let BUCKET_X2;
 
 const { BN } = web3.utils;
 
+// Asserts
+const assertStartSettlementEvent = async (
+  settlementCompleteEvent,
+  btcPrice,
+  docCount,
+  deleverCount
+) => {
+  mocHelper.assertBigDollar(
+    settlementCompleteEvent.reservePrice,
+    btcPrice,
+    'BTC Price is not correct'
+  );
+  mocHelper.assertBig(
+    settlementCompleteEvent.stableTokenRedeemCount,
+    docCount,
+    'Redeem requests processed value is incorrect'
+  );
+  mocHelper.assertBig(
+    settlementCompleteEvent.deleveragingCount,
+    deleverCount,
+    'BTCx accounts liquidated value is incorrect'
+  );
+};
+
+// Returns a promise that execute
+// Price set and settlement
+const executeSettlementRound = async round => {
+  await mocHelper.setBitcoinPrice(toContractBN(round.btcPrice, 'USD'));
+  return mocHelper.moc.runSettlement(round.step);
+};
+
+const initializeSettlement = async accounts => {
+  await mocHelper.revertState();
+  // Avoid interests
+  await mocHelper.mocState.setDaysToSettlement(0);
+  const docAccounts = accounts.slice(0, 5);
+  const btcxAccounts = accounts.slice(5, 8);
+  await Promise.all(docAccounts.map(account => mocHelper.mintBProAmount(account, 10000)));
+  await Promise.all(docAccounts.map(account => mocHelper.mintDocAmount(account, 10000)));
+  await Promise.all(
+    docAccounts.map(account =>
+      mocHelper.moc.redeemDocRequest(toContractBN(10, 'USD'), {
+        from: account
+      })
+    )
+  );
+
+  await Promise.all(btcxAccounts.map(account => mocHelper.mintBProxAmount(account, BUCKET_X2, 1)));
+  initialBalances = await Promise.all(accounts.map(address => mocHelper.getUserBalances(address)));
+  await mocHelper.mocSettlement.setBlockSpan(1);
+};
+
+// Returns a promise that execute
+// Run settlement for all rounds in the scenario in order
+const runScenario = scenario => {
+  const txs = [];
+  const reduced = scenario.rounds.reduce(
+    (prevPromise, round) =>
+      prevPromise.then(tx => {
+        if (tx) txs.push(tx);
+        return executeSettlementRound(round);
+      }),
+    Promise.resolve()
+  );
+  return reduced.then(lastTx => txs.concat(lastTx));
+};
+
 contract('MoC: Partial Settlement execution', function([owner, ...accounts]) {
   before(async function() {
     mocHelper = await testHelperBuilder({ owner, useMock: true });
@@ -125,7 +192,7 @@ contract('MoC: Partial Settlement execution', function([owner, ...accounts]) {
             accounts.map(account => mocHelper.getUserBalances(account))
           );
           await mocHelper.waitNBlocks(100);
-          const tx = await mocHelper.moc.runSettlement(0);
+          const tx = await mocHelper.moc.runSettlement(1);
           [secondSettlementEvent] = mocHelper.findEvents(tx, 'SettlementStarted');
         });
         it('THEN Settlement is not enabled anymore', async function() {
@@ -152,70 +219,3 @@ contract('MoC: Partial Settlement execution', function([owner, ...accounts]) {
     });
   });
 });
-
-// Asserts
-const assertStartSettlementEvent = async (
-  settlementCompleteEvent,
-  btcPrice,
-  docCount,
-  deleverCount
-) => {
-  mocHelper.assertBigDollar(
-    settlementCompleteEvent.reservePrice,
-    btcPrice,
-    'BTC Price is not correct'
-  );
-  mocHelper.assertBig(
-    settlementCompleteEvent.stableTokenRedeemCount,
-    docCount,
-    'Redeem requests processed value is incorrect'
-  );
-  mocHelper.assertBig(
-    settlementCompleteEvent.deleveragingCount,
-    deleverCount,
-    'BTCx accounts liquidated value is incorrect'
-  );
-};
-
-// Returns a promise that execute
-// Run settlement for all rounds in the scenario in order
-const runScenario = scenario => {
-  const txs = [];
-  const reduced = scenario.rounds.reduce(
-    (prevPromise, round) =>
-      prevPromise.then(tx => {
-        if (tx) txs.push(tx);
-        return executeSettlementRound(round);
-      }),
-    Promise.resolve()
-  );
-  return reduced.then(lastTx => txs.concat(lastTx));
-};
-
-// Returns a promise that execute
-// Price set and settlement
-const executeSettlementRound = async round => {
-  await mocHelper.setBitcoinPrice(toContractBN(round.btcPrice, 'USD'));
-  return mocHelper.moc.runSettlement(round.step);
-};
-
-const initializeSettlement = async accounts => {
-  await mocHelper.revertState();
-  // Avoid interests
-  await mocHelper.mocState.setDaysToSettlement(0);
-  const docAccounts = accounts.slice(0, 5);
-  const btcxAccounts = accounts.slice(5, 8);
-  await Promise.all(docAccounts.map(account => mocHelper.mintBProAmount(account, 10000)));
-  await Promise.all(docAccounts.map(account => mocHelper.mintDocAmount(account, 10000)));
-  await Promise.all(
-    docAccounts.map(account =>
-      mocHelper.moc.redeemDocRequest(toContractBN(10, 'USD'), {
-        from: account
-      })
-    )
-  );
-
-  await Promise.all(btcxAccounts.map(account => mocHelper.mintBProxAmount(account, BUCKET_X2, 1)));
-  initialBalances = await Promise.all(accounts.map(address => mocHelper.getUserBalances(address)));
-  await mocHelper.mocSettlement.setBlockSpan(1);
-};

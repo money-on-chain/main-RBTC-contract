@@ -7,9 +7,9 @@
     "MoCConnector": "MoCConnector",
     "MoCBProxManager": "MoCBProxManager",
     "MoCBurnout": "MoCBurnout",
-    "MoCSettlement": "MoCSettlement",
+    "MoCSettlement": "MoCSettlementMock",
     "MoCConverter": "MoCConverter",
-    "MoCState": "MoCState",
+    "MoCState": "MoCStateMock",
     "MoCExchange": "MoCExchange",
     "MoCInrate": "MoCInrate",
     "CommissionSplitter": "CommissionSplitter"

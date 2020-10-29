@@ -19,6 +19,13 @@ module.exports = {
     }
   },
   networks: {
+    // development: {
+    //   provider: new HDWalletProvider(mnemonic, 'http://localhost:4444', 0, 1, true),
+    //   network_id: '*',
+    //   gas: 7885048,
+    //   gasPrice: 65000000,
+    //   confirmations: 0
+    // },
     development: {
       host: '127.0.0.1',
       port: 8545,
@@ -26,6 +33,13 @@ module.exports = {
       network_id: '*',
       gas: 6721975,
       gasPrice: 20000000000
+    },
+    regtest: {
+      host: '127.0.0.1',
+      port: 4444,
+      network_id: '*',
+      gas: 6001975,
+      gasPrice: 65000000
     },
     coverage: {
       host: 'localhost',
@@ -38,7 +52,10 @@ module.exports = {
       host: 'https://public-node.testnet.rsk.co',
       provider: new HDWalletProvider(mnemonic, 'https://public-node.testnet.rsk.co'),
       network_id: '*',
-      gasPrice: 60000000
+      gas: 6700000,
+      gasPrice: 69000000,
+      skipDryRun: true,
+      confirmations: 1
     }
   },
   mocha: {

@@ -2,7 +2,7 @@ pragma solidity 0.5.8;
 
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "./base/MoCBase.sol";
-import "./base/PartialExecution.sol";
+import "./PartialExecution.sol";
 import "./token/DocToken.sol";
 import "./MoCExchange.sol";
 

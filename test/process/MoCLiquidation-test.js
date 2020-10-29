@@ -7,6 +7,15 @@ let toContractBN;
 let comAccountInitialBalance;
 const BUCKET_X2 = web3.utils.asciiToHex('X2', 32);
 
+const setCommissionAccount = async commissionAccount => {
+  // set commissions address
+  await mocHelper.mockMocInrateChanger.setCommissionsAddress(commissionAccount);
+  // update params
+  await mocHelper.governor.executeChange(mocHelper.mockMocInrateChanger.address);
+
+  comAccountInitialBalance = await web3.eth.getBalance(commissionAccount);
+};
+
 contract('MoC: Liquidation', function([owner, commissionAccount, userAccount, otherAccount]) {
   before(async function() {
     mocHelper = await testHelperBuilder({ owner });
@@ -94,6 +103,7 @@ contract('MoC: Liquidation', function([owner, commissionAccount, userAccount, ot
         });
       });
     });
+
     describe('WHEN liquidation State is met', function() {
       beforeEach(async function() {
         const liquidationReached = await this.mocState.isLiquidationReached();
@@ -144,12 +154,3 @@ contract('MoC: Liquidation', function([owner, commissionAccount, userAccount, ot
     });
   });
 });
-
-const setCommissionAccount = async commissionAccount => {
-  // set commissions address
-  await mocHelper.mockMocInrateChanger.setCommissionsAddress(commissionAccount);
-  // update params
-  await mocHelper.governor.executeChange(mocHelper.mockMocInrateChanger.address);
-
-  comAccountInitialBalance = await web3.eth.getBalance(commissionAccount);
-};

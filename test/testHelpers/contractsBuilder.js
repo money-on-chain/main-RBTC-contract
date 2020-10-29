@@ -12,9 +12,11 @@ const MoCConverter = artifacts.require('./contracts/MoCConverter.sol');
 const MoCExchange = artifacts.require('./contracts/MoCExchange.sol');
 const MoCInrate = artifacts.require('./contracts/MoCInrate.sol');
 const MoCSettlementMock = artifacts.require('./contracts/mocks/MoCSettlementMock.sol');
+
 const BPro = artifacts.require('./contracts/BProToken.sol');
 const BProxManager = artifacts.require('./contracts/MoCBProxManager.sol');
 const MoCSettlement = artifacts.require('./contracts/MoCSettlement.sol');
+
 const MoCBurnout = artifacts.require('./contracts/MoCBurnout.sol');
 const MoCConnector = artifacts.require('./contracts/base/MoCConnector.sol');
 const Governor = artifacts.require('moc-governance/contracts/Governance/Governor.sol');
@@ -78,6 +80,17 @@ const baseParams = {
   startStoppable: true
 };
 
+const transferOwnershipAndMinting = async (token, address) => {
+  await token.transferOwnership(address);
+  await token.addMinter(address);
+  await token.renounceMinter();
+};
+
+const transferPausingRole = async (token, address) => {
+  await token.addPauser(address);
+  await token.renouncePauser();
+};
+
 const createContracts = params => async ({ owner, useMock }) => {
   const project = await TestHelper();
 
@@ -105,6 +118,7 @@ const createContracts = params => async ({ owner, useMock }) => {
     startStoppable,
     mocProportion = baseParams.mocProportion
   } = params;
+
   const settlementContract = useMock ? MoCSettlementMock : MoCSettlement;
   const stateContract = useMock ? MoCStateMock : MoCState;
   const settlementContractProxy = useMock ? MoCSettlementMockProxy : MoCSettlementProxy;
@@ -142,7 +156,6 @@ const createContracts = params => async ({ owner, useMock }) => {
   const mocBurnout = await MoCBurnout.at(mocBurnoutProxy.address);
   const moc = await MoC.at(mocProxy.address);
   const commissionSplitter = await CommissionSplitter.at(commissionSplitterProxy.address);
-
   const governor = await Governor.at(governorProxy.address);
   const stopper = await Stopper.at(stopperProxy.address);
 
@@ -172,7 +185,6 @@ const createContracts = params => async ({ owner, useMock }) => {
     docPower,
     { from: owner }
   );
-
   const mockMoCSettlementChanger = await MoCSettlementChanger.new(
     mocSettlement.address,
     dayBlockSpan,
@@ -196,6 +208,7 @@ const createContracts = params => async ({ owner, useMock }) => {
     from: owner
   });
 
+  // Initialize contracts
   await mocConnector.initialize(
     moc.address,
     doc.address,
@@ -208,8 +221,6 @@ const createContracts = params => async ({ owner, useMock }) => {
     mocInrate.address,
     mocBurnout.address
   );
-
-  // Initialize contracts
   await mocConverter.initialize(mocConnector.address);
   await moc.initialize(mocConnector.address, governor.address, stopper.address, startStoppable);
   await stopper.initialize(owner);
@@ -227,7 +238,6 @@ const createContracts = params => async ({ owner, useMock }) => {
     emaBlockSpan,
     maxMintBPro
   );
-
   await mocInrate.initialize(
     mocConnector.address,
     governor.address,
@@ -248,8 +258,8 @@ const createContracts = params => async ({ owner, useMock }) => {
   await mocBurnout.initialize(mocConnector.address);
   await governor.initialize(owner);
   await commissionSplitter.initialize(moc.address, owner, mocProportion, governor.address);
-
   await upgradeDelegator.initialize(governor.address, proxyAdmin.address);
+
   // Transfer roles
   await transferOwnershipAndMinting(doc, mocExchange.address);
   await transferOwnershipAndMinting(bpro, mocExchange.address);
@@ -275,20 +285,6 @@ const createContracts = params => async ({ owner, useMock }) => {
     from: owner
   });
 
-  // Fix the mocBProxManager
-
-  /*
-  const bProxManagerNewImplementation = await BProxManagerFixer.new();
-
-  const bProxManagerUpgrader = await BProxManagerUpgrader.new(
-    bprox.address,
-    upgradeDelegator.address,
-    bProxManagerNewImplementation.address
-  );
-  await governor.executeChange(bProxManagerUpgrader.address, { gas: 6e6 });
-  const bproxFixed = await BProxManagerFixer.at(bprox.address);
-  await bproxFixed.fixGovernor();
-  */
   return {
     commissionSplitter,
     mocConnector,
@@ -312,17 +308,6 @@ const createContracts = params => async ({ owner, useMock }) => {
     mockMoCRestartSettlementChanger,
     revertingContract
   };
-};
-
-const transferOwnershipAndMinting = async (token, address) => {
-  await token.transferOwnership(address);
-  await token.addMinter(address);
-  await token.renounceMinter();
-};
-
-const transferPausingRole = async (token, address) => {
-  await token.addPauser(address);
-  await token.renouncePauser();
 };
 
 module.exports = {
