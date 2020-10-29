@@ -25,5 +25,35 @@
     "mocRiskProxManager": "",
     "mocState": "",
     "moc": "0x1CacFFb40036E5940d6F9F80af8054756704409f"
+  },
+  "rskAlphaTestnet": {
+    "governor": "0x9258531274B945eB628656F4b30e8216938A619C",
+    "stopper": "0x0BE712DD242BF133417f6e389436783Fccb62e9e",
+    "proxyAdmin": "0xcc8fb7E8666F3bEe51511235753406f96C16E26b",
+    "upgradeDelegator": "0x00a47D7d7B9bD22e0A862908EC493bDE893f627B",
+    "commissionSplitter": "",
+    "moc": "0x01AD6f8E884ed4DDC089fA3efC075E9ba45C9039",
+    "commissionAddress": "0xf69287F5Ca3cC3C6d3981f2412109110cB8af076",
+    "mocProportion": "200000000000000000"
+  },
+  "rskMocTestnet": {
+    "governor": "0x4eAC4518e81B3A5198aADAb998D2610B46aAA609",
+    "stopper": "0x5bCdf8A2E61BD238AEe43b99962Ee8BfBda1Beca",
+    "proxyAdmin": "0xffb65F6E24806B7e1A988EeD1Ad07BB2654fF695",
+    "upgradeDelegator": "0xCDAbFbF334A5F6BCe900D2f73470D1e6722365d8",
+    "commissionSplitter": "",
+    "moc": "0x2820f6d4D199B8D8838A4B26F9917754B86a0c1F",
+    "commissionAddress": "0xf69287F5Ca3cC3C6d3981f2412109110cB8af076",
+    "mocProportion": "200000000000000000"
+  },
+  "rskMocMainnet2": {
+    "governor": "0xC61F0392d5170214b5D93C0BC4c4354163aBC1f7",
+    "stopper": "0x40662eD57284B4B541A42D347BE2447ABd1b119d",
+    "proxyAdmin": "0x009C51E1f6feDcDB8014Ea9AE1E39B6dbF2AC0EC",
+    "upgradeDelegator": "0x5cE577f6Ec969CE9a282838D350206C52A6F338C",
+    "commissionSplitter": "",
+    "moc": "0xf773B590aF754D597770937Fa8ea7AbDf2668370",
+    "commissionAddress": "0xC61820bFB8F87391d62Cd3976dDc1d35e0cf7128",
+    "mocProportion": "200000000000000000"
   }
 }
