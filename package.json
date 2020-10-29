@@ -1,6 +1,6 @@
 {
   "name": "money-on-chain",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "private": true,
   "homepage": "https://github.com/money-on-chain/main-RBTC-contract",
   "description": "Money On Chain - Main RBTC Contract",
@@ -10,15 +10,18 @@
   },
   "scripts": {
     "test": "rm zos.dev-*.json; rm -r build/contracts; npm run truffle-compile && scripts/test.sh",
-    "truffle-test": "./node_modules/truffle/build/cli.bundled.js test",
+    "truffle-test": "npx truffle test",
+    "truffle-test-regtest": "npx truffle test --network regtest",
     "coverage": "SOLIDITY_COVERAGE=true npm run test",
     "ganache-cli": "scripts/run_ganache.sh",
     "block-utils": "scripts/mine_blocks.sh",
     "truffle-compile": "truffle compile --all",
-    "solium": "node ./node_modules/ethlint/bin/solium -d contracts/",
+    "solium": "npx ethlint -d contracts/",
     "eslint": "eslint 'test/**/*.js' 'scripts/**/*.js'",
-    "migrate-development": "truffle migrate --network development",
-    "deploy-reset-development": "rm zos.dev-*.json; rm -r build/contracts; truffle migrate --network development --reset"
+    "migrate-development": "npx truffle migrate --network development",
+    "deploy-reset-development": "rm zos.dev-*.json; rm -r build/contracts; npx truffle migrate --network development --reset",
+    "deploy-reset-regtest": "rm zos.dev-*.json; rm -r build/contracts; cat zos.json.empty > zos.json; npx truffle migrate --network regtest --reset",
+    "deploy-reset-testnet": "rm zos.dev-*.json; rm -r build/contracts; cat zos.json.empty > zos.json; npx truffle migrate --network rskTestnet --reset"
   },
   "repository": {
     "type": "git",

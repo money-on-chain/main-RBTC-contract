@@ -4,6 +4,13 @@ let mocHelper;
 let BUCKET_X2;
 let initialAccounts;
 let afterAccounts;
+
+const initializeDeleveraging = async (owner, accounts) => {
+  await mocHelper.mintBProAmount(owner, 10 * accounts.length);
+  await mocHelper.mintDocAmount(owner, 50000 * accounts.length);
+  await Promise.all(accounts.map(account => mocHelper.mintBProx(account, BUCKET_X2, 5)));
+};
+
 contract.skip('MoC: Gas limit on deleveraging', function([owner, ...accounts]) {
   initialAccounts = accounts.slice(0, 300);
   afterAccounts = accounts.slice(300, 500);
@@ -136,9 +143,3 @@ contract.skip('MoC: Gas limit on deleveraging', function([owner, ...accounts]) {
     });
   });
 });
-
-const initializeDeleveraging = async (owner, accounts) => {
-  await mocHelper.mintBProAmount(owner, 10 * accounts.length);
-  await mocHelper.mintDocAmount(owner, 50000 * accounts.length);
-  await Promise.all(accounts.map(account => mocHelper.mintBProx(account, BUCKET_X2, 5)));
-};

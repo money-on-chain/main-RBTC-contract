@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 const abiDecoder = require('abi-decoder');
 
 const BtcPriceProviderMock = artifacts.require('./contracts/mocks/BtcPriceProviderMock.sol');
@@ -30,25 +31,6 @@ abiDecoder.addABI(Governor.abi);
 abiDecoder.addABI(Stopper.abi);
 abiDecoder.addABI(CommissionSplitter.abi);
 
-const findEventsInTxs = (txs, eventName, eventArgs) => {
-  const events = txs.map(tx => findEvents(tx, eventName, eventArgs));
-
-  // Just a flat without lodash
-  return events.reduce((accum, ev) => accum.concat(ev), []);
-};
-
-const findEvents = (tx, eventName, eventArgs) => {
-  const txLogs = decodeLogs(tx.receipt);
-  const logs = txLogs.filter(log => log && log.name === eventName);
-  const events = logs.map(log => transformEvent(log.events));
-
-  // Filter
-  if (eventArgs) {
-    return events.filter(ev => Object.entries(eventArgs).every(([k, v]) => ev[k] === v));
-  }
-  return events;
-};
-
 const objectToString = state =>
   Object.keys(state).reduce(
     (last, key) => `${last}${key}: ${state[key].toString()}
@@ -56,14 +38,7 @@ const objectToString = state =>
     ''
   );
 
-const logDebugEvents = async tx => {
-  // eslint-disable-next-line no-console
-  const events = await findEvents(tx, 'DEBUG');
-
-  events.forEach(ev => {
-    console.log(objectToString(ev));
-  });
-};
+const decodeLogs = txReceipt => abiDecoder.decodeLogs(txReceipt.rawLogs);
 
 const transformEvent = event => {
   const obj = {};
@@ -84,7 +59,32 @@ const transformEvent = event => {
   return obj;
 };
 
-const decodeLogs = txReceipt => abiDecoder.decodeLogs(txReceipt.rawLogs);
+const findEvents = (tx, eventName, eventArgs) => {
+  const txLogs = decodeLogs(tx.receipt);
+  const logs = txLogs.filter(log => log && log.name === eventName);
+  const events = logs.map(log => transformEvent(log.events));
+
+  // Filter
+  if (eventArgs) {
+    return events.filter(ev => Object.entries(eventArgs).every(([k, v]) => ev[k] === v));
+  }
+  return events;
+};
+
+const findEventsInTxs = (txs, eventName, eventArgs) => {
+  const events = txs.map(tx => findEvents(tx, eventName, eventArgs));
+
+  // Just a flat without lodash
+  return events.reduce((accum, ev) => accum.concat(ev), []);
+};
+
+const logDebugEvents = async tx => {
+  const events = await findEvents(tx, 'DEBUG');
+
+  events.forEach(ev => {
+    console.log(objectToString(ev));
+  });
+};
 
 module.exports = {
   findEventsInTxs,

@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 const SetCommissionFinalAddressChanger = require('../../build/contracts/SetCommissionFinalAddressChanger.json');
 const { deployContract, getConfig } = require('./changerHelper');
 

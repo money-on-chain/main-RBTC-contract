@@ -1,3 +1,6 @@
+/* eslint-disable no-unused-expressions */
+const { expectRevert } = require('openzeppelin-test-helpers');
+const { expect } = require('chai');
 const testHelperBuilder = require('../mocHelper.js');
 
 let mocHelper;
@@ -27,8 +30,6 @@ contract('MoC: Delever X', function([owner, ...allAccounts]) {
       beforeEach(async function() {
         await mocHelper.mintBProAmount(owner, 3);
         await mocHelper.mintDocAmount(owner, 15000);
-
-        mocHelper.getBucketState(BUCKET_X2);
 
         await mocHelper.mintBProxAmount(accounts[1], BUCKET_X2, 0.5);
         await mocHelper.mintBProxAmount(accounts[2], BUCKET_X2, 0.5);
@@ -67,6 +68,154 @@ contract('MoC: Delever X', function([owner, ...allAccounts]) {
           );
 
           mocHelper.assertBig(finalBalance, rbtcBalances[2], 'Incorrect attackers balance');
+        });
+      });
+    });
+  });
+
+  describe('During settlement bucket liquidation is not enabled', function() {
+    const bprox2Positions = [0.5, 0.5, 0.5, 0.5, 0.01];
+    describe('GIVEN five users have BProX2 and there is a position and the settlement is enabled', function() {
+      beforeEach(async function() {
+        await mocHelper.mintBProAmount(owner, 25);
+        await mocHelper.mintDocAmount(owner, 25000);
+
+        await Promise.all(
+          bprox2Positions.map((position, i) =>
+            mocHelper.mintBProxAmount(accounts[i + 1], BUCKET_X2, position)
+          )
+        );
+        await mocHelper.moc.redeemDocRequest(toContractBN(1, 'USD'), {
+          from: owner
+        });
+        // Verify that the positions are placed
+        await Promise.all(
+          bprox2Positions.map(async (position, i) =>
+            mocHelper.assertBigRBTC(
+              await mocHelper.getBProxBalance(BUCKET_X2, accounts[i + 1]),
+              position
+            )
+          )
+        );
+        await mocHelper.waitNBlocks(100);
+      });
+      describe('WHEN deleveraging has run almost completely', function() {
+        beforeEach(async function() {
+          // Run only a few deleveraging step
+          await this.moc.runSettlement(3);
+          await mocHelper.waitNBlocks(100);
+          expect(await this.mocSettlement.isSettlementRunning()).to.be.true;
+        });
+        it(`THEN bucket liquidation should not be enabled ${BUCKET_X2} until the settlement finishes`, async function() {
+          await expectRevert(
+            this.moc.evalBucketLiquidation(BUCKET_X2),
+            'Function can only be called when settlement is ready'
+          );
+        });
+      });
+    });
+  });
+
+  describe('Deleveraging can be run burning every position', function() {
+    const bprox2Positions = [0.5, 0.5, 0.5, 0.5, 0.01];
+    describe('GIVEN five users have only BProX2 positions and the settlement is enabled', function() {
+      beforeEach(async function() {
+        await mocHelper.mintBProAmount(owner, 25);
+        await mocHelper.mintDocAmount(owner, 25000);
+
+        await Promise.all(
+          bprox2Positions.map((position, i) =>
+            mocHelper.mintBProxAmount(accounts[i + 1], BUCKET_X2, position)
+          )
+        );
+        // Verify that the positions are placed
+        await Promise.all(
+          bprox2Positions.map(async (position, i) =>
+            mocHelper.assertBigRBTC(
+              await mocHelper.getBProxBalance(BUCKET_X2, accounts[i + 1]),
+              position
+            )
+          )
+        );
+        await mocHelper.waitNBlocks(100);
+      });
+      describe('WHEN deleveraging has run completely', function() {
+        beforeEach(async function() {
+          // Run only a deleveraging step to finish
+          await this.mocSettlement.pubRunDeleveraging();
+
+          expect(await this.mocSettlement.isSettlementRunning()).to.be.false;
+        });
+        it('THEN all users BProx are burnt', async function() {
+          await Promise.all(
+            bprox2Positions.map(async (position, i) => {
+              mocHelper.assertBigRBTC(
+                await mocHelper.getBProxBalance(BUCKET_X2, accounts[i + 1]),
+                0
+              );
+            })
+          );
+        });
+      });
+    });
+  });
+
+  describe('Coverage does not change on settlement', function() {
+    const SETTLEMENT_STEPS_TO_RUN = 3;
+    const bprox2Positions = [0.5, 0.5, 0.5, 0.5, 0.5];
+
+    describe('GIVEN five users have BProX2 and the settlement is enabled', function() {
+      beforeEach(async function() {
+        await mocHelper.mintBProAmount(owner, 25);
+        await mocHelper.mintDocAmount(owner, 25000);
+
+        mocHelper.getBucketState(BUCKET_X2);
+        await Promise.all(
+          bprox2Positions.map((position, i) =>
+            mocHelper.mintBProxAmount(accounts[i + 1], BUCKET_X2, position)
+          )
+        );
+        await Promise.all(
+          bprox2Positions.map(async (position, i) =>
+            mocHelper.assertBigRBTC(
+              await mocHelper.getBProxBalance(BUCKET_X2, accounts[i + 1]),
+              position
+            )
+          )
+        );
+        await mocHelper.waitNBlocks(100);
+      });
+      describe('WHEN deleveraging has run almost completely', function() {
+        beforeEach(async function() {
+          await this.moc.runSettlement(SETTLEMENT_STEPS_TO_RUN); // Run only a few deleveraging step
+        });
+        it('THEN the settlement is running', async function() {
+          expect(await this.mocSettlement.isSettlementRunning()).to.be.true;
+        });
+        it(`THEN the bucket liquitadion should not be enabled ${BUCKET_X2} until the settlement finishes`, async function() {
+          await expectRevert(
+            this.moc.evalBucketLiquidation(BUCKET_X2),
+            'Function can only be called when settlement is ready'
+          );
+        });
+        it('THEN two positions are still on place', async function() {
+          const expectedPositionsInPlace = bprox2Positions.length - SETTLEMENT_STEPS_TO_RUN;
+          const individualResults = await Promise.all(
+            bprox2Positions.map(async (position, i) =>
+              toContractBN(position, 'Reserve').eq(
+                await mocHelper.getBProxBalance(BUCKET_X2, accounts[i + 1])
+              )
+            )
+          );
+
+          const positionsInPlace = individualResults.reduce(
+            (previousPositionsInPlace, currentPositionIsInPlace) =>
+              currentPositionIsInPlace ? previousPositionsInPlace + 1 : previousPositionsInPlace
+          );
+          expect(
+            positionsInPlace === expectedPositionsInPlace,
+            `Positions in place should be ${expectedPositionsInPlace} and they actually are ${positionsInPlace}`
+          );
         });
       });
     });
