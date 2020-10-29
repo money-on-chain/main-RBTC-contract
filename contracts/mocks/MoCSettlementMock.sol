@@ -6,7 +6,11 @@ contract MoCSettlementMock is MoCSettlement {
   //Step count that complete the execution in all tests
   uint256 constant STEPS = 100;
 
-  constructor() MoCSettlement () public { }
+  constructor() MoCSettlementMock () public { }
+
+  function() external {
+    require(false, "fallback function is not enabled");
+  }
 
   function pubRunDeleveraging() public {
     initializeSettlement();

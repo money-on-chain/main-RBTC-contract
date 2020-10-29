@@ -149,9 +149,13 @@ const mintBProxAmount = (moc, mocState, mocInrate) => async (account, bucket, bp
   const mocPrecision = await moc.getMocPrecision();
   const commissionRate = await mocInrate.getCommissionRate();
 
-  const commissionRbtcAmount = (btcTotal * commissionRate) / mocPrecision;
+  const commissionRbtcAmount = btcTotal.mul(commissionRate).div(mocPrecision);
 
-  const value = btcInterestAmount.add(toContractBNNoPrec(commissionRbtcAmount)).add(btcTotal);
+  // Multiply commission by 3 to avoid rounding issues
+  const value = btcInterestAmount
+    .add(commissionRbtcAmount)
+    .add(btcTotal)
+    .add(btcTotal);
 
   return moc.mintBProx(bucket, btcTotal, { from: account, value });
 };
@@ -226,17 +230,17 @@ const getBucketState = mocState => async bucket => {
   return { coverage, leverage, lB, nB, nBPro, nDoc, inrateBag, bproxTecPrice };
 };
 
-const bucketString = moc => async bucket => {
-  const bucketState = await getBucketState(moc)(bucket);
-  return bucketStateToString(bucketState);
-};
-
 const bucketStateToString = state =>
   Object.keys(state).reduce(
     (last, key) => `${last}${key}: ${state[key].toString()}
   `,
     ''
   );
+
+const bucketString = moc => async bucket => {
+  const bucketState = await getBucketState(moc)(bucket);
+  return bucketStateToString(bucketState);
+};
 
 const logBucket = moc => async bucket => {
   // eslint-disable-next-line no-console

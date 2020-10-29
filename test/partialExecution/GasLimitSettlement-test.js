@@ -4,6 +4,24 @@ let mocHelper;
 let toContractBN;
 let BUCKET_X2;
 const BTCX_OWNERS_QUANTITY = 9;
+
+const initializeSettlement = async (owner, btcxOwners) => {
+  await mocHelper.revertState();
+  await mocHelper.mintBProAmount(owner, 10000);
+  await mocHelper.mintDocAmount(owner, 1000);
+  const promises = [...Array(100).keys()].map(() =>
+    mocHelper.moc.redeemDocRequest(toContractBN(1, 'USD'), {
+      from: owner
+    })
+  );
+
+  await Promise.all(
+    promises.concat(btcxOwners.map(acc => mocHelper.mintBProx(acc, BUCKET_X2, 0.001)))
+  );
+  // Enabling Settlement
+  await mocHelper.mocSettlement.setBlockSpan(1);
+};
+
 contract('MoC: Gas limit on settlement', function([owner, ...btcxOwners]) {
   const btcxAccounts = btcxOwners.slice(0, BTCX_OWNERS_QUANTITY);
   before(async function() {
@@ -47,20 +65,3 @@ contract('MoC: Gas limit on settlement', function([owner, ...btcxOwners]) {
     });
   });
 });
-
-const initializeSettlement = async (owner, btcxOwners) => {
-  await mocHelper.revertState();
-  await mocHelper.mintBProAmount(owner, 10000);
-  await mocHelper.mintDocAmount(owner, 1000);
-  const promises = [...Array(100).keys()].map(() =>
-    mocHelper.moc.redeemDocRequest(toContractBN(1, 'USD'), {
-      from: owner
-    })
-  );
-
-  await Promise.all(
-    promises.concat(btcxOwners.map(acc => mocHelper.mintBProx(acc, BUCKET_X2, 0.001)))
-  );
-  // Enabling Settlement
-  await mocHelper.mocSettlement.setBlockSpan(1);
-};
