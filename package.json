@@ -22,7 +22,8 @@
     "deploy-reset-development": "rm zos.dev-*.json; rm -r build/contracts; npx truffle migrate --network development --reset",
     "deploy-reset-regtest": "rm zos.dev-*.json; rm -r build/contracts; cat zos.json.empty > zos.json; npx truffle migrate --network regtest --reset",
     "deploy-reset-testnet": "rm zos.dev-*.json; rm -r build/contracts; cat zos.json.empty > zos.json; npx truffle migrate --network rskTestnet --reset",
-    "contract-size": "npx truffle compile; node calcSize.js"
+    "contract-size": "npx truffle compile; node calcSize.js",
+    "deploy-reset-prueba": "rm zos.dev-*.json; rm -r build/contracts; cat zos.json.empty > zos.json; npx truffle migrate --network prueba --reset"
   },
   "repository": {
     "type": "git",
