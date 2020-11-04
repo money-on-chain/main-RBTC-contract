@@ -170,19 +170,22 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
     /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
     // Check commission rate in MoC according to transaction type
     details.mocCommissionInBtc = mocInrate.calcCommissionValue(btcAmount, mocInrate.MINT_BPRO_FEES_MOC());
-
+    // Calculate amount in MoC
+    details.mocCommission = convertToMoCPrice(details.mocCommissionInBtc);
     details.btcCommission = 0;
 
     // Check if there is enough balance of MoC
-    if ((mocBalance < details.mocCommissionInBtc || mocAllowance < details.mocCommissionInBtc) ||
+    if ((mocBalance < details.mocCommission || mocAllowance < details.mocCommission) ||
       (details.mocCommissionInBtc == 0)) {
       // Insufficient funds
       details.mocCommissionInBtc = 0;
+      details.mocCommission = 0;
+
       // Check commission rate in RBTC according to transaction type
       details.btcCommission = mocInrate.calcCommissionValue(btcAmount, mocInrate.MINT_BPRO_FEES_RBTC());
     }
 
-    details.mocCommission = mintBPro(account, details.btcCommission, details.finalBProAmount, btcAmount, details.mocCommissionInBtc);
+    mintBPro(account, details.btcCommission, details.finalBProAmount, btcAmount, details.mocCommission);
 
     return (btcAmount, details.btcCommission, details.mocCommission);
     /** END UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
@@ -211,14 +214,17 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
     /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
     // Check commission rate in MoC according to transaction type
     details.mocCommissionInBtc = mocInrate.calcCommissionValue(totalBtc, mocInrate.REDEEM_BPRO_FEES_MOC());
-
+    // Calculate amount in MoC
+    details.mocCommission = convertToMoCPrice(details.mocCommissionInBtc);
     details.btcCommission = 0;
 
     // Check if there is enough balance of MoC
-    if ((mocBalance < details.mocCommissionInBtc || mocAllowance < details.mocCommissionInBtc) ||
+    if ((mocBalance < details.mocCommission || mocAllowance < details.mocCommission) ||
       (details.mocCommissionInBtc == 0)) {
       // Insufficient funds
       details.mocCommissionInBtc = 0;
+      details.mocCommission = 0;
+
       // Check commission rate in RBTC according to transaction type
       details.btcCommission = mocInrate.calcCommissionValue(totalBtc, mocInrate.REDEEM_BPRO_FEES_RBTC());
     }
@@ -239,9 +245,6 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
 
     uint256 btcPrice = mocState.getBitcoinPrice();
     uint256 mocPrice = mocState.getMoCPrice();
-
-    // Calculate amount in MoC
-    details.mocCommission = btcPrice.mul(details.mocCommissionInBtc).div(mocPrice);
 
     emit RiskProRedeem(
       account,
@@ -289,14 +292,17 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
       /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
       // Check commission rate in MoC according to transaction type
       details.mocCommissionInBtc = mocInrate.calcCommissionValue(details.finalBtcAmount, mocInrate.REDEEM_DOC_FEES_MOC());
-
+      // Calculate amount in MoC
+      details.mocCommission = convertToMoCPrice(details.mocCommissionInBtc);
       details.btcCommission = 0;
 
       // Check if there is enough balance of MoC
-      if ((mocBalance < details.mocCommissionInBtc || mocAllowance < details.mocCommissionInBtc) ||
+      if ((mocBalance < details.mocCommission || mocAllowance < details.mocCommission) ||
         (details.mocCommissionInBtc == 0)) {
         // Insufficient funds
         details.mocCommissionInBtc = 0;
+        details.mocCommission = 0;
+
         // Check commission rate in RBTC according to transaction type
         details.btcCommission = mocInrate.calcCommissionValue(details.finalBtcAmount, mocInrate.REDEEM_DOC_FEES_RBTC());
       }
@@ -307,9 +313,6 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
 
       uint256 btcPrice = mocState.getBitcoinPrice();
       uint256 mocPrice = mocState.getMoCPrice();
-
-      // Calculate amount in MoC
-      details.mocCommission = btcPrice.mul(details.mocCommissionInBtc).div(mocPrice);
 
       emit FreeStableTokenRedeem(
         account,
@@ -356,14 +359,16 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
       /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
       // Check commission rate in MoC according to transaction type
       uint256 mocCommissionInBtc = mocInrate.calcCommissionValue(totalCost, mocInrate.MINT_DOC_FEES_MOC());
-
+      // Calculate amount in MoC
+      uint256 mocCommission = convertToMoCPrice(mocCommissionInBtc);
       uint256 btcCommission = 0;
 
       // Check if there is enough balance of MoC
-      if ((mocBalance < mocCommissionInBtc || mocAllowance < mocCommissionInBtc) ||
+      if ((mocBalance < mocCommission || mocAllowance < mocCommission) ||
         (mocCommissionInBtc == 0)) {
         // Insufficient funds
         mocCommissionInBtc = 0;
+        mocCommission = 0;
 
         // Check commission rate in RBTC according to transaction type
         btcCommission = mocInrate.calcCommissionValue(totalCost, mocInrate.MINT_DOC_FEES_RBTC());
@@ -372,9 +377,6 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
 
       uint256 btcPrice = mocState.getBitcoinPrice();
       uint256 mocPrice = mocState.getMoCPrice();
-
-      // Calculate amount in MoC
-      uint256 mocCommission = btcPrice.mul(mocCommissionInBtc).div(mocPrice);
 
       emit StableTokenMint(
         account,
@@ -484,17 +486,13 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
     uint256 btcCommission,
     uint256 bproAmount,
     uint256 rbtcValue,
-    uint256 mocCommissionInBtc
-  ) public onlyWhitelisted(msg.sender)
-    returns (uint256) {
+    uint256 mocCommission
+  ) public onlyWhitelisted(msg.sender) {
     bproToken.mint(account, bproAmount);
     bproxManager.addValuesToBucket(BUCKET_C0, rbtcValue, 0, bproAmount);
 
     uint256 btcPrice = mocState.getBitcoinPrice();
     uint256 mocPrice = mocState.getMoCPrice();
-
-    // Calculate amount in MoC
-    uint256 mocCommission = btcPrice.mul(mocCommissionInBtc).div(mocPrice);
 
     emit RiskProMint(
       account,
@@ -505,8 +503,6 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
       mocCommission,
       mocPrice
     );
-
-    return mocCommission;
   }
 
   /**
@@ -553,14 +549,16 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
       /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
       // Check commission rate in MoC according to transaction type
       details.mocCommissionInBtc = mocInrate.calcCommissionValue(details.finalBtcToMint, mocInrate.MINT_BTCX_FEES_MOC());
-
+      // Calculate amount in MoC
+      details.mocCommission = convertToMoCPrice(details.mocCommissionInBtc);
       details.btcCommission = 0;
 
       // Check if there is enough balance of MoC
-      if ((mocBalance < details.mocCommissionInBtc || mocAllowance < details.mocCommissionInBtc) ||
+      if ((mocBalance < details.mocCommission || mocAllowance < details.mocCommission) ||
         (details.mocCommissionInBtc == 0)) {
         // Insufficient funds
         details.mocCommissionInBtc = 0;
+        details.mocCommission = 0;
 
         // Check commission rate in RBTC according to transaction type
         details.btcCommission = mocInrate.calcCommissionValue(details.finalBtcToMint, mocInrate.MINT_BTCX_FEES_RBTC());
@@ -569,9 +567,6 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
 
       uint256 btcPrice = mocState.getBitcoinPrice();
       uint256 mocPrice = mocState.getMoCPrice();
-
-      // Calculate amount in MoC
-      details.mocCommission = btcPrice.mul(details.mocCommissionInBtc).div(mocPrice);
 
       emit RiskProxMint(
         bucket,
@@ -728,14 +723,16 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
     /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
     // Check commission rate in MoC according to transaction type
     details.mocCommissionInBtc = mocInrate.calcCommissionValue(rbtcToRedeem, mocInrate.REDEEM_BTCX_FEES_MOC());
-
+    // Calculate amount in MoC
+    details.mocCommission = convertToMoCPrice(details.mocCommissionInBtc);
     details.btcCommission = 0;
 
     // Check if there is enough balance of MoC
-    if ((mocBalance < details.mocCommissionInBtc || mocAllowance < details.mocCommissionInBtc) ||
+    if ((mocBalance < details.mocCommission || mocAllowance < details.mocCommission) ||
       (details.mocCommissionInBtc == 0)) {
       // Insufficient funds
       details.mocCommissionInBtc = 0;
+      details.mocCommission = 0;
 
       // Check commission rate in RBTC according to transaction type
       details.btcCommission = mocInrate.calcCommissionValue(rbtcToRedeem, mocInrate.REDEEM_BTCX_FEES_RBTC());
@@ -746,9 +743,6 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
 
     uint256 btcPrice = mocState.getBitcoinPrice();
     uint256 mocPrice = mocState.getMoCPrice();
-
-    // Calculate amount in MoC
-    details.mocCommission = btcPrice.mul(details.mocCommissionInBtc).div(mocPrice);
 
     emit RiskProxRedeem(
       bucket,
@@ -825,6 +819,16 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
   {
     docToken.burn(userAddress, docAmount);
     bproxManager.substractValuesFromBucket(BUCKET_C0, totalBtc, docAmount, 0);
+  }
+
+  function convertToMoCPrice(uint256 btcAmount) internal view returns (uint256) {
+    uint256 btcPrice = mocState.getMoCPrice();
+    uint256 mocPrice = mocState.getMoCPrice();
+
+    // Calculate amount in MoC
+    uint256 amountInMoC = btcPrice.mul(btcAmount).div(mocPrice);
+
+    return amountInMoC;
   }
 
   function initializeContracts() internal {
