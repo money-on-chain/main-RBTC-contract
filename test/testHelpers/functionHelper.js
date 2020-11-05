@@ -43,6 +43,15 @@ const getBitcoinPrice = btcPriceProvider => async () => {
   return priceValue['0'];
 };
 
+// Mock MoC price provider doesn't use second and third parameter
+const setMoCPrice = mocPriceProvider => async mocPrice =>
+  mocPriceProvider.post(toContract(mocPrice), 0, mocPriceProvider.address);
+
+const getMoCPrice = mocPriceProvider => async () => {
+  const priceValue = await mocPriceProvider.peek();
+  return priceValue['0'];
+};
+
 const setSmoothingFactor = (governor, mockMocStateChanger) => async _coeff => {
   const coeff = isBN(_coeff) ? _coeff : toContractBNNoPrec(_coeff);
   await mockMocStateChanger.setSmoothingFactor(coeff);
@@ -452,7 +461,8 @@ module.exports = async contracts => {
     governor,
     mockMocStateChanger,
     commissionSplitter,
-    mocToken
+    mocToken,
+    mocPriceProvider
   } = contracts;
 
   return {
@@ -495,6 +505,8 @@ module.exports = async contracts => {
     getCommissionsArrayInvalidLength,
     getCommissionsArrayChangingTest,
     BUCKET_C0,
-    BUCKET_X2
+    BUCKET_X2,
+    setMoCPrice: setMoCPrice(mocPriceProvider),
+    getMoCPrice: getMoCPrice(mocPriceProvider)
   };
 };

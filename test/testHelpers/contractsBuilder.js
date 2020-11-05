@@ -99,7 +99,7 @@ const getCommissionsArrayZero = async mocInrate => {
   const ret = [
     {
       txType: (await mocInrate.MINT_BPRO_FEES_RBTC()).toString(),
-      fee: 0
+      fee: '0'
     },
     {
       txType: (await mocInrate.REDEEM_BPRO_FEES_RBTC()).toString(),
@@ -376,7 +376,8 @@ const createContracts = params => async ({ owner, useMock }) => {
     mockMoCStallSettlementChanger,
     mockMoCRestartSettlementChanger,
     revertingContract,
-    mocToken
+    mocToken,
+    mocPriceProvider
   };
 };
 
