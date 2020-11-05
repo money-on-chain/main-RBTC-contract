@@ -112,15 +112,10 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
    */
   function mintBPro(uint256 btcToMint) public payable whenNotPaused() transitionState() {
     /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
-    // Get balance and allowance from sender
-    (uint256 mocBalance, uint256 mocAllowance) = getMocTokenBalance(msg.sender, address(this));
-
-    // Pass balance and allowance parameters to exchange
-    // Calculate commissions in exchange
     uint256 totalBtcSpent;
     uint256 btcCommission;
     uint256 mocCommission;
-    (totalBtcSpent, btcCommission, mocCommission) = mocExchange.mintBPro(msg.sender, btcToMint, mocBalance, mocAllowance);
+    (totalBtcSpent, btcCommission, mocCommission) = mocExchange.mintBPro(msg.sender, btcToMint);
 
     totalBtcSpent = transferMocComission(msg.sender, msg.value, totalBtcSpent, btcCommission, mocCommission);
     /** END UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
@@ -140,14 +135,10 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
    */
   function redeemBPro(uint256 bproAmount) public whenNotPaused() transitionState() atLeastState(MoCState.States.AboveCobj) {
     /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
-    (uint256 mocBalance, uint256 mocAllowance) = getMocTokenBalance(msg.sender, address(this));
-
-    // Pass balance and allowance parameters to exchange
-    // Calculate commissions in exchange
     uint256 btcAmount;
     uint256 btcCommission;
     uint256 mocCommission;
-    (btcAmount, btcCommission, mocCommission) = mocExchange.redeemBPro(msg.sender, bproAmount, mocBalance, mocAllowance);
+    (btcAmount, btcCommission, mocCommission) = mocExchange.redeemBPro(msg.sender, bproAmount);
 
     doTransfer(msg.sender, btcAmount);
 
@@ -162,15 +153,10 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
    */
   function mintDoc(uint256 btcToMint) public payable whenNotPaused() transitionState() atLeastState(MoCState.States.AboveCobj) {
     /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
-    // Get balance and allowance from sender
-    (uint256 mocBalance, uint256 mocAllowance) = getMocTokenBalance(msg.sender, address(this));
-
-    // Pass balance and allowance parameters to exchange
-    // Calculate commissions in exchange
     uint256 totalBtcSpent;
     uint256 btcCommission;
     uint256 mocCommission;
-    (totalBtcSpent, btcCommission, mocCommission) = mocExchange.mintDoc(msg.sender, btcToMint, mocBalance, mocAllowance);
+    (totalBtcSpent, btcCommission, mocCommission) = mocExchange.mintDoc(msg.sender, btcToMint);
 
     totalBtcSpent = transferMocComission(msg.sender, msg.value, totalBtcSpent, btcCommission, mocCommission);
     /** END UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
@@ -195,15 +181,10 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
   whenNotPaused() whenSettlementReady() availableBucket(bucket) notBaseBucket(bucket)
   transitionState() bucketStateTransition(bucket) {
     /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
-    // Get balance and allowance from sender
-    (uint256 mocBalance, uint256 mocAllowance) = getMocTokenBalance(msg.sender, address(this));
-
-    // Pass balance and allowance parameters to exchange
-    // Calculate commissions in exchange
     uint256 totalBtcRedeemed;
     uint256 btcCommission;
     uint256 mocCommission;
-    (totalBtcRedeemed, btcCommission, mocCommission) = mocExchange.redeemBProx(msg.sender, bucket, bproxAmount, mocBalance, mocAllowance);
+    (totalBtcRedeemed, btcCommission, mocCommission) = mocExchange.redeemBProx(msg.sender, bucket, bproxAmount);
 
     doTransfer(msg.sender, totalBtcRedeemed);
 
@@ -221,15 +202,10 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
   whenNotPaused() whenSettlementReady() availableBucket(bucket) notBaseBucket(bucket)
   transitionState() bucketStateTransition(bucket) {
     /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
-    // Get balance and allowance from sender
-    (uint256 mocBalance, uint256 mocAllowance) = getMocTokenBalance(msg.sender, address(this));
-
-    // Pass balance and allowance parameters to exchange
-    // Calculate commissions in exchange
     uint256 totalBtcSpent;
     uint256 btcCommission;
     uint256 mocCommission;
-    (totalBtcSpent, btcCommission, mocCommission) = mocExchange.mintBProx(msg.sender, bucket, btcToMint, mocBalance, mocAllowance);
+    (totalBtcSpent, btcCommission, mocCommission) = mocExchange.mintBProx(msg.sender, bucket, btcToMint);
 
     totalBtcSpent = transferMocComission(msg.sender, msg.value, totalBtcSpent, btcCommission, mocCommission);
     /** END UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
@@ -250,15 +226,14 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
   */
   function redeemFreeDoc(uint256 docAmount) public whenNotPaused() transitionState() {
     /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
-    // Get balance and allowance from sender
-    (uint256 mocBalance, uint256 mocAllowance) = getMocTokenBalance(msg.sender, address(this));
+
 
     // Pass balance and allowance parameters to exchange
     // Calculate commissions in exchange
     uint256 btcAmount;
     uint256 btcCommission;
     uint256 mocCommission;
-    (btcAmount, btcCommission, mocCommission) = mocExchange.redeemFreeDoc(msg.sender, docAmount, mocBalance, mocAllowance);
+    (btcAmount, btcCommission, mocCommission) = mocExchange.redeemFreeDoc(msg.sender, docAmount);
 
     doTransfer(msg.sender, btcAmount);
 
@@ -473,20 +448,6 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
       // Transfer commissions to commissions address
       doTransfer(mocInrate.commissionsAddress(), btcCommission);
     }
-  }
-
-  function getMocTokenBalance(address owner, address spender) internal view returns (uint256, uint256) {
-    uint256 mocBalance = 0;
-    uint256 mocAllowance = 0;
-
-    MoCToken mocToken = MoCToken(mocState.getMoCToken());
-    if (address(mocToken) != address(0)) {
-      // Get balance and allowance from sender
-      mocBalance = mocToken.balanceOf(owner);
-      mocAllowance = mocToken.allowance(owner, spender);
-    }
-
-    return (mocBalance, mocAllowance);
   }
 
   /** END UPDATE V0110: 24/09/2020 **/
