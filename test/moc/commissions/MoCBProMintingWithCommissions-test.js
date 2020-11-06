@@ -333,12 +333,12 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount]) 
         );
       });
     });
-    describe('GIVEN since the MoC price drops to 1000', function() {
+    describe('GIVEN since the MoC price drops to 5000', function() {
       let prevUserBtcBalance;
       let prevUserBproBalance;
       let prevCommissionsAccountBtcBalance;
       let usedGas;
-      let prevUserMoCBalance; // If user has MoC balance, then commission fees will be in MoC
+      let prevUserMoCBalance;
       let prevCommissionsAccountMoCBalance;
 
       const mocPrice = 5000;
@@ -347,14 +347,14 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount]) 
       const commissionAmountRbtc = 0;
       const totalCostOnBtc = 1000;
       const commissionAmountMoC = 14; // btcPrice * (bproToMint * MINT_BPRO_FEES_MOC) / mocPrice
-      const mocAmountToMint = 1000;
-      const mocAmount = 986;
+      const mocAmount = 1000;
+      const mocAmountExpected = 986;
 
       beforeEach(async function() {
         // Set MoC price
         await mocHelper.setMoCPrice(mocPrice * mocHelper.MOC_PRECISION);
 
-        await mocHelper.mintMoCToken(userAccount, mocAmountToMint, owner);
+        await mocHelper.mintMoCToken(userAccount, mocAmount, owner);
         await mocHelper.approveMoCToken(mocHelper.moc.address, mocAmount, userAccount);
         // Set transaction type
         const txType = await mocHelper.mocInrate.MINT_BPRO_FEES_MOC();
@@ -399,7 +399,7 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount]) 
           );
           const diffCommission = prevUserMoCBalance.sub(userMoCBalance);
 
-          mocHelper.assertBigRBTC(diffAmount, mocAmount, 'user MoC balance is incorrect');
+          mocHelper.assertBigRBTC(diffAmount, mocAmountExpected, 'user MoC balance is incorrect');
           mocHelper.assertBigRBTC(
             diffCommission,
             commissionAmountMoC,

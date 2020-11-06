@@ -335,7 +335,6 @@ contract('MoC : MoCExchange', function([owner, userAccount, commissionsAccount])
         }
       });
     });
-    // TODO: fix this test ---> rtbc balances
     describe('GIVEN since the address of the MoCToken is 0x0', function() {
       it('WHEN a user tries to mint BProx, THEN commission is paid in RBTC', async function() {
         const accounts = await web3.eth.getAccounts();
@@ -418,6 +417,89 @@ contract('MoC : MoCExchange', function([owner, userAccount, commissionsAccount])
           diffRbtcCommission,
           expectedRbtcCommission,
           'commissions account balance is incorrect'
+        );
+      });
+    });
+    describe('GIVEN since the MoC price drops to 5000', function() {
+      let initialCommissionAccountBalance;
+      let prevUserBtcBalance;
+      let txCost;
+      let prevUserMoCBalance;
+      let prevCommissionsAccountMoCBalance;
+
+      const mocPrice = 5000;
+      const mocAmount = 1000;
+      const bproAmount = 18;
+      const docAmount = 80000;
+      const nBProx = 5;
+      const nBtc = 5;
+      const commissionBtc = 0;
+      const totalCostOnBtc = 5;
+      const commissionAmountMoC = '0.11'; // btcPrice * (nBProx * MINT_BTCX_FEES_MOC) / mocPrice
+      const mocAmountExpected = '999.494'; // mocAmount - commissionAmountMoC - commissionMintBpro (0.252) - commissionMintDoc (0.144)
+
+      beforeEach(async function() {
+        // Set MoC price
+        await mocHelper.setMoCPrice(mocPrice * mocHelper.MOC_PRECISION);
+
+        await mocHelper.mintMoCToken(userAccount, mocAmount, owner);
+        await mocHelper.approveMoCToken(mocHelper.moc.address, mocAmount, userAccount);
+
+        // Mint
+        const txTypeMintBPro = await mocHelper.mocInrate.MINT_BPRO_FEES_MOC();
+        const txTypeMintDoc = await mocHelper.mocInrate.MINT_DOC_FEES_MOC();
+        await mocHelper.mintBProAmount(userAccount, bproAmount, txTypeMintBPro);
+        await mocHelper.mintDocAmount(userAccount, docAmount, txTypeMintDoc);
+
+        // Calculate balances before minting
+        initialCommissionAccountBalance = toContractBN(
+          await web3.eth.getBalance(commissionsAccount)
+        );
+        prevUserBtcBalance = toContractBN(await web3.eth.getBalance(userAccount));
+        initialCommissionAccountBalance = toContractBN(
+          await web3.eth.getBalance(commissionsAccount)
+        );
+        prevUserMoCBalance = await mocHelper.getMoCBalance(userAccount);
+        prevCommissionsAccountMoCBalance = await mocHelper.getMoCBalance(commissionsAccount);
+
+        // Set transaction type
+        const txType = await mocHelper.mocInrate.MINT_BTCX_FEES_MOC();
+
+        const tx = await mocHelper.mintBProxAmount(userAccount, BUCKET_X2, nBProx, txType);
+        txCost = toContractBN(await mocHelper.getTxCost(tx));
+      });
+      it(`THEN he receives ${nBProx} Bprox`, async function() {
+        const balance = await mocHelper.getBProxBalance(BUCKET_X2, userAccount);
+        mocHelper.assertBigRBTC(balance, nBProx, 'Bprox balance is incorrect');
+      });
+      it(`THEN the user rbtc balance has decrease by ${nBtc} Rbtcs by Mint + ${commissionBtc} Rbtcs by commissions`, async function() {
+        const userBtcBalance = toContractBN(await web3.eth.getBalance(userAccount));
+        const diff = prevUserBtcBalance.sub(userBtcBalance).sub(txCost);
+
+        mocHelper.assertBigRBTC(diff, totalCostOnBtc, 'user rbtc balance is incorrect');
+      });
+      it('THEN the commissions accounts balance increase', async function() {
+        const balance = toContractBN(await web3.eth.getBalance(commissionsAccount));
+        const diff = balance.sub(initialCommissionAccountBalance);
+        const expected = toContractBN(commissionBtc, 'BTC');
+        mocHelper.assertBig(diff, expected, 'the commissions accounts balance is not correct');
+      });
+      it(`THEN the user MoC balance has decreased by ${commissionAmountMoC} MoCs by commissions`, async function() {
+        const userMoCBalance = await mocHelper.getMoCBalance(userAccount);
+        const diffAmount = new BN(prevUserMoCBalance).sub(
+          new BN(web3.utils.toWei(commissionAmountMoC.toString()))
+        );
+        const diffCommission = prevUserMoCBalance.sub(userMoCBalance);
+        mocHelper.assertBigRBTC(diffAmount, mocAmountExpected, 'user MoC balance is incorrect');
+        mocHelper.assertBigRBTC(diffCommission, commissionAmountMoC, 'MoC commission is incorrect');
+      });
+      it(`THEN the commissions account MoC balance has increased by ${commissionAmountMoC} MoCs`, async function() {
+        const commissionsAccountMoCBalance = await mocHelper.getMoCBalance(commissionsAccount);
+        const diff = commissionsAccountMoCBalance.sub(prevCommissionsAccountMoCBalance);
+        mocHelper.assertBigRBTC(
+          diff,
+          commissionAmountMoC,
+          'commissions account MoC balance is incorrect'
         );
       });
     });
