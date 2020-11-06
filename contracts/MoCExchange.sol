@@ -125,13 +125,8 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
    * @return Commissions calculated in MoC price and bitcoin price; and Bitcoin and MoC prices
    **/
   function calculateCommissionsWithPrices(address account, uint256 btcAmount, uint8 txTypeFeesMOC, uint8 txTypeFeesRBTC)
-  public
-  returns (uint256, uint256, uint256, uint256) {
-    uint256 btcCommission;
-    uint256 mocCommission;
-    uint256 btcPrice;
-    uint256 mocPrice;
-
+  public view
+  returns (uint256 btcCommission, uint256 mocCommission, uint256 btcPrice, uint256 mocPrice) {
     // Get balance and allowance from sender
     (uint256 mocBalance, uint256 mocAllowance) = getMoCTokenBalance(account, address(moc));
 
@@ -143,7 +138,7 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
     btcCommission = 0;
 
     // Check if there is enough balance of MoC
-    if ((mocBalance < mocCommission || mocAllowance < mocCommission) || (mocCommissionInBtc == 0)) {
+    if ((!(mocBalance >= mocCommission && mocAllowance >= mocCommission)) || (mocCommissionInBtc == 0)) {
       // Insufficient funds
       mocCommissionInBtc = 0;
       mocCommission = 0;
@@ -798,9 +793,10 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
     bproxManager.substractValuesFromBucket(BUCKET_C0, totalBtc, docAmount, 0);
   }
 
-  function getMoCTokenBalance(address owner, address spender) internal view returns (uint256, uint256) {
-    uint256 mocBalance = 0;
-    uint256 mocAllowance = 0;
+  function getMoCTokenBalance(address owner, address spender) internal view
+  returns (uint256 mocBalance, uint256 mocAllowance) {
+    mocBalance = 0;
+    mocAllowance = 0;
 
     MoCToken mocToken = MoCToken(mocState.getMoCToken());
 
