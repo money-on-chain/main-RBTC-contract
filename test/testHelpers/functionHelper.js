@@ -449,6 +449,14 @@ const getCommissionsArrayChangingTest = async () => {
   return ret;
 };
 
+const consolePrintTestVariables = obj => {
+  for (let i = 0; i < Object.keys(obj).length; i++) {
+    const variableName = Object.keys(obj)[i];
+    // eslint-disable-next-line no-console
+    console.log(`${variableName}: ${obj[variableName].toString()}`);
+  }
+};
+
 module.exports = async contracts => {
   const {
     doc,
@@ -507,6 +515,7 @@ module.exports = async contracts => {
     BUCKET_C0,
     BUCKET_X2,
     setMoCPrice: setMoCPrice(mocPriceProvider),
-    getMoCPrice: getMoCPrice(mocPriceProvider)
+    getMoCPrice: getMoCPrice(mocPriceProvider),
+    consolePrintTestVariables
   };
 };
