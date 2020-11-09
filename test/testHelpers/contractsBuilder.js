@@ -377,7 +377,8 @@ const createContracts = params => async ({ owner, useMock }) => {
     mockMoCRestartSettlementChanger,
     revertingContract,
     mocToken,
-    mocPriceProvider
+    mocPriceProvider,
+    mocExchange
   };
 };
 
