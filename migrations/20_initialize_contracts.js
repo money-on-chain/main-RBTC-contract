@@ -115,15 +115,16 @@ module.exports = async (deployer, currentNetwork, [owner]) => {
   const moc = await MoC.at(getProxyAddress(proxies, 'MoC'));
   const mocInrate = await MoCInrate.at(getProxyAddress(proxies, 'MoCInrate'));
 
+  const mocPrecision = 10 ** 18;
 
   //const bitProRate = toContract(0.000047945 * 10 ** 18); // mocPrecision -- weekly 0.0025 / 365 * 7
   const dayBlockSpan = 7 * allConfigs[currentNetwork].dayBlockSpan;
-  const btcxTmin = toContract(allConfigs[currentNetwork].btcxTmin);
-  const btcxTmax = toContract(allConfigs[currentNetwork].btcxTmax * 10 ** 18);
+  const btcxTmin = toContract(allConfigs[currentNetwork].btcxTmin * mocPrecision);
+  const btcxTmax = toContract(allConfigs[currentNetwork].btcxTmax * mocPrecision);
   const btcxPower = toContract(allConfigs[currentNetwork].btcxPower);
-  const bitProHolderRate = toContract(allConfigs[currentNetwork].bitProHolderRate);
-  const docTmin = toContract(allConfigs[currentNetwork].docTmin);
-  const docTmax = toContract(allConfigs[currentNetwork].docTmax);
+  const bitProHolderRate = toContract(allConfigs[currentNetwork].bitProHolderRate * mocPrecision);
+  const docTmin = toContract(allConfigs[currentNetwork].docTmin * mocPrecision);
+  const docTmax = toContract(allConfigs[currentNetwork].docTmax * mocPrecision);
   const docPower = toContract(allConfigs[currentNetwork].docPower);
     // Setting commissions
   const commissions = await getCommissionsArray(moc, mocInrate)();
