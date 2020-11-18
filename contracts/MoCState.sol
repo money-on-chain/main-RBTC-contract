@@ -12,6 +12,7 @@ import "./token/MoCToken.sol";
 import "./MoCSettlement.sol";
 import "moc-governance/contracts/Governance/Governed.sol";
 import "moc-governance/contracts/Governance/IGovernor.sol";
+import "./MoCVendors.sol";
 
 contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
   using Math for uint256;
@@ -64,11 +65,12 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
     uint256 _emaBlockSpan,
     uint256 _maxMintBPro,
     address _mocPriceProvider,
-    address _mocTokenAddress
+    address _mocTokenAddress,
+    address _mocVendorsAddress
   ) public initializer {
     initializePrecisions();
     initializeBase(connectorAddress);
-    initializeContracts(_mocTokenAddress);
+    initializeContracts(_mocTokenAddress, _mocVendorsAddress);
     initializeValues(
       _governor,
       _btcPriceProvider,
@@ -726,6 +728,19 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
     return address(mocToken);
   }
 
+  /**********************
+    MoC VENDORS
+   *********************/
+
+  // TODO: Suggestion: create a "MoCConnectorChanger" contract and whitelist the address
+  function setMoCVendors(address mocVendorsAddress) public onlyAuthorizedChanger() {
+    setMoCVendorsInternal(mocVendorsAddress);
+  }
+
+  function getMoCVendors() public view returns(address) {
+    return address(mocVendors);
+  }
+
   /** END UPDATE V0110: 24/09/2020 **/
 
   /************************************/
@@ -745,6 +760,16 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
     mocToken = MoCToken(mocTokenAddress);
 
     emit MoCTokenChanged(mocTokenAddress);
+  }
+
+  /**********************
+    MoC VENDORS
+   *********************/
+
+  function setMoCVendorsInternal(address mocVendorsAddress) internal {
+    mocVendors = MoCVendors(mocVendorsAddress);
+
+    emit MoCVendorsChanged(mocVendorsAddress);
   }
 
   /** END UPDATE V0110: 24/09/2020 **/
@@ -783,13 +808,14 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
     mocPriceProvider = PriceProvider(_mocPriceProvider);
   }
 
-  function initializeContracts(address _mocTokenAddress) internal  {
+  function initializeContracts(address _mocTokenAddress, address _mocVendorsAddress) internal  {
     mocSettlement = MoCSettlement(connector.mocSettlement());
     docToken = DocToken(connector.docToken());
     bproToken = BProToken(connector.bproToken());
     bproxManager = MoCBProxManager(connector.bproxManager());
     mocConverter = MoCConverter(connector.mocConverter());
     setMoCTokenInternal(_mocTokenAddress);
+    setMoCVendorsInternal(_mocVendorsAddress);
   }
 
   /************************************/
@@ -815,9 +841,14 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
 
   PriceProvider internal mocPriceProvider;
   MoCToken internal mocToken;
+  MoCVendors internal mocVendors;
 
   event MoCTokenChanged (
     address mocTokenAddress
+  );
+
+  event MoCVendorsChanged (
+    address mocVendorsAddress
   );
 
   /** END UPDATE V0110: 24/09/2020 **/

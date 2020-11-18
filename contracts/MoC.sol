@@ -110,11 +110,11 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
     @dev Mints BPRO and pays the comissions of the operation.
     @param btcToMint Amount un BTC to mint
    */
-  function mintBPro(uint256 btcToMint) public payable whenNotPaused() transitionState() {
+  function mintBPro(uint256 btcToMint, address vendorAccount) public payable whenNotPaused() transitionState() {
     /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
     (uint256 totalBtcSpent, uint256 btcCommission, uint256 mocCommission) = mocExchange.mintBPro(msg.sender, btcToMint);
 
-    totalBtcSpent = transferMocComission(msg.sender, msg.value, totalBtcSpent, btcCommission, mocCommission);
+    totalBtcSpent = transferMocComission(msg.sender, msg.value, totalBtcSpent, btcCommission, mocCommission, vendorAccount);
     /** END UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
 
     // Need to update general State
@@ -130,13 +130,13 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
    * @dev Redeems Bpro Tokens and pays the comissions of the operation in RBTC
      @param bproAmount Amout in Bpro
    */
-  function redeemBPro(uint256 bproAmount) public whenNotPaused() transitionState() atLeastState(MoCState.States.AboveCobj) {
+  function redeemBPro(uint256 bproAmount, address vendorAccount) public whenNotPaused() transitionState() atLeastState(MoCState.States.AboveCobj) {
     /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
     (uint256 btcAmount, uint256 btcCommission, uint256 mocCommission) = mocExchange.redeemBPro(msg.sender, bproAmount);
 
     doTransfer(msg.sender, btcAmount);
 
-    redeemWithMocFees(msg.sender, btcCommission, mocCommission);
+    redeemWithMocFees(msg.sender, btcCommission, mocCommission, vendorAccount);
     /** END UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
   }
 
@@ -144,11 +144,11 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
    * @dev Mint Doc tokens and pays the commisions of the operation
    * @param btcToMint Amount in RBTC to mint
    */
-  function mintDoc(uint256 btcToMint) public payable whenNotPaused() transitionState() atLeastState(MoCState.States.AboveCobj) {
+  function mintDoc(uint256 btcToMint, address vendorAccount) public payable whenNotPaused() transitionState() atLeastState(MoCState.States.AboveCobj) {
     /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
     (uint256 totalBtcSpent, uint256 btcCommission, uint256 mocCommission) = mocExchange.mintDoc(msg.sender, btcToMint);
 
-    totalBtcSpent = transferMocComission(msg.sender, msg.value, totalBtcSpent, btcCommission, mocCommission);
+    totalBtcSpent = transferMocComission(msg.sender, msg.value, totalBtcSpent, btcCommission, mocCommission, vendorAccount);
     /** END UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
 
     // Need to update general State
@@ -167,7 +167,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
      @param bucket Bucket to reedem, for example X2
      @param bproxAmount Amount in Bprox
    */
-  function redeemBProx(bytes32 bucket, uint256 bproxAmount) public
+  function redeemBProx(bytes32 bucket, uint256 bproxAmount, address vendorAccount) public
   whenNotPaused() whenSettlementReady() availableBucket(bucket) notBaseBucket(bucket)
   transitionState() bucketStateTransition(bucket) {
     /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
@@ -175,7 +175,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
 
     doTransfer(msg.sender, totalBtcRedeemed);
 
-    redeemWithMocFees(msg.sender, btcCommission, mocCommission);
+    redeemWithMocFees(msg.sender, btcCommission, mocCommission, vendorAccount);
     /** END UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
   }
 
@@ -184,13 +184,13 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
   * @param bucket Name of the bucket used
   * @param btcToMint amount to mint on RBTC
   **/
-  function mintBProx(bytes32 bucket, uint256 btcToMint) public payable
+  function mintBProx(bytes32 bucket, uint256 btcToMint, address vendorAccount) public payable
   whenNotPaused() whenSettlementReady() availableBucket(bucket) notBaseBucket(bucket)
   transitionState() bucketStateTransition(bucket) {
     /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
     (uint256 totalBtcSpent, uint256 btcCommission, uint256 mocCommission) = mocExchange.mintBProx(msg.sender, bucket, btcToMint);
 
-    totalBtcSpent = transferMocComission(msg.sender, msg.value, totalBtcSpent, btcCommission, mocCommission);
+    totalBtcSpent = transferMocComission(msg.sender, msg.value, totalBtcSpent, btcCommission, mocCommission, vendorAccount);
     /** END UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
 
     // Need to update general State
@@ -207,13 +207,13 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
   * @dev Redeems the requested amount for the msg.sender, or the max amount of free docs possible.
   * @param docAmount Amount of Docs to redeem.
   */
-  function redeemFreeDoc(uint256 docAmount) public whenNotPaused() transitionState() {
+  function redeemFreeDoc(uint256 docAmount, address vendorAccount) public whenNotPaused() transitionState() {
     /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
     (uint256 btcAmount, uint256 btcCommission, uint256 mocCommission) = mocExchange.redeemFreeDoc(msg.sender, docAmount);
 
     doTransfer(msg.sender, btcAmount);
 
-    redeemWithMocFees(msg.sender, btcCommission, mocCommission);
+    redeemWithMocFees(msg.sender, btcCommission, mocCommission, vendorAccount);
     /** END UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
   }
 
@@ -394,7 +394,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
   /** Internal functions **/
 
   // solium-disable-next-line security/no-assign-params
-  function transferMocComission(address sender, uint256 value, uint256 totalBtcSpent, uint256 btcCommission, uint256 mocCommission)
+  function transferMocComission(address sender, uint256 value, uint256 totalBtcSpent, uint256 btcCommission, uint256 mocCommission, address vendorAccount)
   internal returns(uint256) {
     // Check if there is enough balance of MoC
     if (mocCommission > 0) {
@@ -411,7 +411,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
     return totalBtcSpent;
   }
 
-  function redeemWithMocFees(address sender, uint256 btcCommission, uint256 mocCommission) internal {
+  function redeemWithMocFees(address sender, uint256 btcCommission, uint256 mocCommission, address vendorAccount) internal {
     // Check if there is enough balance of MoC
     if (mocCommission > 0) {
       MoCToken mocToken = MoCToken(mocState.getMoCToken());
