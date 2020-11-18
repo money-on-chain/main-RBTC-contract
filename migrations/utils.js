@@ -26,6 +26,7 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
   const ProxyAdmin = artifacts.require('ProxyAdmin');
   const MoCInrate = artifacts.require('./MoCInrate.sol');
   const MoCExchange = artifacts.require('./MoCExchange.sol');
+  const MoCVendors = artifacts.require('./MoCVendors.sol');
   const MoCConnector = artifacts.require('./base/MoCConnector.sol');
   const MoCLibMock = artifacts.require('./mocks/MoCHelperLibMock.sol');
   const { toContract } = require('../utils/numberHelper');
@@ -48,6 +49,7 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
   let mocConnector;
   let mocBurnout;
   let commissionSplitter;
+  let mocVendors;
 
   const bitcoinOracle = async () => {
     switch (networkName) {
@@ -193,6 +195,7 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
     commissionSplitter = await CommissionSplitter.at(
       getProxyAddress(proxies, 'CommissionSplitter')
     );
+    mocVendors = await MoCVendors.at(getProxyAddress(proxies, 'MoCVendors'));
   };
 
   const linkMocLib = async MoCStateContract => {
@@ -202,6 +205,7 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
     await deployer.link(MoCLib, MoCStateContract);
     await deployer.link(MoCLib, MoCExchange);
     await deployer.link(MoCLib, MoCInrate);
+    await deployer.link(MoCLib, MoCVendors);
   };
 
   const deployUpgradable = async (MoCSettlementContract, MoCStateContract, step) => {
@@ -215,7 +219,8 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
       { name: MoCStateContract.contractName, alias: 'MoCState' },
       { name: 'MoCExchange', alias: 'MoCExchange' },
       { name: 'MoCInrate', alias: 'MoCInrate' },
-      { name: 'CommissionSplitter', alias: 'CommissionSplitter' }
+      { name: 'CommissionSplitter', alias: 'CommissionSplitter' },
+      { name: 'MoCVendors', alias: 'MoCVendors' },
     ];
     const contract = contracts[step - 1];
     console.log(`deploying Upgradable ${step - 1}: ${contract.name}`);
@@ -267,6 +272,9 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
         ...options
       });
     }
+    if (index++ === step) {
+      mocVendors = await create({ contractAlias: contract.alias, ...options });
+    }
   };
 
   const getContractAddresses = async () => {
@@ -286,7 +294,8 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
       stopper: await stopperContractAddress(),
       proxyAdmin: proxyAdmin.address,
       upgradeDelegator: await proxyAdmin.owner(),
-      mocOracle: mocPriceFeedAddress
+      mocOracle: mocPriceFeedAddress,
+      mocVendors: getProxyAddress(proxies, 'MoCVendors')
     };
   };
 
@@ -372,6 +381,9 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
     );
     console.log('Settlement Initialized');
 
+    await mocVendors.initialize(mocConnector.address);
+    console.log('Vendors Initialized');
+
     await mocState.initialize(
       mocConnector.address,
       governorAddress,
@@ -385,7 +397,8 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
       config.dayBlockSpan, // _emaBlockSpan
       toContract(config.maxMintBPro * 10 ** 18),
       mocOracleAddress,
-      mocToken.address
+      mocToken.address,
+      mocVendors.address
     );
     console.log('State Initialized');
 
@@ -447,6 +460,11 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
     });
     await setAdmin({
       contractAlias: 'CommissionSplitter',
+      newAdmin: adminAddress,
+      ...options
+    });
+    await setAdmin({
+      contractAlias: 'MoCVendors',
       newAdmin: adminAddress,
       ...options
     });

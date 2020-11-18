@@ -12,6 +12,7 @@
     "MoCState": "MoCStateMock",
     "MoCExchange": "MoCExchange",
     "MoCInrate": "MoCInrate",
-    "CommissionSplitter": "CommissionSplitter"
+    "CommissionSplitter": "CommissionSplitter",
+    "MoCVendors": "MoCVendors"
   }
 }
