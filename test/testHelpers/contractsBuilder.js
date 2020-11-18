@@ -53,6 +53,9 @@ const RevertingOnSend = artifacts.require('./contracts/test-contracts/RevertingO
 
 const MoCToken = artifacts.require('./contracts/MoCToken.sol');
 
+const MoCVendors = artifacts.require('./contracts/MoCVendors.sol');
+const MoCVendorsProxy = Contracts.getFromLocal('MoCVendors');
+
 const { toContract } = require('../../utils/numberHelper');
 
 const baseParams = {
@@ -201,6 +204,7 @@ const createContracts = params => async ({ owner, useMock }) => {
   const mocBurnoutProxy = await project.createProxy(MoCBurnoutProxy);
   const mocProxy = await project.createProxy(MoCProxy);
   const commissionSplitterProxy = await project.createProxy(CommissionSplitterProxy);
+  const mocVendorsProxy = await project.createProxy(MoCVendorsProxy);
 
   // Governance
   const governorProxy = await project.createProxy(GovernorProxy);
@@ -219,6 +223,7 @@ const createContracts = params => async ({ owner, useMock }) => {
   const commissionSplitter = await CommissionSplitter.at(commissionSplitterProxy.address);
   const governor = await Governor.at(governorProxy.address);
   const stopper = await Stopper.at(stopperProxy.address);
+  const mocVendors = await MoCVendors.at(mocVendorsProxy.address);
 
   const mockMocStateChanger = await MocStateChanger.new(
     mocState.address,
@@ -325,6 +330,7 @@ const createContracts = params => async ({ owner, useMock }) => {
   await governor.initialize(owner);
   await commissionSplitter.initialize(moc.address, owner, mocProportion, governor.address);
   await upgradeDelegator.initialize(governor.address, proxyAdmin.address);
+  await mocVendors.initialize(mocConnector.address);
 
   // Execute changes in MoCInrate
   await governor.executeChange(mockMocInrateChanger.address);
@@ -348,6 +354,7 @@ const createContracts = params => async ({ owner, useMock }) => {
   await project.changeProxyAdmin(governorProxy.address, proxyAdmin.address);
   await project.changeProxyAdmin(stopperProxy.address, proxyAdmin.address);
   await project.changeProxyAdmin(commissionSplitter.address, proxyAdmin.address);
+  await project.changeProxyAdmin(mocVendorsProxy.address, proxyAdmin.address);
 
   // Contract that reverts when receiving RBTC on fallback function
   const revertingContract = await RevertingOnSend.new(moc.address, {
@@ -378,7 +385,8 @@ const createContracts = params => async ({ owner, useMock }) => {
     revertingContract,
     mocToken,
     mocPriceProvider,
-    mocExchange
+    mocExchange,
+    mocVendors
   };
 };
 
