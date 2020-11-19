@@ -5,13 +5,12 @@ let toContractBN;
 
 const scenario = {
   params: {
-    redeemAddress: '0x9a59f2fb619f192bd10f65cb4d96c7ecd55f9ce0',
-    markup: 500,
-    maxMoCToRedeem: 1000
+    vendorAccount: '0x9a59f2fb619f192bd10f65cb4d96c7ecd55f9ce0',
+    markup: 1000,
+    staking: 500
   },
   expect: {
-    isActive: true,
-    maxMoCToRedeem: 1000
+    isActive: true
   }
 };
 
@@ -27,30 +26,96 @@ contract('MoC: MoCVendors', function([owner, userAccount, commissionsAccount]) {
     await mocHelper.revertState();
   });
   describe.only('GIVEN vendors can integrate their platforms with MoC protocol', function() {
-    let isActive;
+    let registerVendor;
     let vendorDetails;
+    let registerVendorTx;
+    let addStakeTx;
+    let removeStakeTx;
+    let vendor_in_mapping;
 
-    beforeEach(async function() {
-      isActive = await this.mocVendors.registerVendor(
-        scenario.params.redeemAddress,
-        scenario.params.markup,
-        scenario.params.maxMoCToRedeem
+    before(async function() {
+      registerVendorTx = await this.mocVendors.registerVendor(
+        scenario.params.vendorAccount,
+        scenario.params.markup
       );
-      //vendorDetails = await this.mocVendors.getVendorDetails(scenario.params.redeemAddress);
+
+        vendor_in_mapping = await this.mocVendors.vendors(scenario.params.vendorAccount);
+      //mocHelper.consolePrintTestVariables({ vendor_in_mapping });
+      console.log(vendor_in_mapping);
+
+      //vendorDetails = await this.mocVendors.getVendorDetails(scenario.params.vendorAccount);
 
       // chequear el evento emitido con truffle-assert (buscar en test anteriores)
 
       // var print = {isActive, vendorDetails};
       // mocHelper.consolePrintTestVariables(print);
-      console.log(isActive);
+      //console.log(isActive);
     });
-    it('WHEN a vendor is registered THEN their details can be retrieved', async function() {
-      assert.equal(isActive, scenario.expect.isActive, 'Vendor does not exist or is inactive');
-      assert.equal(
-        vendorDetails.maxMoCToRedeem,
-        scenario.expect.maxMoCToRedeem,
-        `maxMoCToRedeem should be ${scenario.expect.maxMoCToRedeem}`
+    it('WHEN a vendor is registered THEN VendorRegistered event is emitted', async function() {
+      // assert.equal(isActive, scenario.expect.isActive, 'Vendor does not exist or is inactive');
+      // assert.equal(
+      //   vendorDetails.maxMoCToRedeem,
+      //   scenario.expect.maxMoCToRedeem,
+      //   `maxMoCToRedeem should be ${scenario.expect.maxMoCToRedeem}`
+      // );
+      vendor_in_mapping = await this.mocVendors.vendors(scenario.params.vendorAccount);
+      //mocHelper.consolePrintTestVariables({ vendor_in_mapping });
+      console.log(vendor_in_mapping);
+
+      const [vendorRegisteredEvent] = await mocHelper.findEvents(registerVendorTx, 'VendorRegistered');
+
+      console.log(vendorRegisteredEvent);
+
+      assert(registerVendorTx, 'Event was not emitted');
+      //assert.equal(isActive, scenario.expect.isActive, 'Vendor does not exist or is inactive');
+    });
+    it('WHEN a vendor adds staking THEN VendorStakeAdded event is emitted', async function() {
+      // assert.equal(isActive, scenario.expect.isActive, 'Vendor does not exist or is inactive');
+      // assert.equal(
+      //   vendorDetails.maxMoCToRedeem,
+      //   scenario.expect.maxMoCToRedeem,
+      //   `maxMoCToRedeem should be ${scenario.expect.maxMoCToRedeem}`
+      // );
+      vendor_in_mapping = await this.mocVendors.vendors(scenario.params.vendorAccount);
+      //mocHelper.consolePrintTestVariables({ vendor_in_mapping });
+      console.log(vendor_in_mapping);
+
+      addStakeTx = await this.mocVendors.addStake(
+        scenario.params.staking,
+        { from: scenario.params.vendorAccount }
       );
+
+
+
+      const [vendorStakeAddedEvent] = await mocHelper.findEvents(addStakeTx, 'VendorStakeAdded');
+
+      console.log(vendorStakeAddedEvent);
+
+      assert(addStakeTx, 'Event was not emitted');
+      //assert.equal(isActive, scenario.expect.isActive, 'Vendor does not exist or is inactive');
+    });
+    it('WHEN a vendor removes staking THEN VendorStakeRemoved event is emitted', async function() {
+      // assert.equal(isActive, scenario.expect.isActive, 'Vendor does not exist or is inactive');
+      // assert.equal(
+      //   vendorDetails.maxMoCToRedeem,
+      //   scenario.expect.maxMoCToRedeem,
+      //   `maxMoCToRedeem should be ${scenario.expect.maxMoCToRedeem}`
+      // );
+      vendor_in_mapping = await this.mocVendors.vendors(scenario.params.vendorAccount);
+      //mocHelper.consolePrintTestVariables({ vendor_in_mapping });
+      console.log(vendor_in_mapping);
+
+      removeStakeTx = await this.mocVendors.removeStake(
+        scenario.params.staking,
+        { from: scenario.params.vendorAccount }
+      );
+
+      const [vendorStakeRemovedEvent] = await mocHelper.findEvents(removeStakeTx, 'VendorStakeRemoved');
+
+      console.log(vendorStakeRemovedEvent);
+
+      assert(removeStakeTx, 'Event was not emitted');
+      //assert.equal(isActive, scenario.expect.isActive, 'Vendor does not exist or is inactive');
     });
   });
 });

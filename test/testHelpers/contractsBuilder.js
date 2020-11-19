@@ -238,6 +238,7 @@ const createContracts = params => async ({ owner, useMock }) => {
     maxMintBPro,
     mocPriceProvider.address,
     mocToken.address,
+    mocVendors.address,
     { from: owner }
   );
   const mockMocInrateChanger = await MocInrateChanger.new(
@@ -307,7 +308,8 @@ const createContracts = params => async ({ owner, useMock }) => {
     emaBlockSpan,
     maxMintBPro,
     mocPriceProvider.address,
-    mocToken.address
+    mocToken.address,
+    mocVendors.address
   );
   await mocInrate.initialize(
     mocConnector.address,
