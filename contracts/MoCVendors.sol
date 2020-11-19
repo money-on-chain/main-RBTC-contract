@@ -44,7 +44,7 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection {
   }
 
   // Variables
-  mapping (address => VendorDetails) vendors;
+  mapping(address => VendorDetails) public vendors;
 
   function initialize(address connectorAddress) public initializer {
     initializePrecisions();
@@ -72,23 +72,50 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection {
     MoCToken mocToken = MoCToken(mocState.getMoCToken());
     mocToken.transferFrom(msg.sender, address(this), staking);
     details.staking = details.staking.add(staking);
-    vendors[msg.sender] = details;
+    //vendors[msg.sender] = details;
 
     emit VendorStakeAdded(msg.sender, staking);
   }
 
   function removeStake(uint256 staking) public onlyActiveVendor(msg.sender) {
     VendorDetails memory details = vendors[msg.sender];
+    MoCToken mocToken = MoCToken(mocState.getMoCToken());
 
     require(details.totalPaidInMoC.sub(staking) > 0, "Vendor total paid is not enough");
+    require(staking <= mocToken.balanceOf(address(this)), "Not enough MoCs in system");
 
-    MoCToken mocToken = MoCToken(mocState.getMoCToken());
     mocToken.transfer(msg.sender, staking);
     details.staking = details.staking.add(staking);
-    vendors[msg.sender] = details;
+    //vendors[msg.sender] = details;
 
     emit VendorStakeRemoved(msg.sender, staking);
   }
+
+  function updatePaidMarkup(address vendorAccount, uint256 mocAmount, uint256 rbtcAmount, uint256 totalMoCAmount)
+  public
+  onlyWhitelisted(msg.sender)
+  returns (uint256 markup, uint256 totalPaidInMoC, uint256 staking) {
+    VendorDetails memory details = vendors[vendorAccount];
+    details.totalPaidInMoC = details.totalPaidInMoC.add(mocAmount).add(totalMoCAmount);
+    details.paidMoC = details.paidMoC.add(mocAmount);
+    details.paidRBTC = details.paidRBTC.add(rbtcAmount);
+    //vendors[msg.sender] = details;
+
+    return getVendorDetails(vendorAccount);
+  }
+
+  function getVendorDetails(address vendorAccount) public onlyWhitelisted(msg.sender)
+  returns (uint256, uint256, uint256) {
+    VendorDetails memory details = vendors[vendorAccount];
+    return (details.markup, details.totalPaidInMoC, details.staking);
+  }
+
+  // function resetTotalPaidInMoC() public {
+  //   VendorDetails memory details = vendors[vendorAccount];
+  //   details.totalPaidInMoC = 0;
+
+  //   //emit TotalPaidInMoCReset();
+  // }
 
   function initializeContracts() internal {
     moc = MoC(connector.moc());

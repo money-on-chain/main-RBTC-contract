@@ -23,7 +23,7 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
 
   event StateTransition(States newState);
   event BtcPriceProviderUpdated(address oldAddress, address newAddress);
-  event MoCPriceProviderUpdated(address oldAddress, address newAddress);
+
   // Contracts
   PriceProvider internal btcPriceProvider;
   MoCSettlement internal mocSettlement;
@@ -842,6 +842,11 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
   PriceProvider internal mocPriceProvider;
   MoCToken internal mocToken;
   MoCVendors internal mocVendors;
+
+  event MoCPriceProviderUpdated(
+    address oldAddress,
+    address newAddress
+  );
 
   event MoCTokenChanged (
     address mocTokenAddress

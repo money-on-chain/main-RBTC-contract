@@ -83,6 +83,10 @@ contract MocStateChanger is ChangeContract, Ownable{
     mocToken = _mocTokenAddress;
   }
 
+  function setMoCVendors(address _mocVendorsAddress) public onlyOwner() {
+    mocVendors = _mocVendorsAddress;
+  }
+
   function setSmoothingFactor(uint256 factor) public onlyOwner() {
     smoothingFactor = factor;
   }
