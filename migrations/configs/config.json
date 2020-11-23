@@ -23,7 +23,8 @@
     "maxDiscRate": 0.5,
     "smoothFactor": 0.01653,
     "maxMintBPro": 0.05,
-    "mocProportion": 0.01
+    "mocProportion": 0.01,
+    "daysToResetVendor": 7
   },
   "development": {
     "initialPrice": 7800,
@@ -49,7 +50,8 @@
     "maxDiscRate": 0.5,
     "smoothFactor": 0.01653,
     "maxMintBPro": 0.05,
-    "mocProportion": 0.01
+    "mocProportion": 0.01,
+    "daysToResetVendor": 7
   },
   "regtest": {
     "initialPrice": 7800,
@@ -75,7 +77,8 @@
     "maxDiscRate": 0.5,
     "smoothFactor": 0.01653,
     "maxMintBPro": 0.05,
-    "mocProportion": 0.01
+    "mocProportion": 0.01,
+    "daysToResetVendor": 7
   },
   "qaTestnet": {
     "governor": "0xD63C0441b9A6c019917e9773992F7B5428542cbb",
@@ -103,7 +106,8 @@
     "maxDiscRate": 0.5,
     "smoothFactor": 0.01653,
     "maxMintBPro": 0.05,
-    "mocProportion": 0.01
+    "mocProportion": 0.01,
+    "daysToResetVendor": 7
   },
   "rskTestnet": {
     "oracle": "0x667bd3d048FaEBb85bAa0E9f9D87cF4c8CDFE849",
@@ -134,6 +138,7 @@
     "maxDiscRate": 0.5,
     "smoothFactor": 0.01653,
     "maxMintBPro": 20,
-    "mocProportion": 0.01
+    "mocProportion": 0.01,
+    "daysToResetVendor": 7
   }
 }

@@ -381,7 +381,10 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
     );
     console.log('Settlement Initialized');
 
-    await mocVendors.initialize(mocConnector.address);
+    await mocVendors.initialize(
+      mocConnector.address,
+      config.daysToResetVendor
+    );
     console.log('Vendors Initialized');
 
     await mocState.initialize(
