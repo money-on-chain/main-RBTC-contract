@@ -12,6 +12,9 @@ contract MoCVendorsEvents {
   event VendorRegistered(
     address account
   );
+  event VendorUnregistered(
+    address account
+  );
   event VendorStakeAdded(
     address account,
     uint256 staking
@@ -34,7 +37,6 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection {
 
   // Structs
   struct VendorDetails {
-    //address redeemAddress;
     bool isActive;
     uint256 markup;
     uint256 totalPaidInMoC;  // TopeMoc
@@ -45,48 +47,53 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection {
 
   // Variables
   mapping(address => VendorDetails) public vendors;
+  uint8 private daysToResetVendor;
 
-  function initialize(address connectorAddress) public initializer {
+  function initialize(
+    address connectorAddress,
+    uint8 _daysToResetVendor
+  ) public initializer {
     initializePrecisions();
     initializeBase(connectorAddress);
     initializeContracts();
+    initializeValues(_daysToResetVendor);
   }
 
   //function registerVendor(address account, uint256 markup) public onlyOwner returns (bool isActive) {
   function registerVendor(address account, uint256 markup) public returns (bool isActive) {
-    VendorDetails memory details = vendors[account];
-
-    details.isActive = true;
-    details.markup = markup;
-
-    vendors[account] = details;
+    // Map vendor details to vendor address
+    vendors[account].isActive = true;
+    vendors[account].markup = markup;
 
     emit VendorRegistered(account);
 
-    return details.isActive;
+    return vendors[account].isActive;
+  }
+
+  function unregisterVendor(address account) public returns (bool isActive) {
+    vendors[account].isActive = false;
+
+    emit VendorUnregistered(account);
+
+    return vendors[account].isActive;
   }
 
   function addStake(uint256 staking) public onlyActiveVendor(msg.sender) {
-    VendorDetails memory details = vendors[msg.sender];
-
     MoCToken mocToken = MoCToken(mocState.getMoCToken());
     mocToken.transferFrom(msg.sender, address(this), staking);
-    details.staking = details.staking.add(staking);
-    //vendors[msg.sender] = details;
+    vendors[msg.sender].staking = vendors[msg.sender].staking.add(staking);
 
     emit VendorStakeAdded(msg.sender, staking);
   }
 
   function removeStake(uint256 staking) public onlyActiveVendor(msg.sender) {
-    VendorDetails memory details = vendors[msg.sender];
     MoCToken mocToken = MoCToken(mocState.getMoCToken());
 
-    require(details.totalPaidInMoC.sub(staking) > 0, "Vendor total paid is not enough");
-    require(staking <= mocToken.balanceOf(address(this)), "Not enough MoCs in system");
+    require(vendors[msg.sender].totalPaidInMoC.sub(staking) > 0, "Vendor total paid is not enough");
+    require(staking <= vendors[msg.sender].staking && staking <= mocToken.balanceOf(address(this)), "Not enough MoCs in system");
 
     mocToken.transfer(msg.sender, staking);
-    details.staking = details.staking.add(staking);
-    //vendors[msg.sender] = details;
+    vendors[msg.sender].staking = vendors[msg.sender].staking.add(staking);
 
     emit VendorStakeRemoved(msg.sender, staking);
   }
@@ -95,24 +102,20 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection {
   public
   onlyWhitelisted(msg.sender)
   returns (uint256 markup, uint256 totalPaidInMoC, uint256 staking) {
-    VendorDetails memory details = vendors[vendorAccount];
-    details.totalPaidInMoC = details.totalPaidInMoC.add(mocAmount).add(totalMoCAmount);
-    details.paidMoC = details.paidMoC.add(mocAmount);
-    details.paidRBTC = details.paidRBTC.add(rbtcAmount);
-    //vendors[msg.sender] = details;
+    vendors[vendorAccount].totalPaidInMoC = vendors[vendorAccount].totalPaidInMoC.add(totalMoCAmount);
+    vendors[vendorAccount].paidMoC = vendors[vendorAccount].paidMoC.add(mocAmount);
+    vendors[vendorAccount].paidRBTC = vendors[vendorAccount].paidRBTC.add(rbtcAmount);
 
     return getVendorDetails(vendorAccount);
   }
 
-  function getVendorDetails(address vendorAccount) public onlyWhitelisted(msg.sender)
+  function getVendorDetails(address vendorAccount) public view onlyWhitelisted(msg.sender)
   returns (uint256, uint256, uint256) {
-    VendorDetails memory details = vendors[vendorAccount];
-    return (details.markup, details.totalPaidInMoC, details.staking);
+    return (vendors[vendorAccount].markup, vendors[vendorAccount].totalPaidInMoC, vendors[vendorAccount].staking);
   }
 
   // function resetTotalPaidInMoC() public {
-  //   VendorDetails memory details = vendors[vendorAccount];
-  //   details.totalPaidInMoC = 0;
+  //   vendors[vendorAccount].totalPaidInMoC = 0;
 
   //   //emit TotalPaidInMoCReset();
   // }
@@ -124,9 +127,13 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection {
     mocInrate = MoCInrate(connector.mocInrate());
   }
 
+  function initializeValues(uint8 _daysToResetVendor) internal {
+    //governor = IGovernor(_governor);
+    daysToResetVendor = _daysToResetVendor;
+  }
+
   modifier onlyActiveVendor(address account) {
-    VendorDetails memory details = vendors[account];
-    require(details.isActive == true, "Vendor is inexistent or inactive");
+    require(vendors[account].isActive == true, "Vendor is inexistent or inactive");
     _;
   }
 

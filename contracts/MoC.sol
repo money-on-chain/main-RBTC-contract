@@ -414,18 +414,19 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
       //require(totalBtcSpent <= value, "amount is not enough");
     }
 
+    require(totalBtcSpent <= value, "amount is not enough");
     transferVendorMarkup(sender, vendorAccount, mocCommission,btcCommission);
 
-    require(totalBtcSpent <= value, "amount is not enough");
     return totalBtcSpent;
   }
 
   function transferVendorMarkup(address sender, address vendorAccount, uint256 mocCommission, uint256 btcCommission) internal {
     uint256 mocMarkup;
     uint256 btcMarkup;
-    uint256 btcMarkupInMoC;
+    //uint256 btcMarkupInMoC;
     uint256 btcPrice;
     uint256 mocPrice;
+    //uint256 totalPaidInMoC;
 
     // Calculate according to vendor markup
     if (vendorAccount != address(0)) {
@@ -434,16 +435,18 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
 
       if (mocCommission > 0) {
         mocMarkup = mocCommission.mul(markup).div(mocLibConfig.mocPrecision);
+        totalPaidInMoC = mocMarkup;
       } else {
         btcMarkup = btcCommission.mul(markup).div(mocLibConfig.mocPrecision);
-        (btcMarkupInMoC, btcPrice, mocPrice) = mocExchange.convertToMoCPrice(btcMarkup);
-        mocMarkup = btcMarkupInMoC;
+        (totalPaidInMoC, btcPrice, mocPrice) = mocExchange.convertToMoCPrice(btcMarkup);
+        //mocMarkup = btcMarkupInMoC;
+        //totalPaidInMoC = btcMarkupInMoC;
       }
       // Transfer MoC from sender to this contract
       MoCToken mocToken = MoCToken(mocState.getMoCToken());
       mocToken.transferFrom(sender, address(this), mocMarkup);
 
-      (markup, totalPaidInMoC, staking) = mocVendors.updatePaidMarkup(vendorAccount, mocMarkup, btcMarkup, btcMarkupInMoC);
+      (markup, totalPaidInMoC, staking) = mocVendors.updatePaidMarkup(vendorAccount, mocMarkup, btcMarkup, totalPaidInMoC);
 
       if (totalPaidInMoC <= staking) {
         // Transfer MoC to vendor address
