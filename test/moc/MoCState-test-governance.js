@@ -279,7 +279,10 @@ contract('MoCState Governed', function([owner, account2]) {
         });
         it('THEN MoCVendorsChanged event is emitted', async function() {
           const [mocVendorsChangedEvent] = await mocHelper.findEvents(tx, 'MoCVendorsChanged');
-          assert(mocVendorsChangedEvent.mocVendorsAddress === zeroAddress, 'New address is different');
+          assert(
+            mocVendorsChangedEvent.mocVendorsAddress === zeroAddress,
+            'New address is different'
+          );
         });
       });
       it(`THEN an unauthorized account ${account2} tries to change MoCVendor`, async function() {
