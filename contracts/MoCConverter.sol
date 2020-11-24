@@ -70,6 +70,23 @@ contract MoCConverter is MoCBase, MoCLibConnection {
   function bproToBtcWithPrice(uint256 bproAmount, uint256 bproPrice) public view returns(uint256) {
     return mocLibConfig.bproBtcValue(bproAmount, bproPrice);
   }
+
+  function mocToBtc(uint256 mocAmount) public view returns(uint256) {
+    return mocLibConfig.mocBtcValue(mocAmount, mocState.getBitcoinPrice(), mocState.getMoCPrice());
+  }
+
+  function btcToMoC(uint256 btcAmount) public view returns(uint256) {
+    return mocLibConfig.maxMoCWithBtc(btcAmount, mocState.getBitcoinPrice(), mocState.getMoCPrice());
+  }
+
+  function mocToBtcWithPrice(uint256 mocAmount, uint256 btcPrice, uint256 mocPrice) public view returns(uint256) {
+    return mocLibConfig.mocBtcValue(mocAmount, btcPrice, mocPrice);
+  }
+
+  function btcToMoCWithPrice(uint256 btcAmount, uint256 btcPrice, uint256 mocPrice) public view returns(uint256) {
+    return mocLibConfig.maxMoCWithBtc(btcAmount, btcPrice, mocPrice);
+  }
+
   // Leave a gap betweeen inherited contracts variables in order to be
   // able to add more variables in them later
   uint256[50] private upgradeGap;

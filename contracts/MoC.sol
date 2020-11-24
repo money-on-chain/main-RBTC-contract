@@ -113,9 +113,10 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
    */
   function mintBPro(uint256 btcToMint, address vendorAccount) public payable whenNotPaused() transitionState() {
     /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
-    (uint256 totalBtcSpent, uint256 btcCommission, uint256 mocCommission) = mocExchange.mintBPro(msg.sender, btcToMint);
+    (uint256 totalBtcSpent, uint256 btcCommission, uint256 mocCommission, uint256 btcMarkup, uint256 mocMarkup) = mocExchange.mintBPro(msg.sender, btcToMint, vendorAccount);
 
-    totalBtcSpent = transferMocComission(msg.sender, msg.value, totalBtcSpent, btcCommission, mocCommission, vendorAccount);
+    totalBtcSpent = transferMoCComission(msg.sender, msg.value, totalBtcSpent, btcCommission, mocCommission, vendorAccount, btcMarkup, mocMarkup);
+    transferBtcCommission(mocLibConfig.getPayableAddress(vendorAccount), btcCommission, btcMarkup);
     /** END UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
 
     // Need to update general State
@@ -123,23 +124,21 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
     // Calculate change
     uint256 change = msg.value.sub(totalBtcSpent);
     doTransfer(msg.sender, change);
-    // Transfer commissions to commissions address
-    doTransfer(mocInrate.commissionsAddress(), btcCommission);
   }
 
   /**
-   * @dev Redeems Bpro Tokens and pays the comissions of the operation in RBTC
+   * @dev Redeems Bpro Tokens and pays the comissions of the operation
      @param bproAmount Amout in Bpro
    */
   function redeemBPro(uint256 bproAmount, address vendorAccount)
   public
   whenNotPaused() transitionState() atLeastState(MoCState.States.AboveCobj) {
     /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
-    (uint256 btcAmount, uint256 btcCommission, uint256 mocCommission) = mocExchange.redeemBPro(msg.sender, bproAmount);
+    (uint256 btcAmount, uint256 btcCommission, uint256 mocCommission, uint256 btcMarkup, uint256 mocMarkup) = mocExchange.redeemBPro(msg.sender, bproAmount, vendorAccount);
 
     doTransfer(msg.sender, btcAmount);
 
-    redeemWithMocFees(msg.sender, btcCommission, mocCommission, vendorAccount);
+    redeemWithMocFees(msg.sender, btcCommission, mocCommission, vendorAccount, btcMarkup, mocMarkup);
     /** END UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
   }
 
@@ -151,9 +150,10 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
   public payable
   whenNotPaused() transitionState() atLeastState(MoCState.States.AboveCobj) {
     /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
-    (uint256 totalBtcSpent, uint256 btcCommission, uint256 mocCommission) = mocExchange.mintDoc(msg.sender, btcToMint);
+    (uint256 totalBtcSpent, uint256 btcCommission, uint256 mocCommission, uint256 btcMarkup, uint256 mocMarkup) = mocExchange.mintDoc(msg.sender, btcToMint, vendorAccount);
 
-    totalBtcSpent = transferMocComission(msg.sender, msg.value, totalBtcSpent, btcCommission, mocCommission, vendorAccount);
+    totalBtcSpent = transferMoCComission(msg.sender, msg.value, totalBtcSpent, btcCommission, mocCommission, vendorAccount, btcMarkup, mocMarkup);
+    transferBtcCommission(mocLibConfig.getPayableAddress(vendorAccount), btcCommission, btcMarkup);
     /** END UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
 
     // Need to update general State
@@ -162,9 +162,6 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
     // Calculate change
     uint256 change = msg.value.sub(totalBtcSpent);
     doTransfer(msg.sender, change);
-
-    // Transfer commissions to commissions address
-    doTransfer(mocInrate.commissionsAddress(), btcCommission);
   }
 
   /**
@@ -176,11 +173,11 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
   whenNotPaused() whenSettlementReady() availableBucket(bucket) notBaseBucket(bucket)
   transitionState() bucketStateTransition(bucket) {
     /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
-    (uint256 totalBtcRedeemed, uint256 btcCommission, uint256 mocCommission) = mocExchange.redeemBProx(msg.sender, bucket, bproxAmount);
+    (uint256 totalBtcRedeemed, uint256 btcCommission, uint256 mocCommission, uint256 btcMarkup, uint256 mocMarkup) = mocExchange.redeemBProx(msg.sender, bucket, bproxAmount, vendorAccount);
 
     doTransfer(msg.sender, totalBtcRedeemed);
 
-    redeemWithMocFees(msg.sender, btcCommission, mocCommission, vendorAccount);
+    redeemWithMocFees(msg.sender, btcCommission, mocCommission, vendorAccount, btcMarkup, mocMarkup);
     /** END UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
   }
 
@@ -193,9 +190,10 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
   whenNotPaused() whenSettlementReady() availableBucket(bucket) notBaseBucket(bucket)
   transitionState() bucketStateTransition(bucket) {
     /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
-    (uint256 totalBtcSpent, uint256 btcCommission, uint256 mocCommission) = mocExchange.mintBProx(msg.sender, bucket, btcToMint);
+    (uint256 totalBtcSpent, uint256 btcCommission, uint256 mocCommission, uint256 btcMarkup, uint256 mocMarkup) = mocExchange.mintBProx(msg.sender, bucket, btcToMint, vendorAccount);
 
-    totalBtcSpent = transferMocComission(msg.sender, msg.value, totalBtcSpent, btcCommission, mocCommission, vendorAccount);
+    totalBtcSpent = transferMoCComission(msg.sender, msg.value, totalBtcSpent, btcCommission, mocCommission, vendorAccount, btcMarkup, mocMarkup);
+    transferBtcCommission(mocLibConfig.getPayableAddress(vendorAccount), btcCommission, btcMarkup);
     /** END UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
 
     // Need to update general State
@@ -203,9 +201,6 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
     // Calculate change
     uint256 change = msg.value.sub(totalBtcSpent);
     doTransfer(msg.sender, change);
-
-    // Transfer commissions to commissions address
-    doTransfer(mocInrate.commissionsAddress(), btcCommission);
   }
 
   /**
@@ -214,11 +209,11 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
   */
   function redeemFreeDoc(uint256 docAmount, address vendorAccount) public whenNotPaused() transitionState() {
     /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
-    (uint256 btcAmount, uint256 btcCommission, uint256 mocCommission) = mocExchange.redeemFreeDoc(msg.sender, docAmount);
+    (uint256 btcAmount, uint256 btcCommission, uint256 mocCommission, uint256 btcMarkup, uint256 mocMarkup) = mocExchange.redeemFreeDoc(msg.sender, docAmount, vendorAccount);
 
     doTransfer(msg.sender, btcAmount);
 
-    redeemWithMocFees(msg.sender, btcCommission, mocCommission, vendorAccount);
+    redeemWithMocFees(msg.sender, btcCommission, mocCommission, vendorAccount, btcMarkup, mocMarkup);
     /** END UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
   }
 
@@ -399,79 +394,87 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
   /** Internal functions **/
 
   // solium-disable-next-line security/no-assign-params, max-len
-  function transferMocComission(address sender, uint256 value, uint256 totalBtcSpent, uint256 btcCommission, uint256 mocCommission, address vendorAccount)
+  function transferMoCComission(address sender, uint256 value, uint256 totalBtcSpent, uint256 btcCommission, uint256 mocCommission, address vendorAccount, uint256 btcMarkup, uint256 mocMarkup)
   internal returns(uint256) {
-    // Check if there is enough balance of MoC
-    if (mocCommission > 0) {
-      // Transfer MoC from sender to this contract
-      MoCToken mocToken = MoCToken(mocState.getMoCToken());
-      mocToken.transferFrom(sender, address(this), mocCommission);
-      // Transfer MoC to commissions address
-      mocToken.transfer(mocInrate.commissionsAddress(), mocCommission);
+    MoCVendors mocVendors = MoCVendors(mocState.getMoCVendors());
+    uint256 vendorTotalPaidInMoC = mocVendors.getTotalPaidInMoC(vendorAccount);
+    uint256 vendorStaking = mocVendors.getStaking(vendorAccount);
+    uint256 totalMoCFee;
+
+    if (mocCommission > 0 && mocMarkup > 0) {
+      totalMoCFee = mocCommission.add(mocMarkup);
     } else {
-      // Check commission rate in RBTC according to transaction type
-      totalBtcSpent = totalBtcSpent.add(btcCommission);
-      //require(totalBtcSpent <= value, "amount is not enough");
+      totalBtcSpent = totalBtcSpent.add(btcCommission).add(btcMarkup);
+      require(totalBtcSpent <= value, "amount is not enough");
     }
 
-    require(totalBtcSpent <= value, "amount is not enough");
-    transferVendorMarkup(sender, vendorAccount, mocCommission,btcCommission);
+    if (totalMoCFee > 0) {
+      // Transfer MoC from sender to this contract
+      MoCToken mocToken = MoCToken(mocState.getMoCToken());
+      mocToken.transferFrom(sender, address(this), totalMoCFee);
+
+      // Transfer vendor markup in MoC
+      if (vendorTotalPaidInMoC.add(totalMoCFee) <= vendorStaking) {
+        // Transfer MoC to vendor address
+        mocToken.transfer(vendorAccount, totalMoCFee);
+        // Update vendor's markup
+        mocVendors.updatePaidMarkup(vendorAccount, mocMarkup, 0, totalMoCFee);
+      } else {
+        // Transfer MoC to commissions address
+        mocToken.transfer(mocInrate.commissionsAddress(), totalMoCFee);
+      }
+    }
 
     return totalBtcSpent;
   }
 
-  function transferVendorMarkup(address sender, address vendorAccount, uint256 mocCommission, uint256 btcCommission) internal {
-    uint256 mocMarkup;
-    uint256 btcMarkup;
-    //uint256 btcMarkupInMoC;
-    uint256 btcPrice;
-    uint256 mocPrice;
-    //uint256 totalPaidInMoC;
+  function redeemWithMocFees(address sender, uint256 btcCommission, uint256 mocCommission, address vendorAccount, uint256 btcMarkup, uint256 mocMarkup) internal {
+    MoCVendors mocVendors = MoCVendors(mocState.getMoCVendors());
+    uint256 vendorTotalPaidInMoC = mocVendors.getTotalPaidInMoC(vendorAccount);
+    uint256 vendorStaking = mocVendors.getStaking(vendorAccount);
+    uint256 totalMoCFee;
 
-    // Calculate according to vendor markup
-    if (vendorAccount != address(0)) {
-      MoCVendors mocVendors = MoCVendors(mocState.getMoCVendors());
-      (uint256 markup, uint256 totalPaidInMoC, uint256 staking) = mocVendors.getVendorDetails(vendorAccount);
+    if (mocCommission > 0 && mocMarkup > 0) {
+      totalMoCFee = mocCommission.add(mocMarkup);
+    } else {
+      transferBtcCommission(mocLibConfig.getPayableAddress(vendorAccount), btcCommission, btcMarkup);
+    }
 
-      if (mocCommission > 0) {
-        mocMarkup = mocCommission.mul(markup).div(mocLibConfig.mocPrecision);
-        totalPaidInMoC = mocMarkup;
-      } else {
-        btcMarkup = btcCommission.mul(markup).div(mocLibConfig.mocPrecision);
-        (totalPaidInMoC, btcPrice, mocPrice) = mocExchange.convertToMoCPrice(btcMarkup);
-        //mocMarkup = btcMarkupInMoC;
-        //totalPaidInMoC = btcMarkupInMoC;
-      }
+    if (totalMoCFee > 0) {
       // Transfer MoC from sender to this contract
       MoCToken mocToken = MoCToken(mocState.getMoCToken());
-      mocToken.transferFrom(sender, address(this), mocMarkup);
+      mocToken.transferFrom(sender, address(this), totalMoCFee);
 
-      (markup, totalPaidInMoC, staking) = mocVendors.updatePaidMarkup(vendorAccount, mocMarkup, btcMarkup, totalPaidInMoC);
-
-      if (totalPaidInMoC <= staking) {
+      // Transfer vendor markup in MoC
+      if (vendorTotalPaidInMoC.add(totalMoCFee) <= vendorStaking) {
         // Transfer MoC to vendor address
-        mocToken.transfer(vendorAccount, mocMarkup);
+        mocToken.transfer(vendorAccount, totalMoCFee);
+        // Update vendor's markup
+        mocVendors.updatePaidMarkup(vendorAccount, mocMarkup, 0, totalMoCFee);
       } else {
         // Transfer MoC to commissions address
-        mocToken.transfer(mocInrate.commissionsAddress(), mocMarkup);
+        mocToken.transfer(mocInrate.commissionsAddress(), totalMoCFee);
       }
     }
   }
 
-  function redeemWithMocFees(address sender, uint256 btcCommission, uint256 mocCommission, address vendorAccount) internal {
-    // Check if there is enough balance of MoC
-    if (mocCommission > 0) {
-      MoCToken mocToken = MoCToken(mocState.getMoCToken());
-      // Transfer MoC from sender to this contract
-      mocToken.transferFrom(sender, address(this), mocCommission);
-      // Transfer MoC to commissions address
-      mocToken.transfer(mocInrate.commissionsAddress(), mocCommission);
-    } else {
-      // Transfer commissions to commissions address
-      doTransfer(mocInrate.commissionsAddress(), btcCommission);
-    }
+  function transferBtcCommission(address payable vendorAccount, uint256 btcCommission, uint256 btcMarkup) internal {
+    MoCVendors mocVendors = MoCVendors(mocState.getMoCVendors());
+    uint256 vendorTotalPaidInMoC = mocVendors.getTotalPaidInMoC(vendorAccount);
+    uint256 vendorStaking = mocVendors.getStaking(vendorAccount);
+    uint256 totalBtcFee = btcCommission.add(btcMarkup);
+    uint256 totalMoCFee = mocExchange.convertToMoCPrice(totalBtcFee);
 
-    transferVendorMarkup(sender, vendorAccount, mocCommission,btcCommission);
+    // Transfer vendor markup in MoC
+    if (vendorTotalPaidInMoC.add(totalMoCFee) <= vendorStaking) {
+      // Transfer RBTC to vendor address
+      doTransfer(vendorAccount, totalBtcFee);
+      // Update vendor's markup
+      mocVendors.updatePaidMarkup(vendorAccount, 0, btcMarkup, totalMoCFee);
+    } else {
+      // Transfer MoC to commissions address
+      doTransfer(mocInrate.commissionsAddress(), totalBtcFee);
+    }
   }
 
   /** END UPDATE V0110: 24/09/2020 **/

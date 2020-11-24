@@ -7,6 +7,7 @@ import "./MoCInrate.sol";
 import "./base/MoCBase.sol";
 import "./MoC.sol";
 import "./token/MoCToken.sol";
+import "./MoCVendors.sol";
 
 contract MoCExchangeEvents {
   event RiskProMint(
@@ -16,7 +17,10 @@ contract MoCExchangeEvents {
     uint256 commission,
     uint256 reservePrice,
     uint256 mocCommissionValue,
-    uint256 mocPrice
+    uint256 mocPrice,
+    uint256 btcMarkup,
+    uint256 mocMarkup,
+    address vendorAccount
   );
   event RiskProWithDiscountMint(
     uint256 riskProTecPrice,
@@ -30,7 +34,10 @@ contract MoCExchangeEvents {
     uint256 commission,
     uint256 reservePrice,
     uint256 mocCommissionValue,
-    uint256 mocPrice
+    uint256 mocPrice,
+    uint256 btcMarkup,
+    uint256 mocMarkup,
+    address vendorAccount
   );
   event StableTokenMint(
     address indexed account,
@@ -39,7 +46,10 @@ contract MoCExchangeEvents {
     uint256 commission,
     uint256 reservePrice,
     uint256 mocCommissionValue,
-    uint256 mocPrice
+    uint256 mocPrice,
+    uint256 btcMarkup,
+    uint256 mocMarkup,
+    address vendorAccount
   );
   event StableTokenRedeem(
     address indexed account,
@@ -48,7 +58,10 @@ contract MoCExchangeEvents {
     uint256 commission,
     uint256 reservePrice,
     uint256 mocCommissionValue,
-    uint256 mocPrice
+    uint256 mocPrice,
+    uint256 btcMarkup,
+    uint256 mocMarkup,
+    address vendorAccount
   );
   event FreeStableTokenRedeem(
     address indexed account,
@@ -58,7 +71,10 @@ contract MoCExchangeEvents {
     uint256 interests,
     uint256 reservePrice,
     uint256 mocCommissionValue,
-    uint256 mocPrice
+    uint256 mocPrice,
+    uint256 btcMarkup,
+    uint256 mocMarkup,
+    address vendorAccount
   );
 
   event RiskProxMint(
@@ -71,7 +87,10 @@ contract MoCExchangeEvents {
     uint256 commission,
     uint256 reservePrice,
     uint256 mocCommissionValue,
-    uint256 mocPrice
+    uint256 mocPrice,
+    uint256 btcMarkup,
+    uint256 mocMarkup,
+    address vendorAccount
   );
 
   event RiskProxRedeem(
@@ -84,7 +103,10 @@ contract MoCExchangeEvents {
     uint256 leverage,
     uint256 reservePrice,
     uint256 mocCommissionValue,
-    uint256 mocPrice
+    uint256 mocPrice,
+    uint256 btcMarkup,
+    uint256 mocMarkup,
+    address vendorAccount
   );
 }
 
@@ -116,6 +138,37 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
   /** Upgrade to support multiple commission rates **/
   /** Public functions **/
 
+    /**
+  * @dev Converts MoC commission from RBTC to MoC price
+  * @param btcAmount Amount to be converted to MoC price
+  * @return Amount converted to MoC Price, Bitcoin price and MoC price
+  **/
+  function convertToMoCPrice(uint256 btcAmount) public view returns (uint256, uint256, uint256) {
+    uint256 btcPrice = mocState.getBitcoinPrice();
+    uint256 mocPrice = mocState.getMoCPrice();
+
+    // Calculate amount in MoC
+    uint256 amountInMoC = mocConverter.btcToMoCWithPrice(btcAmount, btcPrice, mocPrice);
+
+    return (amountInMoC, btcPrice, mocPrice);
+  }
+
+  function getMoCTokenBalance(address owner, address spender) public view
+  returns (uint256 mocBalance, uint256 mocAllowance) {
+    mocBalance = 0;
+    mocAllowance = 0;
+
+    MoCToken mocToken = MoCToken(mocState.getMoCToken());
+
+    if (address(mocToken) != address(0)) {
+      // Get balance and allowance from sender
+      mocBalance = mocToken.balanceOf(owner);
+      mocAllowance = mocToken.allowance(owner, spender);
+    }
+
+    return (mocBalance, mocAllowance);
+  }
+
   /**
    * @dev Calculates commissions in MoC and BTC
    * @param account Address of the user doing the transaction
@@ -124,9 +177,9 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
    * @param txTypeFeesRBTC Transaction type if fees are paid in RBTC
    * @return Commissions calculated in MoC price and bitcoin price; and Bitcoin and MoC prices
    **/
-  function calculateCommissionsWithPrices(address account, uint256 btcAmount, uint8 txTypeFeesMOC, uint8 txTypeFeesRBTC)
+  function calculateCommissionsWithPrices(address account, uint256 btcAmount, uint8 txTypeFeesMOC, uint8 txTypeFeesRBTC, address vendorAccount)
   public view
-  returns (uint256 btcCommission, uint256 mocCommission, uint256 btcPrice, uint256 mocPrice) {
+  returns (uint256 btcCommission, uint256 mocCommission, uint256 btcPrice, uint256 mocPrice, uint256 btcMarkup, uint256 mocMarkup) {
     // Get balance and allowance from sender
     (uint256 mocBalance, uint256 mocAllowance) = getMoCTokenBalance(account, address(moc));
 
@@ -137,32 +190,39 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
     (mocCommission, btcPrice, mocPrice) = convertToMoCPrice(mocCommissionInBtc);
     btcCommission = 0;
 
+        // calcular markups; csalcular precio markup moc en el return
+    // Calculate vendor markup
+    (btcMarkup, mocMarkup) = calculateVendorMarkup(vendorAccount, mocCommission, btcCommission);
+
     // Check if there is enough balance of MoC
-    if ((!(mocBalance >= mocCommission && mocAllowance >= mocCommission)) || (mocCommissionInBtc == 0)) {
+    if ((!(mocBalance >= mocCommission && mocAllowance >= mocCommission + mocMarkup)) || (mocCommissionInBtc == 0)) {
       // Insufficient funds
       mocCommissionInBtc = 0;
       mocCommission = 0;
 
       // Check commission rate in RBTC according to transaction type
       btcCommission = mocInrate.calcCommissionValue(btcAmount, txTypeFeesRBTC);
+      (btcMarkup, mocMarkup) = calculateVendorMarkup(vendorAccount, mocCommission, btcCommission);
     }
 
-    return (btcCommission, mocCommission, btcPrice, mocPrice);
+    return (btcCommission, mocCommission, btcPrice, mocPrice, btcMarkup, mocMarkup);
   }
 
-  /**
-   * @dev Converts MoC commission from RBTC to MoC price
-   * @param btcAmount Amount to be converted to MoC price
-   * @return Amount converted to MoC Price, Bitcoin price and MoC price
-   **/
-  function convertToMoCPrice(uint256 btcAmount) public view returns (uint256, uint256, uint256) {
-    uint256 btcPrice = mocState.getBitcoinPrice();
-    uint256 mocPrice = mocState.getMoCPrice();
+  function calculateVendorMarkup(address vendorAccount, uint256 mocCommission, uint256 btcCommission) internal view
+    returns (uint256 btcMarkup, uint256 mocMarkup) {
+    // Calculate according to vendor markup
+    if (vendorAccount != address(0)) {
+      MoCVendors mocVendors = MoCVendors(mocState.getMoCVendors());
+      uint256 markup = mocVendors.getMarkup(vendorAccount);
 
-    // Calculate amount in MoC
-    uint256 amountInMoC = btcPrice.mul(btcAmount).div(mocPrice);
+      if (mocCommission > 0) {
+        mocMarkup = mocCommission.mul(markup).div(mocLibConfig.mocPrecision);
+      } else {
+        btcMarkup = btcCommission.mul(markup).div(mocLibConfig.mocPrecision);
+      }
 
-    return (amountInMoC, btcPrice, mocPrice);
+      return (btcMarkup, mocMarkup);
+    }
   }
 
   /** END UPDATE V0110: 24/09/2020 **/
@@ -171,67 +231,65 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
    * @dev Mint BPros and give it to the msg.sender
    */
 // solium-disable-next-line security/no-assign-params
-  function mintBPro(address account, uint256 btcAmount)
+  function mintBPro(address account, uint256 btcAmount, address vendorAccount)
     public
     onlyWhitelisted(msg.sender)
-    returns (uint256, uint256, uint256)
+    returns (uint256, uint256, uint256, uint256, uint256)
   {
     RiskProMintStruct memory details;
 
-    uint256 bproRegularPrice = mocState.bproTecPrice();
+    details.bproRegularPrice = mocState.bproTecPrice();
     details.finalBProAmount = 0;
-    uint256 btcValue = 0;
+    details.btcValue = 0;
 
     if (mocState.state() == MoCState.States.BProDiscount) {
-      uint256 discountPrice = mocState.bproDiscountPrice();
-      uint256 bproDiscountAmount = mocConverter.btcToBProDisc(btcAmount);
+      details.discountPrice = mocState.bproDiscountPrice();
+      details.bproDiscountAmount = mocConverter.btcToBProDisc(btcAmount);
 
       details.finalBProAmount = Math.min(
-        bproDiscountAmount,
+        details.bproDiscountAmount,
         mocState.maxBProWithDiscount()
       );
-      btcValue = details.finalBProAmount == bproDiscountAmount
+      details.btcValue = details.finalBProAmount == details.bproDiscountAmount
         ? btcAmount
         : mocConverter.bproDiscToBtc(details.finalBProAmount);
 
       emit RiskProWithDiscountMint(
-        bproRegularPrice,
-        discountPrice,
+        details.bproRegularPrice,
+        details.discountPrice,
         details.finalBProAmount
       );
     }
 
-    if (btcAmount != btcValue) {
-      uint256 regularBProAmount = mocConverter.btcToBPro(
-        btcAmount.sub(btcValue)
+    if (btcAmount != details.btcValue) {
+      details.regularBProAmount = mocConverter.btcToBPro(
+        btcAmount.sub(details.btcValue)
       );
-      details.finalBProAmount = details.finalBProAmount.add(regularBProAmount);
+      details.finalBProAmount = details.finalBProAmount.add(details.regularBProAmount);
     }
 
     // START Upgrade V017
     // 01/11/2019 Limiting mint bpro (no with discount)
     // Only enter with no discount state
     if (mocState.state() != MoCState.States.BProDiscount) {
-      uint256 availableBPro = Math.min(
+      details.availableBPro = Math.min(
         details.finalBProAmount,
         mocState.maxMintBProAvalaible()
       );
-      if (availableBPro != details.finalBProAmount) {
-        btcAmount = mocConverter.bproToBtc(availableBPro);
-        details.finalBProAmount = availableBPro;
+      if (details.availableBPro != details.finalBProAmount) {
+        btcAmount = mocConverter.bproToBtc(details.availableBPro);
+        details.finalBProAmount = details.availableBPro;
 
         if (btcAmount <= 0) {
-          return (0, 0, 0);
+          return (0, 0, 0, 0, 0);
         }
       }
     }
     // END Upgrade V017
 
     /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
-    uint256 btcPrice;
-    uint256 mocPrice;
-    (details.btcCommission, details.mocCommission, btcPrice, mocPrice) = calculateCommissionsWithPrices(
-      account, btcAmount, mocInrate.MINT_BPRO_FEES_MOC(), mocInrate.MINT_BPRO_FEES_RBTC());
+    (details.btcCommission, details.mocCommission, details.btcPrice, details.mocPrice, details.btcMarkup, details.mocMarkup) = calculateCommissionsWithPrices(
+      account, btcAmount, mocInrate.MINT_BPRO_FEES_MOC(), mocInrate.MINT_BPRO_FEES_RBTC(), vendorAccount);
 
     mintBPro(
       account,
@@ -239,11 +297,14 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
       details.finalBProAmount,
       btcAmount,
       details.mocCommission,
-      btcPrice,
-      mocPrice
+      details.btcPrice,
+      details.mocPrice,
+      details.btcMarkup,
+      details.mocMarkup,
+      vendorAccount
     );
 
-    return (btcAmount, details.btcCommission, details.mocCommission);
+    return (btcAmount, details.btcCommission, details.mocCommission, details.btcMarkup, details.mocMarkup);
     /** END UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
   }
 
@@ -251,12 +312,13 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
    * @dev Sender burns his BProS and redeems the equivalent BTCs
    * @param account Address of the redeeemer
    * @param bproAmount Amount of BPros to be redeemed
+   * @param vendorAccount Vendor address
    * @return bitcoins to transfer to the redeemer and commission spent (in BTC and MoC), using [using reservePrecision]
    **/
-  function redeemBPro(address account, uint256 bproAmount)
+  function redeemBPro(address account, uint256 bproAmount, address vendorAccount)
     public
     onlyWhitelisted(msg.sender)
-    returns (uint256, uint256, uint256)
+    returns (uint256, uint256, uint256, uint256, uint256)
   {
     RiskProRedeemStruct memory details;
 
@@ -267,10 +329,8 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
     uint256 totalBtc = mocConverter.bproToBtc(details.bproFinalAmount);
 
     /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
-    uint256 btcPrice;
-    uint256 mocPrice;
-    (details.btcCommission, details.mocCommission, btcPrice, mocPrice) = calculateCommissionsWithPrices(
-      account, totalBtc, mocInrate.REDEEM_BPRO_FEES_MOC(), mocInrate.REDEEM_BPRO_FEES_RBTC());
+    (details.btcCommission, details.mocCommission, details.btcPrice, details.mocPrice, details.btcMarkup, details.mocMarkup) = calculateCommissionsWithPrices(
+      account, totalBtc, mocInrate.REDEEM_BPRO_FEES_MOC(), mocInrate.REDEEM_BPRO_FEES_RBTC(), vendorAccount);
 
     /** END UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
 
@@ -292,28 +352,31 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
       details.bproFinalAmount,
       details.btcTotalWithoutCommission,
       details.btcCommission,
-      btcPrice,
+      details.btcPrice,
       details.mocCommission,
-      mocPrice
+      details.mocPrice,
+      details.btcMarkup,
+      details.mocMarkup,
+      vendorAccount
     );
 
-    return (details.btcTotalWithoutCommission, details.btcCommission, details.mocCommission);
+    return (details.btcTotalWithoutCommission, details.btcCommission, details.mocCommission, details.btcMarkup, details.mocMarkup);
   }
 
   /**
   * @dev Redeems the requested amount for the account, or the max amount of free docs possible.
   * @param account Address of the redeeemer
   * @param docAmount Amount of Docs to redeem [using mocPrecision]
+  * @param vendorAccount Vendor address
   * @return bitcoins to transfer to the redeemer and commission spent (in BTC and MoC), using [using reservePrecision]
-
   */
-  function redeemFreeDoc(address account, uint256 docAmount)
+  function redeemFreeDoc(address account, uint256 docAmount, address vendorAccount)
     public
     onlyWhitelisted(msg.sender)
-    returns (uint256, uint256, uint256)
+    returns (uint256, uint256, uint256, uint256, uint256)
   {
     if (docAmount <= 0) {
-      return (0, 0, 0);
+      return (0, 0, 0, 0, 0);
     } else {
       FreeStableTokenRedeemStruct memory details;
       details.finalDocAmount = Math.min(
@@ -329,11 +392,8 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
       details.finalBtcAmount = docsBtcValue.sub(details.btcInterestAmount);
 
       /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
-
-      uint256 btcPrice;
-      uint256 mocPrice;
-      (details.btcCommission, details.mocCommission, btcPrice, mocPrice) = calculateCommissionsWithPrices(
-        account, details.finalBtcAmount, mocInrate.REDEEM_DOC_FEES_MOC(), mocInrate.REDEEM_DOC_FEES_RBTC());
+      (details.btcCommission, details.mocCommission, details.btcPrice, details.mocPrice, details.btcMarkup, details.mocMarkup) = calculateCommissionsWithPrices(
+        account, details.finalBtcAmount, mocInrate.REDEEM_DOC_FEES_MOC(), mocInrate.REDEEM_DOC_FEES_RBTC(), vendorAccount);
 
       /** END UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
 
@@ -346,12 +406,15 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
         details.finalBtcAmount,
         details.btcCommission,
         details.btcInterestAmount,
-        btcPrice,
+        details.btcPrice,
         details.mocCommission,
-        mocPrice
+        details.mocPrice,
+        details.btcMarkup,
+        details.mocMarkup,
+        vendorAccount
       );
 
-      return (details.finalBtcAmount.sub(details.btcCommission), details.btcCommission, details.mocCommission);
+      return (details.finalBtcAmount.sub(details.btcCommission), details.btcCommission, details.mocCommission, details.btcMarkup, details.mocMarkup);
     }
   }
 
@@ -359,13 +422,16 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
    * @dev Mint Max amount of Docs and give it to the msg.sender
    * @param account minter user address
    * @param btcToMint btc amount the user intents to convert to DoC [using rbtPresicion]
+   * @param vendorAccount Vendor address
    * @return the actual amount of btc used and the btc commission (in BTC and MoC) for them [using rbtPresicion]
    */
-  function mintDoc(address account, uint256 btcToMint)
+  function mintDoc(address account, uint256 btcToMint, address vendorAccount)
     public
     onlyWhitelisted(msg.sender)
-    returns (uint256, uint256, uint256)
+    returns (uint256, uint256, uint256, uint256, uint256)
   {
+    StableTokenMintStruct memory details;
+
     // Docs to issue with tx value amount
     if (btcToMint > 0) {
       uint256 docs = mocConverter.btcToDoc(btcToMint);
@@ -381,9 +447,8 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
       bproxManager.addValuesToBucket(BUCKET_C0, totalCost, docAmount, 0);
 
       /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
-
-      (uint256 btcCommission, uint256 mocCommission, uint256 btcPrice, uint256 mocPrice) = calculateCommissionsWithPrices(
-        account, totalCost, mocInrate.MINT_DOC_FEES_MOC(), mocInrate.MINT_DOC_FEES_RBTC());
+      (details.btcCommission, details.mocCommission, details.btcPrice, details.mocPrice, details.btcMarkup, details.mocMarkup) = calculateCommissionsWithPrices(
+        account, totalCost, mocInrate.MINT_DOC_FEES_MOC(), mocInrate.MINT_DOC_FEES_RBTC(), vendorAccount);
 
       /** END UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
 
@@ -391,16 +456,19 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
         account,
         docAmount,
         totalCost,
-        btcCommission,
-        btcPrice,
-        mocCommission,
-        mocPrice
+        details.btcCommission,
+        details.btcPrice,
+        details.mocCommission,
+        details.mocPrice,
+        details.btcMarkup,
+        details.mocMarkup,
+        vendorAccount
       );
 
-      return (totalCost, btcCommission, mocCommission);
+      return (totalCost, details.btcCommission, details.mocCommission, details.btcMarkup, details.mocMarkup);
     }
 
-    return (0, 0, 0);
+    return (0, 0, 0, 0, 0);
   }
 
   /**
@@ -413,16 +481,19 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
   function redeemDocWithPrice(
     address payable userAddress,
     uint256 amount,
-    uint256 btcPrice
+    uint256 btcPrice,
+    address vendorAccount
   ) public onlyWhitelisted(msg.sender) returns (bool, uint256) {
     uint256 totalBtc = mocConverter.docsToBtcWithPrice(amount, btcPrice);
 
     /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
     // Check commission rate in RBTC according to transaction type
     uint256 btcCommission = mocInrate.calcCommissionValue(totalBtc, mocInrate.REDEEM_DOC_FEES_RBTC());
+    // TODO: VENDOR MARKUP
+    uint256 btcMarkup = 0;
     /** END UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
 
-    uint256 btcToRedeem = totalBtc.sub(btcCommission);
+    uint256 btcToRedeem = totalBtc.sub(btcCommission).sub(btcMarkup);
 
     bool result = moc.sendToAddress(userAddress, btcToRedeem);
 
@@ -436,7 +507,10 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
         btcCommission,
         btcPrice,
         0,
-        0
+        0,
+        btcMarkup,
+        0,
+        address(0)//vendorAccount
       );
     }
 
@@ -468,6 +542,7 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
     // If send fails we don't burn the tokens
     if (moc.sendToAddress(destination, totalRbtc)) {
       docToken.burn(origin, userDocBalance);
+      // TODO: VENDOR MARKUP
       emit StableTokenRedeem(
         origin,
         userDocBalance,
@@ -475,7 +550,10 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
         0,
         liqPrice,
         0,
-        0
+        0,
+        0,
+        0,
+        address(0)
       );
 
       return totalRbtc;
@@ -497,7 +575,10 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
     uint256 rbtcValue,
     uint256 mocCommission,
     uint256 btcPrice,
-    uint256 mocPrice
+    uint256 mocPrice,
+    uint256 btcMarkup,
+    uint256 mocMarkup,
+    address vendorAccount
   ) public onlyWhitelisted(msg.sender) {
     bproToken.mint(account, bproAmount);
     bproxManager.addValuesToBucket(BUCKET_C0, rbtcValue, 0, bproAmount);
@@ -509,7 +590,10 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
       btcCommission,
       btcPrice,
       mocCommission,
-      mocPrice
+      mocPrice,
+      btcMarkup,
+      mocMarkup,
+      vendorAccount
     );
   }
 
@@ -518,12 +602,13 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
    * @param account owner of the new minted Bprox
    * @param bucket bucket name
    * @param btcToMint rbtc amount to mint [using reservePrecision]
+   * @param vendorAccount Vendor address
    * @return total RBTC Spent (btcToMint more interest) and commission spent (in BTC and MoC) [using reservePrecision]
    **/
-  function mintBProx(address payable account, bytes32 bucket, uint256 btcToMint)
+  function mintBProx(address payable account, bytes32 bucket, uint256 btcToMint, address vendorAccount)
     public
     onlyWhitelisted(msg.sender)
-    returns (uint256, uint256, uint256)
+    returns (uint256, uint256, uint256, uint256, uint256)
   {
     if (btcToMint > 0) {
       RiskProxMintStruct memory details;
@@ -553,11 +638,8 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
       details.lev = mocState.leverage(bucket);
 
       /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
-
-      uint256 btcPrice;
-      uint256 mocPrice;
-      (details.btcCommission, details.mocCommission, btcPrice, mocPrice) = calculateCommissionsWithPrices(
-        account, details.finalBtcToMint, mocInrate.MINT_BTCX_FEES_MOC(), mocInrate.MINT_BTCX_FEES_RBTC());
+      (details.btcCommission, details.mocCommission, details.btcPrice, details.mocPrice, details.btcMarkup, details.mocMarkup) = calculateCommissionsWithPrices(
+        account, details.finalBtcToMint, mocInrate.MINT_BTCX_FEES_MOC(), mocInrate.MINT_BTCX_FEES_RBTC(), vendorAccount);
 
       /** END UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
 
@@ -569,15 +651,18 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
         details.btcInterestAmount,
         details.lev,
         details.btcCommission,
-        btcPrice,
+        details.btcPrice,
         details.mocCommission,
-        mocPrice
+        details.mocPrice,
+        details.btcMarkup,
+        details.mocMarkup,
+        vendorAccount
       );
 
-      return (details.finalBtcToMint.add(details.btcInterestAmount), details.btcCommission, details.mocCommission);
+      return (details.finalBtcToMint.add(details.btcInterestAmount), details.btcCommission, details.mocCommission, details.btcMarkup, details.mocMarkup);
     }
 
-    return (0, 0, 0);
+    return (0, 0, 0, 0, 0);
   }
 
   /**
@@ -586,25 +671,24 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
    * @param account user address to redeem bprox from
    * @param bucket Bucket where the BProxs are hold
    * @param bproxAmount Amount of BProxs to be redeemed [using mocPrecision]
+   * @param vendorAccount Vendor address
    * @return the actual amount of btc to redeem and the btc commission (in BTC and MoC) for them [using reservePrecision]
    **/
   function redeemBProx(
     address payable account,
     bytes32 bucket,
-    uint256 bproxAmount
-  ) public onlyWhitelisted(msg.sender) returns (uint256, uint256, uint256) {
+    uint256 bproxAmount,
+    address vendorAccount
+  ) public onlyWhitelisted(msg.sender) returns (uint256, uint256, uint256, uint256, uint256) {
     // Revert could cause not evaluating state changing
     if (bproxManager.bproxBalanceOf(bucket, account) == 0) {
-      return (0, 0, 0);
+      return (0, 0, 0, 0, 0);
     }
+    RiskProxRedeemStruct memory details;
 
-    uint256 totalBtcRedeemed;
-    uint256 mocCommission;
-    uint256 btcCommission;
+    (details.totalBtcRedeemed, details.btcCommission, details.mocCommission, details.btcMarkup, details.mocMarkup) = redeemBProxInternal(account, bucket, bproxAmount, vendorAccount);
 
-    (totalBtcRedeemed, btcCommission, mocCommission) = redeemBProxInternal(account, bucket, bproxAmount);
-
-    return (totalBtcRedeemed, btcCommission, mocCommission);
+    return (details.totalBtcRedeemed, details.btcCommission, details.mocCommission, details.btcMarkup, details.mocMarkup);
   }
 
   /**
@@ -673,13 +757,15 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
    * @param account user address to redeem bprox from
    * @param bucket Bucket where the BProxs are hold
    * @param bproxAmount Amount of BProxs to be redeemed [using mocPrecision]
+   * @param vendorAccount Vendor address
    * @return the actual amount of btc to redeem and the btc commission (in BTC and MoC) for them [using reservePrecision]
    **/
   function redeemBProxInternal(
     address payable account,
     bytes32 bucket,
-    uint256 bproxAmount
-  ) internal returns (uint256, uint256, uint256) {
+    uint256 bproxAmount,
+    address vendorAccount
+  ) internal returns (uint256, uint256, uint256, uint256, uint256) {
     RiskProxRedeemStruct memory details;
     // Calculate leverage before the redeem
     details.bucketLev = mocState.leverage(bucket);
@@ -706,15 +792,13 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
     }
 
     /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
-
-    uint256 btcPrice;
-    uint256 mocPrice;
-    (details.btcCommission, details.mocCommission, btcPrice, mocPrice) = calculateCommissionsWithPrices(
-      account, rbtcToRedeem, mocInrate.REDEEM_BTCX_FEES_MOC(), mocInrate.REDEEM_BTCX_FEES_RBTC());
+    (details.btcCommission, details.mocCommission, details.btcPrice, details.mocPrice, details.btcMarkup, details.mocMarkup) = calculateCommissionsWithPrices(
+      account, rbtcToRedeem, mocInrate.REDEEM_BTCX_FEES_MOC(), mocInrate.REDEEM_BTCX_FEES_RBTC(), vendorAccount);
 
     /** END UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
 
     details.btcTotalWithoutCommission = rbtcToRedeem.sub(details.btcCommission);
+    details.totalBtcRedeemed = details.btcTotalWithoutCommission.add(details.rbtcInterests);
 
     emit RiskProxRedeem(
       bucket,
@@ -724,12 +808,15 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
       details.btcTotalWithoutCommission,
       details.rbtcInterests,
       details.bucketLev,
-      btcPrice,
+      details.btcPrice,
       details.mocCommission,
-      mocPrice
+      details.mocPrice,
+      details.btcMarkup,
+      details.mocMarkup,
+      vendorAccount
     );
 
-    return (details.btcTotalWithoutCommission.add(details.rbtcInterests), details.btcCommission, details.mocCommission);
+    return (details.totalBtcRedeemed, details.btcCommission, details.mocCommission, details.btcMarkup, details.mocMarkup);
   }
 
   /** END UPDATE V0110: 24/09/2020 **/
@@ -793,22 +880,6 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
     bproxManager.substractValuesFromBucket(BUCKET_C0, totalBtc, docAmount, 0);
   }
 
-  function getMoCTokenBalance(address owner, address spender) internal view
-  returns (uint256 mocBalance, uint256 mocAllowance) {
-    mocBalance = 0;
-    mocAllowance = 0;
-
-    MoCToken mocToken = MoCToken(mocState.getMoCToken());
-
-    if (address(mocToken) != address(0)) {
-      // Get balance and allowance from sender
-      mocBalance = mocToken.balanceOf(owner);
-      mocAllowance = mocToken.allowance(owner, spender);
-    }
-
-    return (mocBalance, mocAllowance);
-  }
-
   function initializeContracts() internal {
     moc = MoC(connector.moc());
     docToken = DocToken(connector.docToken());
@@ -829,12 +900,17 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
   /** Structs **/
 
   struct RiskProxRedeemStruct{
+    uint256 totalBtcRedeemed;
     uint256 btcCommission;
     uint256 btcTotalWithoutCommission;
     uint256 rbtcInterests;
     uint256 bucketLev;
     uint256 mocCommission;
     uint256 mocCommissionInBtc;
+    uint256 btcMarkup;
+    uint256 mocMarkup;
+    uint256 btcPrice;
+    uint256 mocPrice;
   }
 
   struct RiskProxMintStruct{
@@ -845,6 +921,10 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
     uint256 btcCommission;
     uint256 mocCommission;
     uint256 mocCommissionInBtc;
+    uint256 btcMarkup;
+    uint256 mocMarkup;
+    uint256 btcPrice;
+    uint256 mocPrice;
   }
 
   struct RiskProRedeemStruct{
@@ -853,6 +933,10 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
     uint256 btcCommission;
     uint256 mocCommission;
     uint256 mocCommissionInBtc;
+    uint256 btcMarkup;
+    uint256 mocMarkup;
+    uint256 btcPrice;
+    uint256 mocPrice;
   }
 
   struct FreeStableTokenRedeemStruct{
@@ -862,13 +946,37 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
     uint256 btcInterestAmount;
     uint256 mocCommission;
     uint256 mocCommissionInBtc;
+    uint256 btcMarkup;
+    uint256 mocMarkup;
+    uint256 btcPrice;
+    uint256 mocPrice;
   }
 
   struct RiskProMintStruct{
+    uint256 bproRegularPrice;
+    uint256 btcValue;
+    uint256 discountPrice;
+    uint256 bproDiscountAmount;
+    uint256 regularBProAmount;
+    uint256 availableBPro;
     uint256 finalBProAmount;
     uint256 btcCommission;
     uint256 mocCommission;
     uint256 mocCommissionInBtc;
+    uint256 btcMarkup;
+    uint256 mocMarkup;
+    uint256 btcPrice;
+    uint256 mocPrice;
+  }
+
+  struct StableTokenMintStruct{
+    uint256 btcCommission;
+    uint256 mocCommission;
+    uint256 mocCommissionInBtc;
+    uint256 btcMarkup;
+    uint256 mocMarkup;
+    uint256 btcPrice;
+    uint256 mocPrice;
   }
 
   /** END UPDATE V0110: 24/09/2020 **/

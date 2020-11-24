@@ -642,6 +642,37 @@ library MoCHelperLib {
   }
 
   /**
+    @dev Calculates the equivalent in MoC of the btcAmount
+    @param btcAmount BTC  amount
+    @param btcPrice BTC price
+    @param mocPrice MoC price
+    @return Equivalent MoC amount
+  **/
+  function maxMoCWithBtc(
+    MocLibConfig storage libConfig, uint256 btcAmount, uint256 btcPrice, uint256 mocPrice
+  ) public view returns(uint256) {
+    return btcPrice.mul(btcAmount).div(mocPrice);
+  }
+
+  function mocBtcValue(
+    MocLibConfig storage libConfig, uint256 amount, uint256 btcPrice, uint256 mocPrice
+  ) public view returns(uint256) {
+    require(btcPrice > 0,"Bitcoin price should be more than zero");
+    require(mocPrice > 0,"MoC price should be more than zero");
+
+    uint256 mocBtcTotal = amount.mul(mocPrice).div(btcPrice);
+
+    return mocBtcTotal;
+  }
+
+  function getPayableAddress(
+    MocLibConfig storage libConfig,address account
+  ) public view
+  returns (address payable) {
+    return address(uint160(account));
+  }
+
+  /**
     @dev Rounding product adapted from DSMath but with custom precision
     @param x Multiplicand
     @param y Multiplier
