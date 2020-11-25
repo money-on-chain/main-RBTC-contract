@@ -115,6 +115,22 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection {
     vendors[account].paidRBTC = vendors[account].paidRBTC.add(rbtcAmount);
   }
 
+  function getVendorDetails(address account) public view onlyWhitelisted(msg.sender)
+  returns (bool isActive, uint256 markup, uint256 totalPaidInMoC, uint256 staking, uint256 paidMoC, uint256 paidRBTC) {
+    isActive = vendors[account].isActive;
+    markup = vendors[account].markup;
+    totalPaidInMoC = vendors[account].totalPaidInMoC;
+    staking = vendors[account].staking;
+    paidMoC = vendors[account].paidMoC;
+    paidRBTC = vendors[account].paidRBTC;
+
+    return (isActive, markup, totalPaidInMoC, staking, paidMoC, paidRBTC);
+  }
+
+  function getIsActive(address account) public view onlyWhitelisted(msg.sender)
+  returns (bool) {
+    return vendors[account].isActive;
+  }
   function getMarkup(address account) public view onlyWhitelisted(msg.sender)
   returns (uint256) {
     return vendors[account].markup;

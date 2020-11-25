@@ -452,8 +452,7 @@ Governed
       .redeemDocWithPrice(
         redeemer,
         amountToRedeem,
-        settlementInfo.btcPrice,
-        address(0)
+        settlementInfo.btcPrice
       );
       // Redemption can fail if the receiving address is a contract
       if (result) {
