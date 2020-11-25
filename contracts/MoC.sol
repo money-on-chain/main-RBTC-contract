@@ -463,7 +463,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
     uint256 vendorTotalPaidInMoC = mocVendors.getTotalPaidInMoC(vendorAccount);
     uint256 vendorStaking = mocVendors.getStaking(vendorAccount);
     uint256 totalBtcFee = btcCommission.add(btcMarkup);
-    uint256 totalMoCFee = mocExchange.convertToMoCPrice(totalBtcFee);
+    (uint256 totalMoCFee, , ) = mocExchange.convertToMoCPrice(totalBtcFee);
 
     // Transfer vendor markup in MoC
     if (vendorTotalPaidInMoC.add(totalMoCFee) <= vendorStaking) {

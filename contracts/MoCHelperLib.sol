@@ -649,14 +649,21 @@ library MoCHelperLib {
     @return Equivalent MoC amount
   **/
   function maxMoCWithBtc(
-    MocLibConfig storage libConfig, uint256 btcAmount, uint256 btcPrice, uint256 mocPrice
-  ) public view returns(uint256) {
+    MocLibConfig storage /*libConfig*/, uint256 btcAmount, uint256 btcPrice, uint256 mocPrice
+  ) public pure returns(uint256) {
     return btcPrice.mul(btcAmount).div(mocPrice);
   }
 
+  /**
+    @dev Calculates the equivalent in BTC of the MoC amount
+    @param amount BTC  amount
+    @param btcPrice BTC price
+    @param mocPrice MoC price
+    @return Equivalent MoC amount
+  **/
   function mocBtcValue(
-    MocLibConfig storage libConfig, uint256 amount, uint256 btcPrice, uint256 mocPrice
-  ) public view returns(uint256) {
+    MocLibConfig storage /*libConfig*/, uint256 amount, uint256 btcPrice, uint256 mocPrice
+  ) public pure returns(uint256) {
     require(btcPrice > 0,"Bitcoin price should be more than zero");
     require(mocPrice > 0,"MoC price should be more than zero");
 
@@ -666,8 +673,8 @@ library MoCHelperLib {
   }
 
   function getPayableAddress(
-    MocLibConfig storage libConfig,address account
-  ) public view
+    MocLibConfig storage /*libConfig*/, address account
+  ) public pure
   returns (address payable) {
     return address(uint160(account));
   }
