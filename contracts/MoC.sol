@@ -260,8 +260,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
   * @dev Allow redeem on liquidation state, user DoCs get burned and he receives
   * the equivalent BTCs if can be covered, or the maximum available
   **/
-  function redeemAllDoc() public {
-    require(mocState.state() == MoCState.States.Liquidated, "Not Liquidated state");
+  function redeemAllDoc() public atState(MoCState.States.Liquidated) {
     mocExchange.redeemAllDoc(msg.sender, msg.sender);
   }
 
@@ -281,7 +280,6 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
     if (doSend(mocInrate.getBitProInterestAddress(), toPay)) {
       bproxManager.substractValuesFromBucket(BUCKET_C0, toPay, 0, 0);
     }
-    bproxManager.substractValuesFromBucket(BUCKET_C0, toPay, 0, 0);
   }
 
   /**
@@ -537,12 +535,22 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
 
   /***** STATE MODIFIERS *****/
   modifier whenSettlementReady() {
-    require(settlement.isSettlementReady(), "Settlement is not ready");
+    require(settlement.isSettlementReady(), "Function can only be called when settlement is ready");
+    _;
+  }
+
+  modifier atState(MoCState.States _state) {
+    require(mocState.state() == _state, "Function cannot be called at this state");
     _;
   }
 
   modifier atLeastState(MoCState.States _state) {
-    require(mocState.state() >= _state, "Can't call it at this state");
+    require(mocState.state() >= _state, "Function cannot be called at this state");
+    _;
+  }
+
+  modifier atMostState(MoCState.States _state) {
+    require(mocState.state() <= _state, "Function cannot be called at this state");
     _;
   }
 
@@ -552,12 +560,12 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
   }
 
   modifier availableBucket(bytes32 bucket) {
-    require (bproxManager.isAvailableBucket(bucket), "Bucket not available");
+    require (bproxManager.isAvailableBucket(bucket), "Bucket is not available");
     _;
   }
 
   modifier notBaseBucket(bytes32 bucket) {
-    require(!bproxManager.isBucketBase(bucket), "shouldn't be base bucket");
+    require(!bproxManager.isBucketBase(bucket), "Bucket should not be a base type bucket");
     _;
   }
 
