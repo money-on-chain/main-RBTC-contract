@@ -55,8 +55,18 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
   ) public initializer {
     initializePrecisions();
     initializeBase(connectorAddress);
-    initializeContracts();
-    initializeGovernanceContracts(stopperAddress, governorAddress, startStoppable);
+    //initializeContracts
+    docToken = DocToken(connector.docToken());
+    bproToken = BProToken(connector.bproToken());
+    bproxManager = MoCBProxManager(connector.bproxManager());
+    mocState = MoCState(connector.mocState());
+    settlement = MoCSettlement(connector.mocSettlement());
+    mocConverter = MoCConverter(connector.mocConverter());
+    mocExchange = MoCExchange(connector.mocExchange());
+    mocInrate = MoCInrate(connector.mocInrate());
+    mocBurnout = MoCBurnout(connector.mocBurnout());
+    //initializeGovernanceContracts
+    Stoppable.initialize(stopperAddress, IGovernor(governorAddress), startStoppable);
   }
 
   /****************************INTERFACE*******************************************/
@@ -119,23 +129,17 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
     uint256 btcMarkup,
     uint256 mocMarkup) = mocExchange.mintBPro(msg.sender, btcToMint, vendorAccount);
 
-    totalBtcSpent = transferMoCCommission(
+    transferCommissions(
       msg.sender,
       msg.value,
       totalBtcSpent,
       btcCommission,
       mocCommission,
       vendorAccount,
-      btcMarkup, mocMarkup
+      btcMarkup,
+      mocMarkup
     );
-    transferBtcCommission(mocLibConfig.getPayableAddress(vendorAccount), btcCommission, btcMarkup);
     /** END UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
-
-    // Need to update general State
-    mocState.addToRbtcInSystem(msg.value);
-    // Calculate change
-    uint256 change = msg.value.sub(totalBtcSpent);
-    doTransfer(msg.sender, change);
   }
 
   /**
@@ -172,7 +176,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
     uint256 btcMarkup,
     uint256 mocMarkup) = mocExchange.mintDoc(msg.sender, btcToMint, vendorAccount);
 
-    totalBtcSpent = transferMoCCommission(
+    transferCommissions(
       msg.sender,
       msg.value,
       totalBtcSpent,
@@ -182,15 +186,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
       btcMarkup,
       mocMarkup
     );
-    transferBtcCommission(mocLibConfig.getPayableAddress(vendorAccount), btcCommission, btcMarkup);
     /** END UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
-
-    // Need to update general State
-    mocState.addToRbtcInSystem(msg.value);
-
-    // Calculate change
-    uint256 change = msg.value.sub(totalBtcSpent);
-    doTransfer(msg.sender, change);
   }
 
   /**
@@ -229,7 +225,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
     uint256 btcMarkup,
     uint256 mocMarkup) = mocExchange.mintBProx(msg.sender, bucket, btcToMint, vendorAccount);
 
-    totalBtcSpent = transferMoCCommission(
+    transferCommissions(
       msg.sender,
       msg.value,
       totalBtcSpent,
@@ -239,14 +235,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
       btcMarkup,
       mocMarkup
     );
-    transferBtcCommission(mocLibConfig.getPayableAddress(vendorAccount), btcCommission, btcMarkup);
     /** END UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
-
-    // Need to update general State
-    mocState.addToRbtcInSystem(msg.value);
-    // Calculate change
-    uint256 change = msg.value.sub(totalBtcSpent);
-    doTransfer(msg.sender, change);
   }
 
   /**
@@ -271,7 +260,8 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
   * @dev Allow redeem on liquidation state, user DoCs get burned and he receives
   * the equivalent BTCs if can be covered, or the maximum available
   **/
-  function redeemAllDoc() public atState(MoCState.States.Liquidated) {
+  function redeemAllDoc() public {
+    require(mocState.state() == MoCState.States.Liquidated, "Not Liquidated state");
     mocExchange.redeemAllDoc(msg.sender, msg.sender);
   }
 
@@ -291,6 +281,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
     if (doSend(mocInrate.getBitProInterestAddress(), toPay)) {
       bproxManager.substractValuesFromBucket(BUCKET_C0, toPay, 0, 0);
     }
+    bproxManager.substractValuesFromBucket(BUCKET_C0, toPay, 0, 0);
   }
 
   /**
@@ -392,46 +383,18 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
     if (btcAmount == 0) {
       return true;
     }
-
     return doSend(receiver, btcAmount);
   }
 
   function liquidate() internal {
     if (!liquidationExecuted) {
-      pauseBProToken();
-      sendRbtcRemainder();
+      //pauseBProToken
+      if (!bproToken.paused()) {
+        bproToken.pause();
+      }
+      //sendRbtcRemainder
+      doTransfer(mocInrate.commissionsAddress(), mocState.getRbtcRemainder());
       liquidationExecuted = true;
-    }
-  }
-
-  /**
-    @dev Transfer the value that not corresponds to
-    Doc Collateral
-  */
-  function sendRbtcRemainder() internal {
-    uint256 bitProRBTCValue = mocState.getRbtcRemainder();
-    doTransfer(mocInrate.commissionsAddress(), bitProRBTCValue);
-  }
-
-  function initializeContracts() internal {
-    docToken = DocToken(connector.docToken());
-    bproToken = BProToken(connector.bproToken());
-    bproxManager = MoCBProxManager(connector.bproxManager());
-    mocState = MoCState(connector.mocState());
-    settlement = MoCSettlement(connector.mocSettlement());
-    mocConverter = MoCConverter(connector.mocConverter());
-    mocExchange = MoCExchange(connector.mocExchange());
-    mocInrate = MoCInrate(connector.mocInrate());
-    mocBurnout = MoCBurnout(connector.mocBurnout());
-  }
-
-  function initializeGovernanceContracts(address stopperAddress, address governorAddress, bool startStoppable) internal {
-    Stoppable.initialize(stopperAddress, IGovernor(governorAddress), startStoppable);
-  }
-
-  function pauseBProToken() internal {
-    if (!bproToken.paused()) {
-      bproToken.pause();
     }
   }
 
@@ -444,8 +407,8 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
   /** Internal functions **/
 
   // solium-disable-next-line security/no-assign-params, max-len
-  function transferMoCCommission(
-    address sender,
+  function transferCommissions(
+    address payable sender,
     uint256 value,
     uint256 totalBtcSpent,
     uint256 btcCommission,
@@ -454,8 +417,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
     uint256 btcMarkup,
     uint256 mocMarkup
   )
-  internal returns(uint256) {
-    MoCVendors mocVendors = MoCVendors(mocState.getMoCVendors());
+  internal {
     uint256 totalMoCFee;
 
     if (mocCommission > 0 && mocMarkup > 0) {
@@ -464,6 +426,26 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
       totalBtcSpent = totalBtcSpent.add(btcCommission).add(btcMarkup);
       require(totalBtcSpent <= value, "amount is not enough");
     }
+
+    transferMocCommission(sender, mocCommission, vendorAccount, mocMarkup, totalMoCFee);
+
+    transferBtcCommission(mocLibConfig.getPayableAddress(vendorAccount), btcCommission, btcMarkup);
+
+    // Need to update general State
+    mocState.addToRbtcInSystem(value);
+    // Calculate change
+    uint256 change = value.sub(totalBtcSpent);
+    doTransfer(sender, change);
+  }
+
+  function transferMocCommission(
+    address sender,
+    uint256 mocCommission,
+    address vendorAccount,
+    uint256 mocMarkup,
+    uint256 totalMoCFee
+  ) internal {
+    MoCVendors mocVendors = MoCVendors(mocState.getMoCVendors());
 
     // If commission and markup are paid in MoC
     if (totalMoCFee > 0) {
@@ -478,15 +460,12 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
         mocToken.transfer(vendorAccount, mocMarkup);
         // Update vendor's markup
         mocVendors.updatePaidMarkup(vendorAccount, mocMarkup, 0, mocMarkup);
-        // Transfer commission to commissions address
-        mocToken.transfer(mocInrate.commissionsAddress(), mocCommission);
-      } else {
-        // Transfer MoC to commissions address
-        mocToken.transfer(mocInrate.commissionsAddress(), totalMoCFee);
+        // Set commission to transfer
+        totalMoCFee = mocCommission;
       }
+      // Transfer MoC to commissions address
+        mocToken.transfer(mocInrate.commissionsAddress(), totalMoCFee);
     }
-
-    return totalBtcSpent;
   }
 
   function redeemWithMoCFees(
@@ -498,8 +477,6 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
     uint256 mocMarkup
   )
    internal {
-    MoCVendors mocVendors = MoCVendors(mocState.getMoCVendors());
-
     uint256 totalMoCFee;
 
     if (mocCommission > 0 && mocMarkup > 0) {
@@ -508,25 +485,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
       transferBtcCommission(mocLibConfig.getPayableAddress(vendorAccount), btcCommission, btcMarkup);
     }
 
-    if (totalMoCFee > 0) {
-      // Transfer MoC from sender to this contract
-      MoCToken mocToken = MoCToken(mocState.getMoCToken());
-      mocToken.transferFrom(sender, address(this), totalMoCFee);
-
-      // Transfer vendor markup in MoC
-      if (mocVendors.getIsActive(vendorAccount) &&
-          mocVendors.getTotalPaidInMoC(vendorAccount).add(totalMoCFee) <= mocVendors.getStaking(vendorAccount)) {
-        // Transfer MoC to vendor address
-        mocToken.transfer(vendorAccount, mocMarkup);
-        // Update vendor's markup
-        mocVendors.updatePaidMarkup(vendorAccount, mocMarkup, 0, mocMarkup);
-        // Transfer commission to commissions address
-        mocToken.transfer(mocInrate.commissionsAddress(), mocCommission);
-      } else {
-        // Transfer MoC to commissions address
-        mocToken.transfer(mocInrate.commissionsAddress(), totalMoCFee);
-      }
-    }
+    transferMocCommission(sender, mocCommission, vendorAccount, mocMarkup, totalMoCFee);
   }
 
   function transferBtcCommission(address payable vendorAccount, uint256 btcCommission, uint256 btcMarkup) internal {
@@ -578,22 +537,12 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
 
   /***** STATE MODIFIERS *****/
   modifier whenSettlementReady() {
-    require(settlement.isSettlementReady(), "Function can only be called when settlement is ready");
-    _;
-  }
-
-  modifier atState(MoCState.States _state) {
-    require(mocState.state() == _state, "Function cannot be called at this state");
+    require(settlement.isSettlementReady(), "Settlement is not ready");
     _;
   }
 
   modifier atLeastState(MoCState.States _state) {
-    require(mocState.state() >= _state, "Function cannot be called at this state");
-    _;
-  }
-
-  modifier atMostState(MoCState.States _state) {
-    require(mocState.state() <= _state, "Function cannot be called at this state");
+    require(mocState.state() >= _state, "Can't call it at this state");
     _;
   }
 
@@ -603,12 +552,12 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
   }
 
   modifier availableBucket(bytes32 bucket) {
-    require (bproxManager.isAvailableBucket(bucket), "Bucket is not available");
+    require (bproxManager.isAvailableBucket(bucket), "Bucket not available");
     _;
   }
 
   modifier notBaseBucket(bytes32 bucket) {
-    require(!bproxManager.isBucketBase(bucket), "Bucket should not be a base type bucket");
+    require(!bproxManager.isBucketBase(bucket), "shouldn't be base bucket");
     _;
   }
 
