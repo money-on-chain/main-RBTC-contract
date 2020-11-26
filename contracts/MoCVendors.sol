@@ -30,7 +30,7 @@ contract MoCVendorsEvents {
   );
 }
 
-contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection {
+contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed {
   using Math for uint256;
   using SafeMath for uint256;
 
@@ -64,8 +64,7 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection {
     initializeValues(_daysToResetVendor);
   }
 
-  //function registerVendor(address account, uint256 markup) public onlyOwner returns (bool isActive) {
-  function registerVendor(address account, uint256 markup) public returns (bool isActive) {
+  function registerVendor(address account, uint256 markup) public onlyAuthorizedChanger() returns (bool isActive) {
     // Map vendor details to vendor address
     vendors[account].isActive = true;
     vendors[account].markup = markup;
@@ -75,7 +74,7 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection {
     return vendors[account].isActive;
   }
 
-  function unregisterVendor(address account) public returns (bool isActive) {
+  function unregisterVendor(address account) public onlyAuthorizedChanger() returns (bool isActive) {
     vendors[account].isActive = false;
 
     emit VendorUnregistered(account);
@@ -143,6 +142,14 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection {
   function getStaking(address account) public view onlyWhitelisted(msg.sender)
   returns (uint256) {
     return vendors[account].staking;
+  }
+
+  function getDaysToResetVendor() public view returns(uint256) {
+    return daysToResetVendor;
+  }
+
+  function setDaysToResetVendor(uint8 _daysToResetVendor) public onlyAuthorizedChanger() {
+    daysToResetVendor = _daysToResetVendor;
   }
 
   function resetTotalPaidInMoC(address account) public onlyWhitelisted(msg.sender) {
