@@ -74,7 +74,7 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed {
     return vendors[account].isActive;
   }
 
-  function unregisterVendor(address account) public onlyAuthorizedChanger() returns (bool isActive) {
+  function unregisterVendor(address account) public onlyAuthorizedChanger() onlyActiveVendor(account) returns (bool isActive) {
     vendors[account].isActive = false;
 
     emit VendorUnregistered(account);
