@@ -55,6 +55,7 @@ const MoCToken = artifacts.require('./contracts/MoCToken.sol');
 
 const MoCVendors = artifacts.require('./contracts/MoCVendors.sol');
 const MoCVendorsProxy = Contracts.getFromLocal('MoCVendors');
+const MoCVendorsChanger = artifacts.require('./contracts/MoCVendorsChanger.sol');
 
 const { toContract } = require('../../utils/numberHelper');
 
@@ -277,6 +278,13 @@ const createContracts = params => async ({ owner, useMock }) => {
       from: owner
     }
   );
+  const mockMoCVendorsChanger = await MoCVendorsChanger.new(
+    mocVendors.address,
+    daysToResetVendor,
+    [],
+    [],
+    { from: owner }
+  );
   const mockMocChanger = await MocChanger.new(moc.address, governor.address, stopper.address, {
     from: owner
   });
@@ -339,6 +347,8 @@ const createContracts = params => async ({ owner, useMock }) => {
 
   // Execute changes in MoCInrate
   await governor.executeChange(mockMocInrateChanger.address);
+  // Execute changes in MoCVendors
+  //await governor.executeChange(mockMoCVendorsChanger.address);
 
   // Transfer roles
   await transferOwnershipAndMinting(doc, mocExchange.address);
@@ -391,7 +401,8 @@ const createContracts = params => async ({ owner, useMock }) => {
     mocToken,
     mocPriceProvider,
     mocExchange,
-    mocVendors
+    mocVendors,
+    mockMoCVendorsChanger
   };
 };
 

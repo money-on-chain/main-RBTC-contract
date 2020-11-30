@@ -449,6 +449,43 @@ const getCommissionsArrayChangingTest = async () => {
   return ret;
 };
 
+const getVendorsToRegisterArray = moc => async () => {
+  const ret = [];
+  const length = 1;
+  const offset = 3; // according to MoCVendors test accounts used in parameters
+  const thousand = 1000;
+  const accounts = await web3.eth.getAccounts();
+
+  let mocPrecision = 10 ** 18;
+  if (typeof moc !== 'undefined') {
+    mocPrecision = await moc.getMocPrecision();
+  }
+
+  for (let i = 1; i <= length; i++) {
+    const markup = i * thousand * mocPrecision;
+
+    ret.push({
+      account: accounts[i + offset],
+      markup: toContractBNNoPrec(markup).toString()
+    });
+  }
+
+  return ret;
+};
+
+const getVendorsToUnregisterArray = async () => {
+  const ret = [];
+  const length = 1;
+  const offset = 3; // according to MoCVendors test accounts used in parameters
+  const accounts = await web3.eth.getAccounts();
+
+  for (let i = 1; i <= length; i++) {
+    ret.push(accounts[i + offset]);
+  }
+
+  return ret;
+};
+
 const consolePrintTestVariables = obj => {
   for (let i = 0; i < Object.keys(obj).length; i++) {
     const variableName = Object.keys(obj)[i];
@@ -516,6 +553,8 @@ module.exports = async contracts => {
     BUCKET_X2,
     setMoCPrice: setMoCPrice(mocPriceProvider),
     getMoCPrice: getMoCPrice(mocPriceProvider),
+    getVendorsToRegisterArray: getVendorsToRegisterArray(moc),
+    getVendorsToUnregisterArray,
     consolePrintTestVariables
   };
 };

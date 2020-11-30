@@ -15,13 +15,14 @@ const scenario = {
   }
 };
 
-contract('MoC: MoCVendors', function([owner, userAccount, commissionsAccount, vendorAccount]) {
+contract('MoC: MoCVendors', function([owner, unauthorizedAccount, nonExistentVendorAccount, vendorAccount]) {
   before(async function() {
     mocHelper = await testHelperBuilder({ owner });
     ({ toContractBN } = mocHelper);
     this.moc = mocHelper.moc;
     this.governor = mocHelper.governor;
     this.mocVendors = mocHelper.mocVendors;
+    this.mockMoCVendorsChanger = mocHelper.mockMoCVendorsChanger;
   });
   beforeEach(async function() {
     //await mocHelper.revertState();
@@ -30,6 +31,8 @@ contract('MoC: MoCVendors', function([owner, userAccount, commissionsAccount, ve
     let registerVendorTx;
     let addStakeTx;
     let removeStakeTx;
+    let unregisterVendorTx;
+
     let vendor_in_mapping;
 
     before(async function() {
@@ -42,10 +45,12 @@ contract('MoC: MoCVendors', function([owner, userAccount, commissionsAccount, ve
         vendorAccount
       );
 
-      registerVendorTx = await this.mocVendors.registerVendor(
-        vendorAccount,
-        toContractBN(scenario.params.markup * mocHelper.MOC_PRECISION)
+      // Vendors for test are set in functionHelper.js
+      await this.mockMoCVendorsChanger.setVendorsToRegister(
+        await mocHelper.getVendorsToRegisterArray()
       );
+      //registerVendorTx = await this.governor.executeChange(this.mockMoCVendorsChanger.address);
+      registerVendorTx = await this.governor.contract.methods.executeChange(this.mockMoCVendorsChanger.address).call();
     });
     it('WHEN a vendor is registered THEN VendorRegistered event is emitted', async function() {
       const [vendorRegisteredEvent] = await mocHelper.findEvents(
@@ -96,6 +101,40 @@ contract('MoC: MoCVendors', function([owner, userAccount, commissionsAccount, ve
         scenario.expect.staking,
         'Should decrease by staking'
       );
+    });
+    before(async function() {
+      // Vendors for test are set in functionHelper.js
+      await this.mockMoCVendorsChanger.setVendorsToUnregister(
+        await mocHelper.getVendorsToUnregisterArray()
+      );
+      unregisterVendorTx = await this.governor.executeChange(this.mockMoCVendorsChanger.address);
+    });
+    it('WHEN a vendor is unregistered THEN VendorUnregistered event is emitted', async function() {
+      const [vendorUnregisteredEvent] = await mocHelper.findEvents(
+        unregisterVendorTx,
+        'VendorUnregistered'
+      );
+
+      assert(vendorUnregisteredEvent, 'Event was not emitted');
+      assert(vendorUnregisteredEvent.account === vendorAccount, 'Vendor account is incorrect');
+    });
+    // Unauthorized account
+    describe('GIVEN an unauthorized account tries to make changes', function() {
+
+      before(async function() {
+        unregisterVendorTx = await this.mocVendors.unregisterVendor(vendorAccount, { from: unauthorizedAccount });
+      });
+      it('WHEN an unauthorized account tries to unregister a vendor THEN an error should be raised', async function() {
+        const [vendorUnregisteredEvent] = await mocHelper.findEvents(
+          unregisterVendorTx,
+          'VendorUnregistered'
+        );
+
+        // change to catch error
+
+        assert(vendorUnregisteredEvent, 'Event was not emitted');
+        assert(vendorUnregisteredEvent.account === vendorAccount, 'Vendor account is incorrect');
+      });
     });
   });
 });
