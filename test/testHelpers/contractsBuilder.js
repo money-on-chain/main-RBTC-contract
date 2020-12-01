@@ -85,8 +85,6 @@ const baseParams = {
   docPower: toContract(1),
   mocProportion: toContract(0.01 * 10 ** 18), // mocPrecision
 
-  daysToResetVendor: toContract(7),
-
   startStoppable: true
 };
 
@@ -181,8 +179,7 @@ const createContracts = params => async ({ owner, useMock }) => {
     docTmax,
     docPower,
     startStoppable,
-    mocProportion = baseParams.mocProportion,
-    daysToResetVendor
+    mocProportion = baseParams.mocProportion
   } = params;
 
   const settlementContract = useMock ? MoCSettlementMock : MoCSettlement;
@@ -280,7 +277,6 @@ const createContracts = params => async ({ owner, useMock }) => {
   );
   const mockMoCVendorsChanger = await MoCVendorsChanger.new(
     mocVendors.address,
-    daysToResetVendor,
     [],
     [],
     { from: owner }
@@ -343,7 +339,9 @@ const createContracts = params => async ({ owner, useMock }) => {
   await governor.initialize(owner);
   await commissionSplitter.initialize(moc.address, owner, mocProportion, governor.address);
   await upgradeDelegator.initialize(governor.address, proxyAdmin.address);
-  await mocVendors.initialize(mocConnector.address, daysToResetVendor);
+  await mocVendors.initialize(
+    mocConnector.address,
+    governor.address);
 
   // Execute changes in MoCInrate
   await governor.executeChange(mockMocInrateChanger.address);

@@ -383,7 +383,7 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
 
     await mocVendors.initialize(
       mocConnector.address,
-      config.daysToResetVendor
+      governorAddress
     );
     console.log('Vendors Initialized');
 

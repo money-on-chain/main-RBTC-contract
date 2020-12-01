@@ -14,7 +14,6 @@ contract MoCVendorsChanger is ChangeContract, Ownable {
   uint8 public constant VENDORS_TO_UNREGISTER_ARRAY_MAX_LENGTH = 50;
 
   MoCVendors private mocVendors;
-  uint8 private daysToResetVendor;
   VendorToRegister[] private vendorsToRegister;
   address[] private vendorsToUnregister;
 
@@ -25,18 +24,15 @@ contract MoCVendorsChanger is ChangeContract, Ownable {
 
   constructor(
     MoCVendors _mocVendors,
-    uint8 _daysToResetVendor,
     VendorToRegister[] memory _vendorsToRegister,
     address[] memory _vendorsToUnregister
   ) public {
     mocVendors = _mocVendors;
-    daysToResetVendor = _daysToResetVendor;
     setVendorsToRegisterInternal(_vendorsToRegister);
     setVendorsToUnregisterInternal(_vendorsToUnregister);
   }
 
   function execute() external {
-    mocVendors.setDaysToResetVendor(daysToResetVendor);
     initializeVendorsToRegister();
     initializeVendorsToUnregister();
   }
@@ -45,11 +41,14 @@ contract MoCVendorsChanger is ChangeContract, Ownable {
     setVendorsToRegisterInternal(_vendorsToRegister);
   }
 
+    function setVendorsToUnregister(address[] memory _vendorsToUnregister) public onlyOwner(){
+    setVendorsToUnregisterInternal(_vendorsToUnregister);
+  }
+
   /**
     @dev initializes the vendors to register in the MoCVendors contract
   */
   function initializeVendorsToRegister() internal {
-    //require(vendorsToRegister.length > 0, "vendorsToRegister can't be empty");
     // Change the error message according to the value of the VENDORS_TO_REGISTER_ARRAY_MAX_LENGTH constant
     require(vendorsToRegister.length <= VENDORS_TO_REGISTER_ARRAY_MAX_LENGTH, "vendorsToRegister length must be between 1 and 50");
 
@@ -59,7 +58,6 @@ contract MoCVendorsChanger is ChangeContract, Ownable {
   }
 
   function setVendorsToRegisterInternal(VendorToRegister[] memory _vendorsToRegister) internal {
-    //require(_vendorsToRegister.length > 0, "vendorsToRegister can't be empty");
     // Change the error message according to the value of the VENDORS_TO_REGISTER_ARRAY_MAX_LENGTH constant
     require(_vendorsToRegister.length <= VENDORS_TO_REGISTER_ARRAY_MAX_LENGTH, "vendorsToRegister length must be between 1 and 50");
 
@@ -74,7 +72,6 @@ contract MoCVendorsChanger is ChangeContract, Ownable {
     @dev initializes the vendors to unregister in the MoCVendors contract
   */
   function initializeVendorsToUnregister() internal {
-    //require(vendorsToUnregister.length > 0, "vendorsToUnregister can't be empty");
     // Change the error message according to the value of the VENDORS_TO_UNREGISTER_ARRAY_MAX_LENGTH constant
     require(vendorsToUnregister.length <= VENDORS_TO_UNREGISTER_ARRAY_MAX_LENGTH, "vendorsToUnregister length must be between 1 and 50");
 
@@ -84,7 +81,6 @@ contract MoCVendorsChanger is ChangeContract, Ownable {
   }
 
   function setVendorsToUnregisterInternal(address[] memory _vendorsToUnregister) internal {
-    //require(_vendorsToUnregister.length > 0, "vendorsToRegister can't be empty");
     // Change the error message according to the value of the VENDORS_TO_UNREGISTER_ARRAY_MAX_LENGTH constant
     require(_vendorsToUnregister.length <= VENDORS_TO_UNREGISTER_ARRAY_MAX_LENGTH, "vendorsToUnregister length must be between 1 and 50");
 

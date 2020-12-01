@@ -49,25 +49,36 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed {
   MoCState internal mocState;
   MoCExchange internal mocExchange;
 
+  // Constants
+  uint8 public constant VENDORS_LIST_ARRAY_MAX_LENGTH = 100;
+
   // Variables
   mapping(address => VendorDetails) public vendors;
-  uint8 private daysToResetVendor;
-  uint256 public lastDay;
+  address[] public vendorsList;
 
   function initialize(
     address connectorAddress,
-    uint8 _daysToResetVendor
+    address _governor
   ) public initializer {
     initializePrecisions();
     initializeBase(connectorAddress);
     initializeContracts();
-    initializeValues(_daysToResetVendor);
+    initializeValues(_governor);
+  }
+
+   function getVendorsCount() public view returns(uint vendorsCount) {
+    return vendorsList.length;
   }
 
   function registerVendor(address account, uint256 markup) public onlyAuthorizedChanger() returns (bool isActive) {
+    // Change the error message according to the value of the VENDORS_LIST_ARRAY_MAX_LENGTH constant
+    require(vendorsList.length + 1 <= VENDORS_LIST_ARRAY_MAX_LENGTH, "vendorsList length must be between 1 and 100");
+
     // Map vendor details to vendor address
     vendors[account].isActive = true;
     vendors[account].markup = markup;
+
+    vendorsList.push(account) - 1;
 
     emit VendorRegistered(account);
 
@@ -76,6 +87,12 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed {
 
   function unregisterVendor(address account) public onlyAuthorizedChanger() onlyActiveVendor(account) returns (bool isActive) {
     vendors[account].isActive = false;
+
+    for (uint8 i = 0; i < vendorsList.length; i++) {
+      if (vendorsList[i] == account) {
+        delete vendorsList[i];
+      }
+    }
 
     emit VendorUnregistered(account);
 
@@ -144,22 +161,17 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed {
     return vendors[account].staking;
   }
 
-  function getDaysToResetVendor() public view returns(uint256) {
-    return daysToResetVendor;
-  }
+  function resetTotalPaidInMoC() public onlyWhitelisted(msg.sender) {
+    // Triggered by settlement
+    for (uint8 i = 0; i < vendorsList.length; i++) {
+      address account = vendorsList[i];
 
-  function setDaysToResetVendor(uint8 _daysToResetVendor) public onlyAuthorizedChanger() {
-    daysToResetVendor = _daysToResetVendor;
-  }
+      // Reset only if vendor is active
+      if (vendors[account].isActive == true) {
+        vendors[account].totalPaidInMoC = 0;
 
-  function resetTotalPaidInMoC(address account) public onlyWhitelisted(msg.sender) {
-    // solium-disable-next-line security/no-block-members
-    if (now > lastDay + daysToResetVendor * 1 days) {
-      // solium-disable-next-line security/no-block-members
-      lastDay = now;
-      vendors[account].totalPaidInMoC = 0;
-
-      emit TotalPaidInMoCReset(account);
+        emit TotalPaidInMoCReset(account);
+      }
     }
   }
 
@@ -169,10 +181,8 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed {
     mocExchange = MoCExchange(connector.mocExchange());
   }
 
-  function initializeValues(uint8 _daysToResetVendor) internal {
-    //governor = IGovernor(_governor);
-    daysToResetVendor = _daysToResetVendor;
-    lastDay = now;  // First day of counting to reset vendor's total paid is the day of contract's initialization
+  function initializeValues(address _governor) internal {
+    governor = IGovernor(_governor);
   }
 
   modifier onlyActiveVendor(address account) {
