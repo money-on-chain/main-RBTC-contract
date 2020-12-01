@@ -10,6 +10,7 @@ import "./MoCBProxManager.sol";
 import "./PartialExecution.sol";
 import "moc-governance/contracts/Governance/Governed.sol";
 import "moc-governance/contracts/Governance/IGovernor.sol";
+import "./MoCVendors.sol";
 
 contract MoCSettlementEvents {
   event RedeemRequestAlter(address indexed redeemer, bool isAddition, uint256 delta);
@@ -366,6 +367,10 @@ Governed
     settlementInfo.finalCommissionAmount = 0;
     settlementInfo.partialCommissionAmount = 0;
     settlementInfo.startBlockNumber = block.number;
+
+    // Reset total paid in MoC for every vendor
+    MoCVendors mocVendors = MoCVendors(mocState.getMoCVendors());
+    mocVendors.resetTotalPaidInMoC();
 
     emit SettlementStarted(
       settlementInfo.docRedeemCount,
