@@ -136,10 +136,11 @@ const rbtcNeededToMintBpro = (moc, mocState) => async bproAmount => {
   return btcTotal;
 };
 
-const mintBProAmount = (moc, mocState, mocInrate) => async (
+const mintBProAmount = (moc, mocState, mocInrate, mocVendors) => async (
   account,
   bproAmount,
-  txType = comissionsTxType.MINT_BPRO_FEES_RBTC
+  vendorAccount,
+  txType = comissionsTxType.MINT_BPRO_FEES_RBTC,
 ) => {
   if (!bproAmount) {
     return;
@@ -148,15 +149,37 @@ const mintBProAmount = (moc, mocState, mocInrate) => async (
   const btcTotal = await rbtcNeededToMintBpro(moc, mocState)(bproAmount);
   // Sent more to pay commissions: if RBTC fees are used then get commission value,
   // otherwise commission is 0 RBTC
+  // console.log("txType: ", txType);
+  // console.log("txType: ", txType.toString());
+  // console.log("MINT_BPRO_FEES_RBTC: ", await mocInrate.MINT_BPRO_FEES_RBTC());
+  // console.log("MINT_BPRO_FEES_RBTC: ", await mocInrate.MINT_BPRO_FEES_RBTC().toString());
+
   const commissionRate = txType.eq(await mocInrate.MINT_BPRO_FEES_RBTC())
     ? await mocInrate.commissionRatesByTxType(txType)
     : 0;
   const mocPrecision = await moc.getMocPrecision();
   const commissionRbtcAmount =
     commissionRate > 0 ? btcTotal.mul(commissionRate).div(mocPrecision) : 0;
-  const value = toContract(new BigNumber(btcTotal).plus(commissionRbtcAmount));
 
-  return moc.mintBPro(toContract(btcTotal), { from: account, value });
+  const vendor = await mocVendors.vendors(vendorAccount);
+  const markup = vendor.markup;
+  const markupRbtcAmount =
+  markup > 0 ? commissionRbtcAmount.mul(markup).div(mocPrecision) : 0;
+
+  const fees = new BigNumber(commissionRbtcAmount).plus(markupRbtcAmount);
+
+  const value = toContract(new BigNumber(btcTotal).plus(fees));
+
+  //console.log("vendor: ", vendor);
+  console.log("fees: ", fees.toString());
+  console.log("commissionRbtcAmount: ", commissionRbtcAmount.toString());
+  //console.log("markup: ", markup.toString());
+  console.log("markupRbtcAmount: ", markupRbtcAmount.toString());
+  console.log("value: ", value.toString());
+
+  //console.log("RESULT: ", await moc.contract.methods.mintBPro(toContract(btcTotal), vendorAccount).call({ from: account, value }));
+
+  return moc.mintBPro(toContract(btcTotal), vendorAccount, { from: account, value });
 };
 
 const mintDocAmount = (moc, btcPriceProvider, mocInrate) => async (
@@ -507,7 +530,8 @@ module.exports = async contracts => {
     mockMocStateChanger,
     commissionSplitter,
     mocToken,
-    mocPriceProvider
+    mocPriceProvider,
+    mocVendors
   } = contracts;
 
   return {
@@ -524,7 +548,7 @@ module.exports = async contracts => {
     mintDoc: mintDoc(moc),
     mintBProx: mintBProx(moc),
     rbtcNeededToMintBpro: rbtcNeededToMintBpro(moc, mocState),
-    mintBProAmount: mintBProAmount(moc, mocState, mocInrate),
+    mintBProAmount: mintBProAmount(moc, mocState, mocInrate, mocVendors),
     mintDocAmount: mintDocAmount(moc, btcPriceProvider, mocInrate),
     mintBProxAmount: mintBProxAmount(moc, mocState, mocInrate),
     redeemBPro: redeemBPro(moc),

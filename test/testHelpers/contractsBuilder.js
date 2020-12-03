@@ -275,12 +275,9 @@ const createContracts = params => async ({ owner, useMock }) => {
       from: owner
     }
   );
-  const mockMoCVendorsChanger = await MoCVendorsChanger.new(
-    mocVendors.address,
-    [],
-    [],
-    { from: owner }
-  );
+  const mockMoCVendorsChanger = await MoCVendorsChanger.new(mocVendors.address, [], [], {
+    from: owner
+  });
   const mockMocChanger = await MocChanger.new(moc.address, governor.address, stopper.address, {
     from: owner
   });
@@ -339,9 +336,7 @@ const createContracts = params => async ({ owner, useMock }) => {
   await governor.initialize(owner);
   await commissionSplitter.initialize(moc.address, owner, mocProportion, governor.address);
   await upgradeDelegator.initialize(governor.address, proxyAdmin.address);
-  await mocVendors.initialize(
-    mocConnector.address,
-    governor.address);
+  await mocVendors.initialize(mocConnector.address, governor.address);
 
   // Execute changes in MoCInrate
   await governor.executeChange(mockMocInrateChanger.address);
@@ -400,7 +395,8 @@ const createContracts = params => async ({ owner, useMock }) => {
     mocPriceProvider,
     mocExchange,
     mocVendors,
-    mockMoCVendorsChanger
+    mockMoCVendorsChanger,
+    mocConverter
   };
 };
 
