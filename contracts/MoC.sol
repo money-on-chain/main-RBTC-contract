@@ -119,7 +119,8 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
 
   /**
     @dev Mints BPRO and pays the comissions of the operation.
-    @param btcToMint Amount un BTC to mint
+    @param btcToMint Amount in BTC to mint
+    @param vendorAccount Vendor address
    */
   function mintBPro(uint256 btcToMint, address vendorAccount) public payable whenNotPaused() transitionState() {
     /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
@@ -144,7 +145,8 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
 
   /**
    * @dev Redeems Bpro Tokens and pays the comissions of the operation
-     @param bproAmount Amout in Bpro
+     @param bproAmount Amount in Bpro
+     @param vendorAccount Vendor address
    */
   function redeemBPro(uint256 bproAmount, address vendorAccount)
   public
@@ -165,6 +167,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
   /**
    * @dev Mint Doc tokens and pays the commisions of the operation
    * @param btcToMint Amount in RBTC to mint
+   * @param vendorAccount Vendor address
    */
   function mintDoc(uint256 btcToMint, address vendorAccount)
   public payable
@@ -193,6 +196,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
      @dev Redeems Bprox Tokens and pays the comissions of the operation in RBTC
      @param bucket Bucket to reedem, for example X2
      @param bproxAmount Amount in Bprox
+     @param vendorAccount Vendor address
    */
   function redeemBProx(bytes32 bucket, uint256 bproxAmount, address vendorAccount) public
   whenNotPaused() whenSettlementReady() availableBucket(bucket) notBaseBucket(bucket)
@@ -214,6 +218,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
   * @dev BUCKET bprox minting
   * @param bucket Name of the bucket used
   * @param btcToMint amount to mint on RBTC
+  * @param vendorAccount Vendor address
   **/
   function mintBProx(bytes32 bucket, uint256 btcToMint, address vendorAccount) public payable
   whenNotPaused() whenSettlementReady() availableBucket(bucket) notBaseBucket(bucket)
@@ -241,6 +246,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
   /**
   * @dev Redeems the requested amount for the msg.sender, or the max amount of free docs possible.
   * @param docAmount Amount of Docs to redeem.
+  * @param vendorAccount Vendor address
   */
   function redeemFreeDoc(uint256 docAmount, address vendorAccount) public whenNotPaused() transitionState() {
     /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
@@ -404,7 +410,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
   /** Upgrade to support multiple commission rates **/
   /** Internal functions **/
 
-  // solium-disable-next-line security/no-assign-params, max-len
+  // solium-disable-next-line security/no-assign-params
   function transferCommissions(
     address payable sender,
     uint256 value,
@@ -425,17 +431,19 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
       require(totalBtcSpent <= value, "amount is not enough");
     }
 
+    // Need to update general State
+    mocState.addToRbtcInSystem(value);
+
     transferMocCommission(sender, mocCommission, vendorAccount, mocMarkup, totalMoCFee);
 
     transferBtcCommission(mocLibConfig.getPayableAddress(vendorAccount), btcCommission, btcMarkup);
 
-    // Need to update general State
-    mocState.addToRbtcInSystem(value);
     // Calculate change
     uint256 change = value.sub(totalBtcSpent);
     doTransfer(sender, change);
   }
 
+  // solium-disable-next-line security/no-assign-params
   function transferMocCommission(
     address sender,
     uint256 mocCommission,
@@ -462,7 +470,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
         totalMoCFee = mocCommission;
       }
       // Transfer MoC to commissions address
-        mocToken.transfer(mocInrate.commissionsAddress(), totalMoCFee);
+      mocToken.transfer(mocInrate.commissionsAddress(), totalMoCFee);
     }
   }
 

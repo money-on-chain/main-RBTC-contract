@@ -66,7 +66,7 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed {
     initializeValues(_governor);
   }
 
-   function getVendorsCount() public view returns(uint vendorsCount) {
+  function getVendorsCount() public view returns(uint vendorsCount) {
     return vendorsList.length;
   }
 
@@ -131,7 +131,7 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed {
     vendors[account].paidRBTC = vendors[account].paidRBTC.add(rbtcAmount);
   }
 
-  function getVendorDetails(address account) public view onlyWhitelisted(msg.sender)
+  function getVendorDetails(address account) public view
   returns (bool isActive, uint256 markup, uint256 totalPaidInMoC, uint256 staking, uint256 paidMoC, uint256 paidRBTC) {
     isActive = vendors[account].isActive;
     markup = vendors[account].markup;
@@ -143,22 +143,32 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed {
     return (isActive, markup, totalPaidInMoC, staking, paidMoC, paidRBTC);
   }
 
-  function getIsActive(address account) public view onlyWhitelisted(msg.sender)
+  function getIsActive(address account) public view
   returns (bool) {
     return vendors[account].isActive;
   }
-  function getMarkup(address account) public view onlyWhitelisted(msg.sender)
+  function getMarkup(address account) public view
   returns (uint256) {
     return vendors[account].markup;
   }
 
-  function getTotalPaidInMoC(address account) public view onlyWhitelisted(msg.sender)
+  function getTotalPaidInMoC(address account) public view
   returns (uint256) {
     return vendors[account].totalPaidInMoC;
   }
-  function getStaking(address account) public view onlyWhitelisted(msg.sender)
+  function getStaking(address account) public view
   returns (uint256) {
     return vendors[account].staking;
+  }
+
+  function getPaidMoC(address account) public view
+  returns (uint256) {
+    return vendors[account].paidMoC;
+  }
+
+  function getPaidRBTC(address account) public view
+  returns (uint256) {
+    return vendors[account].paidRBTC;
   }
 
   function resetTotalPaidInMoC() public onlyWhitelisted(msg.sender) {

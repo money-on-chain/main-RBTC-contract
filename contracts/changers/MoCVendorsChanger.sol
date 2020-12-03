@@ -41,7 +41,7 @@ contract MoCVendorsChanger is ChangeContract, Ownable {
     setVendorsToRegisterInternal(_vendorsToRegister);
   }
 
-    function setVendorsToUnregister(address[] memory _vendorsToUnregister) public onlyOwner(){
+  function setVendorsToUnregister(address[] memory _vendorsToUnregister) public onlyOwner(){
     setVendorsToUnregisterInternal(_vendorsToUnregister);
   }
 

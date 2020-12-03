@@ -197,10 +197,11 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
       // Insufficient funds
       mocCommissionInBtc = 0;
       ret.mocCommission = 0;
+      ret.mocMarkup = 0;
 
       // Check commission rate in RBTC according to transaction type
       ret.btcCommission = mocInrate.calcCommissionValue(params.amount, params.txTypeFeesRBTC);
-      ret.mocMarkup = calculateVendorMarkup(params.vendorAccount, ret.btcCommission);
+      ret.btcMarkup = calculateVendorMarkup(params.vendorAccount, ret.btcCommission);
     }
 
     return ret;
