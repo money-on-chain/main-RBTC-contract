@@ -189,7 +189,7 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
     ret.btcCommission = 0;
 
     // Calculate vendor markup
-    ret.mocMarkup = calculateVendorMarkup(params.vendorAccount, ret.mocCommission);
+    ret.mocMarkup = calculateVendorMarkup(params.vendorAccount, params.amount);
     uint256 totalMoCFee = ret.mocCommission.add(ret.mocMarkup);
 
     // Check if there is enough balance of MoC
@@ -201,7 +201,7 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
 
       // Check commission rate in RBTC according to transaction type
       ret.btcCommission = mocInrate.calcCommissionValue(params.amount, params.txTypeFeesRBTC);
-      ret.btcMarkup = calculateVendorMarkup(params.vendorAccount, ret.btcCommission);
+      ret.btcMarkup = calculateVendorMarkup(params.vendorAccount, params.amount);
     }
 
     return ret;
