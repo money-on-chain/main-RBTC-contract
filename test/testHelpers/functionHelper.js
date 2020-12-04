@@ -164,17 +164,18 @@ const mintBProAmount = (moc, mocState, mocInrate, mocVendors) => async (
   const vendor = await mocVendors.vendors(vendorAccount);
   const markup = vendor.markup;
   const markupRbtcAmount =
-  markup > 0 ? commissionRbtcAmount.mul(markup).div(mocPrecision) : 0;
+    markup > 0 ? btcTotal.mul(markup).div(mocPrecision) : 0;
 
-  const fees = new BigNumber(commissionRbtcAmount).plus(markupRbtcAmount);
+  //const fees = commissionRbtcAmount.plus(markupRbtcAmount);
 
-  const value = toContract(new BigNumber(btcTotal).plus(fees));
+  const value = toContract(new BigNumber(btcTotal).plus(commissionRbtcAmount).plus(markupRbtcAmount));
 
   //console.log("vendor: ", vendor);
-  console.log("fees: ", fees.toString());
+  //console.log("fees: ", fees.toString());
   console.log("commissionRbtcAmount: ", commissionRbtcAmount.toString());
   //console.log("markup: ", markup.toString());
   console.log("markupRbtcAmount: ", markupRbtcAmount.toString());
+  console.log("typeof markupRbtcAmount: ", typeof markupRbtcAmount);
   console.log("value: ", value.toString());
 
   //console.log("RESULT: ", await moc.contract.methods.mintBPro(toContract(btcTotal), vendorAccount).call({ from: account, value }));
