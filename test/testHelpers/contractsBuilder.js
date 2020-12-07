@@ -341,7 +341,7 @@ const createContracts = params => async ({ owner, useMock }) => {
   // Execute changes in MoCInrate
   await governor.executeChange(mockMocInrateChanger.address);
   // Execute changes in MoCVendors
-  //await governor.executeChange(mockMoCVendorsChanger.address);
+  // await governor.executeChange(mockMoCVendorsChanger.address);
 
   // Transfer roles
   await transferOwnershipAndMinting(doc, mocExchange.address);
