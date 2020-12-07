@@ -8,7 +8,6 @@ import "./MoCInrate.sol";
 import "./base/MoCBase.sol";
 import "./MoC.sol";
 import "./token/MoCToken.sol";
-import "./MoCVendors.sol";
 
 contract MoCExchangeEvents {
   event RiskProMint(
@@ -189,7 +188,7 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
     ret.btcCommission = 0;
 
     // Calculate vendor markup
-    ret.mocMarkup = calculateVendorMarkup(params.vendorAccount, params.amount);
+    ret.mocMarkup = mocInrate.calculateVendorMarkup(params.vendorAccount, params.amount);
     uint256 totalMoCFee = ret.mocCommission.add(ret.mocMarkup);
 
     // Check if there is enough balance of MoC
@@ -201,7 +200,7 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
 
       // Check commission rate in RBTC according to transaction type
       ret.btcCommission = mocInrate.calcCommissionValue(params.amount, params.txTypeFeesRBTC);
-      ret.btcMarkup = calculateVendorMarkup(params.vendorAccount, params.amount);
+      ret.btcMarkup = mocInrate.calculateVendorMarkup(params.vendorAccount, params.amount);
     }
 
     return ret;
@@ -754,18 +753,6 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
   /** START UPDATE V0110: 24/09/2020  **/
   /** Upgrade to support multiple commission rates **/
   /** Internal functions **/
-
-  function calculateVendorMarkup(address vendorAccount, uint256 amount) internal view
-    returns (uint256 markup) {
-    // Calculate according to vendor markup
-    if (vendorAccount != address(0)) {
-      MoCVendors mocVendors = MoCVendors(mocState.getMoCVendors());
-
-      markup = amount.mul(mocVendors.getMarkup(vendorAccount)).div(mocLibConfig.mocPrecision);
-    }
-
-    return markup;
-  }
 
   /**
    * @dev Internal function to avoid stack too deep errors

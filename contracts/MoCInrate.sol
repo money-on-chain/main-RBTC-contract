@@ -6,6 +6,7 @@ import "./MoCState.sol";
 import "./MoCBProxManager.sol";
 import "./MoCConverter.sol";
 import "./base/MoCBase.sol";
+import "./MoCVendors.sol";
 
 contract MoCInrateEvents {
   event InrateDailyPay(uint256 amount, uint256 daysToSettlement, uint256 nReserveBucketC0);
@@ -348,6 +349,14 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
     return Math.min(proportionalInterest, redeemInterest);
   }
 
+  /************************************/
+  /***** UPGRADE v0110      ***********/
+  /************************************/
+
+  /** START UPDATE V0110: 24/09/2020  **/
+  /** Upgrade to support multiple commission rates **/
+  /** Public functions **/
+
   /**
     @dev calculates the Commission rate from the passed RBTC amount and the transaction type for mint/redeem operations
     @param rbtcAmount Total value from which apply the Commission rate [using reservePrecision]
@@ -362,6 +371,20 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
     uint256 finalCommissionAmount = rbtcAmount.mul(commissionRatesByTxType[txType]).div(mocLibConfig.mocPrecision);
     return finalCommissionAmount;
   }
+
+  function calculateVendorMarkup(address vendorAccount, uint256 amount) public view
+    returns (uint256 markup) {
+    // Calculate according to vendor markup
+    if (vendorAccount != address(0)) {
+      MoCVendors mocVendors = MoCVendors(mocState.getMoCVendors());
+
+      markup = amount.mul(mocVendors.getMarkup(vendorAccount)).div(mocLibConfig.mocPrecision);
+    }
+
+    return markup;
+  }
+
+  /** END UPDATE V0110: 24/09/2020 **/
 
   /**
     @dev Calculates RBTC value to return to the user in concept of interests
