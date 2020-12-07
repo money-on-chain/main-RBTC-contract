@@ -71,8 +71,9 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed {
   }
 
   function registerVendor(address account, uint256 markup) public onlyAuthorizedChanger() returns (bool isActive) {
+    require(account != address(0), "Vendor account must not be 0x0");
     // Change the error message according to the value of the VENDORS_LIST_ARRAY_MAX_LENGTH constant
-    require(vendorsList.length + 1 <= VENDORS_LIST_ARRAY_MAX_LENGTH, "vendorsList length must be between 1 and 100");
+    require(vendorsList.length <= VENDORS_LIST_ARRAY_MAX_LENGTH, "vendorsList length must be between 1 and 100");
 
     // Map vendor details to vendor address
     vendors[account].isActive = true;
@@ -91,6 +92,8 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed {
     for (uint8 i = 0; i < vendorsList.length; i++) {
       if (vendorsList[i] == account) {
         delete vendorsList[i];
+        vendorsList[i] = vendorsList[vendorsList.length - 1];
+        vendorsList.length--;
       }
     }
 
@@ -132,18 +135,6 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed {
     vendors[account].totalPaidInMoC = vendors[account].totalPaidInMoC.add(totalMoCAmount);
     vendors[account].paidMoC = vendors[account].paidMoC.add(mocAmount);
     vendors[account].paidRBTC = vendors[account].paidRBTC.add(rbtcAmount);
-  }
-
-  function getVendorDetails(address account) public view
-  returns (bool isActive, uint256 markup, uint256 totalPaidInMoC, uint256 staking, uint256 paidMoC, uint256 paidRBTC) {
-    isActive = vendors[account].isActive;
-    markup = vendors[account].markup;
-    totalPaidInMoC = vendors[account].totalPaidInMoC;
-    staking = vendors[account].staking;
-    paidMoC = vendors[account].paidMoC;
-    paidRBTC = vendors[account].paidRBTC;
-
-    return (isActive, markup, totalPaidInMoC, staking, paidMoC, paidRBTC);
   }
 
   function getIsActive(address account) public view
@@ -199,6 +190,7 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed {
   }
 
   modifier onlyActiveVendor(address account) {
+    require(account != address(0), "Vendor account must not be 0x0");
     require(vendors[account].isActive == true, "Vendor is inexistent or inactive");
     _;
   }

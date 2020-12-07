@@ -10,8 +10,8 @@ import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
  * with MoC --- governance.
  */
 contract MoCVendorsChanger is ChangeContract, Ownable {
-  uint8 public constant VENDORS_TO_REGISTER_ARRAY_MAX_LENGTH = 50;
-  uint8 public constant VENDORS_TO_UNREGISTER_ARRAY_MAX_LENGTH = 50;
+  uint8 public constant VENDORS_TO_REGISTER_ARRAY_MAX_LENGTH = 100;
+  uint8 public constant VENDORS_TO_UNREGISTER_ARRAY_MAX_LENGTH = 100;
 
   MoCVendors private mocVendors;
   VendorToRegister[] private vendorsToRegister;
@@ -50,7 +50,7 @@ contract MoCVendorsChanger is ChangeContract, Ownable {
   */
   function initializeVendorsToRegister() internal {
     // Change the error message according to the value of the VENDORS_TO_REGISTER_ARRAY_MAX_LENGTH constant
-    require(vendorsToRegister.length <= VENDORS_TO_REGISTER_ARRAY_MAX_LENGTH, "vendorsToRegister length must be between 1 and 50");
+    require(vendorsToRegister.length <= VENDORS_TO_REGISTER_ARRAY_MAX_LENGTH, "vendorsToRegister length must be between 1 and 100");
 
     for (uint256 i = 0; i < vendorsToRegister.length; i++) {
       mocVendors.registerVendor(vendorsToRegister[i].account, vendorsToRegister[i].markup);
@@ -59,7 +59,7 @@ contract MoCVendorsChanger is ChangeContract, Ownable {
 
   function setVendorsToRegisterInternal(VendorToRegister[] memory _vendorsToRegister) internal {
     // Change the error message according to the value of the VENDORS_TO_REGISTER_ARRAY_MAX_LENGTH constant
-    require(_vendorsToRegister.length <= VENDORS_TO_REGISTER_ARRAY_MAX_LENGTH, "vendorsToRegister length must be between 1 and 50");
+    require(_vendorsToRegister.length <= VENDORS_TO_REGISTER_ARRAY_MAX_LENGTH, "vendorsToRegister length must be between 1 and 100");
 
     delete vendorsToRegister;
 
@@ -73,7 +73,7 @@ contract MoCVendorsChanger is ChangeContract, Ownable {
   */
   function initializeVendorsToUnregister() internal {
     // Change the error message according to the value of the VENDORS_TO_UNREGISTER_ARRAY_MAX_LENGTH constant
-    require(vendorsToUnregister.length <= VENDORS_TO_UNREGISTER_ARRAY_MAX_LENGTH, "vendorsToUnregister length must be between 1 and 50");
+    require(vendorsToUnregister.length <= VENDORS_TO_UNREGISTER_ARRAY_MAX_LENGTH, "vendorsToUnregister length must be between 1 and 100");
 
     for (uint256 i = 0; i < vendorsToUnregister.length; i++) {
       mocVendors.unregisterVendor(vendorsToUnregister[i]);
@@ -82,7 +82,7 @@ contract MoCVendorsChanger is ChangeContract, Ownable {
 
   function setVendorsToUnregisterInternal(address[] memory _vendorsToUnregister) internal {
     // Change the error message according to the value of the VENDORS_TO_UNREGISTER_ARRAY_MAX_LENGTH constant
-    require(_vendorsToUnregister.length <= VENDORS_TO_UNREGISTER_ARRAY_MAX_LENGTH, "vendorsToUnregister length must be between 1 and 50");
+    require(_vendorsToUnregister.length <= VENDORS_TO_UNREGISTER_ARRAY_MAX_LENGTH, "vendorsToUnregister length must be between 1 and 100");
 
     delete vendorsToUnregister;
 
