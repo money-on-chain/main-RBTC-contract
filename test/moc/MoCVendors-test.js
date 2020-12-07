@@ -31,7 +31,7 @@ contract('MoC: MoCVendors', function([
     await mocHelper.revertState();
   });
   beforeEach(async function() {
-    // await mocHelper.revertState();
+    //await mocHelper.revertState();
   });
   describe.only('GIVEN vendors can integrate their platforms with MoC protocol', function() {
     const scenarios = [
@@ -43,6 +43,8 @@ contract('MoC: MoCVendors', function([
           staking: 1, // (btcPrice * (mintAmount * markup) / mocPrice)
           mocAmount: 10000,
           mintAmount: 10,
+          addStakeMessage:
+            'WHEN a vendor adds staking of $STAKING$ THEN VendorStakeAdded event is emitted',
           removeStakeMessage:
             'WHEN a vendor removes staking of $STAKING$ THEN VendorStakeRemoved event is emitted'
         },
@@ -61,6 +63,8 @@ contract('MoC: MoCVendors', function([
           staking: 5,
           mocAmount: 10000,
           mintAmount: 0,
+          addStakeMessage:
+            'WHEN a vendor adds staking of $STAKING$ THEN VendorStakeAdded event is emitted',
           removeStakeMessage: 'WHEN a vendor cannot remove staking THEN revert is expected'
         },
         expect: {
@@ -68,6 +72,24 @@ contract('MoC: MoCVendors', function([
           paidMoC: 0,
           paidRBTC: 0,
           staking: 5
+        }
+      },
+      // Vendor 3
+      {
+        params: {
+          account: vendorAccount3,
+          markup: 0,
+          staking: 0,
+          mocAmount: 10000,
+          mintAmount: 0,
+          addStakeMessage: 'WHEN a vendor adds staking of $STAKING$ THEN revert is expected',
+          removeStakeMessage: 'WHEN a vendor removes staking of $STAKING$ THEN revert is expected'
+        },
+        expect: {
+          totalPaidInMoC: 0,
+          paidMoC: 0,
+          paidRBTC: 0,
+          staking: 0
         }
       }
     ];
@@ -121,25 +143,45 @@ contract('MoC: MoCVendors', function([
           'Vendor account is incorrect'
         );
       });
-      it(`WHEN a vendor adds staking of ${scenario.params.staking} THEN VendorStakeAdded event is emitted`, async function() {
-        addStakeTx = await this.mocVendors.addStake(
-          toContractBN(scenario.params.staking * mocHelper.MOC_PRECISION),
-          { from: scenario.params.account }
-        );
+      it(
+        scenario.params.addStakeMessage.replace('$STAKING$', scenario.params.staking),
+        async function() {
+          try {
+            addStakeTx = await this.mocVendors.addStake(
+              toContractBN(scenario.params.staking * mocHelper.MOC_PRECISION),
+              { from: scenario.params.account }
+            );
 
-        const [vendorStakeAddedEvent] = await mocHelper.findEvents(addStakeTx, 'VendorStakeAdded');
+            const [vendorStakeAddedEvent] = await mocHelper.findEvents(
+              addStakeTx,
+              'VendorStakeAdded'
+            );
 
-        assert(vendorStakeAddedEvent, 'Event was not emitted');
-        assert(
-          vendorStakeAddedEvent.account === scenario.params.account,
-          'Vendor account is incorrect'
-        );
-        mocHelper.assertBigRBTC(
-          vendorStakeAddedEvent.staking,
-          scenario.expect.staking,
-          'Should increase by staking'
-        );
-      });
+            assert(vendorStakeAddedEvent, 'Event was not emitted');
+            assert(
+              vendorStakeAddedEvent.account === scenario.params.account,
+              'Vendor account is incorrect'
+            );
+            mocHelper.assertBigRBTC(
+              vendorStakeAddedEvent.staking,
+              scenario.expect.staking,
+              'Should increase by staking'
+            );
+          } catch (err) {
+            if (scenario.expect.staking > 0) {
+              assert(
+                err.reason === 'Vendor total paid is not enough',
+                `Vendor ${scenario.params.account} should not be able to add staking`
+              );
+            } else {
+              assert(
+                err.reason === 'Staking should be greater than 0',
+                `Vendor ${scenario.params.account} should not be able to add staking of 0`
+              );
+            }
+          }
+        }
+      );
       it(`WHEN a user mints ${scenario.params.mintAmount} BPRO THEN the vendor receives his corresponding fee`, async function() {
         // Make a transaction so that the vendor has something to remove from staking
         await mocHelper.mintBProAmount(
@@ -218,10 +260,17 @@ contract('MoC: MoCVendors', function([
               'Should decrease by staking'
             );
           } catch (err) {
-            assert(
-              err.reason === 'Vendor total paid is not enough',
-              `Vendor ${scenario.params.account} should not be able to remove staking`
-            );
+            if (scenario.expect.staking > 0) {
+              assert(
+                err.reason === 'Vendor total paid is not enough',
+                `Vendor ${scenario.params.account} should not be able to remove staking`
+              );
+            } else {
+              assert(
+                err.reason === 'Staking should be greater than 0',
+                `Vendor ${scenario.params.account} should not be able to remove staking of 0`
+              );
+            }
           }
         }
       );
@@ -234,7 +283,11 @@ contract('MoC: MoCVendors', function([
           { from: scenario.params.account }
         );
 
-        await expectRevert(removeStakeTx, 'Not enough MoCs in system');
+        if (scenario.expect.staking > 0) {
+          await expectRevert(removeStakeTx, 'Not enough MoCs in system');
+        } else {
+          await expectRevert(removeStakeTx, 'Staking should be greater than 0');
+        }
       });
       it('WHEN a vendor is unregistered THEN VendorUnregistered event is emitted', async function() {
         await this.mockMoCVendorsChanger.setVendorsToUnregister([scenario.params.account]);
@@ -287,7 +340,7 @@ contract('MoC: MoCVendors', function([
     it('WHEN an unauthorized account tries to register a vendor THEN an error should be raised', async function() {
       try {
         await this.mocVendors.registerVendor(
-          vendorAccount3,
+          vendorAccount4,
           toContract(100 * mocHelper.MOC_PRECISION).toString(),
           { from: unauthorizedAccount }
         );
@@ -300,7 +353,7 @@ contract('MoC: MoCVendors', function([
     });
     it('WHEN an unauthorized account tries to unregister a vendor THEN an error should be raised', async function() {
       try {
-        await this.mocVendors.unregisterVendor(vendorAccount3, {
+        await this.mocVendors.unregisterVendor(vendorAccount4, {
           from: unauthorizedAccount
         });
       } catch (err) {
@@ -313,10 +366,9 @@ contract('MoC: MoCVendors', function([
   });
   describe.only('GIVEN an inexistent vendor tries to makes changes', function() {
     it('WHEN an inexistent vendor tries to add staking THEN an error should be raised', async function() {
-      const addStakeTx = this.mocVendors.addStake(
-        toContractBN(10 * mocHelper.MOC_PRECISION),
-        { from: inexistentVendorAccount }
-      );
+      const addStakeTx = this.mocVendors.addStake(toContractBN(10 * mocHelper.MOC_PRECISION), {
+        from: inexistentVendorAccount
+      });
 
       await expectRevert(addStakeTx, 'Vendor is inexistent or inactive');
     });
@@ -351,11 +403,11 @@ contract('MoC: MoCVendors', function([
     });
   });
   describe.only('GIVEN vendors can be registered and unregistered via an array in changer contract', function() {
-    let vendorsToRegister;
-    let vendorsToUnregister;
+    const vendorsToRegister = [];
+    const vendorsToUnregister = [];
 
     before(async function() {
-      for (let i = 0; i <= 100; i++) {
+      for (let i = 0; i < 100; i++) {
         const account = web3.utils.randomHex(20);
         vendorsToRegister.push({
           account,
@@ -377,9 +429,7 @@ contract('MoC: MoCVendors', function([
 
       await this.mockMoCVendorsChanger.setVendorsToRegister(vendorsToRegister);
 
-      const registerVendorTx = await this.governor.executeChange(
-        this.mockMoCVendorsChanger.address
-      );
+      const registerVendorTx = this.governor.executeChange(this.mockMoCVendorsChanger.address);
 
       await expectRevert(registerVendorTx, 'vendorsToRegister length must be between 1 and 100');
     });
@@ -388,9 +438,7 @@ contract('MoC: MoCVendors', function([
 
       await this.mockMoCVendorsChanger.setVendorsToUnregister(vendorsToRegister);
 
-      const unregisterVendorTx = await this.governor.executeChange(
-        this.mockMoCVendorsChanger.address
-      );
+      const unregisterVendorTx = this.governor.executeChange(this.mockMoCVendorsChanger.address);
 
       await expectRevert(unregisterVendorTx, 'vendorsToRegister length must be between 1 and 100');
     });
