@@ -8,6 +8,8 @@ const { toContract, toBigNumber } = require('../../utils/numberHelper');
 let mocHelper;
 let toContractBN;
 
+const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
+
 // const scenario = {
 //   params: {
 //     markup: 1000,
@@ -25,7 +27,7 @@ contract('MoC: MoCVendors', function([
   userAccount,
   commissionsAccount,
   unauthorizedAccount,
-  nonExistentVendorAccount,
+  inexistentVendorAccount,
   vendorAccount1,
   vendorAccount2,
   vendorAccount3,
@@ -131,10 +133,11 @@ contract('MoC: MoCVendors', function([
       //let mintTx;
       let addStakeTx;
       let removeStakeTx;
-
       let unregisterVendorTx;
-  
-      let vendor_in_mapping;
+      let vendorInMapping;
+
+      const activeVendorCount = 1;
+      const inactiveVendorCount = 0;
   
       before(async function() {
         //await mocHelper.revertState();
@@ -194,7 +197,7 @@ contract('MoC: MoCVendors', function([
           'VendorRegistered'
         );
   
-        console.log("vendorRegisteredEvent: ", vendorRegisteredEvent);
+        //console.log("vendorRegisteredEvent: ", vendorRegisteredEvent);
   
         assert(vendorRegisteredEvent, 'Event was not emitted');
         assert(vendorRegisteredEvent.account === scenario.params.account, 'Vendor account is incorrect');
@@ -264,7 +267,42 @@ contract('MoC: MoCVendors', function([
           );
         //}
       });
-      
+      it('WHEN retrieving vendor from getters, THEN it matches the information from mapping', async function() {
+        vendorInMapping = await this.mocVendors.vendors(scenario.params.account);
+
+        const isActive = await this.mocVendors.getIsActive(scenario.params.account);
+        const markup = await this.mocVendors.getMarkup(scenario.params.account);
+        const totalPaidInMoC = await this.mocVendors.getTotalPaidInMoC(scenario.params.account);
+        const staking = await this.mocVendors.getStaking(scenario.params.account);
+        const paidMoC = await this.mocVendors.getPaidMoC(scenario.params.account);
+        const paidRBTC = await this.mocVendors.getPaidRBTC(scenario.params.account);
+
+        //console.log("vendorInMapping.markup: ", vendorInMapping.markup.toString());
+        //console.log("markup: ", markup.toString());
+
+        assert(vendorInMapping.isActive === isActive, 'isActive is incorrect');
+        mocHelper.assertBig(vendorInMapping.markup, markup, 'markup is incorrect');
+        mocHelper.assertBig(vendorInMapping.totalPaidInMoC, totalPaidInMoC, 'totalPaidInMoC is incorrect');
+        mocHelper.assertBig(vendorInMapping.staking, staking, 'staking is incorrect');
+        mocHelper.assertBig(vendorInMapping.paidMoC, paidMoC, 'paidMoC is incorrect');
+        mocHelper.assertBig(vendorInMapping.paidRBTC, paidRBTC, 'paidRBTC is incorrect');
+      });
+      it('WHEN retrieving vendor count, THEN it returns the correct amount of active vendors', async function() {
+        const vendorCount = await this.mocVendors.getVendorsCount();
+        console.log("vendorCount: ", vendorCount);
+        console.log("vendorCount toString: ", vendorCount.toString());
+
+        for (var i = 0; i < vendorCount; i++) {
+          console.log(i, this.mocVendors.vendorsList[i]);
+        }
+
+        //assert(vendorCount === activeVendorCount, 'Active vendor count is incorrect');
+        mocHelper.assertBig(
+          vendorCount,
+          activeVendorCount,
+          'Active vendor count is incorrect'
+        );
+      });
       it(scenario.params.removeStakeMessage.replace('$STAKING$', scenario.params.staking), async function() {
       //it(`WHEN a vendor can remove staking and removes staking of ${scenario.params.staking} THEN VendorStakeRemoved event is emitted; otherwise revert is expected`, async function() {
 
@@ -279,7 +317,7 @@ contract('MoC: MoCVendors', function([
             'VendorStakeRemoved'
           );
     
-          console.log("vendorStakeRemovedEvent: ", vendorStakeRemovedEvent);
+          //console.log("vendorStakeRemovedEvent: ", vendorStakeRemovedEvent);
     
           assert(vendorStakeRemovedEvent, 'Event was not emitted');
           assert(vendorStakeRemovedEvent.account === scenario.params.account, 'Vendor account is incorrect');
@@ -314,13 +352,15 @@ contract('MoC: MoCVendors', function([
             scenario.params.account
           );
           
-          vendor_in_mapping = await this.mocVendors.vendors(scenario.params.account);
-          console.log(vendor_in_mapping);
+          //vendor_in_mapping = await this.mocVendors.vendors(scenario.params.account);
+          //console.log(vendor_in_mapping);
           
-          const removeStakeTx = await this.mocVendors.removeStake(
+          const removeStakeTx = this.mocVendors.removeStake(
             toContractBN(scenario.params.staking * mocHelper.MOC_PRECISION),
             { from: scenario.params.account }
           );
+
+          //console.log(removeStakeTx);
     
           await expectRevert(removeStakeTx, 'Not enough MoCs in system');
         });
@@ -339,30 +379,50 @@ contract('MoC: MoCVendors', function([
         assert(vendorUnregisteredEvent, 'Event was not emitted');
         assert(vendorUnregisteredEvent.account === scenario.params.account, 'Vendor account is incorrect');
       });
+      it('WHEN retrieving vendor count after unregistering vendor, THEN it returns the correct amount of active vendors', async function() {
+        const vendorCount = await this.mocVendors.getVendorsCount();
+        console.log("vendorCount: ", vendorCount);
+        console.log("vendorCount toString: ", vendorCount.toString());
+
+        for (var i = 0; i < vendorCount; i++) {
+          console.log(i, this.mocVendors.vendorsList[i]);
+        }
+
+        //assert(vendorCount === inactiveVendorCount, 'Active vendor count is incorrect');
+        mocHelper.assertBig(
+          vendorCount,
+          inactiveVendorCount,
+          'Active vendor count is incorrect'
+        );
+      });
       describe('GIVEN an inactive vendor tries to make changes', function() {
         it('WHEN an inactive vendor tries to add staking THEN an error should be raised', async function() {
 
-          vendor_in_mapping = await this.mocVendors.vendors(scenario.params.account);
-          console.log(vendor_in_mapping);
+          //vendor_in_mapping = await this.mocVendors.vendors(scenario.params.account);
+          //console.log(vendor_in_mapping);
           
 
-          addStakeTx = await this.mocVendors.addStake(
+          addStakeTx = this.mocVendors.addStake(
             toContractBN(scenario.params.staking * mocHelper.MOC_PRECISION),
             { from: scenario.params.account }
           );
+
+          //console.log(addStakeTx);
     
           await expectRevert(addStakeTx, 'Vendor is inexistent or inactive');
         });
         it('WHEN an inactive vendor tries to remove staking THEN an error should be raised', async function() {
 
-          vendor_in_mapping = await this.mocVendors.vendors(scenario.params.account);
-          console.log(vendor_in_mapping);
+          //vendor_in_mapping = await this.mocVendors.vendors(scenario.params.account);
+          //console.log(vendor_in_mapping);
         
           
-          removeStakeTx = await this.mocVendors.removeStake(
+          removeStakeTx = this.mocVendors.removeStake(
             toContractBN(scenario.params.staking * mocHelper.MOC_PRECISION),
             { from: scenario.params.account }
           );
+
+          //console.log(removeStakeTx);
     
           await expectRevert(removeStakeTx, 'Vendor is inexistent or inactive');
         });
@@ -371,6 +431,21 @@ contract('MoC: MoCVendors', function([
   });
   describe.only('GIVEN an unauthorized account tries to make changes', function() {
     it('WHEN an unauthorized account tries to unregister a vendor THEN an error should be raised', async function() {
+
+      const accs = {
+        owner,
+        userAccount,
+        commissionsAccount,
+        unauthorizedAccount,
+        inexistentVendorAccount,
+        vendorAccount1,
+        vendorAccount2,
+        vendorAccount3,
+        vendorAccount4
+      };
+
+      mocHelper.consolePrintTestVariables(accs);
+
       const vendorToRegister = {
         account: vendorAccount3,
         markup: toContract(100 * mocHelper.MOC_PRECISION).toString()
@@ -379,9 +454,15 @@ contract('MoC: MoCVendors', function([
       let register_unath;
 
       try {
-        register_unath = await this.mocVendors.registerVendor([vendorToRegister], { from: unauthorizedAccount });
+        register_unath = await this.mocVendors.registerVendor(
+          vendorAccount3,
+          toContract(100 * mocHelper.MOC_PRECISION).toString(),
+          { from: unauthorizedAccount }
+        );
+        //console.log(register_unath);
+
       } catch (err) {
-        console.log("err unauth: ", err);
+        //console.log("err unauth: ", err);
         assert(
           err.message.search('not_authorized_changer') >= 0,
           `${unauthorizedAccount} should not be authorized to register a vendor`
@@ -393,19 +474,111 @@ contract('MoC: MoCVendors', function([
       let unregister_unath;
 
       try {
-        unregister_unath = await this.mocVendors.unregisterVendor([vendorAccount3], { from: unauthorizedAccount });
+        unregister_unath = await this.mocVendors.unregisterVendor(vendorAccount3, { from: unauthorizedAccount });
+        //console.log(unregister_unath);
+
       } catch (err) {
+        //console.log("err unreg unauth: ", err);
+
+
         assert(
           err.reason === 'not_authorized_changer',
           `${unauthorizedAccount} should not be authorized to unregister a vendor`
         );
       }
 
-      console.log("unregister_unath: ", unregister_unath);
+      //console.log("unregister_unath: ", unregister_unath);
 
     });
   });
+  describe.only('GIVEN an inexistent vendor tries to makes changes', function() {
+    it('WHEN an inexistent vendor tries to add staking THEN an error should be raised', async function() {
 
+      const addStakeTx = this.mocVendors.addStake(
+        toContractBN(10 * mocHelper.MOC_PRECISION),
+        { from: inexistentVendorAccount }
+      );
+
+      //console.log(addStakeTx);
+
+      await expectRevert(addStakeTx, 'Vendor is inexistent or inactive');
+    });
+    it('WHEN an inexistent vendor tries to remove staking THEN an error should be raised', async function() {
+        
+      const removeStakeTx = this.mocVendors.removeStake(
+        toContractBN(10 * mocHelper.MOC_PRECISION),
+        { from: inexistentVendorAccount }
+      );
+
+      //console.log(removeStakeTx);
+
+      await expectRevert(removeStakeTx, 'Vendor is inexistent or inactive');
+    });
+  });
+  describe.only('GIVEN a vendor with zero address is invalid', function() {
+    it('WHEN trying to register a vendor with zero address THEN an error should be raised', async function() {
+      const vendorToRegister = {
+        account: ZERO_ADDRESS,
+        markup: toContract(10 * mocHelper.MOC_PRECISION).toString()
+      };
+
+      //console.log("vendorToRegister: ", vendorToRegister);
+      //// Vendors for test are set in functionHelper.js
+      await this.mockMoCVendorsChanger.setVendorsToRegister([vendorToRegister]);
+
+      const registerVendorTx = this.governor.executeChange(this.mockMoCVendorsChanger.address);
+
+      await expectRevert(registerVendorTx, 'Vendor account must not be 0x0');
+    });
+    it('WHEN trying to unregister a vendor with zero address THEN an error should be raised', async function() {
+      await this.mockMoCVendorsChanger.setVendorsToUnregister([ZERO_ADDRESS]);
+
+      const unregisterVendorTx = this.governor.executeChange(this.mockMoCVendorsChanger.address);
+
+      await expectRevert(unregisterVendorTx, 'Vendor account must not be 0x0');
+    });
+  });
+  describe.only('GIVEN vendors can be registered and unregistered via an array in changer contract', function() {
+    before(async function() {
+      let vendorsToRegister;
+      let vendorsToUnregister;
+
+      for (let i = 0; i <= 100; i++) {
+        var account = web3.utils.randomHex(20);
+        vendorsToRegister.push({
+          account: account,
+          markup: toContract(i * mocHelper.MOC_PRECISION).toString()
+        });
+        vendorsToUnregister.push(account);
+      }
+
+      await this.mockMoCVendorsChanger.setVendorsToRegister(vendorsToRegister);
+      await this.mockMoCVendorsChanger.setVendorsToUnregister(vendorsToUnregister);
+
+      await this.governor.executeChange(this.mockMoCVendorsChanger.address);
+    });
+    it('WHEN registering more vendors than allowed THEN an error should be raised', async function() {
+      vendorsToRegister.push({
+        account: web3.utils.randomHex(20),
+        markup: toContract(101 * mocHelper.MOC_PRECISION).toString()
+      });
+
+      await this.mockMoCVendorsChanger.setVendorsToRegister(vendorsToRegister);
+
+      const registerVendorTx = await this.governor.executeChange(this.mockMoCVendorsChanger.address);
+
+      await expectRevert(registerVendorTx, 'vendorsToRegister length must be between 1 and 100');
+    });
+    it('WHEN unregistering more vendors than allowed THEN an error should be raised', async function() {
+      vendorsToUnregister.push(web3.utils.randomHex(20));
+
+      await this.mockMoCVendorsChanger.setVendorsToUnregister(vendorsToRegister);
+
+      const unregisterVendorTx = await this.governor.executeChange(this.mockMoCVendorsChanger.address);
+
+      await expectRevert(unregisterVendorTx, 'vendorsToRegister length must be between 1 and 100');
+    });
+  });
 
 
 
