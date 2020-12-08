@@ -32,7 +32,7 @@ contract('MoC Paused', function([owner, userAccount, ...accounts]) {
         await this.moc.sendTransaction({
           value: 1 * mocHelper.RESERVE_PRECISION
         });
-        await mocHelper.mintDoc(from, 0.25);
+        await mocHelper.mintDoc(from, 0.25, vendorAccount);
         await mocHelper.mockMoCSettlementChanger.setBlockSpan(blockSpan);
         await mocHelper.governor.executeChange(mocHelper.mockMoCSettlementChanger.address);
       });
@@ -96,7 +96,7 @@ contract('MoC Paused', function([owner, userAccount, ...accounts]) {
         assert(paused, 'MoC contract must be paused');
       });
       it('THEN mintDoc and redeemDocRequest must revert', async function() {
-        await expectRevert(mocHelper.mintDoc(from, toMint), CONTRACT_IS_PAUSED);
+        await expectRevert(mocHelper.mintDoc(from, toMint, vendorAccount), CONTRACT_IS_PAUSED);
         await expectRevert(
           this.moc.redeemDocRequest(toContractBN(200, 'USD'), {
             from
@@ -112,12 +112,12 @@ contract('MoC Paused', function([owner, userAccount, ...accounts]) {
           const paused = await mocHelper.moc.paused();
           assert(!paused, 'MoC contract must not be paused');
 
-          await mocHelper.mintDoc(from, toMint);
+          await mocHelper.mintDoc(from, toMint, vendorAccount);
           await this.moc.redeemDocRequest(toContractBN(200, 'USD'), {
             from
           });
 
-          await mocHelper.mintDoc(accounts[2], toMint);
+          await mocHelper.mintDoc(accounts[2], toMint, vendorAccount);
           await this.moc.redeemDocRequest(toContractBN(200, 'USD'), {
             from: accounts[2]
           });

@@ -7,24 +7,33 @@ let toContractBN;
 const { BN } = web3.utils;
 const ACCOUNTS_QUANTITY = 10;
 
-const initializeBurnout = async (owner, accounts) => {
+const initializeBurnout = async (owner, vendorAccount, accounts) => {
   await mocHelper.setBitcoinPrice(10000 * mocHelper.MOC_PRECISION);
-  await mocHelper.mintBProAmount(owner, 1);
+  await mocHelper.mintBProAmount(owner, 1, vendorAccount);
   await Promise.all(
     accounts.map(async account => {
-      await mocHelper.mintDocAmount(account, 500);
+      await mocHelper.mintDocAmount(account, 500, vendorAccount);
       return mocHelper.moc.setBurnoutAddress(account, { from: account });
     })
   );
 };
 
-contract('MoC: Partial Burnout execution', function([owner, ...accounts]) {
+contract('MoC: Partial Burnout execution', function([owner, vendorAccount, ...accounts]) {
   const accountsTest = accounts.slice(0, ACCOUNTS_QUANTITY);
   before(async function() {
     mocHelper = await testHelperBuilder({ owner, useMock: true });
     ({ toContractBN } = mocHelper);
     this.moc = mocHelper.moc;
     this.mocBurnout = mocHelper.mocBurnout;
+
+    this.governor = mocHelper.governor;
+    this.mockMoCVendorsChanger = mocHelper.mockMoCVendorsChanger;
+
+    // Register vendor for test
+    await this.mockMoCVendorsChanger.setVendorsToRegister(
+      mocHelper.getVendorToRegisterAsArray(vendorAccount, 0)
+    );
+    await this.governor.executeChange(this.mockMoCVendorsChanger.address);
   });
 
   describe('GIVEN there are 10 accounts with docs and burnout addresses', function() {
@@ -32,7 +41,7 @@ contract('MoC: Partial Burnout execution', function([owner, ...accounts]) {
       let initialBalances;
       let tx;
       before(async function() {
-        await initializeBurnout(owner, accountsTest);
+        await initializeBurnout(owner, vendorAccount, accountsTest);
         await mocHelper.setBitcoinPrice(toContractBN(3400, 'USD'));
         initialBalances = await Promise.all(
           accountsTest.map(account => mocHelper.getUserBalances(account))

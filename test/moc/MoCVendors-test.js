@@ -33,7 +33,7 @@ contract('MoC: MoCVendors', function([
   beforeEach(async function() {
     //await mocHelper.revertState();
   });
-  describe.only('GIVEN vendors can integrate their platforms with MoC protocol', function() {
+  describe('GIVEN vendors can integrate their platforms with MoC protocol', function() {
     const scenarios = [
       // Vendor 1
       {
@@ -336,7 +336,7 @@ contract('MoC: MoCVendors', function([
       });
     });
   });
-  describe.only('GIVEN an unauthorized account tries to make changes', function() {
+  describe('GIVEN an unauthorized account tries to make changes', function() {
     it('WHEN an unauthorized account tries to register a vendor THEN an error should be raised', async function() {
       try {
         await this.mocVendors.registerVendor(
@@ -364,7 +364,7 @@ contract('MoC: MoCVendors', function([
       }
     });
   });
-  describe.only('GIVEN an inexistent vendor tries to makes changes', function() {
+  describe('GIVEN an inexistent vendor tries to makes changes', function() {
     it('WHEN an inexistent vendor tries to add staking THEN an error should be raised', async function() {
       const addStakeTx = this.mocVendors.addStake(toContractBN(10 * mocHelper.MOC_PRECISION), {
         from: inexistentVendorAccount
@@ -381,7 +381,7 @@ contract('MoC: MoCVendors', function([
       await expectRevert(removeStakeTx, 'Vendor is inexistent or inactive');
     });
   });
-  describe.only('GIVEN a vendor with zero address is invalid', function() {
+  describe('GIVEN a vendor with zero address is invalid', function() {
     it('WHEN trying to register a vendor with zero address THEN an error should be raised', async function() {
       const vendorToRegister = {
         account: ZERO_ADDRESS,
@@ -402,7 +402,7 @@ contract('MoC: MoCVendors', function([
       await expectRevert(unregisterVendorTx, 'Vendor account must not be 0x0');
     });
   });
-  describe.only('GIVEN vendors can be registered and unregistered via an array in changer contract', function() {
+  describe('GIVEN vendors can be registered and unregistered via an array in changer contract', function() {
     const vendorsToRegister = [];
     const vendorsToUnregister = [];
 

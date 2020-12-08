@@ -5,17 +5,25 @@ let mocHelper;
 let toContractBN;
 let BUCKET_C0;
 
-contract('MoC: MoCExchange', function([owner, userAccount]) {
+contract('MoC: MoCExchange', function([owner, userAccount, vendorAccount]) {
   before(async function() {
     mocHelper = await testHelperBuilder({ owner });
     ({ toContractBN } = mocHelper);
     this.moc = mocHelper.moc;
     this.mocState = mocHelper.mocState;
+    this.governor = mocHelper.governor;
+    this.mockMoCVendorsChanger = mocHelper.mockMoCVendorsChanger;
     ({ BUCKET_C0 } = mocHelper);
   });
 
-  beforeEach(function() {
-    return mocHelper.revertState();
+  beforeEach(async function() {
+    await mocHelper.revertState();
+
+    // Register vendor for test
+    await this.mockMoCVendorsChanger.setVendorsToRegister(
+      mocHelper.getVendorToRegisterAsArray(vendorAccount, 0)
+    );
+    await this.governor.executeChange(this.mockMoCVendorsChanger.address);
   });
 
   describe('BPro minting', function() {
@@ -27,12 +35,12 @@ contract('MoC: MoCExchange', function([owner, userAccount]) {
           let c0bproPrevBalance;
           beforeEach(async function() {
             if (nBPros) {
-              await mocHelper.mintBProAmount(owner, nBPros);
+              await mocHelper.mintBProAmount(owner, nBPros, vendorAccount);
             }
 
             userPrevBalance = toContractBN(await web3.eth.getBalance(userAccount));
             c0bproPrevBalance = await this.mocState.getBucketNBPro(BUCKET_C0);
-            const tx = await mocHelper.mintBPro(userAccount, 100);
+            const tx = await mocHelper.mintBPro(userAccount, 100, vendorAccount);
             txCost = await mocHelper.getTxCost(tx);
           });
           it('THEN he receives 100 BPro on his account', async function() {
@@ -84,7 +92,7 @@ contract('MoC: MoCExchange', function([owner, userAccount]) {
       const from = userAccount;
       beforeEach(async function() {
         const rbtcToMintBpro = toContractBN(11 * mocHelper.RESERVE_PRECISION);
-        await this.moc.mintBPro(rbtcToMintBpro, {
+        await this.moc.mintBPro(rbtcToMintBpro, vendorAccount, {
           from,
           value: rbtcToMintBpro
         });
@@ -95,7 +103,7 @@ contract('MoC: MoCExchange', function([owner, userAccount]) {
       });
       describe('AND there are 50000 DOCs AND BTC Price falls to 8000', function() {
         beforeEach(async function() {
-          await mocHelper.mintDocAmount(owner, 50000);
+          await mocHelper.mintDocAmount(owner, 50000, vendorAccount);
           await mocHelper.setBitcoinPrice(8000 * mocHelper.MOC_PRECISION);
         });
         describe('WHEN he tries to redeem 3 BPros', function() {
@@ -103,7 +111,7 @@ contract('MoC: MoCExchange', function([owner, userAccount]) {
             const coverage = await this.mocState.globalCoverage();
             const cobj = 3 * mocHelper.MOC_PRECISION;
             assert(coverage < cobj, 'Coverage is not below Cobj');
-            const bproRedemption = mocHelper.redeemBPro(from, 3);
+            const bproRedemption = mocHelper.redeemBPro(from, 3, vendorAccount);
             await expectRevert.unspecified(bproRedemption);
           });
         });
@@ -115,7 +123,7 @@ contract('MoC: MoCExchange', function([owner, userAccount]) {
         });
         describe('WHEN he tries to redeem 11 BPros', function() {
           it('THEN he receives only the max redeem amount', async function() {
-            await mocHelper.redeemBPro(from, 11);
+            await mocHelper.redeemBPro(from, 11, vendorAccount);
 
             const bproBalance = await mocHelper.getBProBalance(userAccount);
             const balanceDiff = initialBProBalance.sub(bproBalance);
@@ -126,7 +134,7 @@ contract('MoC: MoCExchange', function([owner, userAccount]) {
       });
       describe('WHEN he tries to redeem 20 BPros', function() {
         it('THEN he redeems all his BPros', async function() {
-          await mocHelper.redeemBPro(from, 20);
+          await mocHelper.redeemBPro(from, 20, vendorAccount);
 
           const bproBalance = await mocHelper.getBProBalance(userAccount);
           mocHelper.assertBig(bproBalance, 0, 'The redemption bpro amount was incorrect');
@@ -135,7 +143,7 @@ contract('MoC: MoCExchange', function([owner, userAccount]) {
       describe('WHEN he tries to redeem 6 BPros', function() {
         let txCost;
         beforeEach(async function() {
-          const tx = await mocHelper.redeemBPro(from, 6);
+          const tx = await mocHelper.redeemBPro(from, 6, vendorAccount);
           txCost = await mocHelper.getTxCost(tx);
         });
         it('THEN he receives the corresponding amount of BTCs AND his BPro balance is 4', async function() {
@@ -164,8 +172,8 @@ contract('MoC: MoCExchange', function([owner, userAccount]) {
     describe('GIVEN there are 10 BPros, 50000 DOCs AND the BTC price falls to 6400', function() {
       beforeEach(async function() {
         await mocHelper.setSmoothingFactor(10 ** 18);
-        await mocHelper.mintBProAmount(owner, 10);
-        await mocHelper.mintDocAmount(owner, 50000);
+        await mocHelper.mintBProAmount(owner, 10, vendorAccount);
+        await mocHelper.mintDocAmount(owner, 50000, vendorAccount);
 
         userPrevBalance = await web3.eth.getBalance(userAccount);
         await mocHelper.setBitcoinPrice(6400 * mocHelper.MOC_PRECISION);
@@ -179,7 +187,7 @@ contract('MoC: MoCExchange', function([owner, userAccount]) {
         const sentAmount = 10;
         let txCost;
         beforeEach(async function() {
-          const tx = await mocHelper.mintBPro(userAccount, sentAmount);
+          const tx = await mocHelper.mintBPro(userAccount, sentAmount, vendorAccount);
           txCost = await mocHelper.getTxCost(tx);
         });
         it('THEN he receives the correct 13.913 of BPros', async function() {
@@ -215,7 +223,7 @@ contract('MoC: MoCExchange', function([owner, userAccount]) {
       let txCost;
       beforeEach(async function() {
         await mocHelper.setSmoothingFactor(10 ** 18);
-        await mocHelper.mintBProAmount(owner, 10);
+        await mocHelper.mintBProAmount(owner, 10, vendorAccount);
         userPrevBalance = toContractBN(await web3.eth.getBalance(userAccount));
       });
 
@@ -223,7 +231,7 @@ contract('MoC: MoCExchange', function([owner, userAccount]) {
         describe('AND the discount is set to 10%', function() {
           describe('AND the Amount of Docs is 50000', function() {
             beforeEach(async function() {
-              await mocHelper.mintDocAmount(owner, 50000);
+              await mocHelper.mintDocAmount(owner, 50000, vendorAccount);
             });
 
             describe('WHEN BTC Price is 5400', function() {
@@ -236,7 +244,8 @@ contract('MoC: MoCExchange', function([owner, userAccount]) {
                 beforeEach(async function() {
                   await mocHelper.mintBProAmount(
                     userAccount,
-                    maxWithDiscount.div(mocHelper.RESERVE_PRECISION)
+                    maxWithDiscount.div(mocHelper.RESERVE_PRECISION),
+                    vendorAccount
                   );
                 });
                 it('AND coverage should be close to utpdu', async function() {
@@ -257,6 +266,7 @@ contract('MoC: MoCExchange', function([owner, userAccount]) {
                   const tx = await mocHelper.mintBPro(
                     userAccount,
                     totalWithDiscount,
+                    vendorAccount,
                     applyPrecision
                   );
                   txCost = await mocHelper.getTxCost(tx);

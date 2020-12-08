@@ -3,7 +3,7 @@ const testHelperBuilder = require('../mocHelper.js');
 let mocHelper;
 let toContractBN;
 const BUCKET_C0 = web3.utils.asciiToHex('C0', 32);
-contract('MoC', function([owner]) {
+contract('MoC', function([owner, vendorAccount]) {
   before(async function() {
     mocHelper = await testHelperBuilder({ owner });
     ({ toContractBN } = mocHelper);
@@ -11,8 +11,14 @@ contract('MoC', function([owner]) {
     this.moc = mocHelper.moc;
   });
 
-  beforeEach(function() {
-    return mocHelper.revertState();
+  beforeEach(async function() {
+    await mocHelper.revertState();
+
+    // Register vendor for test
+    await this.mockMoCVendorsChanger.setVendorsToRegister(
+      mocHelper.getVendorToRegisterAsArray(vendorAccount, 0)
+    );
+    await this.governor.executeChange(this.mockMoCVendorsChanger.address);
   });
 
   describe('State variables', function() {
@@ -136,13 +142,13 @@ contract('MoC', function([owner]) {
               await mocHelper.setSmoothingFactor(0.5 * 10 ** 18);
 
               if (contractReadyState.nDoCs) {
-                await this.moc.mintDoc(toContractBN(contractReadyState.nDocsBtcAmount), {
+                await this.moc.mintDoc(toContractBN(contractReadyState.nDocsBtcAmount), vendorAccount, {
                   value: toContractBN(contractReadyState.nDocsBtcAmount)
                 });
               }
 
               if (contractReadyState.nBPro) {
-                await this.moc.mintBPro(toContractBN(contractReadyState.bproBtcAmount), {
+                await this.moc.mintBPro(toContractBN(contractReadyState.bproBtcAmount), vendorAccount, {
                   value: toContractBN(contractReadyState.bproBtcAmount)
                 });
               }

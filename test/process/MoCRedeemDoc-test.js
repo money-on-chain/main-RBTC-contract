@@ -7,7 +7,7 @@ let mocHelper;
 let toContractBN;
 let BUCKET_C0;
 
-contract('MoC', function([owner, userAccount, attacker, ...accounts]) {
+contract('MoC', function([owner, userAccount, attacker, vendorAccount, ...accounts]) {
   const blockSpan = 41;
 
   before(async function() {
@@ -21,10 +21,17 @@ contract('MoC', function([owner, userAccount, attacker, ...accounts]) {
     this.revertingContract = mocHelper.revertingContract;
     this.mockMoCSettlementChanger = mocHelper.mockMoCSettlementChanger;
     this.governor = mocHelper.governor;
+    this.mockMoCVendorsChanger = mocHelper.mockMoCVendorsChanger;
   });
 
-  beforeEach(function() {
-    return mocHelper.revertState();
+  beforeEach(async function() {
+    await mocHelper.revertState();
+
+    // Register vendor for test
+    await this.mockMoCVendorsChanger.setVendorsToRegister(
+      mocHelper.getVendorToRegisterAsArray(vendorAccount, 0)
+    );
+    await this.governor.executeChange(this.mockMoCVendorsChanger.address);
   });
 
   describe('DoC Redeem DoS attack mitigation', function() {
@@ -33,14 +40,14 @@ contract('MoC', function([owner, userAccount, attacker, ...accounts]) {
       beforeEach(async function() {
         await mocHelper.setBitcoinPrice(10000 * mocHelper.MOC_PRECISION);
 
-        await mocHelper.mintBProAmount(owner, 3);
-        await mocHelper.mintDocAmount(from, 1000);
+        await mocHelper.mintBProAmount(owner, 3, vendorAccount);
+        await mocHelper.mintDocAmount(from, 1000, vendorAccount);
         await this.moc.redeemDocRequest(toContractBN(1000 * mocHelper.MOC_PRECISION), {
           from
         });
         const toMint = toContractBN(0.1 * mocHelper.RESERVE_PRECISION);
         // Attacker mints and tries to redeem
-        await this.revertingContract.mintDoc(toMint, {
+        await this.revertingContract.mintDoc(toMint, vendorAccount, {
           value: toMint,
           from: attacker
         });
@@ -89,7 +96,7 @@ contract('MoC', function([owner, userAccount, attacker, ...accounts]) {
         await this.moc.sendTransaction({
           value: 1 * mocHelper.RESERVE_PRECISION
         });
-        await mocHelper.mintDoc(from, 0.25);
+        await mocHelper.mintDoc(from, 0.25, vendorAccount);
         await mocHelper.mockMoCSettlementChanger.setBlockSpan(blockSpan);
         await mocHelper.governor.executeChange(mocHelper.mockMoCSettlementChanger.address);
       });
@@ -272,13 +279,13 @@ contract('MoC', function([owner, userAccount, attacker, ...accounts]) {
           value: 1 * mocHelper.RESERVE_PRECISION
         });
         const toMint = 0.25;
-        await mocHelper.mintDoc(from, toMint);
+        await mocHelper.mintDoc(from, toMint, vendorAccount);
         await this.moc.redeemDocRequest(toContractBN(200 * mocHelper.MOC_PRECISION), {
           from
         });
 
         // Add other redeemer
-        await mocHelper.mintDoc(accounts[2], toMint);
+        await mocHelper.mintDoc(accounts[2], toMint, vendorAccount);
         await this.moc.redeemDocRequest(toContractBN(200 * mocHelper.MOC_PRECISION), {
           from: accounts[2]
         });

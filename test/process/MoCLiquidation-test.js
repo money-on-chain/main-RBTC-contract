@@ -16,7 +16,7 @@ const setCommissionAccount = async commissionAccount => {
   comAccountInitialBalance = await web3.eth.getBalance(commissionAccount);
 };
 
-contract('MoC: Liquidation', function([owner, commissionAccount, userAccount, otherAccount]) {
+contract('MoC: Liquidation', function([owner, commissionAccount, userAccount, otherAccount, vendorAccount]) {
   before(async function() {
     mocHelper = await testHelperBuilder({ owner });
     ({ toContractBN } = mocHelper);
@@ -26,16 +26,23 @@ contract('MoC: Liquidation', function([owner, commissionAccount, userAccount, ot
     this.bprox = mocHelper.bprox;
     this.governor = mocHelper.governor;
     this.mockMoCBucketContainerChanger = mocHelper.mockMoCBucketContainerChanger;
+    this.mockMoCVendorsChanger = mocHelper.mockMoCVendorsChanger;
   });
 
-  beforeEach(function() {
-    return mocHelper.revertState();
+  beforeEach(async function() {
+    await  mocHelper.revertState();
+
+    // Register vendor for test
+    await this.mockMoCVendorsChanger.setVendorsToRegister(
+      mocHelper.getVendorToRegisterAsArray(vendorAccount, 0)
+    );
+    await this.governor.executeChange(this.mockMoCVendorsChanger.address);
   });
 
   describe('GIVEN there are BPros and Docs for a target coverage AND BTC price drops to 3400', function() {
     beforeEach(async function() {
-      await mocHelper.mintBProAmount(userAccount, 1);
-      await mocHelper.mintDocAmount(userAccount, 5000);
+      await mocHelper.mintBProAmount(userAccount, 1, vendorAccount);
+      await mocHelper.mintDocAmount(userAccount, 5000, vendorAccount);
       const liquidationReached = await this.mocState.isLiquidationReached();
       assert(!liquidationReached, 'Liquidation state should not be reached');
       await mocHelper.setBitcoinPrice(3400 * mocHelper.MOC_PRECISION);
@@ -43,11 +50,11 @@ contract('MoC: Liquidation', function([owner, commissionAccount, userAccount, ot
       mocHelper.assertBig(state, 3, 'State should be AboveCobj');
     });
     [
-      { name: 'mintDoc', args: [1], value: 1, event: 'StableTokenMint' },
-      { name: 'mintBPro', args: [1], value: 1, event: 'RiskProMint' },
-      { name: 'redeemBPro', args: [1], event: 'RiskProxRedeem' },
-      { name: 'mintBProx', args: [BUCKET_X2, 0], event: 'RiskProxMint' },
-      { name: 'redeemBProx', args: [BUCKET_X2, 1], event: 'RiskProxRedeem' },
+      { name: 'mintDoc', args: [1, vendorAccount], value: 1, event: 'StableTokenMint' },
+      { name: 'mintBPro', args: [1, vendorAccount], value: 1, event: 'RiskProMint' },
+      { name: 'redeemBPro', args: [1, vendorAccount], event: 'RiskProxRedeem' },
+      { name: 'mintBProx', args: [BUCKET_X2, 0, vendorAccount], event: 'RiskProxMint' },
+      { name: 'redeemBProx', args: [BUCKET_X2, 1, vendorAccount], event: 'RiskProxRedeem' },
       { name: 'evalLiquidation', args: [100] },
       { name: 'runSettlement', args: [100] }
     ].forEach(fn => {

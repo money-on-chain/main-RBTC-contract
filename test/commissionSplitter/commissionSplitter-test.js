@@ -5,9 +5,9 @@ let commissionSplitter;
 let splitterPrecision;
 let toContractBN;
 
-const executeOperations = (user, operations) => {
+const executeOperations = (user, operations, vendorAccount) => {
   const promises = operations.map(async op =>
-    mocHelper.mintBProAmount(user, op.reserve, await mocHelper.mocInrate.MINT_BPRO_FEES_RBTC())
+    mocHelper.mintBProAmount(user, op.reserve, vendorAccount, await mocHelper.mocInrate.MINT_BPRO_FEES_RBTC())
   );
 
   return Promise.all(promises);
@@ -15,7 +15,7 @@ const executeOperations = (user, operations) => {
 
 const operationsTotal = operations => operations.reduce((last, op) => op.reserve + last, 0);
 
-contract('CommissionSplitter', function([owner, userAccount, commissionsAccount]) {
+contract('CommissionSplitter', function([owner, userAccount, commissionsAccount, vendorAccount]) {
   before(async function() {
     const accounts = [owner, userAccount];
     mocHelper = await testHelperBuilder({ owner, accounts });
@@ -96,7 +96,7 @@ contract('CommissionSplitter', function([owner, userAccount, commissionsAccount]
             // Empty commission splitter just to have a more robust test
             await commissionSplitter.split();
 
-            await executeOperations(userAccount, s.mintOperations);
+            await executeOperations(userAccount, s.mintOperations, vendorAccount);
           });
           it(`THEN CommissionSplitter Reserve Token balance should be ${s.commissionAmount +
             s.mocAmount}`, async function() {

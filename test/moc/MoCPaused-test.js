@@ -10,14 +10,14 @@ let BUCKET_X2;
 
 const assertAllMintReedemMocHelperPausedFunctions = userAccount => {
   const testFunctions = [
-    { name: 'mintBPro', args: [userAccount, 10] },
-    { name: 'mintDoc', args: [userAccount, 10000] },
+    { name: 'mintBPro', args: [userAccount, 10, vendorAccount] },
+    { name: 'mintDoc', args: [userAccount, 10000, vendorAccount] },
     {
       name: 'mintBProx',
-      args: [userAccount, BUCKET_X2, toContractBN(10), toContractBN(9000)]
+      args: [userAccount, BUCKET_X2, toContractBN(10), toContractBN(9000), vendorAccount]
     },
-    { name: 'redeemFreeDoc', args: [{ userAccount, docAmount: 3 }] },
-    { name: 'redeemBPro', args: [userAccount, 10] }
+    { name: 'redeemFreeDoc', args: [{ userAccount, docAmount: 3, vendorAccount }] },
+    { name: 'redeemBPro', args: [userAccount, 10, vendorAccount] }
   ];
 
   // Get all tx promises
@@ -28,7 +28,7 @@ const assertAllMintReedemMocHelperPausedFunctions = userAccount => {
 
 const assertAllMocPausedFunctions = (owner, userAccount) => {
   const testFunctions = [
-    { name: 'redeemBProx', args: [BUCKET_X2, 3] },
+    { name: 'redeemBProx', args: [BUCKET_X2, 3, vendorAccount] },
     { name: 'alterRedeemRequestAmount', args: [false, 100] },
     { name: 'runSettlement', args: [1] },
     { name: 'dailyInratePayment', args: [{ from: owner }] },
@@ -40,20 +40,29 @@ const assertAllMocPausedFunctions = (owner, userAccount) => {
   return Promise.all(txs.map(tx => expectRevert(tx, CONTRACT_IS_PAUSED)));
 };
 
-contract('MoC', function([owner, userAccount]) {
+contract('MoC', function([owner, userAccount, vendorAccount]) {
   before(async function() {
     mocHelper = await testHelperBuilder({ owner });
     ({ toContractBN } = mocHelper);
     this.moc = mocHelper.moc;
     this.governor = mocHelper.governor;
     this.stopper = mocHelper.stopper;
+    this.governor = mocHelper.governor;
+    this.mockMoCVendorsChanger = mocHelper.mockMoCVendorsChanger;
     ({ BUCKET_X2 } = mocHelper);
   });
 
   beforeEach(async function() {
     await mocHelper.revertState();
-    await mocHelper.mintBPro(owner, 10);
-    await mocHelper.mintDoc(userAccount, 10000);
+
+    // Register vendor for test
+    await this.mockMoCVendorsChanger.setVendorsToRegister(
+      mocHelper.getVendorToRegisterAsArray(vendorAccount, 0)
+    );
+    await this.governor.executeChange(this.mockMoCVendorsChanger.address);
+
+    await mocHelper.mintBPro(owner, 10, vendorAccount);
+    await mocHelper.mintDoc(userAccount, 10000, vendorAccount);
     await mocHelper.stopper.pause(mocHelper.moc.address);
     const paused = await mocHelper.moc.paused();
     assert(paused, 'MoC contract must be paused');
@@ -92,10 +101,10 @@ contract('MoC', function([owner, userAccount]) {
         assert(!paused, 'MoC contract must not be paused');
       });
       it('THEN reedem FreeDocs must be executed', async function() {
-        await mocHelper.redeemFreeDoc({ userAccount, docAmount: 3 });
+        await mocHelper.redeemFreeDoc({ userAccount, docAmount: 3,  });
       });
       it('THEN mintBPro must be executed', async function() {
-        mocHelper.mintBPro(owner, 10);
+        mocHelper.mintBPro(owner, 10, vendorAccount);
       });
     });
   });

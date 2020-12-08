@@ -2,25 +2,33 @@ const testHelperBuilder = require('../mocHelper.js');
 
 let mocHelper;
 let BUCKET_X2;
-contract('MoC: Bucket Liquidation', function([owner, userAccount, otherAccount]) {
+contract('MoC: Bucket Liquidation', function([owner, userAccount, otherAccount, vendorAccount]) {
   before(async function() {
     mocHelper = await testHelperBuilder({ owner });
     ({ BUCKET_X2 } = mocHelper);
     this.moc = mocHelper.moc;
     this.mocState = mocHelper.mocState;
+    this.governor = mocHelper.governor;
+    this.mockMoCVendorsChanger = mocHelper.mockMoCVendorsChanger;
   });
 
-  beforeEach(function() {
-    return mocHelper.revertState();
+  beforeEach(async function() {
+    await mocHelper.revertState();
+
+    // Register vendor for test
+    await this.mockMoCVendorsChanger.setVendorsToRegister(
+      mocHelper.getVendorToRegisterAsArray(vendorAccount, 0)
+    );
+    await this.governor.executeChange(this.mockMoCVendorsChanger.address);
   });
 
   describe('GIVEN user has X2 positions AND BTC price drops to half', function() {
     let globalCoverage;
     let tx;
     beforeEach(async function() {
-      await mocHelper.mintBProAmount(userAccount, 10);
-      await mocHelper.mintDocAmount(userAccount, 50000);
-      await mocHelper.mintBProxAmount(userAccount, BUCKET_X2, 5);
+      await mocHelper.mintBProAmount(userAccount, 10, vendorAccount);
+      await mocHelper.mintDocAmount(userAccount, 50000, vendorAccount);
+      await mocHelper.mintBProxAmount(userAccount, BUCKET_X2, 5, vendorAccount);
       await mocHelper.setBitcoinPrice(5000 * mocHelper.MOC_PRECISION);
       globalCoverage = await this.mocState.globalCoverage();
     });
@@ -57,7 +65,7 @@ contract('MoC: Bucket Liquidation', function([owner, userAccount, otherAccount])
     });
     describe('WHEN user tries to redeem his X2 position', function() {
       beforeEach(async function() {
-        tx = await this.moc.redeemBProx(BUCKET_X2, 1, { from: userAccount });
+        tx = await this.moc.redeemBProx(BUCKET_X2, 1, vendorAccount, { from: userAccount });
       });
       it('AND BucketLiquidation event should be emitted', async function() {
         const bucketLiqEvents = mocHelper.findEvents(tx, 'BucketLiquidation');
@@ -73,7 +81,7 @@ contract('MoC: Bucket Liquidation', function([owner, userAccount, otherAccount])
         const btcToMint = 2;
         // Intentionally uses this method instead of mintBProxAmount,
         // as X2 Price is zero at this state
-        tx = await mocHelper.mintBProx(otherAccount, BUCKET_X2, btcToMint);
+        tx = await mocHelper.mintBProx(otherAccount, BUCKET_X2, btcToMint, vendorAccount);
       });
       it('AND BucketLiquidation event is emitted', async function() {
         const bucketLiqEvents = mocHelper.findEvents(tx, 'BucketLiquidation');

@@ -8,8 +8,8 @@ const ACCOUNTS_QUANTITY = 10;
 
 const testFunctionPromises = () => {
   const testFunctions = [
-    { name: 'mintBProx', args: [BUCKET_X2, 0] },
-    { name: 'redeemBProx', args: [BUCKET_X2, 0] },
+    { name: 'mintBProx', args: [BUCKET_X2, 0, vendorAccount] },
+    { name: 'redeemBProx', args: [BUCKET_X2, 0, vendorAccount] },
     { name: 'redeemDocRequest', args: [0] },
     { name: 'alterRedeemRequestAmount', args: [true, 1] }
   ];
@@ -32,13 +32,13 @@ const assertAllStoppedFunctions = () => {
   );
 };
 
-const initializeSettlement = async accounts => {
+const initializeSettlement = async (vendorAccount, accounts) => {
   await mocHelper.revertState();
   // Avoid interests
   await mocHelper.mocState.setDaysToSettlement(0);
   const docAccounts = accounts.slice(0, 5);
-  await Promise.all(docAccounts.map(account => mocHelper.mintBProAmount(account, 10000)));
-  await Promise.all(docAccounts.map(account => mocHelper.mintDocAmount(account, 10000)));
+  await Promise.all(docAccounts.map(account => mocHelper.mintBProAmount(account, 10000, vendorAccount)));
+  await Promise.all(docAccounts.map(account => mocHelper.mintDocAmount(account, 10000, vendorAccount)));
   await Promise.all(
     docAccounts.map(account =>
       mocHelper.moc.redeemDocRequest(toContractBN(10, 'USD'), {
@@ -56,18 +56,21 @@ const setToStall = async () =>
 const restartSettlement = async () =>
   mocHelper.governor.executeChange(mocHelper.mockMoCRestartSettlementChanger.address);
 
-contract('MoC: Partial Settlement execution', function([owner, ...accounts]) {
+contract('MoC: Partial Settlement execution', function([owner, vendorAccount, ...accounts]) {
   const testAccounts = accounts.slice(0, ACCOUNTS_QUANTITY);
   before(async function() {
     mocHelper = await testHelperBuilder({ owner, useMock: true });
     ({ toContractBN } = mocHelper);
     ({ BUCKET_X2 } = mocHelper);
+
+    this.governor = mocHelper.governor;
+    this.mockMoCVendorsChanger = mocHelper.mockMoCVendorsChanger;
   });
 
   describe('WHEN the settlement is only partially executed', function() {
     let tx;
     before(async function() {
-      await initializeSettlement(testAccounts);
+      await initializeSettlement(vendorAccount, testAccounts);
       tx = await mocHelper.moc.runSettlement(2);
     });
     after(function() {
@@ -95,7 +98,7 @@ contract('MoC: Partial Settlement execution', function([owner, ...accounts]) {
   });
   describe('WHEN the settlement is set to stall AND executed with 100 steps', function() {
     before(async function() {
-      await initializeSettlement(testAccounts);
+      await initializeSettlement(vendorAccount, testAccounts);
       await setToStall();
       await mocHelper.moc.runSettlement(100);
     });

@@ -9,7 +9,7 @@ const { BN } = web3.utils;
 const NOT_ENOUGH_FUNDS_ERROR = "sender doesn't have enough funds to send tx";
 
 // TODO: test free docs redeems with interests
-contract('MoC', function([owner, userAccount, commissionsAccount]) {
+contract('MoC', function([owner, userAccount, commissionsAccount, vendorAccount]) {
   before(async function() {
     mocHelper = await testHelperBuilder({ owner, useMock: true });
     ({ toContractBN } = mocHelper);
@@ -18,6 +18,7 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
     this.mockMocInrateChanger = mocHelper.mockMocInrateChanger;
     this.mocToken = mocHelper.mocToken;
     this.mockMocStateChanger = mocHelper.mockMocStateChanger;
+    this.mockMoCVendorsChanger = mocHelper.mockMoCVendorsChanger;
   });
 
   describe('Free Doc redeem with commissions and without interests', function() {
@@ -116,6 +117,13 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
 
           beforeEach(async function() {
             await mocHelper.revertState();
+
+            // Register vendor for test
+            await this.mockMoCVendorsChanger.setVendorsToRegister(
+              mocHelper.getVendorToRegisterAsArray(vendorAccount, 0.1)
+            );
+            await this.governor.executeChange(this.mockMoCVendorsChanger.address);
+
             // this make the interests zero
             await this.mocState.setDaysToSettlement(0);
 
@@ -145,8 +153,8 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
               scenario.params.mocAmount === 0
                 ? await mocHelper.mocInrate.MINT_DOC_FEES_RBTC()
                 : await mocHelper.mocInrate.MINT_DOC_FEES_MOC();
-            await mocHelper.mintBProAmount(userAccount, scenario.params.bproToMint, txTypeMintBpro);
-            await mocHelper.mintDocAmount(userAccount, scenario.params.docsToMint, txTypeMintDoc);
+            await mocHelper.mintBProAmount(userAccount, scenario.params.bproToMint, vendorAccount, txTypeMintBpro);
+            await mocHelper.mintDocAmount(userAccount, scenario.params.docsToMint, vendorAccount, txTypeMintDoc);
             // Calculate balances before redeeming
             prevUserBtcBalance = toContractBN(await web3.eth.getBalance(userAccount));
             prevUserDocBalance = toContractBN(await mocHelper.getDoCBalance(userAccount));
@@ -157,6 +165,7 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
             prevCommissionsAccountMoCBalance = await mocHelper.getMoCBalance(commissionsAccount);
             const redeemTx = await this.moc.redeemFreeDoc(
               toContractBN(scenario.params.docsToRedeem * mocHelper.RESERVE_PRECISION),
+              vendorAccount,
               {
                 from: userAccount
               }
@@ -253,7 +262,7 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
           await mocHelper.approveMoCToken(mocHelper.moc.address, mocAmountToApprove, userAccount);
           const prevUserMoCBalance = await mocHelper.getMoCBalance(userAccount);
           const prevUserBtcBalance = toContractBN(await web3.eth.getBalance(userAccount));
-          const tx = await mocHelper.redeemFreeDoc({ userAccount, docAmount: 10 });
+          const tx = await mocHelper.redeemFreeDoc({ userAccount, docAmount: 10, vendorAccount });
           const userMoCBalance = await mocHelper.getMoCBalance(userAccount);
           const diffMoC = prevUserMoCBalance.sub(userMoCBalance);
           const userBtcBalance = toContractBN(await web3.eth.getBalance(userAccount));
@@ -299,13 +308,15 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
           const mintBpro = await mocHelper.mintBProAmount(
             otherAddress,
             mintBproAmount,
+            vendorAccount,
             txTypeMintBpro
           );
-          const mintDoc = await mocHelper.mintDocAmount(otherAddress, mintAmount, txTypeMintDoc);
+          const mintDoc = await mocHelper.mintDocAmount(otherAddress, mintAmount, vendorAccount, txTypeMintDoc);
 
           const redeem = await mocHelper.redeemFreeDoc({
             userAccount: otherAddress,
-            docAmount: redeemAmount
+            docAmount: redeemAmount,
+            vendorAccount: vendorAccount,
           });
           const usedGas = toContractBN(await mocHelper.getTxCost(mintBpro)).add(
             toContractBN(await mocHelper.getTxCost(mintDoc)).add(
@@ -363,7 +374,8 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
             await mocHelper.approveMoCToken(mocHelper.moc.address, 0, failingAddress);
             const tx = await mocHelper.redeemFreeDoc({
               userAccount: failingAddress,
-              docAmount: 10
+              docAmount: 10,
+              vendorAccount: vendorAccount
             });
             assert(tx === null, 'This should not happen');
           } catch (err) {
@@ -411,13 +423,15 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
           const mintBpro = await mocHelper.mintBProAmount(
             otherAddress,
             mintBproAmount,
+            vendorAccount,
             txTypeMintBpro
           );
-          const mintDoc = await mocHelper.mintDocAmount(otherAddress, mintAmount, txTypeMintDoc);
+          const mintDoc = await mocHelper.mintDocAmount(otherAddress, mintAmount, vendorAccount, txTypeMintDoc);
 
           const redeem = await mocHelper.redeemFreeDoc({
             userAccount: otherAddress,
-            docAmount: redeemAmount
+            docAmount: redeemAmount,
+            vendorAccount: vendorAccount
           });
           const usedGas = toContractBN(await mocHelper.getTxCost(mintBpro)).add(
             toContractBN(await mocHelper.getTxCost(mintDoc)).add(
@@ -513,8 +527,8 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
           // Mint according to scenario
           const txTypeMintBpro = await mocHelper.mocInrate.MINT_BPRO_FEES_MOC();
           const txTypeMintDoc = await mocHelper.mocInrate.MINT_DOC_FEES_MOC();
-          await mocHelper.mintBProAmount(userAccount, bproToMint, txTypeMintBpro);
-          await mocHelper.mintDocAmount(userAccount, docsToMint, txTypeMintDoc);
+          await mocHelper.mintBProAmount(userAccount, bproToMint, vendorAccount, txTypeMintBpro);
+          await mocHelper.mintDocAmount(userAccount, docsToMint, vendorAccount, txTypeMintDoc);
           // Calculate balances before redeeming
           prevUserBtcBalance = toContractBN(await web3.eth.getBalance(userAccount));
           prevUserDocBalance = toContractBN(await mocHelper.getDoCBalance(userAccount));
@@ -525,6 +539,7 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
           prevCommissionsAccountMoCBalance = await mocHelper.getMoCBalance(commissionsAccount);
           const redeemTx = await this.moc.redeemFreeDoc(
             toContractBN(docsToRedeem * mocHelper.RESERVE_PRECISION),
+            vendorAccount,
             {
               from: userAccount
             }

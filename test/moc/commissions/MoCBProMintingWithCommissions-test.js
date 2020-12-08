@@ -10,7 +10,7 @@ const { BN } = web3.utils;
 // eslint-disable-next-line quotes
 const NOT_ENOUGH_FUNDS_ERROR = "sender doesn't have enough funds to send tx";
 
-contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount]) {
+contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount, vendorAccount]) {
   before(async function() {
     mocHelper = await testHelperBuilder({ owner });
     ({ toContractBN } = mocHelper);
@@ -19,10 +19,17 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount]) 
     this.governor = mocHelper.governor;
     this.mocToken = mocHelper.mocToken;
     this.mockMocStateChanger = mocHelper.mockMocStateChanger;
+    this.mockMoCVendorsChanger = mocHelper.mockMoCVendorsChanger;
   });
 
   beforeEach(async function() {
     await mocHelper.revertState();
+
+    // Register vendor for test
+    await this.mockMoCVendorsChanger.setVendorsToRegister(
+      mocHelper.getVendorToRegisterAsArray(vendorAccount, 0.1)
+    );
+    await this.governor.executeChange(this.mockMoCVendorsChanger.address);
 
     // Commission rates for test are set in functionHelper.js
     await mocHelper.mockMocInrateChanger.setCommissionRates(
@@ -103,6 +110,7 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount]) 
           const mintTx = await mocHelper.mintBProAmount(
             userAccount,
             scenario.params.bproToMint,
+            vendorAccount,
             txType
           );
           usedGas = toContractBN(await mocHelper.getTxCost(mintTx));
@@ -176,7 +184,7 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount]) 
 
     describe('GIVEN since the user sends not enough amount to pay comission in RBTC', function() {
       it('WHEN a user tries to mint BPros with 10 RBTCs and does not send to pay commission', async function() {
-        const mintBpro = mocHelper.mintBPro(userAccount, 10);
+        const mintBpro = mocHelper.mintBPro(userAccount, 10, vendorAccount);
         await expectRevert(mintBpro, 'amount is not enough');
       });
     });
@@ -185,7 +193,7 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount]) 
       it('WHEN a user tries to mint BPros with no MoC allowance, THEN expect revert', async function() {
         await mocHelper.mintMoCToken(userAccount, 1000, owner);
         // DO NOT approve MoC token on purpose
-        const mintBpro = mocHelper.mintBPro(userAccount, 10);
+        const mintBpro = mocHelper.mintBPro(userAccount, 10, vendorAccount);
         await expectRevert(mintBpro, 'amount is not enough');
       });
     });
@@ -211,7 +219,7 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount]) 
 
         const txType = await mocHelper.mocInrate.MINT_BPRO_FEES_RBTC();
         // Mint
-        const mintBpro = await mocHelper.mintBProAmount(otherAddress, mintAmount, txType);
+        const mintBpro = await mocHelper.mintBProAmount(otherAddress, mintAmount, vendorAccount, txType);
         const usedGas = toContractBN(await mocHelper.getTxCost(mintBpro));
 
         const userMoCBalanceOtherAddress = await mocHelper.getMoCBalance(otherAddress);
@@ -260,7 +268,7 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount]) 
           value: '10000000000000'
         });
         try {
-          await mocHelper.mintBPro(failingAddress, 10);
+          await mocHelper.mintBPro(failingAddress, 10, vendorAccount);
           assert.fail('Minting BPro should have failed');
         } catch (err) {
           assert(err.message.search(NOT_ENOUGH_FUNDS_ERROR) >= 0, 'Sender does have enough funds');
@@ -292,7 +300,7 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount]) 
 
         const txType = await mocHelper.mocInrate.MINT_BPRO_FEES_RBTC();
         // Mint
-        const mintBpro = await mocHelper.mintBProAmount(otherAddress, mintAmount, txType);
+        const mintBpro = await mocHelper.mintBProAmount(otherAddress, mintAmount, vendorAccount, txType);
         const usedGas = toContractBN(await mocHelper.getTxCost(mintBpro));
 
         const userMoCBalanceOtherAddress = await mocHelper.getMoCBalance(otherAddress);
@@ -367,7 +375,7 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount]) 
         prevUserMoCBalance = await mocHelper.getMoCBalance(userAccount);
         prevCommissionsAccountMoCBalance = await mocHelper.getMoCBalance(commissionsAccount);
 
-        const mintTx = await mocHelper.mintBProAmount(userAccount, bproToMint, txType);
+        const mintTx = await mocHelper.mintBProAmount(userAccount, bproToMint, vendorAccount, txType);
         usedGas = toContractBN(await mocHelper.getTxCost(mintTx));
       });
       describe('WHEN user tries to mint BPros and commissions are paid in MoC', function() {

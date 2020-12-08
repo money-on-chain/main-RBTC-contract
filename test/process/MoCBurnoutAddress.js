@@ -15,18 +15,27 @@ contract('MoC - MoCBurnout', function([
   account2,
   burnout2,
   account3,
-  burnout3
+  burnout3,
+  vendorAccount
 ]) {
   before(async function() {
     mocHelper = await testHelperBuilder({ owner, useMock: true });
     this.moc = mocHelper.moc;
     this.mocBurnout = mocHelper.mocBurnout;
     this.revertingContract = mocHelper.revertingContract;
+    this.governor = mocHelper.governor;
+    this.mockMoCVendorsChanger = mocHelper.mockMoCVendorsChanger;
   });
 
   beforeEach(async function() {
     await mocHelper.revertState();
     ({ toContractBN } = mocHelper);
+
+    // Register vendor for test
+    await this.mockMoCVendorsChanger.setVendorsToRegister(
+      mocHelper.getVendorToRegisterAsArray(vendorAccount, 0)
+    );
+    await this.governor.executeChange(this.mockMoCVendorsChanger.address);
   });
 
   describe('Burnout complete process', function() {
@@ -64,9 +73,9 @@ contract('MoC - MoCBurnout', function([
       let burn3PrevBalance;
       beforeEach(async function() {
         await mocHelper.setBitcoinPrice(10000 * mocHelper.MOC_PRECISION);
-        await mocHelper.mintBProAmount(owner, 3);
-        await mocHelper.mintDocAmount(account1, 6000);
-        await mocHelper.mintDocAmount(account2, 4000);
+        await mocHelper.mintBProAmount(owner, 3, vendorAccount);
+        await mocHelper.mintDocAmount(account1, 6000, vendorAccount);
+        await mocHelper.mintDocAmount(account2, 4000, vendorAccount);
 
         burn1PrevBalance = toContractBN(await web3.eth.getBalance(burnout1));
         burn2PrevBalance = toContractBN(await web3.eth.getBalance(burnout2));
@@ -143,10 +152,10 @@ contract('MoC - MoCBurnout', function([
         await mocHelper.setBitcoinPrice(10000 * mocHelper.MOC_PRECISION);
         // From now reverting
         await this.revertingContract.setAcceptingMoney(false);
-        await mocHelper.mintBProAmount(owner, 3);
-        await mocHelper.mintDocAmount(account1, 6000);
-        await mocHelper.mintDocAmount(account2, 2000);
-        await mocHelper.mintDocAmount(account3, 2000);
+        await mocHelper.mintBProAmount(owner, 3, vendorAccount);
+        await mocHelper.mintDocAmount(account1, 6000, vendorAccount);
+        await mocHelper.mintDocAmount(account2, 2000, vendorAccount);
+        await mocHelper.mintDocAmount(account3, 2000, vendorAccount);
       });
       describe('AND all accounts sets their burnout addresses being the account 2 a reverting one', function() {
         beforeEach(async function() {

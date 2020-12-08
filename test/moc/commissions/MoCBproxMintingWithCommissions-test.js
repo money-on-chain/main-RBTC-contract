@@ -10,7 +10,7 @@ const { BN } = web3.utils;
 // eslint-disable-next-line quotes
 const NOT_ENOUGH_FUNDS_ERROR = "sender doesn't have enough funds to send tx";
 
-contract('MoC : MoCExchange', function([owner, userAccount, commissionsAccount]) {
+contract('MoC : MoCExchange', function([owner, userAccount, commissionsAccount, vendorAccount]) {
   before(async function() {
     mocHelper = await testHelperBuilder({ owner, useMock: true });
     ({ toContractBN } = mocHelper);
@@ -19,10 +19,18 @@ contract('MoC : MoCExchange', function([owner, userAccount, commissionsAccount])
     ({ BUCKET_X2 } = mocHelper);
     this.mocToken = mocHelper.mocToken;
     this.mockMocStateChanger = mocHelper.mockMocStateChanger;
+    this.governor = mocHelper.governor;
+    this.mockMoCVendorsChanger = mocHelper.mockMoCVendorsChanger;
   });
 
   beforeEach(async function() {
     await mocHelper.revertState();
+
+    // Register vendor for test
+    await this.mockMoCVendorsChanger.setVendorsToRegister(
+      mocHelper.getVendorToRegisterAsArray(vendorAccount, 0.1)
+    );
+    await this.governor.executeChange(this.mockMoCVendorsChanger.address);
 
     await this.mocState.setDaysToSettlement(toContractBN(0, 'DAY'));
 
@@ -129,8 +137,8 @@ contract('MoC : MoCExchange', function([owner, userAccount, commissionsAccount])
               s.params.mocAmount === 0
                 ? await mocHelper.mocInrate.MINT_DOC_FEES_RBTC()
                 : await mocHelper.mocInrate.MINT_DOC_FEES_MOC();
-            await mocHelper.mintBProAmount(userAccount, 18, txTypeMintBPro);
-            await mocHelper.mintDocAmount(userAccount, 80000, txTypeMintDoc);
+            await mocHelper.mintBProAmount(userAccount, 18, vendorAccount, txTypeMintBPro);
+            await mocHelper.mintDocAmount(userAccount, 80000, vendorAccount, txTypeMintDoc);
 
             // Calculate balances before minting
             initialCommissionAccountBalance = toContractBN(
@@ -153,6 +161,7 @@ contract('MoC : MoCExchange', function([owner, userAccount, commissionsAccount])
               userAccount,
               BUCKET_X2,
               s.params.nBProx,
+              vendorAccount,
               txType
             );
             txCost = toContractBN(await mocHelper.getTxCost(tx));
@@ -211,10 +220,11 @@ contract('MoC : MoCExchange', function([owner, userAccount, commissionsAccount])
         await mocHelper.mintBProAmount(
           userAccount,
           18,
+          vendorAccount,
           await mocHelper.mocInrate.MINT_BPRO_FEES_RBTC()
         );
-        await mocHelper.mintDoc(userAccount, 1000);
-        const mint = mocHelper.mintBProx(userAccount, BUCKET_X2, 8, 8);
+        await mocHelper.mintDoc(userAccount, 1000, vendorAccount);
+        const mint = mocHelper.mintBProx(userAccount, BUCKET_X2, 8, 8, vendorAccount);
         await expectRevert(mint, 'amount is not enough');
       });
     });
@@ -225,10 +235,11 @@ contract('MoC : MoCExchange', function([owner, userAccount, commissionsAccount])
         await mocHelper.mintBProAmount(
           userAccount,
           18,
+          vendorAccount,
           await mocHelper.mocInrate.MINT_BPRO_FEES_RBTC()
         );
-        await mocHelper.mintDoc(userAccount, 1000);
-        const mint = mocHelper.mintBProx(userAccount, BUCKET_X2, 8, 8);
+        await mocHelper.mintDoc(userAccount, 1000, vendorAccount);
+        const mint = mocHelper.mintBProx(userAccount, BUCKET_X2, 8, 8, vendorAccount);
         await expectRevert(mint, 'amount is not enough');
       });
     });
@@ -265,11 +276,12 @@ contract('MoC : MoCExchange', function([owner, userAccount, commissionsAccount])
         const mintBpro = await mocHelper.mintBProAmount(
           otherAddress,
           mintBproAmount,
+          vendorAccount,
           txTypeMintBpro
         );
-        const mintDoc = await mocHelper.mintDocAmount(otherAddress, mintDocAmount, txTypeMintDoc);
+        const mintDoc = await mocHelper.mintDocAmount(otherAddress, mintDocAmount, vendorAccount, txTypeMintDoc);
         const txType = await mocHelper.mocInrate.MINT_BTCX_FEES_RBTC();
-        const mint = await mocHelper.mintBProxAmount(otherAddress, BUCKET_X2, mintAmount, txType);
+        const mint = await mocHelper.mintBProxAmount(otherAddress, BUCKET_X2, mintAmount, vendorAccount, txType);
         const usedGas = toContractBN(await mocHelper.getTxCost(mintBpro)).add(
           toContractBN(await mocHelper.getTxCost(mintDoc)).add(
             toContractBN(await mocHelper.getTxCost(mint))
@@ -325,7 +337,7 @@ contract('MoC : MoCExchange', function([owner, userAccount, commissionsAccount])
           await mocHelper.mintMoCToken(failingAddress, 0, owner);
           await mocHelper.approveMoCToken(mocHelper.moc.address, 0, failingAddress);
           const txType = await mocHelper.mocInrate.MINT_BTCX_FEES_MOC();
-          const mint = await mocHelper.mintBProxAmount(failingAddress, BUCKET_X2, 10, txType);
+          const mint = await mocHelper.mintBProxAmount(failingAddress, BUCKET_X2, 10, vendorAccount, txType);
           assert(mint === null, 'This should not happen');
         } catch (err) {
           assert(
@@ -343,7 +355,7 @@ contract('MoC : MoCExchange', function([owner, userAccount, commissionsAccount])
         // Set MoCToken address to 0
         const zeroAddress = '0x0000000000000000000000000000000000000000';
         await this.mockMocStateChanger.setMoCToken(zeroAddress);
-        await mocHelper.governor.executeChange(mocHelper.mockMocStateChanger.address);
+        await this.governor.executeChange(this.mockMocStateChanger.address);
         // eslint-disable-next-line max-len
         const prevUserMoCBalanceOtherAddress = await mocHelper.getMoCBalance(otherAddress); // No MoC balance
         const expectedMoCAmount = 0;
@@ -371,11 +383,12 @@ contract('MoC : MoCExchange', function([owner, userAccount, commissionsAccount])
         const mintBpro = await mocHelper.mintBProAmount(
           otherAddress,
           mintBproAmount,
+          vendorAccount,
           txTypeMintBpro
         );
-        const mintDoc = await mocHelper.mintDocAmount(otherAddress, mintDocAmount, txTypeMintDoc);
+        const mintDoc = await mocHelper.mintDocAmount(otherAddress, mintDocAmount, vendorAccount, txTypeMintDoc);
         const txType = await mocHelper.mocInrate.MINT_BTCX_FEES_RBTC();
-        const mint = await mocHelper.mintBProxAmount(otherAddress, BUCKET_X2, mintAmount, txType);
+        const mint = await mocHelper.mintBProxAmount(otherAddress, BUCKET_X2, mintAmount, vendorAccount, txType);
         const usedGas = toContractBN(await mocHelper.getTxCost(mintBpro)).add(
           toContractBN(await mocHelper.getTxCost(mintDoc)).add(
             toContractBN(await mocHelper.getTxCost(mint))
@@ -400,7 +413,7 @@ contract('MoC : MoCExchange', function([owner, userAccount, commissionsAccount])
 
         // Set MoCToken address back to its original address
         await this.mockMocStateChanger.setMoCToken(mocTokenAddress);
-        await mocHelper.governor.executeChange(mocHelper.mockMocStateChanger.address);
+        await this.governor.executeChange(this.mockMocStateChanger.address);
 
         mocHelper.assertBigRBTC(diffMoCAmount, expectedMoCAmount, 'user MoC balance is incorrect');
         mocHelper.assertBigRBTC(
@@ -448,8 +461,8 @@ contract('MoC : MoCExchange', function([owner, userAccount, commissionsAccount])
         // Mint
         const txTypeMintBPro = await mocHelper.mocInrate.MINT_BPRO_FEES_MOC();
         const txTypeMintDoc = await mocHelper.mocInrate.MINT_DOC_FEES_MOC();
-        await mocHelper.mintBProAmount(userAccount, bproAmount, txTypeMintBPro);
-        await mocHelper.mintDocAmount(userAccount, docAmount, txTypeMintDoc);
+        await mocHelper.mintBProAmount(userAccount, bproAmount, vendorAccount, txTypeMintBPro);
+        await mocHelper.mintDocAmount(userAccount, docAmount, vendorAccount, txTypeMintDoc);
 
         // Calculate balances before minting
         initialCommissionAccountBalance = toContractBN(
@@ -465,7 +478,7 @@ contract('MoC : MoCExchange', function([owner, userAccount, commissionsAccount])
         // Set transaction type
         const txType = await mocHelper.mocInrate.MINT_BTCX_FEES_MOC();
 
-        const tx = await mocHelper.mintBProxAmount(userAccount, BUCKET_X2, nBProx, txType);
+        const tx = await mocHelper.mintBProxAmount(userAccount, BUCKET_X2, nBProx, vendorAccount, txType);
         txCost = toContractBN(await mocHelper.getTxCost(tx));
       });
       it(`THEN he receives ${nBProx} Bprox`, async function() {

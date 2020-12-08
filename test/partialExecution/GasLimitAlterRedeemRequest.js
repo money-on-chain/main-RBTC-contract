@@ -25,9 +25,9 @@ const scenario = {
   }
 };
 
-const initializeSettlement = async (owner, account2, account3, arrayRedeemSize) => {
-  await mocHelper.mintBProAmount(owner, scenario.mintBpro, { from: owner });
-  await mocHelper.mintDocAmount(owner, scenario.mintDoc, { from: owner });
+const initializeSettlement = async (owner, account2, account3, arrayRedeemSize, vendorAccount) => {
+  await mocHelper.mintBProAmount(owner, scenario.mintBpro, vendorAccount, { from: owner });
+  await mocHelper.mintDocAmount(owner, scenario.mintDoc, vendorAccount, { from: owner });
 
   const promisesOwner = [...Array(arrayRedeemSize).keys()].map(() =>
     mocHelper.moc.redeemDocRequest(toContractBN(scenario.redeemAmountInitOwner, 'USD'), {
@@ -57,8 +57,8 @@ const initializeSettlementStress = async (accounts, arrayRedeemSize) => {
   // Avoid interests
   await mocHelper.mocState.setDaysToSettlement(0);
   const docAccounts = accounts.slice(0, 5);
-  await Promise.all(docAccounts.map(account => mocHelper.mintBProAmount(account, 100000)));
-  await Promise.all(docAccounts.map(account => mocHelper.mintDocAmount(account, 100000)));
+  await Promise.all(docAccounts.map(account => mocHelper.mintBProAmount(account, 100000, vendorAccount)));
+  await Promise.all(docAccounts.map(account => mocHelper.mintDocAmount(account, 100000, vendorAccount)));
 
   let promises = [];
 
@@ -82,13 +82,21 @@ contract.skip('MoC: Gas limit on alter redeem request', function([
   account2,
   account3,
   account4,
+  vendorAccount,
   ...accounts
 ]) {
   before(async function() {
     mocHelper = await testHelperBuilder({ owner, useMock: true });
     ({ toContractBN } = mocHelper);
     await mocHelper.revertState();
-    await initializeSettlement(owner, account2, account3, scenario.redeemRequestPerAccount);
+
+    // Register vendor for test
+    await this.mockMoCVendorsChanger.setVendorsToRegister(
+      mocHelper.getVendorToRegisterAsArray(vendorAccount, 0)
+    );
+    await this.governor.executeChange(this.mockMoCVendorsChanger.address);
+
+    await initializeSettlement(owner, account2, account3, scenario.redeemRequestPerAccount, vendorAccount);
   });
 
   describe(`GIVEN there are ${scenario.accounts} accounts which call redeemDocRequest ${scenario.redeemRequestPerAccount} times per account`, function() {

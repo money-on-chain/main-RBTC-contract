@@ -6,6 +6,7 @@ let toContractBN;
 contract('MoC: Doc Redeem on Settlement with commissions', function([
   owner,
   commissionsAccount,
+  vendorAccount,
   ...accounts
 ]) {
   before(async function() {
@@ -13,12 +14,20 @@ contract('MoC: Doc Redeem on Settlement with commissions', function([
     ({ toContractBN } = mocHelper);
     this.moc = mocHelper.moc;
     this.mocSettlement = mocHelper.mocSettlement;
+    this.governor = mocHelper.governor;
+    this.mockMoCVendorsChanger = mocHelper.mockMoCVendorsChanger;
   });
   describe('GIVEN there are commisions set and there are 3 users with doc redeem requests', function() {
     let prevCommissionsAccountBtcBalance;
     let prevUserBtcBalance;
 
     before(async function() {
+      // Register vendor for test
+      await this.mockMoCVendorsChanger.setVendorsToRegister(
+        mocHelper.getVendorToRegisterAsArray(vendorAccount, 0.1)
+      );
+      await this.governor.executeChange(this.mockMoCVendorsChanger.address);
+
       // Commission rates for test are set in functionHelper.js
       await mocHelper.mockMocInrateChanger.setCommissionRates(
         await mocHelper.getCommissionsArrayNonZero()
@@ -34,10 +43,10 @@ contract('MoC: Doc Redeem on Settlement with commissions', function([
 
       const usersAccounts = accounts.slice(0, 3);
       await Promise.all(
-        usersAccounts.map(account => mocHelper.mintBProAmount(account, 1000, txTypeMintBpro))
+        usersAccounts.map(account => mocHelper.mintBProAmount(account, 1000, vendorAccount, txTypeMintBpro))
       );
       await Promise.all(
-        usersAccounts.map(account => mocHelper.mintDocAmount(account, 10, txTypeMintDoc))
+        usersAccounts.map(account => mocHelper.mintDocAmount(account, 10, vendorAccount, txTypeMintDoc))
       );
       await Promise.all(
         usersAccounts.map(account =>

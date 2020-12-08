@@ -5,7 +5,7 @@ let mocHelper;
 let toContractBN;
 const { BN } = web3.utils;
 let BUCKET_C0;
-contract('MoC', function([owner, userAccount]) {
+contract('MoC', function([owner, userAccount, vendorAccount]) {
   before(async function() {
     mocHelper = await testHelperBuilder({ owner });
     ({ toContractBN } = mocHelper);
@@ -13,16 +13,24 @@ contract('MoC', function([owner, userAccount]) {
     this.moc = mocHelper.moc;
     this.mocState = mocHelper.mocState;
     this.mocConnector = mocHelper.mocConnector;
+    this.governor = mocHelper.governor;
+    this.mockMoCVendorsChanger = mocHelper.mockMoCVendorsChanger;
   });
 
   describe('Doc minting', function() {
-    beforeEach(function() {
-      return mocHelper.revertState();
+    beforeEach(async function() {
+      await mocHelper.revertState();
+
+      // Register vendor for test
+      await this.mockMoCVendorsChanger.setVendorsToRegister(
+        mocHelper.getVendorToRegisterAsArray(vendorAccount, 0)
+      );
+      await this.governor.executeChange(this.mockMoCVendorsChanger.address);
     });
     describe('GIVEN the coverage is below Cobj', function() {
       beforeEach(async function() {
-        await mocHelper.mintBProAmount(userAccount, 1);
-        await mocHelper.mintDocAmount(userAccount, 50000);
+        await mocHelper.mintBProAmount(userAccount, 1, vendorAccount);
+        await mocHelper.mintDocAmount(userAccount, 50000, vendorAccount);
         await mocHelper.setBitcoinPrice(8000 * mocHelper.MOC_PRECISION);
       });
       describe('WHEN he tries to buy 1 DOC', function() {
@@ -31,7 +39,7 @@ contract('MoC', function([owner, userAccount]) {
           const cobj = toContractBN(3 * mocHelper.MOC_PRECISION);
           assert(coverage.lt(cobj), 'Coverage is not below Cobj');
 
-          const promise = mocHelper.mintDocAmount(userAccount, 1);
+          const promise = mocHelper.mintDocAmount(userAccount, 1, vendorAccount);
 
           await expectRevert.unspecified(promise);
         });
@@ -40,14 +48,14 @@ contract('MoC', function([owner, userAccount]) {
 
     describe('GIVEN the max DOC available is 5000', function() {
       beforeEach(async function() {
-        await mocHelper.mintBPro(userAccount, 1);
+        await mocHelper.mintBPro(userAccount, 1, vendorAccount);
       });
       describe('WHEN a user tries to mint 10000 Docs', function() {
         let prevBtcBalance;
         let txCost;
         beforeEach(async function() {
           prevBtcBalance = toContractBN(await web3.eth.getBalance(userAccount));
-          const tx = await mocHelper.mintDocAmount(userAccount, 10000);
+          const tx = await mocHelper.mintDocAmount(userAccount, 10000, vendorAccount);
 
           txCost = toContractBN(await mocHelper.getTxCost(tx));
         });
@@ -79,7 +87,7 @@ contract('MoC', function([owner, userAccount]) {
                 });
 
                 if (nDocs) {
-                  await mocHelper.mintDocAmount(owner, nDocs);
+                  await mocHelper.mintDocAmount(owner, nDocs, vendorAccount);
                 }
                 [
                   prev.userBalance,
@@ -93,7 +101,7 @@ contract('MoC', function([owner, userAccount]) {
                   this.mocState.getBucketNBTC(BUCKET_C0)
                 ]);
 
-                const tx = await mocHelper.mintDocAmount(userAccount, docAmount);
+                const tx = await mocHelper.mintDocAmount(userAccount, docAmount, vendorAccount);
                 payAmount = new BN(docAmount).mul(mocHelper.MOC_PRECISION).div(new BN(btcPrice));
 
                 txCost = await mocHelper.getTxCost(tx);

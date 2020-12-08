@@ -2,15 +2,23 @@ const testHelperBuilder = require('../mocHelper.js');
 
 let mocHelper;
 let BUCKET_X2;
-contract('MoC: RedeemBProx', function([owner, ...accounts]) {
+contract('MoC: RedeemBProx', function([owner, vendorAccount, ...accounts]) {
   before(async function() {
     mocHelper = await testHelperBuilder({ owner, useMock: true });
     this.moc = mocHelper.moc;
+    this.governor = mocHelper.governor;
+    this.mockMoCVendorsChanger = mocHelper.mockMoCVendorsChanger;
     ({ BUCKET_X2 } = mocHelper);
   });
 
-  beforeEach(function() {
-    return mocHelper.revertState();
+  beforeEach(async function() {
+    await mocHelper.revertState();
+
+    // Register vendor for test
+    await this.mockMoCVendorsChanger.setVendorsToRegister(
+      mocHelper.getVendorToRegisterAsArray(vendorAccount, 0)
+    );
+    await this.governor.executeChange(this.mockMoCVendorsChanger.address);
   });
 
   const scenarios = [
@@ -108,9 +116,9 @@ contract('MoC: RedeemBProx', function([owner, ...accounts]) {
           s.users.forEach(async (user, index) => {
             const account = accounts[index + 1];
 
-            await mocHelper.mintBProAmount(account, user.nBPro);
-            await mocHelper.mintDocAmount(account, user.nDoc);
-            await mocHelper.mintBProx(account, BUCKET_X2, user.bproxMint.nB);
+            await mocHelper.mintBProAmount(account, user.nBPro, vendorAccount);
+            await mocHelper.mintDocAmount(account, user.nDoc, vendorAccount);
+            await mocHelper.mintBProx(account, BUCKET_X2, user.bproxMint.nB, vendorAccount);
             if (index === s.users.length - 1) resolve();
           });
         });
@@ -128,7 +136,7 @@ contract('MoC: RedeemBProx', function([owner, ...accounts]) {
                 await mocHelper.setBitcoinPrice(user.btcPrice * mocHelper.MOC_PRECISION);
               }
 
-              await this.moc.redeemBProx(BUCKET_X2, userBProxBalance, {
+              await this.moc.redeemBProx(BUCKET_X2, userBProxBalance, vendorAccount, {
                 from: accounts[index + 1]
               });
 

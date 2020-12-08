@@ -3,25 +3,33 @@ const testHelperBuilder = require('../mocHelper.js');
 let mocHelper;
 let toContractBN;
 let BUCKET_X2;
-contract('MoC : MoCExchange', function([owner, userAccount]) {
+contract('MoC : MoCExchange', function([owner, userAccount, vendorAccount]) {
   before(async function() {
     mocHelper = await testHelperBuilder({ owner, useMock: true });
     ({ toContractBN } = mocHelper);
     this.moc = mocHelper.moc;
     this.mocState = mocHelper.mocState;
     this.mocInrate = mocHelper.mocInrate;
+    this.governor = mocHelper.governor;
+    this.mockMoCVendorsChanger = mocHelper.mockMoCVendorsChanger;
     ({ BUCKET_X2 } = mocHelper);
   });
 
-  beforeEach(function() {
-    return mocHelper.revertState();
+  beforeEach(async function() {
+    await mocHelper.revertState();
+
+    // Register vendor for test
+    await this.mockMoCVendorsChanger.setVendorsToRegister(
+      mocHelper.getVendorToRegisterAsArray(vendorAccount, 0)
+    );
+    await this.governor.executeChange(this.mockMoCVendorsChanger.address);
   });
 
   describe('BProx Mint interest calculation', function() {
     const onMinting = true;
     beforeEach(async function() {
-      await mocHelper.mintBProAmount(userAccount, 18);
-      await mocHelper.mintDocAmount(userAccount, 80000);
+      await mocHelper.mintBProAmount(userAccount, 18, vendorAccount);
+      await mocHelper.mintDocAmount(userAccount, 80000, vendorAccount);
       await this.mocState.setDaysToSettlement(toContractBN(1, 'DAY'));
     });
     describe('WHEN all Docs are in bucket 0 ', function() {
@@ -146,13 +154,13 @@ contract('MoC : MoCExchange', function([owner, userAccount]) {
       let params;
       describe(`WHEN the user have 4.99959195 BProx AND ${s.params.freeDocRedeem.nDoCs} FreeDoCs are redeemed AND a user wants to redeem ${s.params.nB} BTC value in BProx`, function() {
         beforeEach(async function() {
-          await mocHelper.mintBPro(userAccount, 18);
-          await mocHelper.mintDoc(userAccount, 80000);
+          await mocHelper.mintBPro(userAccount, 18, vendorAccount);
+          await mocHelper.mintDoc(userAccount, 80000, vendorAccount);
           await this.mocState.setDaysToSettlement(toContractBN(2, 'DAY'));
           ({ params } = mocHelper.getContractReadyState(s));
-          await mocHelper.mintBProxAmount(userAccount, BUCKET_X2, 5);
+          await mocHelper.mintBProxAmount(userAccount, BUCKET_X2, 5, vendorAccount);
 
-          await this.moc.redeemFreeDoc(toContractBN(params.freeDocRedeem.nDoCs), {
+          await this.moc.redeemFreeDoc(toContractBN(params.freeDocRedeem.nDoCs), vendorAccount, {
             from: userAccount
           });
         });

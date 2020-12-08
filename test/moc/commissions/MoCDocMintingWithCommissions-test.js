@@ -7,7 +7,7 @@ const { BN } = web3.utils;
 // eslint-disable-next-line quotes
 const NOT_ENOUGH_FUNDS_ERROR = "sender doesn't have enough funds to send tx";
 
-contract('MoC', function([owner, userAccount, commissionsAccount]) {
+contract('MoC', function([owner, userAccount, commissionsAccount, vendorAccount]) {
   before(async function() {
     mocHelper = await testHelperBuilder({ owner });
     ({ toContractBN } = mocHelper);
@@ -16,11 +16,18 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
     this.governor = mocHelper.governor;
     this.mocToken = mocHelper.mocToken;
     this.mockMocStateChanger = mocHelper.mockMocStateChanger;
+    this.mockMoCVendorsChanger = mocHelper.mockMoCVendorsChanger;
   });
 
   describe('Doc minting paying Commissions', function() {
     beforeEach(async function() {
       await mocHelper.revertState();
+
+      // Register vendor for test
+      await this.mockMoCVendorsChanger.setVendorsToRegister(
+        mocHelper.getVendorToRegisterAsArray(vendorAccount, 0.1)
+      );
+      await this.governor.executeChange(this.mockMoCVendorsChanger.address);
 
       // Commission rates for test are set in functionHelper.js
       await mocHelper.mockMocInrateChanger.setCommissionRates(
@@ -39,6 +46,7 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
         await mocHelper.mintBProAmount(
           userAccount,
           1,
+          vendorAccount,
           await mocHelper.mocInrate.MINT_BPRO_FEES_RBTC()
         );
       });
@@ -54,6 +62,7 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
           const tx = await mocHelper.mintDocAmount(
             userAccount,
             10000,
+            vendorAccount,
             await mocHelper.mocInrate.MINT_DOC_FEES_RBTC()
           );
 
@@ -114,6 +123,7 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
                   await mocHelper.mintDocAmount(
                     owner,
                     nDocs,
+                    vendorAccount,
                     await mocHelper.mocInrate.MINT_DOC_FEES_RBTC()
                   );
                 }
@@ -130,6 +140,7 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
                 const tx = await mocHelper.mintDocAmount(
                   userAccount,
                   docAmount,
+                  vendorAccount,
                   await mocHelper.mocInrate.MINT_DOC_FEES_RBTC()
                 );
                 const _payAmount = (docAmount * mocHelper.MOC_PRECISION) / btcPrice;
@@ -194,6 +205,7 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
         await mocHelper.mintBProAmount(
           userAccount,
           1,
+          vendorAccount,
           await mocHelper.mocInrate.MINT_BPRO_FEES_MOC()
         );
       });
@@ -210,6 +222,7 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
           const tx = await mocHelper.mintDocAmount(
             userAccount,
             10000,
+            vendorAccount,
             await mocHelper.mocInrate.MINT_DOC_FEES_MOC()
           );
           txCost = toContractBN(await mocHelper.getTxCost(tx));
@@ -271,11 +284,13 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
         await mocHelper.mintBProAmount(
           userAccount,
           10,
+          vendorAccount,
           await mocHelper.mocInrate.MINT_BPRO_FEES_RBTC()
         );
         const mintDoc = mocHelper.mintDoc(
           userAccount,
           1,
+          vendorAccount,
           await mocHelper.mocInrate.MINT_DOC_FEES_RBTC()
         );
         await expectRevert(mintDoc, 'amount is not enough');
@@ -288,11 +303,13 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
         await mocHelper.mintBProAmount(
           userAccount,
           10,
+          vendorAccount,
           await mocHelper.mocInrate.MINT_BPRO_FEES_RBTC()
         );
         const mintDoc = mocHelper.mintDoc(
           userAccount,
           1,
+          vendorAccount,
           await mocHelper.mocInrate.MINT_DOC_FEES_RBTC()
         );
         await expectRevert(mintDoc, 'amount is not enough');
@@ -327,9 +344,10 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
         const mintBpro = await mocHelper.mintBProAmount(
           userAccount,
           mintBproAmount,
+          vendorAccount,
           txTypeMintBpro
         );
-        const mintDoc = await mocHelper.mintDocAmount(otherAddress, mintDocAmount, txTypeMintDoc);
+        const mintDoc = await mocHelper.mintDocAmount(otherAddress, mintDocAmount, vendorAccount, txTypeMintDoc);
         const usedGas = toContractBN(await mocHelper.getTxCost(mintBpro)).add(
           toContractBN(await mocHelper.getTxCost(mintDoc))
         );
@@ -383,7 +401,7 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
           await mocHelper.mintMoCToken(failingAddress, 0, owner);
           await mocHelper.approveMoCToken(mocHelper.moc.address, 0, failingAddress);
           const txType = await mocHelper.mocInrate.MINT_DOC_FEES_MOC();
-          const mint = await mocHelper.mintDoc(failingAddress, 10, txType);
+          const mint = await mocHelper.mintDoc(failingAddress, 10, vendorAccount, txType);
           assert(mint === null, 'This should not happen');
         } catch (err) {
           assert(
@@ -425,9 +443,10 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
         const mintBpro = await mocHelper.mintBProAmount(
           userAccount,
           mintBproAmount,
+          vendorAccount,
           txTypeMintBpro
         );
-        const mintDoc = await mocHelper.mintDocAmount(otherAddress, mintDocAmount, txTypeMintDoc);
+        const mintDoc = await mocHelper.mintDocAmount(otherAddress, mintDocAmount, vendorAccount, txTypeMintDoc);
         const usedGas = toContractBN(await mocHelper.getTxCost(mintBpro)).add(
           toContractBN(await mocHelper.getTxCost(mintDoc))
         );
@@ -499,6 +518,7 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
                   await mocHelper.mintDocAmount(
                     owner,
                     nDocs,
+                    vendorAccount,
                     await mocHelper.mocInrate.MINT_DOC_FEES_RBTC()
                   );
                 }
@@ -520,6 +540,7 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
                 const tx = await mocHelper.mintDocAmount(
                   userAccount,
                   docAmount,
+                  vendorAccount,
                   await mocHelper.mocInrate.MINT_DOC_FEES_MOC()
                 );
                 const _payAmount = (docAmount * mocHelper.MOC_PRECISION) / btcPrice;
@@ -630,6 +651,7 @@ contract('MoC', function([owner, userAccount, commissionsAccount]) {
                   await mocHelper.mintDocAmount(
                     owner,
                     nDocs,
+                    vendorAccount,
                     await mocHelper.mocInrate.MINT_DOC_FEES_RBTC()
                   );
                 }
