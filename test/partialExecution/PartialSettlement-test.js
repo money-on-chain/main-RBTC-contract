@@ -43,10 +43,10 @@ const initializeSettlement = async (vendorAccount, accounts) => {
   await mocHelper.revertState();
 
   // Register vendor for test
-  await this.mockMoCVendorsChanger.setVendorsToRegister(
-    mocHelper.getVendorToRegisterAsArray(vendorAccount, 0)
+  await mocHelper.mockMoCVendorsChanger.setVendorsToRegister(
+    await mocHelper.getVendorToRegisterAsArray(vendorAccount, 0)
   );
-  await this.governor.executeChange(this.mockMoCVendorsChanger.address);
+  await mocHelper.governor.executeChange(mocHelper.mockMoCVendorsChanger.address);
 
   // Avoid interests
   await mocHelper.mocState.setDaysToSettlement(0);
@@ -93,9 +93,6 @@ contract('MoC: Partial Settlement execution', function([owner, vendorAccount, ..
     mocHelper = await testHelperBuilder({ owner, useMock: true });
     ({ toContractBN } = mocHelper);
     ({ BUCKET_X2 } = mocHelper);
-
-    this.governor = mocHelper.governor;
-    this.mockMoCVendorsChanger = mocHelper.mockMoCVendorsChanger;
   });
 
   const scenarios = [

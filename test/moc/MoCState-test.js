@@ -9,6 +9,8 @@ contract('MoC', function([owner, vendorAccount]) {
     ({ toContractBN } = mocHelper);
     this.mocState = mocHelper.mocState;
     this.moc = mocHelper.moc;
+    this.governor = mocHelper.governor;
+    this.mockMoCVendorsChanger = mocHelper.mockMoCVendorsChanger;
   });
 
   beforeEach(async function() {
@@ -16,7 +18,7 @@ contract('MoC', function([owner, vendorAccount]) {
 
     // Register vendor for test
     await this.mockMoCVendorsChanger.setVendorsToRegister(
-      mocHelper.getVendorToRegisterAsArray(vendorAccount, 0)
+      await mocHelper.getVendorToRegisterAsArray(vendorAccount, 0)
     );
     await this.governor.executeChange(this.mockMoCVendorsChanger.address);
   });

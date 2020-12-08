@@ -120,7 +120,7 @@ contract('MoC', function([owner, userAccount, commissionsAccount, vendorAccount]
 
             // Register vendor for test
             await this.mockMoCVendorsChanger.setVendorsToRegister(
-              mocHelper.getVendorToRegisterAsArray(vendorAccount, 0.1)
+              await mocHelper.getVendorToRegisterAsArray(vendorAccount, 0.1)
             );
             await this.governor.executeChange(this.mockMoCVendorsChanger.address);
 

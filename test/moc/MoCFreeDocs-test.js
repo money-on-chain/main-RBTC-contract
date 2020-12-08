@@ -22,7 +22,7 @@ contract.skip('MoC', function([owner, userAccount, otherAccount, vendorAccount])
 
       // Register vendor for test
       await this.mockMoCVendorsChanger.setVendorsToRegister(
-        mocHelper.getVendorToRegisterAsArray(vendorAccount, 0)
+        await mocHelper.getVendorToRegisterAsArray(vendorAccount, 0)
       );
       await this.governor.executeChange(this.mockMoCVendorsChanger.address);
 

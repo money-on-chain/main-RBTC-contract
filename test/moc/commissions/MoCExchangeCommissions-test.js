@@ -3,17 +3,24 @@ const testHelperBuilder = require('../../mocHelper.js');
 let mocHelper;
 let toContractBN;
 
-contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount]) {
+contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount, vendorAccount]) {
   before(async function() {
     mocHelper = await testHelperBuilder({ owner });
     ({ toContractBN } = mocHelper);
     this.moc = mocHelper.moc;
     this.mockMocInrateChanger = mocHelper.mockMocInrateChanger;
     this.governor = mocHelper.governor;
+    this.mockMoCVendorsChanger = mocHelper.mockMoCVendorsChanger;
   });
 
   beforeEach(async function() {
     await mocHelper.revertState();
+
+    // Register vendor for test
+    await this.mockMoCVendorsChanger.setVendorsToRegister(
+      await mocHelper.getVendorToRegisterAsArray(vendorAccount, 0.1)
+    );
+    await this.governor.executeChange(this.mockMoCVendorsChanger.address);
 
     // Commission rates for test are set in functionHelper.js
     await mocHelper.mockMocInrateChanger.setCommissionRates(
@@ -37,7 +44,9 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount]) 
         },
         expect: {
           commissionAmountRbtc: 0, // rate: 0.001
-          commissionAmountMoC: 7 // rate: 0.007
+          commissionAmountMoC: 7, // rate: 0.007
+          markupAmountRbtc: 0,
+          markupAmountMoC: 0.1
         }
       },
       {
@@ -94,6 +103,8 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount]) 
       describe(`GIVEN BTC price is ${scenario.params.btcPrice}, MoC price is ${scenario.params.mocPrice} and MoC allowance is ${scenario.params.mocAmount}`, function() {
         let btcCommission;
         let mocCommission;
+        let btcMarkup;
+        let mocMarkup;
 
         beforeEach(async function() {
           // Set BTC price
@@ -114,13 +125,16 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount]) 
 
           ({
             btcCommission,
-            mocCommission
-          } = await mocHelper.mocExchange.calculateCommissionsWithPrices(
-            userAccount,
-            toContractBN(scenario.params.btcAmount * mocHelper.MOC_PRECISION),
+            mocCommission,
+            btcMarkup,
+            mocMarkup
+          } = await mocHelper.mocExchange.calculateCommissionsWithPrices({
+            account: userAccount,
+            amount: toContractBN(scenario.params.btcAmount * mocHelper.MOC_PRECISION),
             txTypeFeesMOC,
-            txTypeFeesRBTC
-          ));
+            txTypeFeesRBTC,
+            vendorAccount
+          }));
         });
         it(`THEN the commission amount in RBTC of ${scenario.expect.commissionAmountRbtc} is correct`, async function() {
           mocHelper.assertBigRBTC(

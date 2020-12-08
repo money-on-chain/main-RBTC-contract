@@ -66,7 +66,6 @@ contract('MoC: Partial Settlement execution', function([owner, vendorAccount, ..
     mocHelper = await testHelperBuilder({ owner, useMock: true });
     ({ toContractBN } = mocHelper);
     ({ BUCKET_X2 } = mocHelper);
-
     this.governor = mocHelper.governor;
     this.mockMoCVendorsChanger = mocHelper.mockMoCVendorsChanger;
   });

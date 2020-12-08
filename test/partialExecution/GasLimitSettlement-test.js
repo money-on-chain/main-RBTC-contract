@@ -36,7 +36,7 @@ contract('MoC: Gas limit on settlement', function([owner, vendorAccount, ...btcx
 
     // Register vendor for test
     await this.mockMoCVendorsChanger.setVendorsToRegister(
-      mocHelper.getVendorToRegisterAsArray(vendorAccount, 0)
+      await mocHelper.getVendorToRegisterAsArray(vendorAccount, 0)
     );
     await this.governor.executeChange(this.mockMoCVendorsChanger.address);
   });
