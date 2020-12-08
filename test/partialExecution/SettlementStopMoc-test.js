@@ -6,7 +6,7 @@ let toContractBN;
 let BUCKET_X2;
 const ACCOUNTS_QUANTITY = 10;
 
-const testFunctionPromises = () => {
+const testFunctionPromises = vendorAccount => {
   const testFunctions = [
     { name: 'mintBProx', args: [BUCKET_X2, 0, vendorAccount] },
     { name: 'redeemBProx', args: [BUCKET_X2, 0, vendorAccount] },
@@ -18,15 +18,15 @@ const testFunctionPromises = () => {
   return testFunctions.map(func => mocHelper.moc[func.name](...func.args));
 };
 
-const assertNonStoppedFunctions = async () => {
-  const promises = testFunctionPromises();
+const assertNonStoppedFunctions = async vendorAccount => {
+  const promises = testFunctionPromises(vendorAccount);
   const txResults = await Promise.all(promises);
 
   return assert(txResults.every(result => result.receipt.status), 'Some transactions reverted');
 };
 
-const assertAllStoppedFunctions = () => {
-  const promises = testFunctionPromises();
+const assertAllStoppedFunctions = vendorAccount => {
+  const promises = testFunctionPromises(vendorAccount);
   return Promise.all(
     promises.map(tx => expectRevert(tx, 'Function can only be called when settlement is ready'))
   );
@@ -97,7 +97,7 @@ contract('MoC: Partial Settlement execution', function([owner, vendorAccount, ..
       assert(enabled, 'Settlement is not enabled');
     });
     it('THEN BPRox and Doc Redeem Request transactions should revert', async function() {
-      await assertAllStoppedFunctions();
+      await assertAllStoppedFunctions(vendorAccount);
     });
   });
   describe('WHEN the settlement is set to stall AND executed with 100 steps', function() {
@@ -121,7 +121,7 @@ contract('MoC: Partial Settlement execution', function([owner, vendorAccount, ..
       assert(!ready, 'Settlement is in ready state');
     });
     it('AND BPRox and Doc Redeem Request transactions should revert', async function() {
-      await assertAllStoppedFunctions();
+      await assertAllStoppedFunctions(vendorAccount);
     });
     describe('WHEN settlement is set to restart', function() {
       before(function() {
@@ -133,7 +133,7 @@ contract('MoC: Partial Settlement execution', function([owner, vendorAccount, ..
         assert(ready, 'Settlement is in ready state');
       });
       it('AND all operations are again available', async function() {
-        await assertNonStoppedFunctions();
+        await assertNonStoppedFunctions(vendorAccount);
       });
     });
   });

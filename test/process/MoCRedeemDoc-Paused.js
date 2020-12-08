@@ -7,7 +7,7 @@ let mocHelper;
 let toContractBN;
 const blockSpan = 41;
 
-contract('MoC Paused', function([owner, userAccount, ...accounts]) {
+contract('MoC Paused', function([owner, userAccount, vendorAccount, ...accounts]) {
   before(async function() {
     mocHelper = await testHelperBuilder({ owner, useMock: true });
     ({ toContractBN } = mocHelper);
@@ -18,10 +18,17 @@ contract('MoC Paused', function([owner, userAccount, ...accounts]) {
     this.revertingContract = mocHelper.revertingContract;
     this.mockMoCSettlementChanger = mocHelper.mockMoCSettlementChanger;
     this.governor = mocHelper.governor;
+    this.mockMoCVendorsChanger = mocHelper.mockMoCVendorsChanger;
   });
 
-  beforeEach(function() {
-    return mocHelper.revertState();
+  beforeEach(async function() {
+    await mocHelper.revertState();
+
+    // Register vendor for test
+    await this.mockMoCVendorsChanger.setVendorsToRegister(
+      mocHelper.getVendorToRegisterAsArray(vendorAccount, 0)
+    );
+    await this.governor.executeChange(this.mockMoCVendorsChanger.address);
   });
 
   describe('DoC Redeem', function() {

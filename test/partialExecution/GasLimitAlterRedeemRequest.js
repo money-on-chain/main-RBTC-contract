@@ -52,7 +52,7 @@ const initializeSettlement = async (owner, account2, account3, arrayRedeemSize, 
   await Promise.all(promises);
 };
 
-const initializeSettlementStress = async (accounts, arrayRedeemSize) => {
+const initializeSettlementStress = async (accounts, arrayRedeemSize, vendorAccount) => {
   mocHelper.revertState();
   // Avoid interests
   await mocHelper.mocState.setDaysToSettlement(0);
@@ -247,7 +247,11 @@ contract.skip('MoC: Gas limit on alter redeem request', function([
     describe(`AND there are ${scenario.redeemStressSizePerAccount} redeem request creations per account`, function() {
       beforeEach(async function() {
         mocHelper.revertState();
-        await initializeSettlementStress(accounts, scenario.redeemStressSizePerAccount);
+        await initializeSettlementStress(
+          accounts,
+          scenario.redeemStressSizePerAccount,
+          vendorAccount
+        );
         const redeemQueueSize = await mocHelper.moc.redeemQueueSize();
         mocHelper.assertBig(
           redeemQueueSize,
