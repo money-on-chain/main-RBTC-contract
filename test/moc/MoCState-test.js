@@ -142,15 +142,23 @@ contract('MoC', function([owner, vendorAccount]) {
               await mocHelper.setSmoothingFactor(0.5 * 10 ** 18);
 
               if (contractReadyState.nDoCs) {
-                await this.moc.mintDoc(toContractBN(contractReadyState.nDocsBtcAmount), vendorAccount, {
-                  value: toContractBN(contractReadyState.nDocsBtcAmount)
-                });
+                await this.moc.mintDoc(
+                  toContractBN(contractReadyState.nDocsBtcAmount),
+                  vendorAccount,
+                  {
+                    value: toContractBN(contractReadyState.nDocsBtcAmount)
+                  }
+                );
               }
 
               if (contractReadyState.nBPro) {
-                await this.moc.mintBPro(toContractBN(contractReadyState.bproBtcAmount), vendorAccount, {
-                  value: toContractBN(contractReadyState.bproBtcAmount)
-                });
+                await this.moc.mintBPro(
+                  toContractBN(contractReadyState.bproBtcAmount),
+                  vendorAccount,
+                  {
+                    value: toContractBN(contractReadyState.bproBtcAmount)
+                  }
+                );
               }
 
               await mocHelper.setBitcoinPrice(contractReadyState.btcPrice.to);

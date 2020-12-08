@@ -47,11 +47,18 @@ contract('MoCBucketContainer', function([owner, account2, vendorAccount]) {
         await mocHelper.mintDocAmount(account2, 10000, vendorAccount);
       });
       it('THEN mintBProx must revert', async function() {
-        await expectRevert(mocHelper.mintBProx(account2, bucketC0, 1, vendorAccount), NOT_BUCKET_BASE);
+        await expectRevert(
+          mocHelper.mintBProx(account2, bucketC0, 1, vendorAccount),
+          NOT_BUCKET_BASE
+        );
       });
       it('THEN redeemBProx must revert', async function() {
         await expectRevert(
-          this.moc.redeemBProx(bucketC0, toContractBN(0.5 * mocHelper.RESERVE_PRECISION), vendorAccount),
+          this.moc.redeemBProx(
+            bucketC0,
+            toContractBN(0.5 * mocHelper.RESERVE_PRECISION),
+            vendorAccount
+          ),
           NOT_BUCKET_BASE
         );
       });
@@ -61,11 +68,18 @@ contract('MoCBucketContainer', function([owner, account2, vendorAccount]) {
     });
     describe('AND the bucket H8 does not exists', function() {
       it('THEN mintBProx must revert', async function() {
-        await expectRevert(mocHelper.mintBProx(account2, bucketH8, 1, vendorAccount), BUCKET_NOT_AVAILABLE);
+        await expectRevert(
+          mocHelper.mintBProx(account2, bucketH8, 1, vendorAccount),
+          BUCKET_NOT_AVAILABLE
+        );
       });
       it('THEN redeemBProx must revert', async function() {
         await expectRevert(
-          this.moc.redeemBProx(bucketH8, toContractBN(0.5 * mocHelper.RESERVE_PRECISION), vendorAccount),
+          this.moc.redeemBProx(
+            bucketH8,
+            toContractBN(0.5 * mocHelper.RESERVE_PRECISION),
+            vendorAccount
+          ),
           BUCKET_NOT_AVAILABLE
         );
       });

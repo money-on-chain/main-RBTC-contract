@@ -347,7 +347,12 @@ contract('MoC', function([owner, userAccount, commissionsAccount, vendorAccount]
           vendorAccount,
           txTypeMintBpro
         );
-        const mintDoc = await mocHelper.mintDocAmount(otherAddress, mintDocAmount, vendorAccount, txTypeMintDoc);
+        const mintDoc = await mocHelper.mintDocAmount(
+          otherAddress,
+          mintDocAmount,
+          vendorAccount,
+          txTypeMintDoc
+        );
         const usedGas = toContractBN(await mocHelper.getTxCost(mintBpro)).add(
           toContractBN(await mocHelper.getTxCost(mintDoc))
         );
@@ -446,7 +451,12 @@ contract('MoC', function([owner, userAccount, commissionsAccount, vendorAccount]
           vendorAccount,
           txTypeMintBpro
         );
-        const mintDoc = await mocHelper.mintDocAmount(otherAddress, mintDocAmount, vendorAccount, txTypeMintDoc);
+        const mintDoc = await mocHelper.mintDocAmount(
+          otherAddress,
+          mintDocAmount,
+          vendorAccount,
+          txTypeMintDoc
+        );
         const usedGas = toContractBN(await mocHelper.getTxCost(mintBpro)).add(
           toContractBN(await mocHelper.getTxCost(mintDoc))
         );

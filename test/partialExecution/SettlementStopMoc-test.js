@@ -37,8 +37,12 @@ const initializeSettlement = async (vendorAccount, accounts) => {
   // Avoid interests
   await mocHelper.mocState.setDaysToSettlement(0);
   const docAccounts = accounts.slice(0, 5);
-  await Promise.all(docAccounts.map(account => mocHelper.mintBProAmount(account, 10000, vendorAccount)));
-  await Promise.all(docAccounts.map(account => mocHelper.mintDocAmount(account, 10000, vendorAccount)));
+  await Promise.all(
+    docAccounts.map(account => mocHelper.mintBProAmount(account, 10000, vendorAccount))
+  );
+  await Promise.all(
+    docAccounts.map(account => mocHelper.mintDocAmount(account, 10000, vendorAccount))
+  );
   await Promise.all(
     docAccounts.map(account =>
       mocHelper.moc.redeemDocRequest(toContractBN(10, 'USD'), {

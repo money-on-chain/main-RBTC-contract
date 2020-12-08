@@ -16,7 +16,13 @@ const setCommissionAccount = async commissionAccount => {
   comAccountInitialBalance = await web3.eth.getBalance(commissionAccount);
 };
 
-contract('MoC: Liquidation', function([owner, commissionAccount, userAccount, otherAccount, vendorAccount]) {
+contract('MoC: Liquidation', function([
+  owner,
+  commissionAccount,
+  userAccount,
+  otherAccount,
+  vendorAccount
+]) {
   before(async function() {
     mocHelper = await testHelperBuilder({ owner });
     ({ toContractBN } = mocHelper);
@@ -30,7 +36,7 @@ contract('MoC: Liquidation', function([owner, commissionAccount, userAccount, ot
   });
 
   beforeEach(async function() {
-    await  mocHelper.revertState();
+    await mocHelper.revertState();
 
     // Register vendor for test
     await this.mockMoCVendorsChanger.setVendorsToRegister(

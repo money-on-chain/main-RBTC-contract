@@ -52,7 +52,11 @@ contract('MoC', function([owner, userAccount, userAccount2, vendorAccount]) {
       });
 
       it('AND the user redeems all the Free Docs THEN the RBTC interests are 0.000156694725640680 RBTC', async function() {
-        const redeemTx = await mocHelper.redeemFreeDoc({ userAccount, docAmount: 10000, vendorAccount });
+        const redeemTx = await mocHelper.redeemFreeDoc({
+          userAccount,
+          docAmount: 10000,
+          vendorAccount
+        });
         const [freeDocRedeemEvent] = mocHelper.findEvents(redeemTx, 'FreeStableTokenRedeem');
         mocHelper.assertBigRBTC(
           freeDocRedeemEvent.interests,
@@ -133,7 +137,11 @@ contract('MoC', function([owner, userAccount, userAccount2, vendorAccount]) {
         let redeemTx;
 
         beforeEach(async function() {
-          redeemTx = await mocHelper.redeemFreeDoc({ userAccount, docAmount: 10000, vendorAccount });
+          redeemTx = await mocHelper.redeemFreeDoc({
+            userAccount,
+            docAmount: 10000,
+            vendorAccount
+          });
         });
 
         it('THEN the RBTC interests are 0.00005223157521356 RBTC', function() {

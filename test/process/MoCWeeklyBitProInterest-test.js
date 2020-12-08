@@ -4,7 +4,12 @@ let mocHelper;
 let toContractBN;
 let BUCKET_C0;
 
-contract('MoC: BitPro holder interests payment', function([owner, account, targetAddr, vendorAccount]) {
+contract('MoC: BitPro holder interests payment', function([
+  owner,
+  account,
+  targetAddr,
+  vendorAccount
+]) {
   before(async function() {
     mocHelper = await testHelperBuilder({ owner, useMock: true });
     ({ toContractBN } = mocHelper);

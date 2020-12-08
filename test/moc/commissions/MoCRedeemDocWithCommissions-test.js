@@ -43,10 +43,14 @@ contract('MoC: Doc Redeem on Settlement with commissions', function([
 
       const usersAccounts = accounts.slice(0, 3);
       await Promise.all(
-        usersAccounts.map(account => mocHelper.mintBProAmount(account, 1000, vendorAccount, txTypeMintBpro))
+        usersAccounts.map(account =>
+          mocHelper.mintBProAmount(account, 1000, vendorAccount, txTypeMintBpro)
+        )
       );
       await Promise.all(
-        usersAccounts.map(account => mocHelper.mintDocAmount(account, 10, vendorAccount, txTypeMintDoc))
+        usersAccounts.map(account =>
+          mocHelper.mintDocAmount(account, 10, vendorAccount, txTypeMintDoc)
+        )
       );
       await Promise.all(
         usersAccounts.map(account =>

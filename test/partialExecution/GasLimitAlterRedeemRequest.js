@@ -57,8 +57,12 @@ const initializeSettlementStress = async (accounts, arrayRedeemSize) => {
   // Avoid interests
   await mocHelper.mocState.setDaysToSettlement(0);
   const docAccounts = accounts.slice(0, 5);
-  await Promise.all(docAccounts.map(account => mocHelper.mintBProAmount(account, 100000, vendorAccount)));
-  await Promise.all(docAccounts.map(account => mocHelper.mintDocAmount(account, 100000, vendorAccount)));
+  await Promise.all(
+    docAccounts.map(account => mocHelper.mintBProAmount(account, 100000, vendorAccount))
+  );
+  await Promise.all(
+    docAccounts.map(account => mocHelper.mintDocAmount(account, 100000, vendorAccount))
+  );
 
   let promises = [];
 
@@ -96,7 +100,13 @@ contract.skip('MoC: Gas limit on alter redeem request', function([
     );
     await this.governor.executeChange(this.mockMoCVendorsChanger.address);
 
-    await initializeSettlement(owner, account2, account3, scenario.redeemRequestPerAccount, vendorAccount);
+    await initializeSettlement(
+      owner,
+      account2,
+      account3,
+      scenario.redeemRequestPerAccount,
+      vendorAccount
+    );
   });
 
   describe(`GIVEN there are ${scenario.accounts} accounts which call redeemDocRequest ${scenario.redeemRequestPerAccount} times per account`, function() {

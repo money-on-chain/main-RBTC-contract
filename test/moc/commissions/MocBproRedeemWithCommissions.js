@@ -126,7 +126,12 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount, v
             scenario.params.mocAmount === 0
               ? await mocHelper.mocInrate.MINT_BPRO_FEES_RBTC()
               : await mocHelper.mocInrate.MINT_BPRO_FEES_MOC();
-          await mocHelper.mintBProAmount(userAccount, scenario.params.bproToMint, vendorAccount, txTypeMint);
+          await mocHelper.mintBProAmount(
+            userAccount,
+            scenario.params.bproToMint,
+            vendorAccount,
+            txTypeMint
+          );
           // Calculate balances before redeeming
           initialBProBalance = await mocHelper.getBProBalance(userAccount);
           prevCommissionAccountBalance = toContractBN(
@@ -245,8 +250,18 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount, v
 
         const txType = await mocHelper.mocInrate.MINT_BPRO_FEES_RBTC();
         // Mint
-        const mintBpro = await mocHelper.mintBProAmount(otherAddress, mintAmount, vendorAccount, txType);
-        const redeemBpro = await mocHelper.redeemBPro(userAccount, redeemAmount, vendorAccount, vendorAccount);
+        const mintBpro = await mocHelper.mintBProAmount(
+          otherAddress,
+          mintAmount,
+          vendorAccount,
+          txType
+        );
+        const redeemBpro = await mocHelper.redeemBPro(
+          userAccount,
+          redeemAmount,
+          vendorAccount,
+          vendorAccount
+        );
         const usedGas = toContractBN(await mocHelper.getTxCost(mintBpro)).add(
           toContractBN(await mocHelper.getTxCost(redeemBpro))
         );
@@ -332,8 +347,18 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount, v
 
         const txType = await mocHelper.mocInrate.MINT_BPRO_FEES_RBTC();
         // Mint
-        const mintBpro = await mocHelper.mintBProAmount(otherAddress, mintAmount, vendorAccount, txType);
-        const redeemBpro = await mocHelper.redeemBPro(userAccount, redeemAmount, vendorAccount, vendorAccount);
+        const mintBpro = await mocHelper.mintBProAmount(
+          otherAddress,
+          mintAmount,
+          vendorAccount,
+          txType
+        );
+        const redeemBpro = await mocHelper.redeemBPro(
+          userAccount,
+          redeemAmount,
+          vendorAccount,
+          vendorAccount
+        );
         const usedGas = toContractBN(await mocHelper.getTxCost(mintBpro)).add(
           toContractBN(await mocHelper.getTxCost(redeemBpro))
         );

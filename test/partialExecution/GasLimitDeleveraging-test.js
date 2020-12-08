@@ -8,7 +8,9 @@ let afterAccounts;
 const initializeDeleveraging = async (owner, vendorAccount, accounts) => {
   await mocHelper.mintBProAmount(owner, 10 * accounts.length, vendorAccount);
   await mocHelper.mintDocAmount(owner, 50000 * accounts.length, vendorAccount);
-  await Promise.all(accounts.map(account => mocHelper.mintBProx(account, BUCKET_X2, 5, vendorAccount)));
+  await Promise.all(
+    accounts.map(account => mocHelper.mintBProx(account, BUCKET_X2, 5, vendorAccount))
+  );
 };
 
 contract.skip('MoC: Gas limit on deleveraging', function([owner, vendorAccount, ...accounts]) {

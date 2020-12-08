@@ -219,7 +219,12 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount, v
 
         const txType = await mocHelper.mocInrate.MINT_BPRO_FEES_RBTC();
         // Mint
-        const mintBpro = await mocHelper.mintBProAmount(otherAddress, mintAmount, vendorAccount, txType);
+        const mintBpro = await mocHelper.mintBProAmount(
+          otherAddress,
+          mintAmount,
+          vendorAccount,
+          txType
+        );
         const usedGas = toContractBN(await mocHelper.getTxCost(mintBpro));
 
         const userMoCBalanceOtherAddress = await mocHelper.getMoCBalance(otherAddress);
@@ -300,7 +305,12 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount, v
 
         const txType = await mocHelper.mocInrate.MINT_BPRO_FEES_RBTC();
         // Mint
-        const mintBpro = await mocHelper.mintBProAmount(otherAddress, mintAmount, vendorAccount, txType);
+        const mintBpro = await mocHelper.mintBProAmount(
+          otherAddress,
+          mintAmount,
+          vendorAccount,
+          txType
+        );
         const usedGas = toContractBN(await mocHelper.getTxCost(mintBpro));
 
         const userMoCBalanceOtherAddress = await mocHelper.getMoCBalance(otherAddress);
@@ -375,7 +385,12 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount, v
         prevUserMoCBalance = await mocHelper.getMoCBalance(userAccount);
         prevCommissionsAccountMoCBalance = await mocHelper.getMoCBalance(commissionsAccount);
 
-        const mintTx = await mocHelper.mintBProAmount(userAccount, bproToMint, vendorAccount, txType);
+        const mintTx = await mocHelper.mintBProAmount(
+          userAccount,
+          bproToMint,
+          vendorAccount,
+          txType
+        );
         usedGas = toContractBN(await mocHelper.getTxCost(mintTx));
       });
       describe('WHEN user tries to mint BPros and commissions are paid in MoC', function() {

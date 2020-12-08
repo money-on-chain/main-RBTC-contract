@@ -52,8 +52,12 @@ const initializeSettlement = async (vendorAccount, accounts) => {
   await mocHelper.mocState.setDaysToSettlement(0);
   const docAccounts = accounts.slice(0, 5);
   const btcxAccounts = accounts.slice(5, 8);
-  await Promise.all(docAccounts.map(account => mocHelper.mintBProAmount(account, 10000, vendorAccount)));
-  await Promise.all(docAccounts.map(account => mocHelper.mintDocAmount(account, 10000, vendorAccount)));
+  await Promise.all(
+    docAccounts.map(account => mocHelper.mintBProAmount(account, 10000, vendorAccount))
+  );
+  await Promise.all(
+    docAccounts.map(account => mocHelper.mintDocAmount(account, 10000, vendorAccount))
+  );
   await Promise.all(
     docAccounts.map(account =>
       mocHelper.moc.redeemDocRequest(toContractBN(10, 'USD'), {
@@ -62,7 +66,9 @@ const initializeSettlement = async (vendorAccount, accounts) => {
     )
   );
 
-  await Promise.all(btcxAccounts.map(account => mocHelper.mintBProxAmount(account, BUCKET_X2, 1, vendorAccount)));
+  await Promise.all(
+    btcxAccounts.map(account => mocHelper.mintBProxAmount(account, BUCKET_X2, 1, vendorAccount))
+  );
   initialBalances = await Promise.all(accounts.map(address => mocHelper.getUserBalances(address)));
   await mocHelper.mocSettlement.setBlockSpan(1);
 };

@@ -130,7 +130,12 @@ contract.skip('MoC', function([owner, userAccount, otherAccount, vendorAccount])
           });
           describe(`WHEN ${scenario.params.bproxToMint} BProx are minted`, function() {
             beforeEach(async function() {
-              await mocHelper.mintBProxAmount(owner, BUCKET_X2, scenario.params.bproxToMint, vendorAccount);
+              await mocHelper.mintBProxAmount(
+                owner,
+                BUCKET_X2,
+                scenario.params.bproxToMint,
+                vendorAccount
+              );
             });
             it(`THEN the user has ${scenario.params.bproxToMint} bprox `, async function() {
               const bproxBalance = await mocHelper.getBProxBalance(BUCKET_X2, owner);

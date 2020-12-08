@@ -3,7 +3,11 @@ const testHelperBuilder = require('../mocHelper.js');
 let mocHelper;
 let toContractBN;
 let BUCKET_X2;
-contract('MoC : BTCx operations does not modify global indicators', function([owner, userAccount, vendorAccount]) {
+contract('MoC : BTCx operations does not modify global indicators', function([
+  owner,
+  userAccount,
+  vendorAccount
+]) {
   before(async function() {
     mocHelper = await testHelperBuilder({ owner, useMock: true });
     this.moc = mocHelper.moc;

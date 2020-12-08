@@ -101,7 +101,7 @@ contract('MoC', function([owner, userAccount, vendorAccount]) {
         assert(!paused, 'MoC contract must not be paused');
       });
       it('THEN reedem FreeDocs must be executed', async function() {
-        await mocHelper.redeemFreeDoc({ userAccount, docAmount: 3,  });
+        await mocHelper.redeemFreeDoc({ userAccount, docAmount: 3, vendorAccount });
       });
       it('THEN mintBPro must be executed', async function() {
         mocHelper.mintBPro(owner, 10, vendorAccount);

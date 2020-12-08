@@ -118,7 +118,12 @@ contract('MoC : MoCExchange', function([owner, userAccount, vendorAccount]) {
 
             initialBalance = toContractBN(await web3.eth.getBalance(owner));
 
-            const tx = await mocHelper.mintBProxAmount(owner, BUCKET_X2, s.params.nBProx, vendorAccount);
+            const tx = await mocHelper.mintBProxAmount(
+              owner,
+              BUCKET_X2,
+              s.params.nBProx,
+              vendorAccount
+            );
             txCost = toContractBN(await mocHelper.getTxCost(tx));
           });
           it(`THEN he receives ${s.expect.nBProx} Bprox`, async function() {

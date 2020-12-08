@@ -7,7 +7,12 @@ let toContractBN;
 
 const executeOperations = (user, operations, vendorAccount) => {
   const promises = operations.map(async op =>
-    mocHelper.mintBProAmount(user, op.reserve, vendorAccount, await mocHelper.mocInrate.MINT_BPRO_FEES_RBTC())
+    mocHelper.mintBProAmount(
+      user,
+      op.reserve,
+      vendorAccount,
+      await mocHelper.mocInrate.MINT_BPRO_FEES_RBTC()
+    )
   );
 
   return Promise.all(promises);
