@@ -683,6 +683,7 @@ contract('MoC', function([owner, userAccount, commissionsAccount, vendorAccount]
                 const tx = await mocHelper.mintDocAmount(
                   userAccount,
                   docAmount,
+                  vendorAccount,
                   await mocHelper.mocInrate.MINT_DOC_FEES_MOC()
                 );
                 const _payAmount = (docAmount * mocHelper.MOC_PRECISION) / btcPrice;

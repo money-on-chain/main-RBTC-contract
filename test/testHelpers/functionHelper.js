@@ -196,7 +196,12 @@ const mintDocAmount = (moc, btcPriceProvider, mocInrate, mocVendors) => async (
 
   const vendor = await mocVendors.vendors(vendorAccount);
   const { markup } = vendor;
-  const markupRbtcAmount = markup > 0 ? btcTotal.mul(markup).div(mocPrecision) : 0;
+  const markupRbtcAmount =
+    markup > 0
+      ? toBigNumber(btcTotal)
+          .times(markup)
+          .div(mocPrecision)
+      : 0;
 
   const value = toContract(btcTotal.plus(commissionRbtcAmount).plus(markupRbtcAmount));
 

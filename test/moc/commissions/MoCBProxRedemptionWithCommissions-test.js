@@ -587,8 +587,8 @@ contract('MoC', function([owner, userAccount, commissionsAccount, vendorAccount]
 
           const redeemTx = await this.moc.redeemBProx(
             BUCKET_X2,
-            vendorAccount,
             toContractBN(bproxsToRedeem * mocHelper.RESERVE_PRECISION),
+            vendorAccount,
             {
               from: userAccount
             }
