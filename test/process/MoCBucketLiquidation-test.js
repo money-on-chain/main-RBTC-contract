@@ -81,7 +81,7 @@ contract('MoC: Bucket Liquidation', function([owner, userAccount, otherAccount, 
         const btcToMint = 2;
         // Intentionally uses this method instead of mintBProxAmount,
         // as X2 Price is zero at this state
-        tx = await mocHelper.mintBProx(otherAccount, BUCKET_X2, btcToMint, vendorAccount);
+        tx = await mocHelper.mintBProx(otherAccount, vendorAccount, BUCKET_X2, btcToMint);
       });
       it('AND BucketLiquidation event is emitted', async function() {
         const bucketLiqEvents = mocHelper.findEvents(tx, 'BucketLiquidation');

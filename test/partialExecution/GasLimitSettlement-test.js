@@ -17,7 +17,7 @@ const initializeSettlement = async (owner, vendorAccount, btcxOwners) => {
 
   await Promise.all(
     promises.concat(
-      btcxOwners.map(acc => mocHelper.mintBProx(acc, BUCKET_X2, 0.001, vendorAccount))
+      btcxOwners.map(acc => mocHelper.mintBProx(acc, vendorAccount, BUCKET_X2, 0.001))
     )
   );
   // Enabling Settlement

@@ -48,7 +48,7 @@ contract('MoCBucketContainer', function([owner, account2, vendorAccount]) {
       });
       it('THEN mintBProx must revert', async function() {
         await expectRevert(
-          mocHelper.mintBProx(account2, bucketC0, 1, vendorAccount),
+          mocHelper.mintBProx(account2, vendorAccount, bucketC0, 1),
           NOT_BUCKET_BASE
         );
       });
@@ -69,7 +69,7 @@ contract('MoCBucketContainer', function([owner, account2, vendorAccount]) {
     describe('AND the bucket H8 does not exists', function() {
       it('THEN mintBProx must revert', async function() {
         await expectRevert(
-          mocHelper.mintBProx(account2, bucketH8, 1, vendorAccount),
+          mocHelper.mintBProx(account2, vendorAccount, bucketH8, 1),
           BUCKET_NOT_AVAILABLE
         );
       });

@@ -111,7 +111,7 @@ const mintDoc = moc => async (from, reserveAmount, vendorAccount) => {
   });
 };
 
-const mintBProx = moc => async (from, bucket, btcToMint, btcValue, vendorAccount) => {
+const mintBProx = moc => async (from, vendorAccount, bucket, btcToMint, btcValue) => {
   // With this we make sure the amount sent is enough to pay the interests
   // and comissions for regular situations
   // TODO: Replace this with something more fancy
@@ -235,9 +235,9 @@ const mintBProxAmount = (moc, mocState, mocInrate, mocVendors) => async (
   // Multiply commission by 3 to avoid rounding issues
   const value = btcInterestAmount
     .add(toContractBNNoPrec(commissionRbtcAmount))
+    .add(toContractBNNoPrec(markupRbtcAmount))
     .add(btcTotal)
-    .add(btcTotal)
-    .add(markupRbtcAmount);
+    .add(btcTotal);
 
   return moc.mintBProx(bucket, btcTotal, vendorAccount, { from: account, value });
 };
