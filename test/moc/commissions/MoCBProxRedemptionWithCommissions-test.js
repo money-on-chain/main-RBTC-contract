@@ -22,6 +22,7 @@ contract('MoC', function([owner, userAccount, commissionsAccount, vendorAccount]
     this.mocToken = mocHelper.mocToken;
     this.mockMocStateChanger = mocHelper.mockMocStateChanger;
     this.mockMoCVendorsChanger = mocHelper.mockMoCVendorsChanger;
+    this.mocVendors = mocHelper.mocVendors;
   });
 
   describe('BProx redeem with commissions and without interests', function() {
@@ -121,7 +122,7 @@ contract('MoC', function([owner, userAccount, commissionsAccount, vendorAccount]
 
             // Register vendor for test
             await this.mockMoCVendorsChanger.setVendorsToRegister(
-              await mocHelper.getVendorToRegisterAsArray(vendorAccount, 0.1)
+              await mocHelper.getVendorToRegisterAsArray(vendorAccount, 0.01)
             );
             await this.governor.executeChange(this.mockMoCVendorsChanger.address);
 

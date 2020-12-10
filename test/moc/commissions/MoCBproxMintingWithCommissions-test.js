@@ -21,6 +21,7 @@ contract('MoC : MoCExchange', function([owner, userAccount, commissionsAccount, 
     this.mockMocStateChanger = mocHelper.mockMocStateChanger;
     this.governor = mocHelper.governor;
     this.mockMoCVendorsChanger = mocHelper.mockMoCVendorsChanger;
+    this.mocVendors = mocHelper.mocVendors;
   });
 
   beforeEach(async function() {
@@ -28,7 +29,7 @@ contract('MoC : MoCExchange', function([owner, userAccount, commissionsAccount, 
 
     // Register vendor for test
     await this.mockMoCVendorsChanger.setVendorsToRegister(
-      await mocHelper.getVendorToRegisterAsArray(vendorAccount, 0.1)
+      await mocHelper.getVendorToRegisterAsArray(vendorAccount, 0.01)
     );
     await this.governor.executeChange(this.mockMoCVendorsChanger.address);
 

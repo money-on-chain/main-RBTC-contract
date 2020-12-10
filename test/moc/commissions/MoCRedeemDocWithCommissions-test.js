@@ -16,6 +16,7 @@ contract('MoC: Doc Redeem on Settlement with commissions', function([
     this.mocSettlement = mocHelper.mocSettlement;
     this.governor = mocHelper.governor;
     this.mockMoCVendorsChanger = mocHelper.mockMoCVendorsChanger;
+    this.mocVendors = mocHelper.mocVendors;
   });
   describe('GIVEN there are commisions set and there are 3 users with doc redeem requests', function() {
     let prevCommissionsAccountBtcBalance;
@@ -24,7 +25,7 @@ contract('MoC: Doc Redeem on Settlement with commissions', function([
     before(async function() {
       // Register vendor for test
       await this.mockMoCVendorsChanger.setVendorsToRegister(
-        await mocHelper.getVendorToRegisterAsArray(vendorAccount, 0.1)
+        await mocHelper.getVendorToRegisterAsArray(vendorAccount, 0.01)
       );
       await this.governor.executeChange(this.mockMoCVendorsChanger.address);
 
