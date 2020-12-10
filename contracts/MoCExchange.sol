@@ -332,7 +332,7 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
       details.bproFinalAmount
     );
 
-    details.btcTotalWithoutCommission = totalBtc.sub(details.commission.btcCommission);
+    details.btcTotalWithoutCommission = totalBtc.sub(details.commission.btcCommission).sub(details.commission.btcMarkup);
 
     redeemBProInternal(account, details, vendorAccount);
 
@@ -390,7 +390,7 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
 
       redeemFreeDocInternal(account, details, vendorAccount);
 
-      return (details.finalBtcAmount.sub(details.commission.btcCommission), details.commission.btcCommission, details.commission.mocCommission, details.commission.btcMarkup, details.commission.mocMarkup);
+      return (details.finalBtcAmount.sub(details.commission.btcCommission).sub(details.commission.btcMarkup), details.commission.btcCommission, details.commission.mocCommission, details.commission.btcMarkup, details.commission.mocMarkup);
     }
   }
 
@@ -468,7 +468,7 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
 
     bool result = moc.sendToAddress(userAddress, details.btcToRedeem);
 
-    details.reserveTotal = details.totalBtc.sub(details.commission.btcCommission);
+    details.reserveTotal = details.totalBtc.sub(details.commission.btcCommission).sub(details.commission.btcMarkup);
     details.commission.btcPrice = btcPrice;
     details.commission.mocCommission = 0;
     details.commission.mocPrice = 0;
@@ -508,7 +508,6 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
     // If send fails we don't burn the tokens
     if (moc.sendToAddress(destination, totalRbtc)) {
       docToken.burn(origin, userDocBalance);
-      // TODO: VENDOR MARKUP
       emit StableTokenRedeem(
         origin,
         userDocBalance,
@@ -679,7 +678,7 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
 
     /** END UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
 
-    details.btcTotalWithoutCommission = details.rbtcToRedeem.sub(details.commission.btcCommission);
+    details.btcTotalWithoutCommission = details.rbtcToRedeem.sub(details.commission.btcCommission).sub(details.commission.btcMarkup);
     details.totalBtcRedeemed = details.btcTotalWithoutCommission.add(details.rbtcInterests);
 
     redeemBProxInternal(account, bucket, bproxAmount, details, vendorAccount);
