@@ -43,7 +43,7 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount, v
     await mocHelper.governor.executeChange(mocHelper.mockMocInrateChanger.address);
   });
 
-  describe.only('BPro minting with commissions', function() {
+  describe('BPro minting with commissions', function() {
     const scenarios = [
       // RBTC fees
       {
@@ -258,11 +258,11 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount, v
           const expectedMoCFees = 0; // commission + vendor fee
           const mintAmount = 100;
           const expectedRbtcCommission = 0.1; // mintAmount * MINT_BPRO_FEES_RBTC()
+          const expectedRbtcVendorFee = 1; // mintAmount * markup
+          const expectedRbtcAmount = 101.1; // total cost
           const prevUserBtcBalanceOtherAddress = toContractBN(
             await web3.eth.getBalance(otherAddress)
           );
-          const expectedRbtcVendorFee = 1; // mintAmount * markup
-          const expectedRbtcAmount = 101.1; // total cost
           const prevCommissionsAccountBtcBalance = toContractBN(
             await web3.eth.getBalance(commissionsAccount)
           );
@@ -358,11 +358,11 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount, v
           const expectedMoCFees = 0; // commission + vendor fee
           const mintAmount = 100;
           const expectedRbtcCommission = 0.1; // mintAmount * MINT_BPRO_FEES_RBTC()
+          const expectedRbtcVendorFee = 1; // mintAmount * markup
+          const expectedRbtcAmount = 101.1; // total cost
           const prevUserBtcBalanceOtherAddress = toContractBN(
             await web3.eth.getBalance(otherAddress)
           );
-          const expectedRbtcVendorFee = 1; // mintAmount * markup
-          const expectedRbtcAmount = 101.1; // total cost
           const prevCommissionsAccountBtcBalance = toContractBN(
             await web3.eth.getBalance(commissionsAccount)
           );
