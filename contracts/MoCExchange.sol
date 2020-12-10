@@ -188,7 +188,7 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
     ret.btcCommission = 0;
 
     // Calculate vendor markup
-    ret.mocMarkup = mocInrate.calculateVendorMarkup(params.vendorAccount, params.amount);
+    (ret.mocMarkup, , ) = convertToMoCPrice(mocInrate.calculateVendorMarkup(params.vendorAccount, params.amount));
     uint256 totalMoCFee = ret.mocCommission.add(ret.mocMarkup);
 
     // Check if there is enough balance of MoC
