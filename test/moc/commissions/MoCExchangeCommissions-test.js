@@ -3,7 +3,13 @@ const testHelperBuilder = require('../../mocHelper.js');
 let mocHelper;
 let toContractBN;
 
-contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount, vendorAccount]) {
+contract('MoC: MoCExchange', function([
+  owner,
+  userAccount,
+  commissionsAccount,
+  vendorAccount1,
+  vendorAccount2
+]) {
   before(async function() {
     mocHelper = await testHelperBuilder({ owner });
     ({ toContractBN } = mocHelper);
@@ -11,15 +17,18 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount, v
     this.mockMocInrateChanger = mocHelper.mockMocInrateChanger;
     this.governor = mocHelper.governor;
     this.mockMoCVendorsChanger = mocHelper.mockMoCVendorsChanger;
+    this.mocVendors = mocHelper.mocVendors;
   });
 
   beforeEach(async function() {
     await mocHelper.revertState();
 
-    // Register vendor for test
-    await this.mockMoCVendorsChanger.setVendorsToRegister(
-      await mocHelper.getVendorToRegisterAsArray(vendorAccount, 0.1)
-    );
+    const vendor1 = await mocHelper.getVendorToRegisterAsArray(vendorAccount1, 0.01);
+    const vendor2 = await mocHelper.getVendorToRegisterAsArray(vendorAccount2, 0.02);
+    const vendors = vendor1.concat(vendor2);
+
+    // Register vendors for test
+    await this.mockMoCVendorsChanger.setVendorsToRegister(vendors);
     await this.governor.executeChange(this.mockMoCVendorsChanger.address);
 
     // Commission rates for test are set in functionHelper.js
@@ -46,7 +55,7 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount, v
           commissionAmountRbtc: 0, // rate: 0.001
           commissionAmountMoC: 7, // rate: 0.007
           markupAmountRbtc: 0,
-          markupAmountMoC: 0.1
+          markupAmountMoC: 10
         }
       },
       {
@@ -58,7 +67,9 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount, v
         },
         expect: {
           commissionAmountRbtc: 1, // rate: 0.001
-          commissionAmountMoC: 0 // rate: 0.007
+          commissionAmountMoC: 0, // rate: 0.007
+          markupAmountRbtc: 10,
+          markupAmountMoC: 0
         }
       },
       {
@@ -70,7 +81,9 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount, v
         },
         expect: {
           commissionAmountRbtc: 0, // rate: 0.001
-          commissionAmountMoC: 14 // rate: 0.007
+          commissionAmountMoC: 14, // rate: 0.007
+          markupAmountRbtc: 0,
+          markupAmountMoC: 10
         }
       },
       {
@@ -82,7 +95,9 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount, v
         },
         expect: {
           commissionAmountRbtc: 0, // rate: 0.001
-          commissionAmountMoC: 3.5 // rate: 0.007
+          commissionAmountMoC: 3.5, // rate: 0.007
+          markupAmountRbtc: 0,
+          markupAmountMoC: 10
         }
       },
       {
@@ -94,7 +109,9 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount, v
         },
         expect: {
           commissionAmountRbtc: 1, // rate: 0.001
-          commissionAmountMoC: 0 // rate: 0.007
+          commissionAmountMoC: 0, // rate: 0.007
+          markupAmountRbtc: 10,
+          markupAmountMoC: 0
         }
       }
     ];
@@ -123,18 +140,20 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount, v
           const txTypeFeesRBTC = await mocHelper.mocInrate.MINT_BPRO_FEES_RBTC();
           const txTypeFeesMOC = await mocHelper.mocInrate.MINT_BPRO_FEES_MOC();
 
+          const params = {
+            account: userAccount,
+            amount: toContractBN(scenario.params.btcAmount * mocHelper.MOC_PRECISION).toString(),
+            txTypeFeesMOC: txTypeFeesMOC.toString(),
+            txTypeFeesRBTC: txTypeFeesRBTC.toString(),
+            vendorAccount: vendorAccount1
+          };
+
           ({
             btcCommission,
             mocCommission,
             btcMarkup,
             mocMarkup
-          } = await mocHelper.mocExchange.calculateCommissionsWithPrices({
-            account: userAccount,
-            amount: toContractBN(scenario.params.btcAmount * mocHelper.MOC_PRECISION),
-            txTypeFeesMOC,
-            txTypeFeesRBTC,
-            vendorAccount
-          }));
+          } = await mocHelper.mocExchange.calculateCommissionsWithPrices(params, { from: owner }));
         });
         it(`THEN the commission amount in RBTC of ${scenario.expect.commissionAmountRbtc} is correct`, async function() {
           mocHelper.assertBigRBTC(
@@ -148,6 +167,20 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount, v
             mocCommission,
             scenario.expect.commissionAmountMoC,
             'Commission amount in MoC is incorrect'
+          );
+        });
+        it(`THEN the markup amount in RBTC of ${scenario.expect.markupAmountRbtc} is correct`, async function() {
+          mocHelper.assertBigRBTC(
+            btcMarkup,
+            scenario.expect.markupAmountRbtc,
+            'Markup amount in RBTC is incorrect'
+          );
+        });
+        it(`THEN the markup amount in MoC of ${scenario.expect.markupAmountMoC} is correct`, async function() {
+          mocHelper.assertBigRBTC(
+            mocMarkup,
+            scenario.expect.markupAmountMoC,
+            'Markup amount in MoC is incorrect'
           );
         });
       });
