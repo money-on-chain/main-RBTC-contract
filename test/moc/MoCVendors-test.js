@@ -31,9 +31,9 @@ contract('MoC: MoCVendors', function([
     await mocHelper.revertState();
   });
   beforeEach(async function() {
-    //await mocHelper.revertState();
+    // await mocHelper.revertState();
   });
-  describe('GIVEN vendors can integrate their platforms with MoC protocol', function() {
+  describe.only('GIVEN vendors can integrate their platforms with MoC protocol', function() {
     const scenarios = [
       // Vendor 1
       {
@@ -59,7 +59,7 @@ contract('MoC: MoCVendors', function([
       {
         params: {
           account: vendorAccount2,
-          markup: 0.5,
+          markup: 0.05,
           staking: 5,
           mocAmount: 10000,
           mintAmount: 0,
@@ -71,7 +71,7 @@ contract('MoC: MoCVendors', function([
           totalPaidInMoC: 0,
           paidMoC: 0,
           paidRBTC: 0,
-          staking: 5
+          staking: 0.5
         }
       },
       // Vendor 3
@@ -385,7 +385,7 @@ contract('MoC: MoCVendors', function([
     it('WHEN trying to register a vendor with zero address THEN an error should be raised', async function() {
       const vendorToRegister = {
         account: ZERO_ADDRESS,
-        markup: toContract(10 * mocHelper.MOC_PRECISION).toString()
+        markup: toContract(0.01 * mocHelper.MOC_PRECISION).toString()
       };
 
       await this.mockMoCVendorsChanger.setVendorsToRegister([vendorToRegister]);
@@ -393,6 +393,27 @@ contract('MoC: MoCVendors', function([
       const registerVendorTx = this.governor.executeChange(this.mockMoCVendorsChanger.address);
 
       await expectRevert(registerVendorTx, 'Vendor account must not be 0x0');
+    });
+    it('WHEN trying to unregister a vendor with zero address THEN an error should be raised', async function() {
+      await this.mockMoCVendorsChanger.setVendorsToUnregister([ZERO_ADDRESS]);
+
+      const unregisterVendorTx = this.governor.executeChange(this.mockMoCVendorsChanger.address);
+
+      await expectRevert(unregisterVendorTx, 'Vendor account must not be 0x0');
+    });
+  });
+  describe('GIVEN there is a maximum markup that can be assigned to a vendor', function() {
+    it('WHEN trying to register a vendor with an invalid value THEN an error should be raised', async function() {
+      const vendorToRegister = {
+        account: vendorAccount4,
+        markup: toContract(10 * mocHelper.MOC_PRECISION).toString()
+      };
+
+      await this.mockMoCVendorsChanger.setVendorsToRegister([vendorToRegister]);
+
+      const registerVendorTx = this.governor.executeChange(this.mockMoCVendorsChanger.address);
+
+      await expectRevert(registerVendorTx, 'Vendor markup must not be greater than 1%');
     });
     it('WHEN trying to unregister a vendor with zero address THEN an error should be raised', async function() {
       await this.mockMoCVendorsChanger.setVendorsToUnregister([ZERO_ADDRESS]);
@@ -411,7 +432,7 @@ contract('MoC: MoCVendors', function([
         const account = web3.utils.randomHex(20);
         vendorsToRegister.push({
           account,
-          markup: toContract(i * mocHelper.MOC_PRECISION).toString()
+          markup: toContract((i / 1000) * mocHelper.MOC_PRECISION).toString()
         });
         vendorsToUnregister.push(account);
       }
@@ -424,7 +445,7 @@ contract('MoC: MoCVendors', function([
     it('WHEN registering more vendors than allowed THEN an error should be raised', async function() {
       vendorsToRegister.push({
         account: web3.utils.randomHex(20),
-        markup: toContract(101 * mocHelper.MOC_PRECISION).toString()
+        markup: toContract((101 / 1000) * mocHelper.MOC_PRECISION).toString()
       });
 
       await this.mockMoCVendorsChanger.setVendorsToRegister(vendorsToRegister);

@@ -58,7 +58,6 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount, v
           commissionAmountRbtc: 1, // (bproToMint * MINT_BPRO_FEES_RBTC = 0.001)
           totalCostOnBtc: 1011,
           commissionAmountMoC: 0,
-          mocAmount: 0,
           vendorAmountRbtc: 10, // (bproToMint * markup = 0.01)
           vendorAmountMoC: 0
         }
@@ -76,7 +75,6 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount, v
           commissionAmountRbtc: 0,
           totalCostOnBtc: 1000,
           commissionAmountMoC: 7, // (bproToMint * MINT_BPRO_FEES_MOC = 0.007)
-          mocAmount: 983,
           vendorAmountRbtc: 0,
           vendorAmountMoC: 10 // (bproToMint * markup = 0.01)
         }
@@ -189,14 +187,8 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount, v
           const fees = toContractBN(
             scenario.expect.commissionAmountMoC * mocHelper.MOC_PRECISION
           ).add(toContractBN(scenario.expect.vendorAmountMoC * mocHelper.MOC_PRECISION));
-          const diffAmount = new BN(prevUserMoCBalance).sub(fees);
           const diffFees = prevUserMoCBalance.sub(userMoCBalance);
 
-          mocHelper.assertBigRBTC(
-            diffAmount,
-            scenario.expect.mocAmount,
-            'user MoC balance is incorrect'
-          );
           mocHelper.assertBig(diffFees, fees, 'MoC fees are incorrect');
         });
         it(`THEN the commissions account MoC balance has increased by ${scenario.expect.commissionAmountMoC} MoCs`, async function() {
@@ -220,10 +212,11 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount, v
       });
     });
 
-    describe('Non-scenario tests', function() {
+    describe.only('Non-scenario tests', function() {
+      const vendorStaking = 100;
+
       beforeEach(async function() {
         // MoC token for vendor
-        const vendorStaking = 100;
         await mocHelper.mintMoCToken(vendorAccount, vendorStaking, owner);
         await mocHelper.approveMoCToken(this.mocVendors.address, vendorStaking, vendorAccount);
         await this.mocVendors.addStake(toContractBN(vendorStaking * mocHelper.MOC_PRECISION), {
@@ -344,10 +337,16 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount, v
         });
       });
       describe('GIVEN since the address of the MoCToken is 0x0', function() {
-        it('WHEN a user tries to mint BPros, THEN commission is paid in RBTC', async function() {
+        it('WHEN a user tries to mint BPros, THEN fees are paid in RBTC', async function() {
           const accounts = await web3.eth.getAccounts();
           const otherAddress = accounts[1];
           const mocTokenAddress = this.mocToken.address;
+
+          // Remove vendor staking (it was added with a valid MoCToken address)
+          await this.mocVendors.removeStake(toContractBN(vendorStaking * mocHelper.MOC_PRECISION), {
+            from: vendorAccount
+          });
+
           // Set MoCToken address to 0
           const zeroAddress = '0x0000000000000000000000000000000000000000';
           await this.mockMocStateChanger.setMoCToken(zeroAddress);
@@ -444,7 +443,6 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount, v
         const commissionAmountMoC = 14; // btcPrice * (bproToMint * MINT_BPRO_FEES_MOC) / mocPrice
         const vendorAmountMoC = 20; // btcPrice * (bproToMint * markup) / mocPrice
         const mocAmount = 1000;
-        const mocAmountExpected = 966;
 
         beforeEach(async function() {
           // Set MoC price
@@ -473,7 +471,7 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount, v
           );
           usedGas = toContractBN(await mocHelper.getTxCost(mintTx));
         });
-        describe('WHEN user tries to mint BPros and commissions are paid in MoC', function() {
+        describe('WHEN user tries to mint BPros and fees are paid in MoC', function() {
           it(`THEN the user has ${bproToMint} more BitPros`, async function() {
             const UserBproBalance = await mocHelper.getBProBalance(userAccount);
             const diff = UserBproBalance.sub(prevUserBproBalance);
@@ -506,10 +504,8 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount, v
             const fees = toContractBN(commissionAmountMoC * mocHelper.MOC_PRECISION).add(
               toContractBN(vendorAmountMoC * mocHelper.MOC_PRECISION)
             );
-            const diffAmount = new BN(prevUserMoCBalance).sub(fees);
             const diffFees = prevUserMoCBalance.sub(userMoCBalance);
 
-            mocHelper.assertBigRBTC(diffAmount, mocAmountExpected, 'user MoC balance is incorrect');
             mocHelper.assertBig(diffFees, fees, 'MoC fees are incorrect');
           });
           it(`THEN the commissions account MoC balance has increased by ${commissionAmountMoC} MoCs`, async function() {
