@@ -51,6 +51,7 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed {
 
   // Constants
   uint8 public constant VENDORS_LIST_ARRAY_MAX_LENGTH = 100;
+  uint256 public constant VENDOR_MAX_MARKUP = 10000000000000000; // 0.01 = 1%
 
   // Variables
   mapping(address => VendorDetails) public vendors;
@@ -72,6 +73,7 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed {
 
   function registerVendor(address account, uint256 markup) public onlyAuthorizedChanger() returns (bool isActive) {
     require(account != address(0), "Vendor account must not be 0x0");
+    require(markup <= VENDOR_MAX_MARKUP, "Vendor markup must not be greater than 1%");
     // Change the error message according to the value of the VENDORS_LIST_ARRAY_MAX_LENGTH constant
     require(vendorsList.length <= VENDORS_LIST_ARRAY_MAX_LENGTH, "vendorsList length must be between 1 and 100");
 
@@ -124,7 +126,7 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed {
     require(staking <= vendors[msg.sender].totalPaidInMoC, "Vendor total paid is not enough");
 
     mocToken.transfer(msg.sender, staking);
-    vendors[msg.sender].staking = vendors[msg.sender].staking.add(staking);
+    vendors[msg.sender].staking = vendors[msg.sender].staking.sub(staking);
 
     emit VendorStakeRemoved(msg.sender, staking);
   }

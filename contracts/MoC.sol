@@ -488,11 +488,10 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
 
     if (mocCommission > 0 && mocMarkup > 0) {
       totalMoCFee = mocCommission.add(mocMarkup);
+      transferMocCommission(sender, mocCommission, vendorAccount, mocMarkup, totalMoCFee);
     } else {
       transferBtcCommission(mocLibConfig.getPayableAddress(vendorAccount), btcCommission, btcMarkup);
     }
-
-    transferMocCommission(sender, mocCommission, vendorAccount, mocMarkup, totalMoCFee);
   }
 
   event Test(
