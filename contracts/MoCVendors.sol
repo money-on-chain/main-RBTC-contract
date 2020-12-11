@@ -119,10 +119,10 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed {
 
   function removeStake(uint256 staking) public onlyActiveVendor(msg.sender) {
     MoCToken mocToken = MoCToken(mocState.getMoCToken());
-    (uint256 mocBalance, uint256 mocAllowance) = mocExchange.getMoCTokenBalance(msg.sender, address(this));
+    (uint256 mocBalance, ) = mocExchange.getMoCTokenBalance(address(this), msg.sender);
 
     require(staking > 0, "Staking should be greater than 0");
-    require(staking <= vendors[msg.sender].staking && staking <= mocBalance && staking <= mocAllowance, "Not enough MoCs in system");
+    require(staking <= vendors[msg.sender].staking && staking <= mocBalance, "Not enough MoCs in system");
     require(staking <= vendors[msg.sender].totalPaidInMoC, "Vendor total paid is not enough");
 
     mocToken.transfer(msg.sender, staking);
