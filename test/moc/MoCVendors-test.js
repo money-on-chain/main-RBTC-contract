@@ -2,6 +2,7 @@ const { assert } = require('chai');
 const { expectRevert } = require('openzeppelin-test-helpers');
 const testHelperBuilder = require('../mocHelper.js');
 const { toContract } = require('../../utils/numberHelper');
+const { BN } = web3.utils;
 
 let mocHelper;
 let toContractBN;
@@ -39,7 +40,7 @@ contract('MoC: MoCVendors', function([
       {
         params: {
           account: vendorAccount1,
-          markup: 0.1,
+          markup: 0.01,
           staking: 1, // (btcPrice * (mintAmount * markup) / mocPrice)
           mocAmount: 10000,
           mintAmount: 10,
@@ -49,9 +50,9 @@ contract('MoC: MoCVendors', function([
             'WHEN a vendor removes staking of $STAKING$ THEN VendorStakeRemoved event is emitted'
         },
         expect: {
-          totalPaidInMoC: 1,
+          totalPaidInMoC: 0.1,
           paidMoC: 0,
-          paidRBTC: 1,
+          paidRBTC: 0.1,
           staking: 1
         }
       },
@@ -59,8 +60,8 @@ contract('MoC: MoCVendors', function([
       {
         params: {
           account: vendorAccount2,
-          markup: 0.05,
-          staking: 5,
+          markup: 0.005,
+          staking: 0.5,
           mocAmount: 10000,
           mintAmount: 0,
           addStakeMessage:
@@ -101,16 +102,31 @@ contract('MoC: MoCVendors', function([
       let unregisterVendorTx;
       let vendorInMapping;
 
-      const activeVendorCount = 1;
-      const inactiveVendorCount = 0;
+      const activeVendorCount = 3;
+      const inactiveVendorCount = 2;
 
       before(async function() {
+        //await mocHelper.revertState();
+
+        console.log("vendor 1: ", vendorAccount1);
+        console.log("vendor 2: ", vendorAccount2);
+        console.log("vendor 3: ", vendorAccount3);
+
         await mocHelper.mintMoCToken(scenario.params.account, scenario.params.mocAmount, owner);
         await mocHelper.approveMoCToken(
           this.mocVendors.address,
           scenario.params.mocAmount,
           scenario.params.account
         );
+
+        let vendorCount = await this.mocVendors.getVendorsCount();
+
+        console.log('vendorCount before reg: ', vendorCount);
+        console.log('vendorCount before reg toString: ', vendorCount.toString());
+
+        for (let i = 0; i < vendorCount; i++) {
+          console.log(i, await this.mocVendors.vendorsList.call(i));
+        }
 
         const vendorToRegister = {
           account: scenario.params.account,
@@ -120,6 +136,10 @@ contract('MoC: MoCVendors', function([
         await this.mockMoCVendorsChanger.setVendorsToRegister([vendorToRegister]);
 
         registerVendorTx = await this.governor.executeChange(this.mockMoCVendorsChanger.address);
+
+        for (let i = 0; i < vendorCount; i++) {
+          console.log(i, await this.mocVendors.vendorsList.call(i));
+        }
 
         // Commission rates for test are set in functionHelper.js
         await mocHelper.mockMocInrateChanger.setCommissionRates(
@@ -168,7 +188,7 @@ contract('MoC: MoCVendors', function([
               'Should increase by staking'
             );
           } catch (err) {
-            if (scenario.expect.staking > 0) {
+            if (new BN(scenario.expect.staking).gt(new BN(0))) {
               assert(
                 err.reason === 'Vendor total paid is not enough',
                 `Vendor ${scenario.params.account} should not be able to add staking`
@@ -230,7 +250,7 @@ contract('MoC: MoCVendors', function([
         console.log('vendorCount toString: ', vendorCount.toString());
 
         for (let i = 0; i < vendorCount; i++) {
-          console.log(i, this.mocVendors.vendorsList[i]);
+          console.log(i, await this.mocVendors.vendorsList.call(i));
         }
 
         mocHelper.assertBig(vendorCount, activeVendorCount, 'Active vendor count is incorrect');
@@ -260,7 +280,7 @@ contract('MoC: MoCVendors', function([
               'Should decrease by staking'
             );
           } catch (err) {
-            if (scenario.expect.staking > 0) {
+            if (new BN(scenario.expect.staking).gt(new BN(0))) {
               assert(
                 err.reason === 'Vendor total paid is not enough',
                 `Vendor ${scenario.params.account} should not be able to remove staking`
@@ -274,21 +294,6 @@ contract('MoC: MoCVendors', function([
           }
         }
       );
-      it('GIVEN there are not enough MoCs in system, WHEN a vendor tries to remove staking THEN expect revert', async function() {
-        // Set allowance to 0
-        await mocHelper.approveMoCToken(this.mocVendors.address, 0, scenario.params.account);
-
-        removeStakeTx = this.mocVendors.removeStake(
-          toContractBN(scenario.params.staking * mocHelper.MOC_PRECISION),
-          { from: scenario.params.account }
-        );
-
-        if (scenario.expect.staking > 0) {
-          await expectRevert(removeStakeTx, 'Not enough MoCs in system');
-        } else {
-          await expectRevert(removeStakeTx, 'Staking should be greater than 0');
-        }
-      });
       it('WHEN a vendor is unregistered THEN VendorUnregistered event is emitted', async function() {
         await this.mockMoCVendorsChanger.setVendorsToUnregister([scenario.params.account]);
         unregisterVendorTx = await this.governor.executeChange(this.mockMoCVendorsChanger.address);
@@ -311,7 +316,7 @@ contract('MoC: MoCVendors', function([
         console.log('vendorCount toString: ', vendorCount.toString());
 
         for (let i = 0; i < vendorCount; i++) {
-          console.log(i, this.mocVendors.vendorsList[i]);
+          console.log(i, await this.mocVendors.vendorsList.call(i));
         }
 
         mocHelper.assertBig(vendorCount, inactiveVendorCount, 'Active vendor count is incorrect');

@@ -46,7 +46,7 @@ contract('MoC : MoCExchange', function([owner, userAccount, commissionsAccount, 
     await mocHelper.governor.executeChange(mocHelper.mockMocInrateChanger.address);
   });
 
-  describe.only('BProx minting with commissions', function() {
+  describe('BProx minting with commissions', function() {
     const scenarios = [
       // RBTC fees
       {
@@ -58,12 +58,12 @@ contract('MoC : MoCExchange', function([owner, userAccount, commissionsAccount, 
         expect: {
           nBProx: '5',
           nBtc: '5',
-          totalCostOnBtc: '5.025',
+          totalCostOnBtc: '5.075',
           commission: {
             nBtc: '0.025' // (nBProx * MINT_BTCX_FEES_RBTC = 0.005)
           },
           commissionAmountMoC: 0,
-          vendorAmountRbtc: 10, // (bproToMint * markup = 0.01)
+          vendorAmountRbtc: 0.05, // (nBProx * markup = 0.01)
           vendorAmountMoC: 0
         }
       },
@@ -76,13 +76,13 @@ contract('MoC : MoCExchange', function([owner, userAccount, commissionsAccount, 
         expect: {
           nBProx: '8',
           nBtc: '8',
-          totalCostOnBtc: '8.04',
+          totalCostOnBtc: '8.12',
           commission: {
             nBtc: '0.04' // (nBProx * MINT_BTCX_FEES_RBTC = 0.005)
           },
           commissionAmountMoC: 0,
-          vendorAmountRbtc: 0,
-          vendorAmountMoC: 10 // (bproToMint * markup = 0.01)
+          vendorAmountRbtc: 0.08, // (nBProx * markup = 0.01)
+          vendorAmountMoC: 0
         }
       },
       // MoC fees
@@ -101,7 +101,7 @@ contract('MoC : MoCExchange', function([owner, userAccount, commissionsAccount, 
           },
           commissionAmountMoC: '0.055', // (nBProx * MINT_BTCX_FEES_MOC = 0.011)
           vendorAmountRbtc: 0,
-          vendorAmountMoC: 10 // (bproToMint * markup = 0.01)
+          vendorAmountMoC: 0.05 // (nBProx * markup = 0.01)
         }
       },
       {
@@ -119,7 +119,7 @@ contract('MoC : MoCExchange', function([owner, userAccount, commissionsAccount, 
           },
           commissionAmountMoC: '0.088', // (nBProx * MINT_BTCX_FEES_MOC = 0.011)
           vendorAmountRbtc: 0,
-          vendorAmountMoC: 10 // (bproToMint * markup = 0.01)
+          vendorAmountMoC: 0.08 // (nBProx * markup = 0.01)
         }
       }
     ];
@@ -192,7 +192,7 @@ contract('MoC : MoCExchange', function([owner, userAccount, commissionsAccount, 
             const balance = await mocHelper.getBProxBalance(BUCKET_X2, userAccount);
             mocHelper.assertBigRBTC(balance, s.expect.nBProx, 'Bprox balance is incorrect');
           });
-          it(`THEN the user rbtc balance has decrease by ${s.expect.nBtc} Rbtcs by Mint + ${s.expect.commission.nBtc} Rbtcs by commissions`, async function() {
+          it(`THEN the user rbtc balance has decrease by ${s.expect.nBtc} Rbtcs by Mint + ${s.expect.commission.nBtc} Rbtcs by commissions + ${s.expect.vendorAmountRbtc} Rbtcs by markup`, async function() {
             const userBtcBalance = toContractBN(await web3.eth.getBalance(userAccount));
             const diff = prevUserBtcBalance.sub(userBtcBalance).sub(txCost);
 
@@ -248,7 +248,7 @@ contract('MoC : MoCExchange', function([owner, userAccount, commissionsAccount, 
         });
       });
     });
-    describe('Non-scenario tests', function() {
+    describe.only('Non-scenario tests', function() {
       const vendorStaking = 100;
 
       beforeEach(async function() {
@@ -424,11 +424,6 @@ contract('MoC : MoCExchange', function([owner, userAccount, commissionsAccount, 
           const otherAddress = accounts[1];
           const mocTokenAddress = this.mocToken.address;
 
-          // Remove vendor staking (it was added with a valid MoCToken address)
-          await this.mocVendors.removeStake(toContractBN(vendorStaking * mocHelper.MOC_PRECISION), {
-            from: vendorAccount
-          });
-
           // Set MoCToken address to 0
           const zeroAddress = '0x0000000000000000000000000000000000000000';
           await this.mockMocStateChanger.setMoCToken(zeroAddress);
@@ -546,7 +541,7 @@ contract('MoC : MoCExchange', function([owner, userAccount, commissionsAccount, 
         const totalCostOnBtc = 5;
         const commissionAmountMoC = '0.11'; // btcPrice * (nBProx * MINT_BTCX_FEES_MOC) / mocPrice
         const vendorAmountRbtc = 0;
-        const vendorAmountMoC = 20;
+        const vendorAmountMoC = '0.1'; // btcPrice * (nBProx * markup) / mocPrice
 
         beforeEach(async function() {
           // Set MoC price

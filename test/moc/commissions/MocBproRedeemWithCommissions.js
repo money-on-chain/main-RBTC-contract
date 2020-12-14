@@ -41,7 +41,7 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount, v
     await mocHelper.governor.executeChange(mocHelper.mockMocInrateChanger.address);
   });
 
-  describe.only('BPro redeeming with commissions', function() {
+  describe('BPro redeeming with commissions', function() {
     const scenarios = [
       // RBTC fees
       {
@@ -237,7 +237,7 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount, v
       });
     });
 
-    describe('Non-scenario tests', function() {
+    describe.only('Non-scenario tests', function() {
       beforeEach(async function() {
         // MoC token for vendor
         const vendorStaking = 100;
@@ -379,6 +379,7 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount, v
           const accounts = await web3.eth.getAccounts();
           const otherAddress = accounts[1];
           const mocTokenAddress = this.mocToken.address;
+
           // Set MoCToken address to 0
           const zeroAddress = '0x0000000000000000000000000000000000000000';
           await this.mockMocStateChanger.setMoCToken(zeroAddress);
@@ -390,9 +391,18 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount, v
           const mintAmount = 100;
           const redeemAmount = 100;
           // commission = mintAmount * MINT_BPRO_FEES_RBTC() + redeemAmount * REDEEM_BPRO_FEES_RBTC()
-          const expectedRbtcCommission = 0.3;
-          const expectedRbtcVendorFee = 2; // (mintAmount * markup) + (redeemAmount * markup)
+          const expectedRbtcCommission = 2.3;
+          const expectedRbtcVendorFee = 0; // (mintAmount * markup) + (redeemAmount * markup)
           const expectedRbtcAmount = expectedRbtcCommission + expectedRbtcVendorFee; // total cost
+
+          const txType = await mocHelper.mocInrate.MINT_BPRO_FEES_RBTC();
+          // Mint
+          const mintBpro = await mocHelper.mintBProAmount(
+            otherAddress,
+            mintAmount,
+            vendorAccount,
+            txType
+          );
           const prevUserBtcBalanceOtherAddress = toContractBN(
             await web3.eth.getBalance(otherAddress)
           );
@@ -403,18 +413,9 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount, v
             await web3.eth.getBalance(vendorAccount)
           );
 
-          const txType = await mocHelper.mocInrate.MINT_BPRO_FEES_RBTC();
-          // Mint
-          const mintBpro = await mocHelper.mintBProAmount(
-            otherAddress,
-            mintAmount,
-            vendorAccount,
-            txType
-          );
           const redeemBpro = await mocHelper.redeemBPro(
             userAccount,
             redeemAmount,
-            vendorAccount,
             vendorAccount
           );
           const usedGas = toContractBN(await mocHelper.getTxCost(mintBpro)).add(

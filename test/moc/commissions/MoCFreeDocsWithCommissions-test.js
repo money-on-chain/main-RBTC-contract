@@ -24,7 +24,7 @@ contract('MoC', function([owner, userAccount, commissionsAccount, vendorAccount]
   });
 
   describe('Free Doc redeem with commissions and without interests', function() {
-    describe.only('Redeem free docs', function() {
+    describe('Redeem free docs', function() {
       const scenarios = [
         // RBTC commission
         {
@@ -40,11 +40,11 @@ contract('MoC', function([owner, userAccount, commissionsAccount, vendorAccount]
           },
           expect: {
             docsToRedeem: 100,
-            // (docsToRedeem / btcPrice) - ((docsToRedeem / btcPrice) * commissionRate)
-            docsToRedeemOnRBTC: 0.00996,
+            // (docsToRedeem / btcPrice) - ((docsToRedeem / btcPrice) * commissionRate) - vendorAmountRbtc
+            docsToRedeemOnRBTC: 0.00986,
             commissionAddressBalance: 0.00004,
             commissionAmountMoC: 0,
-            vendorAmountRbtc: 1, // (xxx* markup = 0.01)
+            vendorAmountRbtc: 0.0001, // ((docsToRedeem / btcPrice) * markup = 0.01)
             vendorAmountMoC: 0
           }
         },
@@ -61,11 +61,11 @@ contract('MoC', function([owner, userAccount, commissionsAccount, vendorAccount]
           },
           expect: {
             docsToRedeem: 500,
-            // (docsToRedeem / btcPrice) - ((docsToRedeem / btcPrice) * commissionRate)
-            docsToRedeemOnRBTC: 0.0498,
+            // (docsToRedeem / btcPrice) - ((docsToRedeem / btcPrice) * commissionRate) - vendorAmountRbtc
+            docsToRedeemOnRBTC: 0.0493,
             commissionAddressBalance: 0.0002,
             commissionAmountMoC: 0,
-            vendorAmountRbtc: 1, // (xxx* markup = 0.01)
+            vendorAmountRbtc: 0.0005, // ((docsToRedeem / btcPrice) * markup = 0.01)
             vendorAmountMoC: 0
           }
         },
@@ -87,8 +87,8 @@ contract('MoC', function([owner, userAccount, commissionsAccount, vendorAccount]
             commissionAddressBalance: 0,
             // eslint-disable-next-line max-len
             commissionAmountMoC: 0.0001, // (btcPrice * docsToRedeemOnRBTC / mocPrice) * REDEEM_DOC_FEES_MOC = 0.01
-            vendorAmountRbtc: 1, // (xxx* markup = 0.01)
-            vendorAmountMoC: 0
+            vendorAmountRbtc: 0,
+            vendorAmountMoC: 0.0001 // (btcPrice * docsToRedeemOnRBTC / mocPrice) * markup = 0.01
           }
         },
         {
@@ -108,8 +108,8 @@ contract('MoC', function([owner, userAccount, commissionsAccount, vendorAccount]
             commissionAddressBalance: 0,
             // eslint-disable-next-line max-len
             commissionAmountMoC: 0.0005, // (btcPrice * docsToRedeemOnRBTC / mocPrice) * REDEEM_DOC_FEES_MOC = 0.01
-            vendorAmountRbtc: 1, // (xxx* markup = 0.01)
-            vendorAmountMoC: 0
+            vendorAmountRbtc: 0,
+            vendorAmountMoC: 0.0005 // (btcPrice * docsToRedeemOnRBTC / mocPrice) * markup = 0.01
           }
         }
       ];
@@ -280,11 +280,17 @@ contract('MoC', function([owner, userAccount, commissionsAccount, vendorAccount]
       });
     });
 
-    describe('Non-scenario tests', function() {
+    describe.only('Non-scenario tests', function() {
       beforeEach(async function() {
         await mocHelper.revertState();
         // this make the interests zero
         await this.mocState.setDaysToSettlement(0);
+
+        // Register vendor for test
+        await this.mockMoCVendorsChanger.setVendorsToRegister(
+          await mocHelper.getVendorToRegisterAsArray(vendorAccount, 0.01)
+        );
+        await this.governor.executeChange(this.mockMoCVendorsChanger.address);
 
         // MoC token for vendor
         const vendorStaking = 100;
@@ -454,6 +460,7 @@ contract('MoC', function([owner, userAccount, commissionsAccount, vendorAccount]
           const accounts = await web3.eth.getAccounts();
           const otherAddress = accounts[1];
           const mocTokenAddress = this.mocToken.address;
+
           // Set MoCToken address to 0
           const zeroAddress = '0x0000000000000000000000000000000000000000';
           await this.mockMocStateChanger.setMoCToken(zeroAddress);
@@ -575,24 +582,10 @@ contract('MoC', function([owner, userAccount, commissionsAccount, vendorAccount]
         const vendorAmountRbtc = 0;
         // eslint-disable-next-line max-len
         const commissionAmountMoC = 0.0002; // (btcPrice * docsToRedeemOnRBTC / mocPrice) * REDEEM_DOC_FEES_MOC = 0.01
-        const vendorAmountMoC = 20;
+        const vendorAmountMoC = 0.0002; // (btcPrice * docsToRedeemOnRBTC / mocPrice) * markup = 0.01
         const mocAmount = 1000;
 
         beforeEach(async function() {
-          // await mocHelper.revertState();
-          // // this make the interests zero
-          // await this.mocState.setDaysToSettlement(0);
-
-          // // Commission rates for test are set in functionHelper.js
-          // await mocHelper.mockMocInrateChanger.setCommissionRates(
-          //   await mocHelper.getCommissionsArrayNonZero()
-          // );
-
-          // // set commissions address
-          // await mocHelper.mockMocInrateChanger.setCommissionsAddress(commissionsAccount);
-          // // update params
-          // await mocHelper.governor.executeChange(mocHelper.mockMocInrateChanger.address);
-
           // Set MoC price
           await mocHelper.setMoCPrice(mocPrice * mocHelper.MOC_PRECISION);
 
@@ -613,6 +606,8 @@ contract('MoC', function([owner, userAccount, commissionsAccount, vendorAccount]
           prevVendorAccountBtcBalance = toContractBN(await web3.eth.getBalance(vendorAccount));
           prevUserMoCBalance = await mocHelper.getMoCBalance(userAccount);
           prevCommissionsAccountMoCBalance = await mocHelper.getMoCBalance(commissionsAccount);
+          prevVendorAccountMoCBalance = await mocHelper.getMoCBalance(vendorAccount);
+
           const redeemTx = await this.moc.redeemFreeDoc(
             toContractBN(docsToRedeem * mocHelper.RESERVE_PRECISION),
             vendorAccount,

@@ -506,12 +506,11 @@ contract('MoC', function([owner, userAccount, commissionsAccount, vendorAccount]
         const accounts = await web3.eth.getAccounts();
         const otherAddress = accounts[1];
         const mocTokenAddress = this.mocToken.address;
+
         // Set MoCToken address to 0
         const zeroAddress = '0x0000000000000000000000000000000000000000';
         await this.mockMocStateChanger.setMoCToken(zeroAddress);
         await mocHelper.governor.executeChange(mocHelper.mockMocStateChanger.address);
-
-        // DO NOT add vendor stake, because address of the MoCToken is 0x0
 
         const mintBproAmount = 1;
         const txTypeMintBpro = await mocHelper.mocInrate.MINT_BPRO_FEES_RBTC();

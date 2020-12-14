@@ -25,7 +25,7 @@ contract('MoC', function([owner, userAccount, commissionsAccount, vendorAccount]
     this.mocVendors = mocHelper.mocVendors;
   });
 
-  describe.only('BProx redeem with commissions and without interests', function() {
+  describe('BProx redeem with commissions and without interests', function() {
     describe('Redeem BProxs', function() {
       const scenarios = [
         // RBTC commission
@@ -42,11 +42,11 @@ contract('MoC', function([owner, userAccount, commissionsAccount, vendorAccount]
           },
           expect: {
             bproxsToRedeem: 1,
-            bproxsToRedeemOnRBTC: 0.994,
+            bproxsToRedeemOnRBTC: 0.984,
             commissionAddressBalance: 0.006,
             commissionsOnRBTC: 0.006, // (REDEEM_BTCX_FEES_RBTC = 0.006)
             commissionAmountMoC: 0,
-            vendorAmountRbtc: 1, // (bproToMint * markup = 0.01)
+            vendorAmountRbtc: 0.01, // (bproxsToRedeem * markup = 0.01)
             vendorAmountMoC: 0
           }
         },
@@ -63,11 +63,11 @@ contract('MoC', function([owner, userAccount, commissionsAccount, vendorAccount]
           },
           expect: {
             bproxsToRedeem: 5,
-            bproxsToRedeemOnRBTC: 4.97,
+            bproxsToRedeemOnRBTC: 4.92,
             commissionAddressBalance: 0.03,
             commissionsOnRBTC: 0.03, // (REDEEM_BTCX_FEES_RBTC = 0.006)
             commissionAmountMoC: 0,
-            vendorAmountRbtc: 1, // (bproToMint * markup = 0.01)
+            vendorAmountRbtc: 0.05, // (bproxsToRedeem * markup = 0.01)
             vendorAmountMoC: 0
           }
         },
@@ -90,7 +90,7 @@ contract('MoC', function([owner, userAccount, commissionsAccount, vendorAccount]
             commissionsOnRBTC: 0,
             commissionAmountMoC: 0.012, // (bproxsToRedeem * REDEEM_BTCX_FEES_MOC = 0.012)
             vendorAmountRbtc: 0,
-            vendorAmountMoC: 0.5 // (bproToRedeem * markup = 0.01)
+            vendorAmountMoC: 0.01 // (bproxsToRedeem * markup = 0.01)
           }
         },
         {
@@ -111,7 +111,7 @@ contract('MoC', function([owner, userAccount, commissionsAccount, vendorAccount]
             commissionsOnRBTC: 0,
             commissionAmountMoC: 0.06, // (bproxsToRedeem * REDEEM_BTCX_FEES_MOC = 0.012)
             vendorAmountRbtc: 0,
-            vendorAmountMoC: 0.5 // (bproToRedeem * markup = 0.01)
+            vendorAmountMoC: 0.05 // (bproxsToRedeem * markup = 0.01)
           }
         }
       ];
@@ -298,11 +298,17 @@ contract('MoC', function([owner, userAccount, commissionsAccount, vendorAccount]
       });
     });
 
-    describe('Non-scenario tests', function() {
+    describe.only('Non-scenario tests', function() {
       beforeEach(async function() {
         await mocHelper.revertState();
         // this make the interests zero
         await this.mocState.setDaysToSettlement(0);
+
+        // Register vendor for test
+        await this.mockMoCVendorsChanger.setVendorsToRegister(
+          await mocHelper.getVendorToRegisterAsArray(vendorAccount, 0.01)
+        );
+        await this.governor.executeChange(this.mockMoCVendorsChanger.address);
 
         // MoC token for vendor
         const vendorStaking = 100;
@@ -472,6 +478,7 @@ contract('MoC', function([owner, userAccount, commissionsAccount, vendorAccount]
       describe('GIVEN since the address of the MoCToken is 0x0', function() {
         it('WHEN a user tries to redeem BProx, THEN fees are paid in RBTC', async function() {
           const mocTokenAddress = this.mocToken.address;
+
           // Set MoCToken address to 0
           const zeroAddress = '0x0000000000000000000000000000000000000000';
           await this.mockMocStateChanger.setMoCToken(zeroAddress);
@@ -589,7 +596,7 @@ contract('MoC', function([owner, userAccount, commissionsAccount, vendorAccount]
         const commissionAddressBalance = 0;
         const commissionAmountMoC = 0.024;
         const vendorAmountRbtc = 0;
-        const vendorAmountMoC = 20;
+        const vendorAmountMoC = 0.02;
 
         beforeEach(async function() {
           // Set MoC price

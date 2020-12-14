@@ -337,15 +337,10 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount, v
         });
       });
       describe('GIVEN since the address of the MoCToken is 0x0', function() {
-        it('WHEN a user tries to mint BPros, THEN fees are paid in RBTC', async function() {
+        it('WHEN a user tries to mint BPros, THEN fees are paid in RBTC to commissions account', async function() {
           const accounts = await web3.eth.getAccounts();
           const otherAddress = accounts[1];
           const mocTokenAddress = this.mocToken.address;
-
-          // Remove vendor staking (it was added with a valid MoCToken address)
-          await this.mocVendors.removeStake(toContractBN(vendorStaking * mocHelper.MOC_PRECISION), {
-            from: vendorAccount
-          });
 
           // Set MoCToken address to 0
           const zeroAddress = '0x0000000000000000000000000000000000000000';
@@ -356,8 +351,8 @@ contract('MoC: MoCExchange', function([owner, userAccount, commissionsAccount, v
           const expectedMoCAmount = 0;
           const expectedMoCFees = 0; // commission + vendor fee
           const mintAmount = 100;
-          const expectedRbtcCommission = 0.1; // mintAmount * MINT_BPRO_FEES_RBTC()
-          const expectedRbtcVendorFee = 1; // mintAmount * markup
+          const expectedRbtcCommission = 1.1; // mintAmount * MINT_BPRO_FEES_RBTC() + mintAmount * markup
+          const expectedRbtcVendorFee = 0;
           const expectedRbtcAmount = 101.1; // total cost
           const prevUserBtcBalanceOtherAddress = toContractBN(
             await web3.eth.getBalance(otherAddress)
