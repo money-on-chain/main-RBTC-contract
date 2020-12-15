@@ -24,7 +24,7 @@ contract('MoC: MoCExchange', function([
     await mocHelper.revertState();
 
     const vendor1 = await mocHelper.getVendorToRegisterAsArray(vendorAccount1, 0.01);
-    const vendor2 = await mocHelper.getVendorToRegisterAsArray(vendorAccount2, 0.02);
+    const vendor2 = await mocHelper.getVendorToRegisterAsArray(vendorAccount2, 0.002);
     const vendors = vendor1.concat(vendor2);
 
     // Register vendors for test
@@ -83,7 +83,7 @@ contract('MoC: MoCExchange', function([
           commissionAmountRbtc: 0, // rate: 0.001
           commissionAmountMoC: 14, // rate: 0.007
           markupAmountRbtc: 0,
-          markupAmountMoC: 10
+          markupAmountMoC: 20
         }
       },
       {
@@ -97,7 +97,7 @@ contract('MoC: MoCExchange', function([
           commissionAmountRbtc: 0, // rate: 0.001
           commissionAmountMoC: 3.5, // rate: 0.007
           markupAmountRbtc: 0,
-          markupAmountMoC: 10
+          markupAmountMoC: 5
         }
       },
       {

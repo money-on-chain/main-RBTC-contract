@@ -5,12 +5,16 @@ let mocHelper;
 let toContractBN;
 let BUCKET_X2;
 
-const { BN } = web3.utils;
-
 // eslint-disable-next-line quotes
 const NOT_ENOUGH_FUNDS_ERROR = "sender doesn't have enough funds to send tx";
 
-contract('MoC : MoCExchange', function([owner, userAccount, commissionsAccount, vendorAccount]) {
+contract('MoC : MoCExchange', function([
+  owner,
+  userAccount,
+  commissionsAccount,
+  vendorAccount,
+  otherAddress
+]) {
   before(async function() {
     mocHelper = await testHelperBuilder({ owner, useMock: true });
     ({ toContractBN } = mocHelper);
@@ -248,11 +252,10 @@ contract('MoC : MoCExchange', function([owner, userAccount, commissionsAccount, 
         });
       });
     });
-    describe.only('Non-scenario tests', function() {
-      const vendorStaking = 100;
-
+    describe('Non-scenario tests', function() {
       beforeEach(async function() {
         // MoC token for vendor
+        const vendorStaking = 100;
         await mocHelper.mintMoCToken(vendorAccount, vendorStaking, owner);
         await mocHelper.approveMoCToken(this.mocVendors.address, vendorStaking, vendorAccount);
         await this.mocVendors.addStake(toContractBN(vendorStaking * mocHelper.MOC_PRECISION), {
@@ -289,96 +292,62 @@ contract('MoC : MoCExchange', function([owner, userAccount, commissionsAccount, 
       });
       describe('GIVEN since the user does not have MoC, but there is MoC allowance AND RBTC balance', function() {
         it('WHEN a user tries to mint BProx with MoC allowance, THEN fees are paid in RBTC', async function() {
-          const accounts = await web3.eth.getAccounts();
-          const otherAddress = accounts[1];
           // DO NOT mint MoC token on purpose
           await mocHelper.mintMoCToken(userAccount, 0, owner);
           await mocHelper.approveMoCToken(mocHelper.moc.address, 1000, otherAddress);
-          // eslint-disable-next-line max-len
-          const prevUserMoCBalanceOtherAddress = await mocHelper.getMoCBalance(otherAddress); // No MoC balance
-          const expectedMoCAmount = 0;
-          const expectedMoCCommission = 0;
+          const expectedMoCFees = 0; // commission + vendor fee
           const mintBproAmount = 1;
           const mintDocAmount = 1000;
           const mintAmount = 0.1;
-          // eslint-disable-next-line max-len
-          // commission = mintBproAmount * MINT_BPRO_FEES_RBTC() + mintDocAmount * MINT_DOC_FEES_RBTC()  + mintAmount * MINT_BTCX_FEES_RBTC()
-          const expectedRbtcCommission = 0.0018;
-          const prevUserBtcBalanceOtherAddress = toContractBN(
-            await web3.eth.getBalance(otherAddress)
+          const expectedRbtcCommission = 0.0005; // mintAmount * MINT_BTCX_FEES_RBTC()
+          const expectedRbtcVendorFee = 0.001; // mintAmount * markup
+
+          // Mint
+          await mocHelper.mintBProAmount(
+            otherAddress,
+            mintBproAmount,
+            vendorAccount,
+            await mocHelper.mocInrate.MINT_BPRO_FEES_RBTC()
           );
-          // eslint-disable-next-line max-len
-          // total cost = mintBproAmount + mintDocAmount / btcPrice + mintAmount + expectedRbtcCommission
-          const expectedRbtcAmount = 1.2 + expectedRbtcCommission;
-          const prevCommissionsAccountBtcBalance = toContractBN(
+          await mocHelper.mintDocAmount(
+            otherAddress,
+            mintDocAmount,
+            vendorAccount,
+            await mocHelper.mocInrate.MINT_DOC_FEES_RBTC()
+          );
+
+          // Calculate balances before minting
+          const prevCommissionAccountBalance = toContractBN(
             await web3.eth.getBalance(commissionsAccount)
           );
           const prevVendorAccountBtcBalance = toContractBN(
             await web3.eth.getBalance(vendorAccount)
           );
+          const prevUserMoCBalance = await mocHelper.getMoCBalance(otherAddress);
 
           // Mint
-          const txTypeMintBpro = await mocHelper.mocInrate.MINT_BPRO_FEES_RBTC();
-          const txTypeMintDoc = await mocHelper.mocInrate.MINT_DOC_FEES_RBTC();
-          const mintBpro = await mocHelper.mintBProAmount(
-            otherAddress,
-            mintBproAmount,
-            vendorAccount,
-            txTypeMintBpro
-          );
-          const mintDoc = await mocHelper.mintDocAmount(
-            otherAddress,
-            mintDocAmount,
-            vendorAccount,
-            txTypeMintDoc
-          );
-          const txType = await mocHelper.mocInrate.MINT_BTCX_FEES_RBTC();
-          const mint = await mocHelper.mintBProxAmount(
+          await mocHelper.mintBProxAmount(
             otherAddress,
             BUCKET_X2,
             mintAmount,
             vendorAccount,
-            txType
-          );
-          const usedGas = toContractBN(await mocHelper.getTxCost(mintBpro)).add(
-            toContractBN(await mocHelper.getTxCost(mintDoc)).add(
-              toContractBN(await mocHelper.getTxCost(mint))
-            )
+            await mocHelper.mocInrate.MINT_BTCX_FEES_RBTC()
           );
 
-          const userMoCBalanceOtherAddress = await mocHelper.getMoCBalance(otherAddress);
-          const diffMoCAmount = prevUserMoCBalanceOtherAddress.sub(new BN(expectedMoCFees));
-          const diffMoCFees = prevUserMoCBalanceOtherAddress.sub(userMoCBalanceOtherAddress);
+          const userMoCBalance = await mocHelper.getMoCBalance(otherAddress);
+          const diffMoCFees = prevUserMoCBalance.sub(userMoCBalance);
 
-          // RBTC commission
-          const commissionsAccountBtcBalance = toContractBN(
-            await web3.eth.getBalance(commissionsAccount)
-          );
+          const commissionsBalance = toContractBN(await web3.eth.getBalance(commissionsAccount));
+          const diffRbtcCommission = commissionsBalance.sub(prevCommissionAccountBalance);
+
           const vendorAccountBtcBalance = toContractBN(await web3.eth.getBalance(vendorAccount));
-          const diffRbtcCommission = commissionsAccountBtcBalance.sub(
-            prevCommissionsAccountBtcBalance
-          );
           const diffRbtcVendorFee = vendorAccountBtcBalance.sub(prevVendorAccountBtcBalance);
-          const userBtcBalanceOtherAccount = toContractBN(await web3.eth.getBalance(otherAddress));
-          const diffRbtcAmount = prevUserBtcBalanceOtherAddress
-            .sub(userBtcBalanceOtherAccount)
-            .sub(usedGas);
 
-          mocHelper.assertBigRBTC(
-            diffMoCAmount,
-            expectedMoCAmount,
-            'user MoC balance is incorrect'
-          );
           mocHelper.assertBigRBTC(diffMoCFees, expectedMoCFees, 'MoC fees are incorrect');
-          mocHelper.assertBigRBTC(
-            diffRbtcAmount,
-            expectedRbtcAmount,
-            'user rbtc balance is incorrect'
-          );
           mocHelper.assertBigRBTC(
             diffRbtcCommission,
             expectedRbtcCommission,
-            'commissions account rbtc balance is incorrect'
+            'commissions account balance is incorrect'
           );
           mocHelper.assertBigRBTC(
             diffRbtcVendorFee,
@@ -420,97 +389,66 @@ contract('MoC : MoCExchange', function([owner, userAccount, commissionsAccount, 
       });
       describe('GIVEN since the address of the MoCToken is 0x0', function() {
         it('WHEN a user tries to mint BProx, THEN fees are paid in RBTC', async function() {
-          const accounts = await web3.eth.getAccounts();
-          const otherAddress = accounts[1];
           const mocTokenAddress = this.mocToken.address;
 
           // Set MoCToken address to 0
           const zeroAddress = '0x0000000000000000000000000000000000000000';
           await this.mockMocStateChanger.setMoCToken(zeroAddress);
           await this.governor.executeChange(this.mockMocStateChanger.address);
-          // eslint-disable-next-line max-len
-          const prevUserMoCBalanceOtherAddress = await mocHelper.getMoCBalance(otherAddress); // No MoC balance
-          const expectedMoCAmount = 0;
-          const expectedMoCCommission = 0;
+
+          const expectedMoCFees = 0; // commission + vendor fee
           const mintBproAmount = 1;
           const mintDocAmount = 1000;
           const mintAmount = 0.1;
-          // eslint-disable-next-line max-len
-          // commission = mintBproAmount * MINT_BPRO_FEES_RBTC() + mintDocAmount * MINT_DOC_FEES_RBTC()  + mintAmount * MINT_BTCX_FEES_RBTC()
-          const expectedRbtcCommission = 0.0018;
-          const prevUserBtcBalanceOtherAddress = toContractBN(
-            await web3.eth.getBalance(otherAddress)
-          );
-          // eslint-disable-next-line max-len
-          // total cost = mintBproAmount + mintDocAmount / btcPrice + mintAmount + expectedRbtcCommission
-          const expectedRbtcAmount = 1.2 + expectedRbtcCommission;
-
-          const prevCommissionsAccountBtcBalance = toContractBN(
-            await web3.eth.getBalance(commissionsAccount)
-          );
+          const expectedRbtcCommission = 0.0005; // mintAmount * MINT_BTCX_FEES_RBTC()
+          const expectedRbtcVendorFee = 0.001; // mintAmount * markup
 
           // Mint
-          const txTypeMintBpro = await mocHelper.mocInrate.MINT_BPRO_FEES_RBTC();
-          const txTypeMintDoc = await mocHelper.mocInrate.MINT_DOC_FEES_RBTC();
-          const mintBpro = await mocHelper.mintBProAmount(
+          await mocHelper.mintBProAmount(
             otherAddress,
             mintBproAmount,
             vendorAccount,
-            txTypeMintBpro
+            await mocHelper.mocInrate.MINT_BPRO_FEES_RBTC()
           );
-          const mintDoc = await mocHelper.mintDocAmount(
+          await mocHelper.mintDocAmount(
             otherAddress,
             mintDocAmount,
             vendorAccount,
-            txTypeMintDoc
+            await mocHelper.mocInrate.MINT_DOC_FEES_RBTC()
           );
-          const txType = await mocHelper.mocInrate.MINT_BTCX_FEES_RBTC();
-          const mint = await mocHelper.mintBProxAmount(
+
+          // Calculate balances before minting
+          const prevCommissionAccountBalance = toContractBN(
+            await web3.eth.getBalance(commissionsAccount)
+          );
+          const prevVendorAccountBtcBalance = toContractBN(
+            await web3.eth.getBalance(vendorAccount)
+          );
+          const prevUserMoCBalance = await mocHelper.getMoCBalance(otherAddress);
+
+          // Mint
+          await mocHelper.mintBProxAmount(
             otherAddress,
             BUCKET_X2,
             mintAmount,
             vendorAccount,
-            txType
-          );
-          const usedGas = toContractBN(await mocHelper.getTxCost(mintBpro)).add(
-            toContractBN(await mocHelper.getTxCost(mintDoc)).add(
-              toContractBN(await mocHelper.getTxCost(mint))
-            )
+            await mocHelper.mocInrate.MINT_BTCX_FEES_RBTC()
           );
 
-          const userMoCBalanceOtherAddress = await mocHelper.getMoCBalance(otherAddress);
-          const diffMoCAmount = prevUserMoCBalanceOtherAddress.sub(new BN(expectedMoCFees));
-          const diffMoCFees = prevUserMoCBalanceOtherAddress.sub(userMoCBalanceOtherAddress);
+          const userMoCBalance = await mocHelper.getMoCBalance(otherAddress);
+          const diffMoCFees = prevUserMoCBalance.sub(userMoCBalance);
 
-          // RBTC commission
-          const commissionsAccountBtcBalance = toContractBN(
-            await web3.eth.getBalance(commissionsAccount)
-          );
+          const commissionsBalance = toContractBN(await web3.eth.getBalance(commissionsAccount));
+          const diffRbtcCommission = commissionsBalance.sub(prevCommissionAccountBalance);
+
           const vendorAccountBtcBalance = toContractBN(await web3.eth.getBalance(vendorAccount));
-          const diffRbtcCommission = commissionsAccountBtcBalance.sub(
-            prevCommissionsAccountBtcBalance
-          );
           const diffRbtcVendorFee = vendorAccountBtcBalance.sub(prevVendorAccountBtcBalance);
-          const userBtcBalanceOtherAccount = toContractBN(await web3.eth.getBalance(otherAddress));
-          const diffRbtcAmount = prevUserBtcBalanceOtherAddress
-            .sub(userBtcBalanceOtherAccount)
-            .sub(usedGas);
 
           // Set MoCToken address back to its original address
           await this.mockMocStateChanger.setMoCToken(mocTokenAddress);
           await this.governor.executeChange(this.mockMocStateChanger.address);
 
-          mocHelper.assertBigRBTC(
-            diffMoCAmount,
-            expectedMoCAmount,
-            'user MoC balance is incorrect'
-          );
           mocHelper.assertBigRBTC(diffMoCFees, expectedMoCFees, 'MoC fees are incorrect');
-          mocHelper.assertBigRBTC(
-            diffRbtcAmount,
-            expectedRbtcAmount,
-            'user rbtc balance is incorrect'
-          );
           mocHelper.assertBigRBTC(
             diffRbtcCommission,
             expectedRbtcCommission,
@@ -529,6 +467,7 @@ contract('MoC : MoCExchange', function([owner, userAccount, commissionsAccount, 
         let txCost;
         let prevUserMoCBalance;
         let prevCommissionsAccountMoCBalance;
+        let prevVendorAccountBtcBalance;
         let prevVendorAccountMoCBalance;
 
         const mocPrice = 5000;
