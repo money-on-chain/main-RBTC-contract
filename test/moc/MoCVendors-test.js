@@ -2,7 +2,9 @@ const { assert } = require('chai');
 const { expectRevert } = require('openzeppelin-test-helpers');
 const testHelperBuilder = require('../mocHelper.js');
 const { toContract } = require('../../utils/numberHelper');
+
 const { BN } = web3.utils;
+const { BigNumber } = require('bignumber.js');
 
 let mocHelper;
 let toContractBN;
@@ -18,7 +20,8 @@ contract('MoC: MoCVendors', function([
   vendorAccount1,
   vendorAccount2,
   vendorAccount3,
-  vendorAccount4
+  vendorAccount4,
+  vendorAccount5
 ]) {
   before(async function() {
     mocHelper = await testHelperBuilder({ owner });
@@ -34,7 +37,7 @@ contract('MoC: MoCVendors', function([
   beforeEach(async function() {
     // await mocHelper.revertState();
   });
-  describe.only('GIVEN vendors can integrate their platforms with MoC protocol', function() {
+  describe('GIVEN vendors can integrate their platforms with MoC protocol', function() {
     const scenarios = [
       // Vendor 1
       {
@@ -102,15 +105,8 @@ contract('MoC: MoCVendors', function([
       let unregisterVendorTx;
       let vendorInMapping;
 
-      const activeVendorCount = 3;
-      const inactiveVendorCount = 2;
-
       before(async function() {
-        //await mocHelper.revertState();
-
-        console.log("vendor 1: ", vendorAccount1);
-        console.log("vendor 2: ", vendorAccount2);
-        console.log("vendor 3: ", vendorAccount3);
+        // await mocHelper.revertState();
 
         await mocHelper.mintMoCToken(scenario.params.account, scenario.params.mocAmount, owner);
         await mocHelper.approveMoCToken(
@@ -118,15 +114,6 @@ contract('MoC: MoCVendors', function([
           scenario.params.mocAmount,
           scenario.params.account
         );
-
-        let vendorCount = await this.mocVendors.getVendorsCount();
-
-        console.log('vendorCount before reg: ', vendorCount);
-        console.log('vendorCount before reg toString: ', vendorCount.toString());
-
-        for (let i = 0; i < vendorCount; i++) {
-          console.log(i, await this.mocVendors.vendorsList.call(i));
-        }
 
         const vendorToRegister = {
           account: scenario.params.account,
@@ -136,10 +123,6 @@ contract('MoC: MoCVendors', function([
         await this.mockMoCVendorsChanger.setVendorsToRegister([vendorToRegister]);
 
         registerVendorTx = await this.governor.executeChange(this.mockMoCVendorsChanger.address);
-
-        for (let i = 0; i < vendorCount; i++) {
-          console.log(i, await this.mocVendors.vendorsList.call(i));
-        }
 
         // Commission rates for test are set in functionHelper.js
         await mocHelper.mockMocInrateChanger.setCommissionRates(
@@ -188,7 +171,7 @@ contract('MoC: MoCVendors', function([
               'Should increase by staking'
             );
           } catch (err) {
-            if (new BN(scenario.expect.staking).gt(new BN(0))) {
+            if ((new BigNumber(scenario.expect.staking)).gt(new BigNumber(0))) {
               assert(
                 err.reason === 'Vendor total paid is not enough',
                 `Vendor ${scenario.params.account} should not be able to add staking`
@@ -243,18 +226,6 @@ contract('MoC: MoCVendors', function([
         mocHelper.assertBig(vendorInMapping.paidMoC, paidMoC, 'paidMoC is incorrect');
         mocHelper.assertBig(vendorInMapping.paidRBTC, paidRBTC, 'paidRBTC is incorrect');
       });
-      it('WHEN retrieving vendor count, THEN it returns the correct amount of active vendors', async function() {
-        const vendorCount = await this.mocVendors.getVendorsCount();
-
-        console.log('vendorCount: ', vendorCount);
-        console.log('vendorCount toString: ', vendorCount.toString());
-
-        for (let i = 0; i < vendorCount; i++) {
-          console.log(i, await this.mocVendors.vendorsList.call(i));
-        }
-
-        mocHelper.assertBig(vendorCount, activeVendorCount, 'Active vendor count is incorrect');
-      });
       it(
         scenario.params.removeStakeMessage.replace('$STAKING$', scenario.params.staking),
         async function() {
@@ -280,7 +251,7 @@ contract('MoC: MoCVendors', function([
               'Should decrease by staking'
             );
           } catch (err) {
-            if (new BN(scenario.expect.staking).gt(new BN(0))) {
+            if ((new BigNumber(scenario.expect.staking)).gt(new BigNumber(0))) {
               assert(
                 err.reason === 'Vendor total paid is not enough',
                 `Vendor ${scenario.params.account} should not be able to remove staking`
@@ -309,18 +280,6 @@ contract('MoC: MoCVendors', function([
           'Vendor account is incorrect'
         );
       });
-      it('WHEN retrieving vendor count after unregistering vendor, THEN it returns the correct amount of active vendors', async function() {
-        const vendorCount = await this.mocVendors.getVendorsCount();
-
-        console.log('vendorCount: ', vendorCount);
-        console.log('vendorCount toString: ', vendorCount.toString());
-
-        for (let i = 0; i < vendorCount; i++) {
-          console.log(i, await this.mocVendors.vendorsList.call(i));
-        }
-
-        mocHelper.assertBig(vendorCount, inactiveVendorCount, 'Active vendor count is incorrect');
-      });
       describe('GIVEN an inactive vendor tries to make changes', function() {
         it('WHEN an inactive vendor tries to add staking THEN an error should be raised', async function() {
           addStakeTx = this.mocVendors.addStake(
@@ -341,132 +300,229 @@ contract('MoC: MoCVendors', function([
       });
     });
   });
-  describe('GIVEN an unauthorized account tries to make changes', function() {
-    it('WHEN an unauthorized account tries to register a vendor THEN an error should be raised', async function() {
-      try {
-        await this.mocVendors.registerVendor(
-          vendorAccount4,
-          toContract(100 * mocHelper.MOC_PRECISION).toString(),
-          { from: unauthorizedAccount }
-        );
-      } catch (err) {
-        assert(
-          err.message.search('not_authorized_changer') >= 0,
-          `${unauthorizedAccount} should not be authorized to register a vendor`
-        );
-      }
-    });
-    it('WHEN an unauthorized account tries to unregister a vendor THEN an error should be raised', async function() {
-      try {
-        await this.mocVendors.unregisterVendor(vendorAccount4, {
-          from: unauthorizedAccount
-        });
-      } catch (err) {
-        assert(
-          err.reason === 'not_authorized_changer',
-          `${unauthorizedAccount} should not be authorized to unregister a vendor`
-        );
-      }
-    });
-  });
-  describe('GIVEN an inexistent vendor tries to makes changes', function() {
-    it('WHEN an inexistent vendor tries to add staking THEN an error should be raised', async function() {
-      const addStakeTx = this.mocVendors.addStake(toContractBN(10 * mocHelper.MOC_PRECISION), {
-        from: inexistentVendorAccount
+  describe('Non-scenario tests', function() {
+    describe('GIVEN an unauthorized account tries to make changes', function() {
+      it('WHEN an unauthorized account tries to register a vendor THEN an error should be raised', async function() {
+        try {
+          await this.mocVendors.registerVendor(
+            vendorAccount4,
+            toContract(100 * mocHelper.MOC_PRECISION).toString(),
+            { from: unauthorizedAccount }
+          );
+        } catch (err) {
+          assert(
+            err.message.search('not_authorized_changer') >= 0,
+            `${unauthorizedAccount} should not be authorized to register a vendor`
+          );
+        }
       });
-
-      await expectRevert(addStakeTx, 'Vendor is inexistent or inactive');
+      it('WHEN an unauthorized account tries to unregister a vendor THEN an error should be raised', async function() {
+        try {
+          await this.mocVendors.unregisterVendor(vendorAccount4, {
+            from: unauthorizedAccount
+          });
+        } catch (err) {
+          assert(
+            err.reason === 'not_authorized_changer',
+            `${unauthorizedAccount} should not be authorized to unregister a vendor`
+          );
+        }
+      });
     });
-    it('WHEN an inexistent vendor tries to remove staking THEN an error should be raised', async function() {
-      const removeStakeTx = this.mocVendors.removeStake(
-        toContractBN(10 * mocHelper.MOC_PRECISION),
-        { from: inexistentVendorAccount }
-      );
+    describe('GIVEN an inexistent vendor tries to makes changes', function() {
+      it('WHEN an inexistent vendor tries to add staking THEN an error should be raised', async function() {
+        const addStakeTx = this.mocVendors.addStake(toContractBN(10 * mocHelper.MOC_PRECISION), {
+          from: inexistentVendorAccount
+        });
 
-      await expectRevert(removeStakeTx, 'Vendor is inexistent or inactive');
+        await expectRevert(addStakeTx, 'Vendor is inexistent or inactive');
+      });
+      it('WHEN an inexistent vendor tries to remove staking THEN an error should be raised', async function() {
+        const removeStakeTx = this.mocVendors.removeStake(
+          toContractBN(10 * mocHelper.MOC_PRECISION),
+          { from: inexistentVendorAccount }
+        );
+
+        await expectRevert(removeStakeTx, 'Vendor is inexistent or inactive');
+      });
     });
-  });
-  describe('GIVEN a vendor with zero address is invalid', function() {
-    it('WHEN trying to register a vendor with zero address THEN an error should be raised', async function() {
-      const vendorToRegister = {
-        account: ZERO_ADDRESS,
-        markup: toContract(0.01 * mocHelper.MOC_PRECISION).toString()
-      };
+    describe('GIVEN a vendor with zero address is invalid', function() {
+      it('WHEN trying to register a vendor with zero address THEN an error should be raised', async function() {
+        const vendorToRegister = {
+          account: ZERO_ADDRESS,
+          markup: toContract(0.01 * mocHelper.MOC_PRECISION).toString()
+        };
 
-      await this.mockMoCVendorsChanger.setVendorsToRegister([vendorToRegister]);
+        await this.mockMoCVendorsChanger.setVendorsToRegister([vendorToRegister]);
 
-      const registerVendorTx = this.governor.executeChange(this.mockMoCVendorsChanger.address);
+        const registerVendorTx = this.governor.executeChange(this.mockMoCVendorsChanger.address);
 
-      await expectRevert(registerVendorTx, 'Vendor account must not be 0x0');
+        await expectRevert(registerVendorTx, 'Vendor account must not be 0x0');
+      });
+      it('WHEN trying to unregister a vendor with zero address THEN an error should be raised', async function() {
+        await this.mockMoCVendorsChanger.setVendorsToUnregister([ZERO_ADDRESS]);
+
+        const unregisterVendorTx = this.governor.executeChange(this.mockMoCVendorsChanger.address);
+
+        await expectRevert(unregisterVendorTx, 'Vendor account must not be 0x0');
+      });
     });
-    it('WHEN trying to unregister a vendor with zero address THEN an error should be raised', async function() {
-      await this.mockMoCVendorsChanger.setVendorsToUnregister([ZERO_ADDRESS]);
+    describe('GIVEN there is a maximum markup that can be assigned to a vendor', function() {
+      it('WHEN trying to register a vendor with an invalid value THEN an error should be raised', async function() {
+        const vendorToRegister = {
+          account: vendorAccount4,
+          markup: toContract(10 * mocHelper.MOC_PRECISION).toString()
+        };
 
-      const unregisterVendorTx = this.governor.executeChange(this.mockMoCVendorsChanger.address);
+        await this.mockMoCVendorsChanger.setVendorsToRegister([vendorToRegister]);
 
-      await expectRevert(unregisterVendorTx, 'Vendor account must not be 0x0');
+        const registerVendorTx = this.governor.executeChange(this.mockMoCVendorsChanger.address);
+
+        await expectRevert(registerVendorTx, 'Vendor markup must not be greater than 1%');
+      });
+      it('WHEN trying to unregister a vendor with zero address THEN an error should be raised', async function() {
+        await this.mockMoCVendorsChanger.setVendorsToUnregister([ZERO_ADDRESS]);
+
+        const unregisterVendorTx = this.governor.executeChange(this.mockMoCVendorsChanger.address);
+
+        await expectRevert(unregisterVendorTx, 'Vendor account must not be 0x0');
+      });
     });
-  });
-  describe('GIVEN there is a maximum markup that can be assigned to a vendor', function() {
-    it('WHEN trying to register a vendor with an invalid value THEN an error should be raised', async function() {
-      const vendorToRegister = {
-        account: vendorAccount4,
-        markup: toContract(10 * mocHelper.MOC_PRECISION).toString()
-      };
+    describe('GIVEN vendors can be registered and unregistered', function() {
+      before(async function() {
+        const vendor1 = await mocHelper.getVendorToRegisterAsArray(vendorAccount1, 0.01);
+        const vendor2 = await mocHelper.getVendorToRegisterAsArray(vendorAccount2, 0.002);
+        const vendor3 = await mocHelper.getVendorToRegisterAsArray(vendorAccount3, 0.003);
+        const vendors = vendor1.concat(vendor2).concat(vendor3);
 
-      await this.mockMoCVendorsChanger.setVendorsToRegister([vendorToRegister]);
+        await this.mockMoCVendorsChanger.setVendorsToRegister(vendors);
+        await this.governor.executeChange(this.mockMoCVendorsChanger.address);
+      });
+      it('WHEN registering and unregistering vendors THEN the correct amount of registered vendors is retrieved', async function() {
+        let vendorCount;
+        let activeVendorCount = 3;
+        let unregisterVendorTx;
 
-      const registerVendorTx = this.governor.executeChange(this.mockMoCVendorsChanger.address);
+        vendorCount = await this.mocVendors.getVendorsCount();
+        mocHelper.assertBig(vendorCount, activeVendorCount, 'Active vendor count is incorrect');
 
-      await expectRevert(registerVendorTx, 'Vendor markup must not be greater than 1%');
+        // Unregister vendorAccount3
+        await this.mockMoCVendorsChanger.setVendorsToUnregister([vendorAccount3]);
+        unregisterVendorTx = this.governor.executeChange(this.mockMoCVendorsChanger.address);
+        activeVendorCount--;
+
+        vendorCount = await this.mocVendors.getVendorsCount();
+        mocHelper.assertBig(vendorCount, activeVendorCount, 'Active vendor count is incorrect');
+        const [vendor3UnregisteredEvent] = await mocHelper.findEvents(
+          unregisterVendorTx,
+          'VendorUnregistered'
+        );
+
+        assert(vendor3UnregisteredEvent, 'Event was not emitted');
+        assert(vendor3UnregisteredEvent.account === vendorAccount3, 'Vendor account is incorrect');
+
+        // Unregister vendorAccount2
+        await this.mockMoCVendorsChanger.setVendorsToUnregister([vendorAccount2]);
+        unregisterVendorTx = this.governor.executeChange(this.mockMoCVendorsChanger.address);
+        activeVendorCount--;
+
+        vendorCount = await this.mocVendors.getVendorsCount();
+        mocHelper.assertBig(vendorCount, activeVendorCount, 'Active vendor count is incorrect');
+        const [vendor2UnregisteredEvent] = await mocHelper.findEvents(
+          unregisterVendorTx,
+          'VendorUnregistered'
+        );
+
+        assert(vendor2UnregisteredEvent, 'Event was not emitted');
+        assert(vendor2UnregisteredEvent.account === vendorAccount2, 'Vendor account is incorrect');
+
+        // Unregister vendorAccount1
+        await this.mockMoCVendorsChanger.setVendorsToUnregister([vendorAccount3]);
+        unregisterVendorTx = this.governor.executeChange(this.mockMoCVendorsChanger.address);
+        activeVendorCount--;
+
+        vendorCount = await this.mocVendors.getVendorsCount();
+        mocHelper.assertBig(vendorCount, activeVendorCount, 'Active vendor count is incorrect');
+        const [vendor1UnregisteredEvent] = await mocHelper.findEvents(
+          unregisterVendorTx,
+          'VendorUnregistered'
+        );
+
+        assert(vendor1UnregisteredEvent, 'Event was not emitted');
+        assert(vendor1UnregisteredEvent.account === vendorAccount1, 'Vendor account is incorrect');
+      });
     });
-    it('WHEN trying to unregister a vendor with zero address THEN an error should be raised', async function() {
-      await this.mockMoCVendorsChanger.setVendorsToUnregister([ZERO_ADDRESS]);
+    describe('GIVEN vendors can be registered and unregistered via an array in changer contract', function() {
+      const vendorsToRegister = [];
+      const vendorsToUnregister = [];
 
-      const unregisterVendorTx = this.governor.executeChange(this.mockMoCVendorsChanger.address);
+      before(async function() {
+        for (let i = 0; i < 100; i++) {
+          const account = web3.utils.randomHex(20);
+          vendorsToRegister.push({
+            account,
+            markup: toContract((i / 10000) * mocHelper.MOC_PRECISION).toString()
+          });
+          vendorsToUnregister.push(account);
+        }
 
-      await expectRevert(unregisterVendorTx, 'Vendor account must not be 0x0');
-    });
-  });
-  describe('GIVEN vendors can be registered and unregistered via an array in changer contract', function() {
-    const vendorsToRegister = [];
-    const vendorsToUnregister = [];
+        await this.mockMoCVendorsChanger.setVendorsToRegister(vendorsToRegister);
+        await this.mockMoCVendorsChanger.setVendorsToUnregister(vendorsToUnregister);
 
-    before(async function() {
-      for (let i = 0; i < 100; i++) {
-        const account = web3.utils.randomHex(20);
+        await this.governor.executeChange(this.mockMoCVendorsChanger.address);
+      });
+      it('WHEN registering more vendors than allowed THEN an error should be raised', async function() {
         vendorsToRegister.push({
-          account,
-          markup: toContract((i / 1000) * mocHelper.MOC_PRECISION).toString()
+          account: web3.utils.randomHex(20),
+          markup: toContract((101 / 1000) * mocHelper.MOC_PRECISION).toString()
         });
-        vendorsToUnregister.push(account);
-      }
 
-      await this.mockMoCVendorsChanger.setVendorsToRegister(vendorsToRegister);
-      await this.mockMoCVendorsChanger.setVendorsToUnregister(vendorsToUnregister);
+        await this.mockMoCVendorsChanger.setVendorsToRegister(vendorsToRegister);
 
-      await this.governor.executeChange(this.mockMoCVendorsChanger.address);
-    });
-    it('WHEN registering more vendors than allowed THEN an error should be raised', async function() {
-      vendorsToRegister.push({
-        account: web3.utils.randomHex(20),
-        markup: toContract((101 / 1000) * mocHelper.MOC_PRECISION).toString()
+        const registerVendorTx = this.governor.executeChange(this.mockMoCVendorsChanger.address);
+
+        await expectRevert(registerVendorTx, 'vendorsToRegister length must be between 1 and 100');
       });
+      it('WHEN unregistering more vendors than allowed THEN an error should be raised', async function() {
+        vendorsToUnregister.push(web3.utils.randomHex(20));
 
-      await this.mockMoCVendorsChanger.setVendorsToRegister(vendorsToRegister);
+        await this.mockMoCVendorsChanger.setVendorsToUnregister(vendorsToRegister);
 
-      const registerVendorTx = this.governor.executeChange(this.mockMoCVendorsChanger.address);
+        const unregisterVendorTx = this.governor.executeChange(this.mockMoCVendorsChanger.address);
 
-      await expectRevert(registerVendorTx, 'vendorsToRegister length must be between 1 and 100');
+        await expectRevert(unregisterVendorTx, 'vendorsToRegister length must be between 1 and 100');
+      });
     });
-    it('WHEN unregistering more vendors than allowed THEN an error should be raised', async function() {
-      vendorsToUnregister.push(web3.utils.randomHex(20));
+    describe('GIVEN vendors get their amount paid in MoC reset every time settlement is run', function() {
+      before(async function() {
+        // Register vendor for test
+        await this.mockMoCVendorsChanger.setVendorsToRegister(
+          await mocHelper.getVendorToRegisterAsArray(vendorAccount5, 0.01)
+        );
+        await this.governor.executeChange(this.mockMoCVendorsChanger.address);
 
-      await this.mockMoCVendorsChanger.setVendorsToUnregister(vendorsToRegister);
+        // Add staking
+        this.mocVendors.addStake(toContractBN(1000 * mocHelper.MOC_PRECISION), {
+          from: vendorAccount5
+        });
 
-      const unregisterVendorTx = this.governor.executeChange(this.mockMoCVendorsChanger.address);
+        // Mint BPRO
+        await mocHelper.mintBProAmount(
+          userAccount,
+          1000,
+          vendorAccount5,
+          await mocHelper.mocInrate.MINT_BPRO_FEES_RBTC()
+        );
 
-      await expectRevert(unregisterVendorTx, 'vendorsToRegister length must be between 1 and 100');
+        // Enabling Settlement
+        await this.mocSettlement.setBlockSpan(1);
+        await mocHelper.executeSettlement();
+      });
+      it('WHEN settlement runs, then totalPaidInMoC is 0', async function() {
+        const totalPaidInMoC = await this.mocVendors.getTotalPaidInMoC(vendorAccount5);
+
+        mocHelper.assertBig(totalPaidInMoC, 0, 'Total paid in MoC is incorrect');
+      });
     });
   });
 });

@@ -84,7 +84,7 @@ contract('MoC: Partial Burnout execution', function([owner, vendorAccount, ...ac
       let firstTx;
       let secondTx;
       before(async function() {
-        await initializeBurnout(owner, accountsTest);
+        await initializeBurnout(owner, vendorAccount, accountsTest);
         await mocHelper.setBitcoinPrice(toContractBN(2000, 'USD'));
         initialBalances = await Promise.all(
           accountsTest.map(account => mocHelper.getUserBalances(account))

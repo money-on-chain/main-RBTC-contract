@@ -21,16 +21,24 @@ const scenario = {
   commissionAmountZero: 0
 };
 
-contract('MoCInrate Governed', function([owner, account2]) {
+contract('MoCInrate Governed', function([owner, account2, vendorAccount]) {
   before(async function() {
     mocHelper = await testHelperBuilder({ owner });
+    ({ toContractBN } = mocHelper);
     this.mocInrate = mocHelper.mocInrate;
     this.governor = mocHelper.governor;
     this.mockMocInrateChanger = mocHelper.mockMocInrateChanger;
+    this.mockMoCVendorsChanger = mocHelper.mockMoCVendorsChanger;
   });
 
   beforeEach(async function() {
     await mocHelper.revertState();
+
+    // Register vendor for test
+    await this.mockMoCVendorsChanger.setVendorsToRegister(
+      await mocHelper.getVendorToRegisterAsArray(vendorAccount, 0.01)
+    );
+    await this.governor.executeChange(this.mockMoCVendorsChanger.address);
 
     // Commission rates for test are set in functionHelper.js
     await mocHelper.mockMocInrateChanger.setCommissionRates(
@@ -259,6 +267,32 @@ contract('MoCInrate Governed', function([owner, account2]) {
           `bitProRate should be ${scenario.bitProRate}`
         );
       });
+    });
+  });
+  describe('MoCInrate calculate markup', function() {
+    it('WHEN address of vendorAccount is 0x0, THEN markup is 0', async function() {
+      const zeroAddress = '0x0000000000000000000000000000000000000000';
+      const markup = await this.mocInrate.calculateVendorMarkup(
+        zeroAddress,
+        toContractBN(1000 * mocHelper.MOC_PRECISION)
+      );
+      mocHelper.assertBig(
+        markup.toString(),
+        0,
+        'vendor markup should be 0'
+      );
+    });
+    it('WHEN address of vendorAccount is valid, THEN markup is calculated correctly', async function() {
+      const vendorMarkup = 10;
+      const markup = await this.mocInrate.calculateVendorMarkup(
+        vendorAccount,
+        toContractBN(1000 * mocHelper.MOC_PRECISION)
+      );
+      mocHelper.assertBig(
+        markup.toString(),
+        (vendorMarkup * mocHelper.MOC_PRECISION).toString(),
+        `vendor markup should be ${vendorMarkup}`
+      );
     });
   });
 });
