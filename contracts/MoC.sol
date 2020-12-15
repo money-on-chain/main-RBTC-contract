@@ -494,25 +494,11 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
     }
   }
 
-  event Test(
-    bool isActive,
-    uint256 totalPaidInMoC,
-    uint256 btcMarkupInMoC,
-    uint256 staking
-  );
-
   function transferBtcCommission(address payable vendorAccount, uint256 btcCommission, uint256 btcMarkup) internal {
     MoCVendors mocVendors = MoCVendors(mocState.getMoCVendors());
 
     uint256 totalBtcFee = btcCommission.add(btcMarkup);
     (uint256 btcMarkupInMoC, , ) = mocExchange.convertToMoCPrice(btcMarkup);
-
-    emit Test(
-      mocVendors.getIsActive(vendorAccount),
-      mocVendors.getTotalPaidInMoC(vendorAccount),
-      btcMarkupInMoC,
-      mocVendors.getStaking(vendorAccount)
-    );
 
     // Transfer vendor markup in MoC
     if (mocVendors.getIsActive(vendorAccount) &&
