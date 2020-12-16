@@ -1,10 +1,8 @@
+const { BigNumber } = require('bignumber.js');
 const { assert } = require('chai');
 const { expectRevert } = require('openzeppelin-test-helpers');
 const testHelperBuilder = require('../mocHelper.js');
 const { toContract } = require('../../utils/numberHelper');
-
-const { BN } = web3.utils;
-const { BigNumber } = require('bignumber.js');
 
 let mocHelper;
 let toContractBN;
@@ -172,7 +170,7 @@ contract('MoC: MoCVendors', function([
               'Should increase by staking'
             );
           } catch (err) {
-            if ((new BigNumber(scenario.expect.staking)).gt(new BigNumber(0))) {
+            if (new BigNumber(scenario.expect.staking).gt(new BigNumber(0))) {
               assert(
                 err.reason === 'Vendor total paid is not enough',
                 `Vendor ${scenario.params.account} should not be able to add staking`
@@ -252,7 +250,7 @@ contract('MoC: MoCVendors', function([
               'Should decrease by staking'
             );
           } catch (err) {
-            if ((new BigNumber(scenario.expect.staking)).gt(new BigNumber(0))) {
+            if (new BigNumber(scenario.expect.staking).gt(new BigNumber(0))) {
               assert(
                 err.reason === 'Vendor total paid is not enough',
                 `Vendor ${scenario.params.account} should not be able to remove staking`
@@ -486,7 +484,10 @@ contract('MoC: MoCVendors', function([
 
         const unregisterVendorTx = this.governor.executeChange(this.mockMoCVendorsChanger.address);
 
-        await expectRevert(unregisterVendorTx, 'vendorsToRegister length must be between 1 and 100');
+        await expectRevert(
+          unregisterVendorTx,
+          'vendorsToRegister length must be between 1 and 100'
+        );
       });
     });
     describe('GIVEN vendors get their amount paid in MoC reset every time settlement is run', function() {

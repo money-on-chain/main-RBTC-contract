@@ -2,6 +2,7 @@ const { expectRevert } = require('openzeppelin-test-helpers');
 const testHelperBuilder = require('../mocHelper.js');
 
 let mocHelper;
+let toContractBN;
 
 const NOT_AUTHORIZED_CHANGER = 'not_authorized_changer';
 // eslint-disable-next-line quotes
@@ -276,11 +277,7 @@ contract('MoCInrate Governed', function([owner, account2, vendorAccount]) {
         zeroAddress,
         toContractBN(1000 * mocHelper.MOC_PRECISION)
       );
-      mocHelper.assertBig(
-        markup.toString(),
-        0,
-        'vendor markup should be 0'
-      );
+      mocHelper.assertBig(markup.toString(), 0, 'vendor markup should be 0');
     });
     it('WHEN address of vendorAccount is valid, THEN markup is calculated correctly', async function() {
       const vendorMarkup = 10;
