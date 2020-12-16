@@ -31,6 +31,7 @@ contract('MoC: MoCVendors', function([
     this.mocVendors = mocHelper.mocVendors;
     this.mockMoCVendorsChanger = mocHelper.mockMoCVendorsChanger;
     this.mockMocInrateChanger = mocHelper.mockMocInrateChanger;
+    this.mocSettlement = mocHelper.mocSettlement;
 
     await mocHelper.revertState();
   });
@@ -380,20 +381,15 @@ contract('MoC: MoCVendors', function([
 
         await expectRevert(registerVendorTx, 'Vendor markup must not be greater than 1%');
       });
-      it('WHEN trying to unregister a vendor with zero address THEN an error should be raised', async function() {
-        await this.mockMoCVendorsChanger.setVendorsToUnregister([ZERO_ADDRESS]);
-
-        const unregisterVendorTx = this.governor.executeChange(this.mockMoCVendorsChanger.address);
-
-        await expectRevert(unregisterVendorTx, 'Vendor account must not be 0x0');
-      });
     });
     describe('GIVEN vendors can be registered and unregistered', function() {
       before(async function() {
-        const vendor1 = await mocHelper.getVendorToRegisterAsArray(vendorAccount1, 0.01);
+        const vendor1 = await mocHelper.getVendorToRegisterAsArray(vendorAccount1, 0.001);
         const vendor2 = await mocHelper.getVendorToRegisterAsArray(vendorAccount2, 0.002);
         const vendor3 = await mocHelper.getVendorToRegisterAsArray(vendorAccount3, 0.003);
         const vendors = vendor1.concat(vendor2).concat(vendor3);
+
+        console.log(vendors);
 
         await this.mockMoCVendorsChanger.setVendorsToRegister(vendors);
         await this.governor.executeChange(this.mockMoCVendorsChanger.address);
@@ -437,7 +433,7 @@ contract('MoC: MoCVendors', function([
         assert(vendor2UnregisteredEvent.account === vendorAccount2, 'Vendor account is incorrect');
 
         // Unregister vendorAccount1
-        await this.mockMoCVendorsChanger.setVendorsToUnregister([vendorAccount3]);
+        await this.mockMoCVendorsChanger.setVendorsToUnregister([vendorAccount1]);
         unregisterVendorTx = this.governor.executeChange(this.mockMoCVendorsChanger.address);
         activeVendorCount--;
 
