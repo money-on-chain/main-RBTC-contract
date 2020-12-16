@@ -12,7 +12,8 @@ import "./MoCState.sol";
 
 contract MoCVendorsEvents {
   event VendorRegistered(
-    address account
+    address account,
+    uint256 markup
   );
   event VendorUnregistered(
     address account
@@ -83,7 +84,7 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed {
 
     vendorsList.push(account) - 1;
 
-    emit VendorRegistered(account);
+    emit VendorRegistered(account, markup);
 
     return vendors[account].isActive;
   }
