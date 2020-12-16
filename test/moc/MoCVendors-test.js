@@ -302,6 +302,11 @@ contract('MoC: MoCVendors', function([
   describe.only('Non-scenario tests', function() {
     beforeEach(async function() {
       await mocHelper.revertState();
+
+      // Set vendors to register and to unregister with an empty array
+      await this.mockMoCVendorsChanger.setVendorsToRegister([]);
+      await this.mockMoCVendorsChanger.setVendorsToUnregister([]);
+      await this.governor.executeChange(this.mockMoCVendorsChanger.address);
     });
     describe('GIVEN an unauthorized account tries to make changes', function() {
       it('WHEN an unauthorized account tries to register a vendor THEN an error should be raised', async function() {

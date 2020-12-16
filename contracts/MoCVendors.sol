@@ -78,13 +78,15 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed {
     // Change the error message according to the value of the VENDORS_LIST_ARRAY_MAX_LENGTH constant
     require(vendorsList.length <= VENDORS_LIST_ARRAY_MAX_LENGTH, "vendorsList length must be between 1 and 100");
 
-    // Map vendor details to vendor address
-    vendors[account].isActive = true;
-    vendors[account].markup = markup;
+    if (vendors[account].isActive == false) {
+      // Map vendor details to vendor address
+      vendors[account].isActive = true;
+      vendors[account].markup = markup;
 
-    vendorsList.push(account) - 1;
+      vendorsList.push(account) - 1;
 
-    emit VendorRegistered(account, markup);
+      emit VendorRegistered(account, markup);
+    }
 
     return vendors[account].isActive;
   }
@@ -100,7 +102,6 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed {
       vendorsList[i] = vendorsList[vendorsList.length - 1];
       delete vendorsList[vendorsList.length - 1];
       vendorsList.length--;
-      //vendorsList.pop();
 
       emit VendorUnregistered(account);
       return false;
