@@ -299,7 +299,10 @@ contract('MoC: MoCVendors', function([
       });
     });
   });
-  describe('Non-scenario tests', function() {
+  describe.only('Non-scenario tests', function() {
+    beforeEach(async function() {
+      await mocHelper.revertState();
+    });
     describe('GIVEN an unauthorized account tries to make changes', function() {
       it('WHEN an unauthorized account tries to register a vendor THEN an error should be raised', async function() {
         try {
@@ -381,7 +384,25 @@ contract('MoC: MoCVendors', function([
       });
     });
     describe('GIVEN vendors can be registered and unregistered', function() {
-      before(async function() {
+      beforeEach(async function() {
+        await mocHelper.revertState();
+      });
+      // before(async function() {
+      //   const vendor1 = await mocHelper.getVendorToRegisterAsArray(vendorAccount1, 0.001);
+      //   const vendor2 = await mocHelper.getVendorToRegisterAsArray(vendorAccount2, 0.002);
+      //   const vendor3 = await mocHelper.getVendorToRegisterAsArray(vendorAccount3, 0.003);
+      //   const vendors = vendor1.concat(vendor2).concat(vendor3);
+
+      //   console.log(vendors);
+
+      //   await this.mockMoCVendorsChanger.setVendorsToRegister(vendors);
+      //   await this.governor.executeChange(this.mockMoCVendorsChanger.address);
+      // });
+      it('WHEN registering and unregistering vendors THEN the correct amount of registered vendors is retrieved', async function() {
+        let vendorCount;
+        let activeVendorCount = 3;
+        let unregisterVendorTx;
+
         const vendor1 = await mocHelper.getVendorToRegisterAsArray(vendorAccount1, 0.001);
         const vendor2 = await mocHelper.getVendorToRegisterAsArray(vendorAccount2, 0.002);
         const vendor3 = await mocHelper.getVendorToRegisterAsArray(vendorAccount3, 0.003);
@@ -391,13 +412,14 @@ contract('MoC: MoCVendors', function([
 
         await this.mockMoCVendorsChanger.setVendorsToRegister(vendors);
         await this.governor.executeChange(this.mockMoCVendorsChanger.address);
-      });
-      it('WHEN registering and unregistering vendors THEN the correct amount of registered vendors is retrieved', async function() {
-        let vendorCount;
-        let activeVendorCount = 3;
-        let unregisterVendorTx;
 
         vendorCount = await this.mocVendors.getVendorsCount();
+
+        console.log("after register. vendorCount: ", vendorCount.toString());
+        for (let i = 0; i < vendorCount; i++) {
+          console.log(i, await this.mocVendors.vendorsList.call(i));
+        }
+
         mocHelper.assertBig(vendorCount, activeVendorCount, 'Active vendor count is incorrect');
 
         // Unregister vendorAccount3
@@ -406,6 +428,12 @@ contract('MoC: MoCVendors', function([
         activeVendorCount--;
 
         vendorCount = await this.mocVendors.getVendorsCount();
+
+        console.log("after unregister vendorAccount3. vendorCount: ", vendorCount.toString());
+        for (let i = 0; i < vendorCount; i++) {
+          console.log(i, await this.mocVendors.vendorsList.call(i));
+        }
+
         mocHelper.assertBig(vendorCount, activeVendorCount, 'Active vendor count is incorrect');
         const [vendor3UnregisteredEvent] = await mocHelper.findEvents(
           unregisterVendorTx,
@@ -421,6 +449,12 @@ contract('MoC: MoCVendors', function([
         activeVendorCount--;
 
         vendorCount = await this.mocVendors.getVendorsCount();
+
+        console.log("after unregister vendorAccount2. vendorCount: ", vendorCount.toString());
+        for (let i = 0; i < vendorCount; i++) {
+          console.log(i, await this.mocVendors.vendorsList.call(i));
+        }
+
         mocHelper.assertBig(vendorCount, activeVendorCount, 'Active vendor count is incorrect');
         const [vendor2UnregisteredEvent] = await mocHelper.findEvents(
           unregisterVendorTx,
@@ -436,6 +470,13 @@ contract('MoC: MoCVendors', function([
         activeVendorCount--;
 
         vendorCount = await this.mocVendors.getVendorsCount();
+
+
+        console.log("after unregister vendorAccount1. vendorCount: ", vendorCount.toString());
+        for (let i = 0; i < vendorCount; i++) {
+          console.log(i, await this.mocVendors.vendorsList.call(i));
+        }
+
         mocHelper.assertBig(vendorCount, activeVendorCount, 'Active vendor count is incorrect');
         const [vendor1UnregisteredEvent] = await mocHelper.findEvents(
           unregisterVendorTx,
