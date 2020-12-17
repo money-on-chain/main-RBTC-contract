@@ -30,6 +30,7 @@ contract('MoC: MoCVendors', function([
     this.mockMoCVendorsChanger = mocHelper.mockMoCVendorsChanger;
     this.mockMocInrateChanger = mocHelper.mockMocInrateChanger;
     this.mocSettlement = mocHelper.mocSettlement;
+    this.mocVendorsChangerHarness = mocHelper.mocVendorsChangerHarness;
 
     await mocHelper.revertState();
   });
@@ -457,60 +458,29 @@ contract('MoC: MoCVendors', function([
         assert(vendor1UnregisteredEvent.account === vendorAccount1, 'Vendor account is incorrect');
       });
     });
-    describe('GIVEN vendors can be registered and unregistered via an array in changer contract', function() {
-      const vendorsToRegister = [];
-      const vendorsToUnregister = [];
-
-      before(async function() {
-        for (let i = 0; i < 100; i++) {
-          const account = web3.utils.randomHex(20);
-          vendorsToRegister.push({
-            account,
-            markup: toContract((i / 10000) * mocHelper.MOC_PRECISION).toString()
-          });
-          vendorsToUnregister.push(account);
-        }
-
-        await this.mockMoCVendorsChanger.setVendorsToRegister(vendorsToRegister);
-        await this.mockMoCVendorsChanger.setVendorsToUnregister(vendorsToUnregister);
-
-        await this.governor.executeChange(this.mockMoCVendorsChanger.address);
-      });
-      it('WHEN registering more vendors than allowed THEN an error should be raised', async function() {
-        vendorsToRegister.push({
-          account: web3.utils.randomHex(20),
-          markup: toContract((101 / 1000) * mocHelper.MOC_PRECISION).toString()
-        });
-
-        await this.mockMoCVendorsChanger.setVendorsToRegister(vendorsToRegister);
-
-        const registerVendorTx = this.governor.executeChange(this.mockMoCVendorsChanger.address);
-
-        await expectRevert(registerVendorTx, 'vendorsToRegister length must be between 1 and 100');
-      });
-      it('WHEN unregistering more vendors than allowed THEN an error should be raised', async function() {
-        vendorsToUnregister.push(web3.utils.randomHex(20));
-
-        await this.mockMoCVendorsChanger.setVendorsToUnregister(vendorsToRegister);
-
-        const unregisterVendorTx = this.governor.executeChange(this.mockMoCVendorsChanger.address);
-
-        await expectRevert(
-          unregisterVendorTx,
-          'vendorsToRegister length must be between 1 and 100'
-        );
-      });
-    });
     describe('GIVEN vendors get their amount paid in MoC reset every time settlement is run', function() {
-      before(async function() {
+      it('WHEN settlement runs, then totalPaidInMoC is 0', async function() {
+        // Using harness contract
+        await this.mocVendorsChangerHarness.setVendorsToRegisterEmptyArray();
+        await this.mocVendorsChangerHarness.setVendorsToUnregisterEmptyArray();
+        await this.governor.executeChange(this.mocVendorsChangerHarness.address);
+
         // Register vendor for test
-        await this.mockMoCVendorsChanger.setVendorsToRegister(
+        await this.mocVendorsChangerHarness.setVendorsToRegister(
           await mocHelper.getVendorToRegisterAsArray(vendorAccount5, 0.01)
         );
-        await this.governor.executeChange(this.mockMoCVendorsChanger.address);
+        await this.governor.executeChange(this.mocVendorsChangerHarness.address);
+
+        const mocAmount = 1000;
+        await mocHelper.mintMoCToken(vendorAccount5, mocAmount, owner);
+        await mocHelper.approveMoCToken(
+          this.mocVendors.address,
+          mocAmount,
+          vendorAccount5
+        );
 
         // Add staking
-        await this.mocVendors.addStake(toContractBN(1000 * mocHelper.MOC_PRECISION), {
+        await this.mocVendors.addStake(toContractBN(mocAmount * mocHelper.MOC_PRECISION), {
           from: vendorAccount5
         });
 
@@ -525,11 +495,43 @@ contract('MoC: MoCVendors', function([
         // Enabling Settlement
         await this.mocSettlement.setBlockSpan(1);
         await mocHelper.executeSettlement();
-      });
-      it('WHEN settlement runs, then totalPaidInMoC is 0', async function() {
+
         const totalPaidInMoC = await this.mocVendors.getTotalPaidInMoC(vendorAccount5);
 
         mocHelper.assertBig(totalPaidInMoC, 0, 'Total paid in MoC is incorrect');
+      });
+    });
+    describe('GIVEN vendors can be registered and unregistered via an array in changer contract', function() {
+      it('WHEN registering more vendors than allowed THEN an error should be raised', async function() {
+        const vendorsToRegister = [];
+
+        for (let i = 0; i < 100; i++) {
+          const account = web3.utils.randomHex(20);
+          vendorsToRegister.push({
+            account,
+            markup: toContract((1 / 100000) * mocHelper.MOC_PRECISION).toString()
+          });
+        }
+
+        try {
+          await this.mockMoCVendorsChanger.setVendorsToRegister(vendorsToRegister);
+        } catch (err) {
+          console.log("set arrays: ", err.stack);
+        }
+
+        try {
+          await this.governor.executeChange(this.mockMoCVendorsChanger.address);
+        } catch (err) {
+          console.log("execute chaange: ", err.stack);
+        }
+
+        const vendor = await mocHelper.getVendorToRegisterAsArray(web3.utils.randomHex(20), 0.001);
+
+        await this.mockMoCVendorsChanger.setVendorsToRegister(vendor);
+
+        const registerVendorTx = this.governor.executeChange(this.mockMoCVendorsChanger.address);
+
+        await expectRevert(registerVendorTx, 'vendorsToRegister length must be between 1 and 100');
       });
     });
   });
