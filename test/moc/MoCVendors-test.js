@@ -505,25 +505,41 @@ contract('MoC: MoCVendors', function([
       it('WHEN registering more vendors than allowed THEN an error should be raised', async function() {
         const vendorsToRegister = [];
 
-        for (let i = 0; i < 100; i++) {
-          const account = web3.utils.randomHex(20);
-          vendorsToRegister.push({
-            account,
-            markup: toContract((1 / 100000) * mocHelper.MOC_PRECISION).toString()
-          });
-        }
+        for (let i = 0; i < 20; i++) { // y puego de a 5
+          for (let j = 0; j < 5; i++) {
+            const account = web3.utils.randomHex(20);
+            vendorsToRegister.push({
+              account,
+              markup: toContract((j / 100000) * mocHelper.MOC_PRECISION).toString()
+            });
+          }
 
-        try {
+          const gasEstimate = await this.mockMoCVendorsChanger.setVendorsToRegister.estimateGas(vendorsToRegister);
+
+          console.log("gasEstimate: ", gasEstimate.toString());
+
           await this.mockMoCVendorsChanger.setVendorsToRegister(vendorsToRegister);
-        } catch (err) {
-          console.log("set arrays: ", err.stack);
+
+          const gasEstimate2 = await this.governor.executeChange.estimateGas(this.mockMoCVendorsChanger.address);
+
+          console.log("gasEstimate2: ", gasEstimate2.toString());
+
+          await this.governor.executeChange(this.mockMoCVendorsChanger.address);
         }
 
-        try {
-          await this.governor.executeChange(this.mockMoCVendorsChanger.address);
-        } catch (err) {
-          console.log("execute chaange: ", err.stack);
-        }
+          //console.log("vendorsToRegister: ", vendorsToRegister);
+
+          //try {
+            //await this.mockMoCVendorsChanger.setVendorsToRegister(vendorsToRegister);
+          //} catch (err) {
+          //  console.log("set arrays: ", err.stack);
+          //}
+
+        //try {
+          //await this.governor.executeChange(this.mockMoCVendorsChanger.address);
+        //} catch (err) {
+        //  console.log("execute chaange: ", err.stack);
+        //}
 
         const vendor = await mocHelper.getVendorToRegisterAsArray(web3.utils.randomHex(20), 0.001);
 
