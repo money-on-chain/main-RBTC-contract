@@ -50,6 +50,7 @@ const GovernorProxy = Contracts.getFromLocal('Governor');
 const StopperProxy = Contracts.getFromLocal('Stopper');
 const CommissionSplitterProxy = Contracts.getFromLocal('CommissionSplitter');
 const RevertingOnSend = artifacts.require('./contracts/test-contracts/RevertingOnSend.sol');
+const MoCVendorsChangerHarness = artifacts.require('./contracts/test-contracts/MoCVendorsChangerHarness.sol');
 
 const MoCToken = artifacts.require('./contracts/MoCToken.sol');
 
@@ -369,6 +370,11 @@ const createContracts = params => async ({ owner, useMock }) => {
     from: owner
   });
 
+  // Contract for testing MoCVendorsChanger register/unregister vendors functions
+  const mocVendorsChangerHarness = await MoCVendorsChangerHarness.new(mocVendors.address, {
+    from: owner
+  });
+
   return {
     commissionSplitter,
     mocConnector,
@@ -396,7 +402,8 @@ const createContracts = params => async ({ owner, useMock }) => {
     mocExchange,
     mocVendors,
     mockMoCVendorsChanger,
-    mocConverter
+    mocConverter,
+    mocVendorsChangerHarness
   };
 };
 

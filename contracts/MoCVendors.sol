@@ -83,7 +83,7 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed {
       vendors[account].isActive = true;
       vendors[account].markup = markup;
 
-      vendorsList.push(account) - 1;
+      vendorsList.push(account);
 
       emit VendorRegistered(account, markup);
     }
