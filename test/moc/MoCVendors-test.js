@@ -34,9 +34,6 @@ contract('MoC: MoCVendors', function([
 
     await mocHelper.revertState();
   });
-  beforeEach(async function() {
-    // await mocHelper.revertState();
-  });
   describe('GIVEN vendors can integrate their platforms with MoC protocol', function() {
     const scenarios = [
       // Vendor 1
@@ -106,8 +103,6 @@ contract('MoC: MoCVendors', function([
       let vendorInMapping;
 
       before(async function() {
-        // await mocHelper.revertState();
-
         await mocHelper.mintMoCToken(scenario.params.account, scenario.params.mocAmount, owner);
         await mocHelper.approveMoCToken(
           this.mocVendors.address,
@@ -300,7 +295,7 @@ contract('MoC: MoCVendors', function([
       });
     });
   });
-  describe.only('Non-scenario tests', function() {
+  describe('Non-scenario tests', function() {
     beforeEach(async function() {
       await mocHelper.revertState();
 
@@ -458,6 +453,41 @@ contract('MoC: MoCVendors', function([
         assert(vendor1UnregisteredEvent.account === vendorAccount1, 'Vendor account is incorrect');
       });
     });
+    describe('GIVEN vendors can be registered and unregistered via an array in changer contract', function() {
+      it('WHEN registering more vendors than allowed THEN an error should be raised', async function() {
+        // Using harness contract
+        await this.mocVendorsChangerHarness.setVendorsToRegisterEmptyArray();
+        await this.mocVendorsChangerHarness.setVendorsToUnregisterEmptyArray();
+        await this.governor.executeChange(this.mocVendorsChangerHarness.address);
+
+        const vendorsToRegister = [];
+
+        /* eslint-disable no-await-in-loop */
+        // 20 batches of 5 vendors at a time because of out-of-gas errors
+        for (let i = 0; i < 20; i++) {
+          for (let j = 0; j < 5; j++) {
+            const account = web3.utils.randomHex(20);
+            vendorsToRegister.push({
+              account,
+              markup: toContract(((i * j) / 100000) * mocHelper.MOC_PRECISION).toString()
+            });
+          }
+
+          await this.mocVendorsChangerHarness.setVendorsToRegister(vendorsToRegister);
+          await this.governor.executeChange(this.mocVendorsChangerHarness.address);
+        }
+        /* eslint-enable no-await-in-loop */
+
+        // Add a new vendor - should not be possible
+        await this.mocVendorsChangerHarness.setVendorsToRegister(
+          await mocHelper.getVendorToRegisterAsArray(web3.utils.randomHex(20), 0.001)
+        );
+
+        const registerVendorTx = this.governor.executeChange(this.mocVendorsChangerHarness.address);
+
+        await expectRevert(registerVendorTx, 'vendorsList length must be between 1 and 100');
+      });
+    });
     describe('GIVEN vendors get their amount paid in MoC reset every time settlement is run', function() {
       it('WHEN settlement runs, then totalPaidInMoC is 0', async function() {
         // Using harness contract
@@ -473,11 +503,7 @@ contract('MoC: MoCVendors', function([
 
         const mocAmount = 1000;
         await mocHelper.mintMoCToken(vendorAccount5, mocAmount, owner);
-        await mocHelper.approveMoCToken(
-          this.mocVendors.address,
-          mocAmount,
-          vendorAccount5
-        );
+        await mocHelper.approveMoCToken(this.mocVendors.address, mocAmount, vendorAccount5);
 
         // Add staking
         await this.mocVendors.addStake(toContractBN(mocAmount * mocHelper.MOC_PRECISION), {
@@ -499,55 +525,6 @@ contract('MoC: MoCVendors', function([
         const totalPaidInMoC = await this.mocVendors.getTotalPaidInMoC(vendorAccount5);
 
         mocHelper.assertBig(totalPaidInMoC, 0, 'Total paid in MoC is incorrect');
-      });
-    });
-    describe('GIVEN vendors can be registered and unregistered via an array in changer contract', function() {
-      it('WHEN registering more vendors than allowed THEN an error should be raised', async function() {
-        const vendorsToRegister = [];
-
-        for (let i = 0; i < 20; i++) { // y puego de a 5
-          for (let j = 0; j < 5; i++) {
-            const account = web3.utils.randomHex(20);
-            vendorsToRegister.push({
-              account,
-              markup: toContract((j / 100000) * mocHelper.MOC_PRECISION).toString()
-            });
-          }
-
-          const gasEstimate = await this.mockMoCVendorsChanger.setVendorsToRegister.estimateGas(vendorsToRegister);
-
-          console.log("gasEstimate: ", gasEstimate.toString());
-
-          await this.mockMoCVendorsChanger.setVendorsToRegister(vendorsToRegister);
-
-          const gasEstimate2 = await this.governor.executeChange.estimateGas(this.mockMoCVendorsChanger.address);
-
-          console.log("gasEstimate2: ", gasEstimate2.toString());
-
-          await this.governor.executeChange(this.mockMoCVendorsChanger.address);
-        }
-
-          //console.log("vendorsToRegister: ", vendorsToRegister);
-
-          //try {
-            //await this.mockMoCVendorsChanger.setVendorsToRegister(vendorsToRegister);
-          //} catch (err) {
-          //  console.log("set arrays: ", err.stack);
-          //}
-
-        //try {
-          //await this.governor.executeChange(this.mockMoCVendorsChanger.address);
-        //} catch (err) {
-        //  console.log("execute chaange: ", err.stack);
-        //}
-
-        const vendor = await mocHelper.getVendorToRegisterAsArray(web3.utils.randomHex(20), 0.001);
-
-        await this.mockMoCVendorsChanger.setVendorsToRegister(vendor);
-
-        const registerVendorTx = this.governor.executeChange(this.mockMoCVendorsChanger.address);
-
-        await expectRevert(registerVendorTx, 'vendorsToRegister length must be between 1 and 100');
       });
     });
   });

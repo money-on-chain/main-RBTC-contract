@@ -76,7 +76,7 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed {
     require(account != address(0), "Vendor account must not be 0x0");
     require(markup <= VENDOR_MAX_MARKUP, "Vendor markup must not be greater than 1%");
     // Change the error message according to the value of the VENDORS_LIST_ARRAY_MAX_LENGTH constant
-    require(vendorsList.length <= VENDORS_LIST_ARRAY_MAX_LENGTH, "vendorsList length must be between 1 and 100");
+    require(vendorsList.length < VENDORS_LIST_ARRAY_MAX_LENGTH, "vendorsList length must be between 1 and 100");
 
     if (vendors[account].isActive == false) {
       // Map vendor details to vendor address

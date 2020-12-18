@@ -50,7 +50,9 @@ const GovernorProxy = Contracts.getFromLocal('Governor');
 const StopperProxy = Contracts.getFromLocal('Stopper');
 const CommissionSplitterProxy = Contracts.getFromLocal('CommissionSplitter');
 const RevertingOnSend = artifacts.require('./contracts/test-contracts/RevertingOnSend.sol');
-const MoCVendorsChangerHarness = artifacts.require('./contracts/test-contracts/MoCVendorsChangerHarness.sol');
+const MoCVendorsChangerHarness = artifacts.require(
+  './contracts/test-contracts/MoCVendorsChangerHarness.sol'
+);
 
 const MoCToken = artifacts.require('./contracts/MoCToken.sol');
 
