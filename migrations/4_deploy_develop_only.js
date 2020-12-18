@@ -4,7 +4,7 @@ const allConfigs = require('./configs/config');
 
 module.exports = async (deployer, currentNetwork, [owner]) => {
   // Workaround to get the link working on tests
-  if (utils.isDevelopment(currentNetwork)) {
+  if (utils.isDevelopment(currentNetwork) || currentNetwork === 'prueba') {
     const {
       deployOracleMock,
       deployGovernorContract,

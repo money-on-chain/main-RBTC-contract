@@ -23,7 +23,6 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
 
   event StateTransition(States newState);
   event BtcPriceProviderUpdated(address oldAddress, address newAddress);
-
   // Contracts
   PriceProvider internal btcPriceProvider;
   MoCSettlement internal mocSettlement;

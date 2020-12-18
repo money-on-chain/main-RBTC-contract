@@ -548,6 +548,12 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
     bproToken.mint(account, bproAmount);
     bproxManager.addValuesToBucket(BUCKET_C0, rbtcValue, 0, bproAmount);
 
+    uint256 btcPrice = mocState.getBitcoinPrice();
+    uint256 mocPrice = mocState.getMoCPrice();
+
+    // Calculate amount in MoC
+    uint256 mocCommission = btcPrice.mul(mocCommissionInBtc).div(mocPrice);
+
     emit RiskProMint(
       account,
       bproAmount,
@@ -560,6 +566,8 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
       mocMarkup,
       vendorAccount
     );
+
+    return mocCommission;
   }
 
   /**

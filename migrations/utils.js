@@ -56,8 +56,10 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
       case 'regtest':
       case 'coverage':
       case 'development':
+      case 'prueba':
         return (await BtcPriceProviderMock.deployed()).address;
       default:
+        console.log("CONFIG: ", config);
         return config.oracle;
     }
   };
@@ -67,6 +69,7 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
       case 'regtest':
       case 'coverage':
       case 'development':
+      case 'prueba':
         return (await MoCPriceProviderMock.deployed()).address;
       default:
         return config.mocOracle;
@@ -78,7 +81,8 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
       case 'regtest':
       case 'coverage':
       case 'development':
-        return (await Governor.deployed()).address;
+      case 'prueba':
+       return (await Governor.deployed()).address;
       default:
         return config.governor;
     }
@@ -89,6 +93,7 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
       case 'regtest':
       case 'coverage':
       case 'development':
+      case 'prueba':
         return (await Stopper.deployed()).address;
       default:
         return config.stopper;
@@ -100,6 +105,7 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
       case 'regtest':
       case 'coverage':
       case 'development':
+      case 'prueba':
         return (await ProxyAdmin.deployed()).address;
       default:
         return config.proxyAdmin;
@@ -503,7 +509,9 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
     setGovernance,
     createInstances,
     getContractAddresses,
-    deployMoCOracleMock
+    deployMoCOracleMock,
+    getProxies,
+    getProxyAddress
   };
 };
 

@@ -1,5 +1,6 @@
 const HDWalletProvider = require('truffle-hdwallet-provider');
 
+// Change mnemonic according to who is deploying
 const mnemonic =
   process.env.MNEMONIC || 'lab direct float merit wall huge wheat loyal maple cup battle butter';
 
@@ -43,7 +44,7 @@ module.exports = {
     rskAlphaTestnet: {
       host: 'https://public-node.testnet.rsk.co',
       provider: new HDWalletProvider(mnemonic, 'https://public-node.testnet.rsk.co'),
-      network_id: '*',
+      network_id: '31',
       gas: 6700000,
       gasPrice: 69000000,
       skipDryRun: true,
@@ -53,6 +54,16 @@ module.exports = {
       host: 'https://public-node.testnet.rsk.co',
       provider: new HDWalletProvider(mnemonic, 'https://public-node.testnet.rsk.co'),
       network_id: '*',
+    prueba: {
+      // host: '127.0.0.1',
+      // port: 8545,
+      // endpoint: 'http://127.0.0.1:8545',
+      // network_id: '*',
+      // gas: 6721975,
+      // gasPrice: 20000000000
+      host: 'https://public-node.testnet.rsk.co',
+      provider: new HDWalletProvider(mnemonic, 'https://public-node.testnet.rsk.co'),
+      network_id: '31',
       gas: 6700000,
       gasPrice: 69000000,
       skipDryRun: true,

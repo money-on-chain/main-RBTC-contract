@@ -96,8 +96,9 @@ This means that most wallets like Nifty and MetaMask can handle them if you tell
 ​
 That BitPro is an _ERC20_ Token also means that any user that has already some tokens can trade them to you in exchange for a service or for another token.
 ​
-But in some circumstances you may not find such a user. In those cases, you may be happy to know that you can create them(or mint them, as it is usually said) using the Smart Contracts.
-​
+But in some circumstances you may not find such a user (maybe they are keeping the tokens to themselves ESTO ES OPCIONAL). In those cases, you may be happy to know that you can create them(or mint them, as it is usually said) using the Smart Contracts.
+
+## Minting BitPros
 
 ## Minting BitPros
 
@@ -114,11 +115,12 @@ Maybe, depending on the state of the contract, a value lesser than btcToMint wil
 #### The value sent
 
 The amount sent in RBTCs to the contract can be considered as a parameter of the transaction, which is why it will be explained in this section. You have to take into consideration that it will be split in three.
+The first part will be used to mint some BitPro, the size of this part depends directly on the btcToMint, and, as explained in the previous section, it may be smaller than btcToMint.
 
-- The first part will be used to mint some BitPro, the size of this part depends directly on the btcToMint, and, as explained in the previous section, it may be smaller than btcToMint.
-- The second part will be used to pay the commission, this part is a percentage of the previous part. The exact percentage of it is set in the variable **commissionRate** of the **MocInrate** contract. The current value is 0.001 and can be consulted through the method `commissionRate()​` as this parameter is public(Note that this parameter when consulted through said method has also a precision of 18 decimals, i.e. a 1 \* 10^15 in that parameter means that 0.1% is being charged as a commission).
-- The third part is always returned, so if you have doubts of how much you should send, keep in mind that if you send too much RBTCs we will return everything that it is not used for commissions or minting.
-  In conclusion the amount sent has to be at least the btcToMint plus the commission, the commission being btcToMint times the commission rate.
+The second part will be used to pay the commission, this part is a percentage of the previous part. The commission fees are explained in [this](#commission-fees-values) section.
+
+The third part is always returned, so if you have doubts of how much you should send, keep in mind that if you send too much RBTCs we will return everything that it is not used for commissions or minting.
+In conclusion the amount sent has to be at least the btcToMint plus the commission (if paid in RBTC), the commission being btcToMint times the commission rate.
 
 ```
 btcSent (msg.value) >= btcToMint + btcToMint * commissionRateInRbtc
