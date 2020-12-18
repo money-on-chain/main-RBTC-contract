@@ -1,6 +1,4 @@
 const MoCLib = artifacts.require('./MoCHelperLib.sol');
-const Moc = artifacts.require('./MoC.sol');
-const MoCExchange = artifacts.require('./MoCExchange.sol');
 const ProxyAdmin = artifacts.require('ProxyAdmin');
 const AdminUpgradeabilityProxy = artifacts.require('AdminUpgradeabilityProxy');
 const UpgraderChanger = artifacts.require('./changers/UpgraderChanger.sol');
@@ -14,8 +12,30 @@ module.exports = async deployer => {
   const proxyMocExchange = await AdminUpgradeabilityProxy.at(
     '0x9516644aAFb05a13C97C575d1890aF2A50B8EE6A'
   );
+  const proxyMocSettlement = await AdminUpgradeabilityProxy.at(
+    ''
+  );
+  const proxyMocInrate = await AdminUpgradeabilityProxy.at(
+    ''
+  );
+  const proxyMocConverter = await AdminUpgradeabilityProxy.at(
+    ''
+  );
+  const proxyMocHelperLib = await AdminUpgradeabilityProxy.at(
+    ''
+  );
+  const proxyMocState = await AdminUpgradeabilityProxy.at(
+    ''
+  );
   const upgradeDelegatorAddress = '0xc7393c6bcF99C526352174FD1bBD9bE9C25523Ef';
   const governor = await Governor.at('0xC5a3d6cBe0EeF0cF20cF7CA5540deaac19b2129e');
+
+  console.log("Upgrading libraries");
+  console.log("- Upgrade MoCHelperLib");
+  const upgradeMocHelperLib = await deployer.deploy(UpgraderChanger, proxyMocHelperLib.address, upgradeDelegatorAddress, '');
+  // Execute changes
+  console.log("Execute change - MoCHelperLib");
+  await governor.executeChange(upgradeMocHelperLib.address);
 
   console.log("Linking library");
   //await Moc.link('MoCHelperLib', mocLib.address);
@@ -30,13 +50,26 @@ module.exports = async deployer => {
   const upgradeMoc = await deployer.deploy(UpgraderChanger, proxyMoc.address, upgradeDelegatorAddress, '0xAAa75F81CBa0A1c38202E6ACA49D6627b8CA23ef');
   console.log("- Upgrade MoCExchange");
   const upgradeMocExchange = await deployer.deploy(UpgraderChanger, proxyMocExchange.address, upgradeDelegatorAddress, '0x3135A008f8D95A02A76b0f65D6D4077a47eCb519');
+  console.log("- Upgrade MoCSettlement");
+  const upgradeMocSettlement = await deployer.deploy(UpgraderChanger, proxyMocSettlement.address, upgradeDelegatorAddress, '');
+  console.log("- Upgrade MoCInrate");
+  const upgradeMocInrate = await deployer.deploy(UpgraderChanger, proxyMocInrate.address, upgradeDelegatorAddress, '');
+  console.log("- Upgrade MoCConverter");
+  const upgradeMocConverter = await deployer.deploy(UpgraderChanger, proxyMocConverter.address, upgradeDelegatorAddress, '');
+  console.log("- Upgrade MoCState");
+  const upgradeMocState = await deployer.deploy(UpgraderChanger, proxyMocState.address, upgradeDelegatorAddress, '');
 
-  // buscar address governor
-  // instanciar governor
-  // governor execute changes upgradeMoc
+  // Execute changes
   console.log("Execute change - MoC");
   await governor.executeChange(upgradeMoc.address);
-  // governor upgradeMocExchange
   console.log("Execute change - MoCExchange");
   await governor.executeChange(upgradeMocExchange.address);
+  console.log("Execute change - MoCSettlement");
+  await governor.executeChange(upgradeMocSettlement.address);
+  console.log("Execute change - MoCInrate");
+  await governor.executeChange(upgradeMocInrate.address);
+  console.log("Execute change - MoCConverter");
+  await governor.executeChange(upgradeMocConverter.address);
+  console.log("Execute change - MoCState");
+  await governor.executeChange(upgradeMocState.address);
 };
