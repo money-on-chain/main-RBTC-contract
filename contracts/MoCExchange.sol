@@ -188,19 +188,20 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
     ret.btcCommission = 0;
 
     // Calculate vendor markup
-    (ret.mocMarkup, , ) = convertToMoCPrice(mocInrate.calculateVendorMarkup(params.vendorAccount, params.amount));
+    uint256 btcMarkup = mocInrate.calculateVendorMarkup(params.vendorAccount, params.amount);
+    (ret.mocMarkup, , ) = convertToMoCPrice(btcMarkup);
+    ret.btcMarkup = 0;
     uint256 totalMoCFee = ret.mocCommission.add(ret.mocMarkup);
 
     // Check if there is enough balance of MoC
     if ((!(mocBalance >= totalMoCFee && mocAllowance >= totalMoCFee)) || (mocCommissionInBtc == 0)) {
       // Insufficient funds
-      mocCommissionInBtc = 0;
       ret.mocCommission = 0;
       ret.mocMarkup = 0;
 
       // Check commission rate in RBTC according to transaction type
       ret.btcCommission = mocInrate.calcCommissionValue(params.amount, params.txTypeFeesRBTC);
-      ret.btcMarkup = mocInrate.calculateVendorMarkup(params.vendorAccount, params.amount);
+      ret.btcMarkup = btcMarkup;
     }
 
     return ret;
