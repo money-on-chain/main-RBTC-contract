@@ -32,7 +32,7 @@ You need a node to run contracts. Ganache cli for developing purpose
 
 ```sh
 npm install -g ganache-cli;
-ganache-cli
+npm run ganache-cli
 ```
 
 - Using Docker:
@@ -51,17 +51,18 @@ docker run -d -p 8545:8545 trufflesuite/ganache-cli:latest
 
 **Node**
 
-First run test node example:
-
-- run test node: `npm run ganache-cli`
+Before running any test, run ganache using this command, as it uses a specific configuration
+- run ganache node: `npm run ganache-cli`
 
 **Tests**
 
+Once you have ganache running
 - run: `npm run test`
 
 **Tests With Coverage**
 
-- `npm run coverage`
+Coverage test uses it's one node, so there is no need to run ganache
+- run: `npm run coverage`
 - browse: [./coverage/index.html](./coverage/index.html)
 
 ## Deploy
