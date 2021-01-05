@@ -206,7 +206,6 @@ contract('MoCInrate Governed', function([owner, account2, vendorAccount]) {
           expectedValue,
           `commissionRate should be ${expectedValue}`
         );
-        await expectRevert(setCommissionRates, 'commissionRates length must be between 1 and 50');
       });
     });
 

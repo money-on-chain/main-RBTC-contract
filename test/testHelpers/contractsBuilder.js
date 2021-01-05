@@ -60,8 +60,6 @@ const MoCVendors = artifacts.require('./contracts/MoCVendors.sol');
 const MoCVendorsProxy = Contracts.getFromLocal('MoCVendors');
 const MoCVendorsChanger = artifacts.require('./contracts/MoCVendorsChanger.sol');
 
-const MoCToken = artifacts.require('./contracts/MoCToken.sol');
-
 const { toContract } = require('../../utils/numberHelper');
 
 const baseParams = {
