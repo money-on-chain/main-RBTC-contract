@@ -19,4 +19,15 @@ module.exports = async (deployer, currentNetwork, [owner]) => {
   if (utils.isDevelopment(currentNetwork))
     await deployUpgradable(MoCSettlementMock, MoCStateMock, index);
   else await deployUpgradable(MoCSettlement, MoCState, index);
+
+  // Proxy addresses
+  const mocConnectorAddress = '0x143d20f6688b64D0762692A6eC90E1E8650D4e07';
+  const governorAddress = '0xC5a3d6cBe0EeF0cF20cF7CA5540deaac19b2129e';
+
+  // Initialize contract
+  await mocVendors.initialize(
+    mocConnectorAddress,
+    governorAddress
+  );
+  console.log('Vendors Initialized');
 };
