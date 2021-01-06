@@ -44,7 +44,7 @@ module.exports = {
     rskAlphaTestnet: {
       host: 'https://public-node.testnet.rsk.co',
       provider: new HDWalletProvider(mnemonic, 'https://public-node.testnet.rsk.co'),
-      network_id: '31',
+      network_id: '*',
       gas: 6700000,
       gasPrice: 69000000,
       skipDryRun: true,
@@ -54,6 +54,20 @@ module.exports = {
       host: 'https://public-node.testnet.rsk.co',
       provider: new HDWalletProvider(mnemonic, 'https://public-node.testnet.rsk.co'),
       network_id: '*',
+      gas: 6700000,
+      gasPrice: 69000000,
+      skipDryRun: true,
+      confirmations: 1
+    },
+    rskMocMainnet2: {
+      host: 'https://public-node.rsk.co',
+      provider: new HDWalletProvider(mnemonic, 'https://public-node.rsk.co'),
+      network_id: '*',
+      gas: 6700000,
+      gasPrice: 60000000,
+      skipDryRun: true,
+      confirmations: 1
+    },
     prueba: {
       // host: '127.0.0.1',
       // port: 8545,
@@ -66,15 +80,6 @@ module.exports = {
       network_id: '31',
       gas: 6700000,
       gasPrice: 69000000,
-      skipDryRun: true,
-      confirmations: 1
-    },
-    rskMocMainnet2: {
-      host: 'https://public-node.rsk.co',
-      provider: new HDWalletProvider(mnemonic, 'https://public-node.rsk.co'),
-      network_id: '*',
-      gas: 6700000,
-      gasPrice: 60000000,
       skipDryRun: true,
       confirmations: 1
     }

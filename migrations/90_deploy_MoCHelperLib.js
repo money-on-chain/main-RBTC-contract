@@ -1,4 +1,5 @@
 const MoCLib = artifacts.require('./MoCHelperLib.sol');
+const MoCState = artifacts.require('./MoCState.sol');
 
 const utils = require('./utils');
 const allConfigs = require('./configs/config');

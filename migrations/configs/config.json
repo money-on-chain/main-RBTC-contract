@@ -137,11 +137,11 @@
     "mocProportion": 0.01
   },
   "prueba": {
-    "oracle": "0x667bd3d048FaEBb85bAa0E9f9D87cF4c8CDFE849",
-    "governor": "0x9032f510a5b54a005f04e81b5c98b7f201c4dac1",
-    "stopper": "0x0BE712DD242BF133417f6e389436783Fccb62e9e",
-    "proxyAdmin": "0x39ee19267ae6a755a83f1630ffc3ae0ba7f035fd",
-    "mocOracle": "0x667bd3d048FaEBb85bAa0E9f9D87cF4c8CDFE849",
+    "oracle": "0xE19Df38aC824E2189aC3b67bE1AefbA9eE27D002",
+    "governor": "0xC5a3d6cBe0EeF0cF20cF7CA5540deaac19b2129e",
+    "stopper": "0xEddE995F0ddBa802e8a45Cbdcbdaf083D7D987f7",
+    "proxyAdmin": "0x03cE6B189F63563BFfA070f9E1768413CE1D0f36",
+    "mocOracle": "0xEeae0B52Ac1F0D7D139898997b8367Dd67E3527c",
     "initialPrice": 11500,
     "initialEma": 9450,
     "dayBlockSpan": 2880,
