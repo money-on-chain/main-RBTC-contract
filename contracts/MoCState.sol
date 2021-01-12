@@ -730,24 +730,6 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
     return maxMintBPro;
   }
 
-  /**
-  * @dev return the bpro available to mint
-  * @return maxMintBProAvalaible  [using mocPrecision]
-  */
-  function maxMintBProAvalaible() public view returns(uint256) {
-
-    uint256 totalBPro = bproTotalSupply();
-    uint256 maxiMintBPro = getMaxMintBPro();
-
-    if (totalBPro >= maxiMintBPro) {
-      return 0;
-    }
-
-    uint256 availableMintBPro = maxiMintBPro.sub(totalBPro);
-
-    return availableMintBPro;
-  }
-
   /** END UPDATE V017: 01/11/2019 **/
 
   // Leave a gap betweeen inherited contracts variables in order to be
