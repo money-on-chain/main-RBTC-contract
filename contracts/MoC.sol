@@ -107,7 +107,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
     @dev Mints BPRO and pays the comissions of the operation.
     @param btcToMint Amount un BTC to mint
    */
-  function mintBPro(uint256 btcToMint) public payable whenNotPaused() transitionState() atLeastState(MoCState.States.BelowCobj) {
+  function mintBPro(uint256 btcToMint) public payable whenNotPaused() transitionState() atLeastState(MoCState.States.BProDiscount) {
     (uint256 btcExchangeSpent, uint256 commissionSpent) = mocExchange.mintBPro(msg.sender, btcToMint);
 
     uint256 totalBtcSpent = btcExchangeSpent.add(commissionSpent);
@@ -201,7 +201,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
   * @dev Redeems the requested amount for the msg.sender, or the max amount of free docs possible.
   * @param docAmount Amount of Docs to redeem.
   */
-  function redeemFreeDoc(uint256 docAmount) public whenNotPaused() transitionState() atLeastState(MoCState.States.BelowCobj) {
+  function redeemFreeDoc(uint256 docAmount) public whenNotPaused() transitionState() atLeastState(MoCState.States.BProDiscount) {
     (uint256 btcAmount, uint256 commissionSpent) = mocExchange.redeemFreeDoc(msg.sender, docAmount);
 
     doTransfer(msg.sender, btcAmount);

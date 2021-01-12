@@ -134,8 +134,10 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
     // State 1
     Protected,
     // State 2
-    BelowCobj,
+    BProDiscount,
     // State 3
+    BelowCobj,
+    // State 4
     AboveCobj
   }
 
@@ -647,6 +649,8 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
       state = States.Liquidated;
     } else if (cov <= protected) {
       state = States.Protected;
+    } else if (cov > liq && cov <= utpdu) {
+      state = States.BProDiscount;
     } else if (cov > utpdu && cov <= cobj()) {
       state = States.BelowCobj;
     } else {
