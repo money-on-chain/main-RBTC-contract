@@ -48,6 +48,11 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
   // Price to use at doc redemption at
   // liquidation event
   uint256 public liquidationPrice;
+  // Liquidation enabled
+  bool public liquidationEnabled;
+  // Protected limit
+  // [using mocPrecision]
+  uint256 public protected;
 
   function initialize(
     address connectorAddress,
@@ -60,12 +65,15 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
     uint256 _ema,
     uint256 _smoothFactor,
     uint256 _emaBlockSpan,
-    uint256 _maxMintBPro
+    uint256 _maxMintBPro,
+    bool _liquidationEnabled,
+    uint256 _protected
   ) public initializer {
     initializePrecisions();
     initializeBase(connectorAddress);
     initializeContracts();
-    initializeValues(_governor, _btcPriceProvider,_liq, _utpdu, _maxDiscRate, _dayBlockSpan, _maxMintBPro);
+    initializeValues(_governor, _btcPriceProvider,_liq, _utpdu, _maxDiscRate, _dayBlockSpan, _maxMintBPro,
+      _liquidationEnabled, _protected);
     initializeMovingAverage(_ema, _smoothFactor, _emaBlockSpan);
   }
 
@@ -124,7 +132,7 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
     // State 0
     Liquidated,
     // State 1
-    BProDiscount,
+    Protected,
     // State 2
     BelowCobj,
     // State 3
@@ -492,7 +500,7 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
    */
   function isLiquidationReached() public view returns(bool) {
     uint256 cov = globalCoverage();
-    if (state != States.Liquidated && cov <= liq)
+    if (state != States.Liquidated && cov <= liq && liquidationEnabled)
       return true;
     return false;
   }
@@ -594,6 +602,38 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
     peg = _peg;
   }
 
+  /**
+   * @dev return the value of the protected threshold configuration param
+   * @return protected threshold, currently 1.5
+   */
+  function getProtected() public view returns(uint256) {
+    return protected;
+  }
+
+  /**
+   * @dev sets the value of the protected threshold configuration param
+   * @param _protected protected threshold
+   */
+  function setProtected(uint _protected) public onlyAuthorizedChanger() {
+    protected = _protected;
+  }
+
+  /**
+   * @dev returns if is liquidation enabled.
+   * @return if is liquidation enabled
+   */
+  function getLiquidationEnabled() public view returns(bool) {
+    return liquidationEnabled;
+  }
+
+  /**
+   * @dev returns if is liquidation enabled.
+   * @param if is liquidation enabled
+   */
+  function setLiquidationEnabled(bool _liquidationEnabled) public onlyAuthorizedChanger() {
+    liquidationEnabled = _liquidationEnabled;
+  }
+
   function nextState() public {
     // There is no coming back from Liquidation
     if (state == States.Liquidated)
@@ -602,11 +642,11 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
     States prevState = state;
     calculateBitcoinMovingAverage();
     uint256 cov = globalCoverage();
-    if (cov <= liq) {
+    if (cov <= liq && liquidationEnabled) {
       setLiquidationPrice();
       state = States.Liquidated;
-    } else if (cov > liq && cov <= utpdu) {
-      state = States.BProDiscount;
+    } else if (cov <= protected) {
+      state = States.Protected;
     } else if (cov > utpdu && cov <= cobj()) {
       state = States.BelowCobj;
     } else {
@@ -637,7 +677,9 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
     uint256 _utpdu,
     uint256 _maxDiscRate,
     uint256 _dayBlockSpan,
-    uint256 _maxMintBPro) internal {
+    uint256 _maxMintBPro,
+    bool _liquidationEnabled,
+    uint256 _protected) internal {
     liq = _liq;
     utpdu = _utpdu;
     bproMaxDiscountRate = _maxDiscRate;
@@ -648,6 +690,8 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
     state = States.AboveCobj;
     peg = 1;
     maxMintBPro = _maxMintBPro;
+    liquidationEnabled = _liquidationEnabled;
+    protected = _protected;
   }
 
   function initializeContracts() internal  {
