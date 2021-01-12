@@ -622,7 +622,7 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
 
   /**
    * @dev returns if is liquidation enabled.
-   * @return if is liquidation enabled
+   * @return liquidationEnabled is liquidation enabled
    */
   function getLiquidationEnabled() public view returns(bool) {
     return liquidationEnabled;
@@ -630,7 +630,7 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
 
   /**
    * @dev returns if is liquidation enabled.
-   * @param if is liquidation enabled
+   * @param _liquidationEnabled is liquidation enabled
    */
   function setLiquidationEnabled(bool _liquidationEnabled) public onlyAuthorizedChanger() {
     liquidationEnabled = _liquidationEnabled;

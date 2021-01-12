@@ -328,6 +328,11 @@ Governed
     settlementInfo.btcxPrice = mocState.bucketBProTecPrice(BUCKET_X2);
     settlementInfo.startBlockNumber = block.number;
 
+    // On protected mode: No Doc Redemption
+    if (mocState.state() <= MoCState.States.Protected) {
+      redeemQueueLength = 0;
+    }
+
     settlementInfo.docRedeemCount = redeemQueueLength;
     settlementInfo.deleveragingCount = bproxManager.getActiveAddressesCount(
       BUCKET_X2
@@ -438,39 +443,6 @@ Governed
     UserRedeemRequest storage userReedem = redeemMapping[redeemer];
     userReedem.activeRedeemer = false;
     redeemQueue[index].amount = 0;
-  }
-
-  /**
-  @dev Create Task structures for Settlement execution
-*/
-  function fixTasksPointer() public {
-    resetTaskPointers(
-      DELEVERAGING_TASK,
-      deleveragingStepCount,
-      deleveragingStep,
-      noFunction,
-      finishDeleveraging
-    );
-    resetTaskPointers(
-      DOC_REDEMPTION_TASK,
-      docRedemptionStepCount,
-      docRedemptionStep,
-      noFunction,
-      finishDocRedemption
-    );
-
-
-    bytes32[] memory tasks = new bytes32[](2);
-    tasks[0] = DELEVERAGING_TASK;
-    tasks[1] = DOC_REDEMPTION_TASK;
-
-    resetTaskGroupPointers(
-      SETTLEMENT_TASK,
-      tasks,
-      initializeSettlement,
-      finishSettlement,
-      true
-    );
   }
 
   /**
