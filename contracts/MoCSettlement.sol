@@ -61,6 +61,7 @@ Governed
     uint256 finalCommissionAmount;
     uint256 leverage;
     uint256 startBlockNumber;
+    bool isProtectedState;
   }
 
   // Contracts
@@ -316,6 +317,9 @@ Governed
   which is the amount of redeem requests in the queue
 */
   function docRedemptionStepCount() internal view returns (uint256) {
+    if (mocState.state() <= MoCState.States.Protected) {
+      return 0;
+    }
     return redeemQueueLength;
   }
 
@@ -328,9 +332,11 @@ Governed
     settlementInfo.btcxPrice = mocState.bucketBProTecPrice(BUCKET_X2);
     settlementInfo.startBlockNumber = block.number;
 
-    // On protected mode: No Doc Redemption
+    // Protected Mode State
     if (mocState.state() <= MoCState.States.Protected) {
-      redeemQueueLength = 0;
+      settlementInfo.isProtectedState = true;
+    } else {
+      settlementInfo.isProtectedState = false;
     }
 
     settlementInfo.docRedeemCount = redeemQueueLength;
@@ -383,7 +389,10 @@ Governed
       settlementInfo.btcPrice
     );
 
-    clear();
+    if (!settlementInfo.isProtectedState) {
+      clear();
+    }
+
   }
 
   /**
