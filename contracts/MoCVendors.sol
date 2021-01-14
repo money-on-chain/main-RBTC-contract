@@ -15,6 +15,10 @@ contract MoCVendorsEvents {
     address account,
     uint256 markup
   );
+  event VendorUpdated(
+    address account,
+    uint256 markup
+  );
   event VendorUnregistered(
     address account
   );
@@ -86,6 +90,10 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed {
       vendorsList.push(account);
 
       emit VendorRegistered(account, markup);
+    } else if (vendors[account].markup != markup) {
+      vendors[account].markup = markup;
+
+      emit VendorUpdated(account, markup);
     }
 
     return vendors[account].isActive;
