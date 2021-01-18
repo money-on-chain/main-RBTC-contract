@@ -250,25 +250,6 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
       details.finalBProAmount = details.finalBProAmount.add(details.regularBProAmount);
     }
 
-    // START Upgrade V017
-    // 01/11/2019 Limiting mint bpro (no with discount)
-    // Only enter with no discount state
-    if (mocState.state() != MoCState.States.BProDiscount) {
-      details.availableBPro = Math.min(
-        details.finalBProAmount,
-        mocState.maxMintBProAvalaible()
-      );
-      if (details.availableBPro != details.finalBProAmount) {
-        btcAmount = mocConverter.bproToBtc(details.availableBPro);
-        details.finalBProAmount = details.availableBPro;
-
-        if (btcAmount <= 0) {
-          return (0, 0, 0, 0, 0);
-        }
-      }
-    }
-    // END Upgrade V017
-
     /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
     CommissionParamsStruct memory params;
     params.account = account;

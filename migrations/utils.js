@@ -401,7 +401,9 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
       toContract(config.maxMintBPro * 10 ** 18),
       mocOracleAddress,
       mocToken.address,
-      mocVendors.address
+      mocVendors.address,
+      config.liquidationEnabled,
+      toContract(config.protected * 10 ** 18)
     );
     console.log('State Initialized');
 

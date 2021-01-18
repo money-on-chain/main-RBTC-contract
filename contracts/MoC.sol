@@ -122,7 +122,9 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
     @param btcToMint Amount in BTC to mint
     @param vendorAccount Vendor address
    */
-  function mintBPro(uint256 btcToMint, address vendorAccount) public payable whenNotPaused() transitionState() {
+  function mintBPro(uint256 btcToMint, address vendorAccount)
+  public payable
+  whenNotPaused() transitionState() atLeastState(MoCState.States.BProDiscount) {
     /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
     (uint256 totalBtcSpent,
     uint256 btcCommission,
@@ -248,7 +250,9 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
   * @param docAmount Amount of Docs to redeem.
   * @param vendorAccount Vendor address
   */
-  function redeemFreeDoc(uint256 docAmount, address vendorAccount) public whenNotPaused() transitionState() {
+  function redeemFreeDoc(uint256 docAmount, address vendorAccount)
+  public
+  whenNotPaused() transitionState() atLeastState(MoCState.States.BProDiscount) {
     /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
     (uint256 btcAmount,
     uint256 btcCommission,
@@ -340,21 +344,6 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
 
       emit BucketLiquidation(bucket);
     }
-  }
-
-  /**
-  * @dev Set Burnout address.
-  * @param burnoutAddress Address to which the funds will be sent on liquidation.
-  */
-  function setBurnoutAddress(address payable burnoutAddress) public whenNotPaused() atLeastState(MoCState.States.BProDiscount) {
-    mocBurnout.pushBurnoutAddress(msg.sender, burnoutAddress);
-  }
-
-  /**
-  * @dev Get Burnout address.
-  */
-  function getBurnoutAddress() public view returns(address) {
-    return mocBurnout.getBurnoutAddress(msg.sender);
   }
 
   /**
