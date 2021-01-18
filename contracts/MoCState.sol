@@ -1,4 +1,5 @@
 pragma solidity 0.5.8;
+pragma experimental ABIEncoderV2;
 
 import "openzeppelin-solidity/contracts/math/Math.sol";
 import "./interface/PriceProvider.sol";
@@ -14,7 +15,28 @@ import "moc-governance/contracts/Governance/Governed.sol";
 import "moc-governance/contracts/Governance/IGovernor.sol";
 import "./MoCVendors.sol";
 
-contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
+contract MoCStateStructs {
+  struct InitializeParams {
+    address connectorAddress;
+    address governor;
+    address btcPriceProvider;
+    uint256 liq;
+    uint256 utpdu;
+    uint256 maxDiscRate;
+    uint256 dayBlockSpan;
+    uint256 ema;
+    uint256 smoothFactor;
+    uint256 emaBlockSpan;
+    uint256 maxMintBPro;
+    address mocPriceProvider;
+    address mocTokenAddress;
+    address mocVendorsAddress;
+    bool liquidationEnabled;
+    uint256 protected;
+  }
+}
+
+contract MoCState is MoCStateStructs, MoCLibConnection, MoCBase, MoCEMACalculator {
   using Math for uint256;
   using SafeMath for uint256;
 
@@ -57,39 +79,22 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
   // [using mocPrecision]
   uint256 public protected;
 
-  function initialize(
-    address connectorAddress,
-    address _governor,
-    address _btcPriceProvider,
-    uint256 _liq,
-    uint256 _utpdu,
-    uint256 _maxDiscRate,
-    uint256 _dayBlockSpan,
-    uint256 _ema,
-    uint256 _smoothFactor,
-    uint256 _emaBlockSpan,
-    uint256 _maxMintBPro,
-    address _mocPriceProvider,
-    address _mocTokenAddress,
-    address _mocVendorsAddress,
-    bool _liquidationEnabled,
-    uint256 _protected
-  ) public initializer {
+  function initialize(MoCStateStructs.InitializeParams memory params) public initializer {
     initializePrecisions();
-    initializeBase(connectorAddress);
-    initializeContracts(_mocTokenAddress, _mocVendorsAddress);
+    initializeBase(params.connectorAddress);
+    initializeContracts(params.mocTokenAddress, params.mocVendorsAddress);
     initializeValues(
-      _governor,
-      _btcPriceProvider,
-      _liq,
-      _utpdu,
-      _maxDiscRate,
-      _dayBlockSpan,
-      _maxMintBPro,
-      _mocPriceProvider,
-      _liquidationEnabled,
-      _protected);
-    initializeMovingAverage(_ema, _smoothFactor, _emaBlockSpan);
+      params.governor,
+      params.btcPriceProvider,
+      params.liq,
+      params.utpdu,
+      params.maxDiscRate,
+      params.dayBlockSpan,
+      params.maxMintBPro,
+      params.mocPriceProvider,
+      params.liquidationEnabled,
+      params.protected);
+    initializeMovingAverage(params.ema, params.smoothFactor, params.emaBlockSpan);
   }
 
   /**
@@ -669,7 +674,7 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
       state = States.Liquidated;
     } else if (cov <= protected) {
       state = States.Protected;
-    } else if (cov > liq && cov <= utpdu) {
+    } else if (cov > protected && cov <= utpdu) {
       state = States.BProDiscount;
     } else if (cov > utpdu && cov <= cobj()) {
       state = States.BelowCobj;

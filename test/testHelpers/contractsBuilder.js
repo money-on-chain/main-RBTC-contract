@@ -88,6 +88,9 @@ const baseParams = {
   docPower: toContract(1),
   mocProportion: toContract(0.01 * 10 ** 18), // mocPrecision
 
+  liquidationEnabled: false,
+  _protected: toContract(1.5 * 10 ** 18), // mocPrecision
+
   startStoppable: true
 };
 
@@ -302,22 +305,24 @@ const createContracts = params => async ({ owner, useMock }) => {
   await moc.initialize(mocConnector.address, governor.address, stopper.address, startStoppable);
   await stopper.initialize(owner);
   await mocExchange.initialize(mocConnector.address);
-  await mocState.initialize(
-    mocConnector.address,
-    governor.address,
-    btcPriceProvider.address,
+  await mocState.initialize({
+    connectorAddress: mocConnector.address,
+    governor: governor.address,
+    btcPriceProvider: btcPriceProvider.address,
     liq, // mocPrecision
     utpdu, // mocPrecision
-    maxDiscountRate, // mocPrecision
+    maxDiscRate: maxDiscountRate, // mocPrecision
     dayBlockSpan, // no Precision
-    btcPrice,
-    smoothingFactor,
+    ema: btcPrice,
+    smoothFactor: smoothingFactor,
     emaBlockSpan,
     maxMintBPro,
-    mocPriceProvider.address,
-    mocToken.address,
-    mocVendors.address
-  );
+    mocPriceProvider: mocPriceProvider.address,
+    mocTokenAddress: mocToken.address,
+    mocVendorsAddress: mocVendors.address,
+    liquidationEnabled,
+    protected: _protected
+  });
   await mocInrate.initialize(
     mocConnector.address,
     governor.address,

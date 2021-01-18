@@ -388,22 +388,24 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
     console.log('Vendors Initialized');
 
     await mocState.initialize(
-      mocConnector.address,
-      governorAddress,
-      oracleAddress,
-      toContract(config.liq * 10 ** 18), // _liq
-      toContract(config.utpdu * 10 ** 18), // _utpdu
-      toContract(config.maxDiscRate * 10 ** 18), // _maxDiscRate
-      config.dayBlockSpan, // _dayBlockSpan
-      toContract(config.initialEma * 10 ** 18), // _ema
-      toContract(config.smoothFactor * 10 ** 18), // _smoothFactor
-      config.dayBlockSpan, // _emaBlockSpan
-      toContract(config.maxMintBPro * 10 ** 18),
-      mocOracleAddress,
-      mocToken.address,
-      mocVendors.address,
-      config.liquidationEnabled,
-      toContract(config.protected * 10 ** 18)
+      {
+        connectorAddress: mocConnector.address,
+        governor: governorAddress,
+        btcPriceProvider: oracleAddress,
+        liq: toContract(config.liq * 10 ** 18),
+        utpdu: toContract(config.utpdu * 10 ** 18),
+        maxDiscRate: toContract(config.maxDiscRate * 10 ** 18),
+        dayBlockSpan: config.dayBlockSpan,
+        ema: toContract(config.initialEma * 10 ** 18),
+        smoothFactor: toContract(config.smoothFactor * 10 ** 18),
+        emaBlockSpan: config.dayBlockSpan,
+        maxMintBPro: toContract(config.maxMintBPro * 10 ** 18),
+        mocPriceProvider: mocOracleAddress,
+        mocTokenAddress: mocToken.address,
+        mocVendorsAddress: mocVendors.address,
+        liquidationEnabled: config.liquidationEnabled,
+        protected: toContract(config.protected * 10 ** 18)
+      }
     );
     console.log('State Initialized');
 
