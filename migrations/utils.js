@@ -305,6 +305,24 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
     const governorAddress = await governorContractAddress();
     const stopperAddress = await stopperContractAddress();
     const mocOracleAddress = await mocOracle();
+    const mocStateInitializeParams = {
+      connectorAddress: mocConnector.address,
+      governor: governorAddress,
+      btcPriceProvider: oracleAddress,
+      liq: toContract(config.liq * 10 ** 18),
+      utpdu: toContract(config.utpdu * 10 ** 18),
+      maxDiscRate: toContract(config.maxDiscRate * 10 ** 18),
+      dayBlockSpan: config.dayBlockSpan,
+      ema: toContract(config.initialEma * 10 ** 18),
+      smoothFactor: toContract(config.smoothFactor * 10 ** 18),
+      emaBlockSpan: config.dayBlockSpan,
+      maxMintBPro: toContract(config.maxMintBPro * 10 ** 18),
+      mocPriceProvider: mocOracleAddress,
+      mocTokenAddress: mocToken.address,
+      mocVendorsAddress: mocVendors.address,
+      liquidationEnabled: config.liquidationEnabled,
+      protected: toContract(config.protected * 10 ** 18)
+    };
 
     console.log('Initializing MoC');
     await mocConnector.initialize(
@@ -388,24 +406,8 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
     console.log('Vendors Initialized');
 
     await mocState.initialize(
-      {
-        connectorAddress: mocConnector.address,
-        governor: governorAddress,
-        btcPriceProvider: oracleAddress,
-        liq: toContract(config.liq * 10 ** 18),
-        utpdu: toContract(config.utpdu * 10 ** 18),
-        maxDiscRate: toContract(config.maxDiscRate * 10 ** 18),
-        dayBlockSpan: config.dayBlockSpan,
-        ema: toContract(config.initialEma * 10 ** 18),
-        smoothFactor: toContract(config.smoothFactor * 10 ** 18),
-        emaBlockSpan: config.dayBlockSpan,
-        maxMintBPro: toContract(config.maxMintBPro * 10 ** 18),
-        mocPriceProvider: mocOracleAddress,
-        mocTokenAddress: mocToken.address,
-        mocVendorsAddress: mocVendors.address,
-        liquidationEnabled: config.liquidationEnabled,
-        protected: toContract(config.protected * 10 ** 18)
-      }
+      mocStateInitializeParams,
+      { from: owner }
     );
     console.log('State Initialized');
 

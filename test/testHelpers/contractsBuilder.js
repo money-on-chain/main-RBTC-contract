@@ -185,7 +185,9 @@ const createContracts = params => async ({ owner, useMock }) => {
     docTmax,
     docPower,
     startStoppable,
-    mocProportion = baseParams.mocProportion
+    mocProportion = baseParams.mocProportion,
+    liquidationEnabled,
+    _protected
   } = params;
 
   const settlementContract = useMock ? MoCSettlementMock : MoCSettlement;
@@ -287,6 +289,24 @@ const createContracts = params => async ({ owner, useMock }) => {
   const mockMocChanger = await MocChanger.new(moc.address, governor.address, stopper.address, {
     from: owner
   });
+  const mocStateInitializeParams = {
+    connectorAddress: mocConnector.address,
+    governor: governor.address,
+    btcPriceProvider: btcPriceProvider.address,
+    liq, // mocPrecision
+    utpdu, // mocPrecision
+    maxDiscRate: maxDiscountRate, // mocPrecision
+    dayBlockSpan, // no Precision
+    ema: btcPrice,
+    smoothFactor: smoothingFactor,
+    emaBlockSpan,
+    maxMintBPro,
+    mocPriceProvider: mocPriceProvider.address,
+    mocTokenAddress: mocToken.address,
+    mocVendorsAddress: mocVendors.address,
+    liquidationEnabled,
+    protected: _protected
+  };
 
   // Initialize contracts
   await mocConnector.initialize(
@@ -305,24 +325,7 @@ const createContracts = params => async ({ owner, useMock }) => {
   await moc.initialize(mocConnector.address, governor.address, stopper.address, startStoppable);
   await stopper.initialize(owner);
   await mocExchange.initialize(mocConnector.address);
-  await mocState.initialize({
-    connectorAddress: mocConnector.address,
-    governor: governor.address,
-    btcPriceProvider: btcPriceProvider.address,
-    liq, // mocPrecision
-    utpdu, // mocPrecision
-    maxDiscRate: maxDiscountRate, // mocPrecision
-    dayBlockSpan, // no Precision
-    ema: btcPrice,
-    smoothFactor: smoothingFactor,
-    emaBlockSpan,
-    maxMintBPro,
-    mocPriceProvider: mocPriceProvider.address,
-    mocTokenAddress: mocToken.address,
-    mocVendorsAddress: mocVendors.address,
-    liquidationEnabled,
-    protected: _protected
-  });
+  await mocState.initialize(mocStateInitializeParams, { from: owner });
   await mocInrate.initialize(
     mocConnector.address,
     governor.address,
