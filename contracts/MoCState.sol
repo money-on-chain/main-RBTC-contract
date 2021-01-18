@@ -430,6 +430,11 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
     uint256 lb = lockedBitcoin(bucket);
     uint256 nB = bproxManager.getBucketNBTC(bucket);
 
+    // Check according to coverage
+    if (globalCoverage() < 1) {
+      return 0;
+    }
+
     return mocLibConfig.bproTecPrice(nB, lb, nBPro);
   }
 
