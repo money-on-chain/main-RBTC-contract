@@ -621,11 +621,11 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
    * @dev sets the relation between DOC and dollar. By default it is 1.
    * @param _peg relation between DOC and dollar
    */
-
   function setPeg(uint _peg) public onlyAuthorizedChanger(){
     peg = _peg;
   }
-    /**
+
+  /**
    * @dev return the value of the protected threshold configuration param
    * @return protected threshold, currently 1.5
    */
