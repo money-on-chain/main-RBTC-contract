@@ -325,7 +325,10 @@ const createContracts = params => async ({ owner, useMock }) => {
   await moc.initialize(mocConnector.address, governor.address, stopper.address, startStoppable);
   await stopper.initialize(owner);
   await mocExchange.initialize(mocConnector.address);
-  await mocState.initialize(mocStateInitializeParams, { from: owner });
+  // Making sure to call the correct initialize function
+  await mocState.methods[
+    'initialize((address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,address,address,address,bool,uint256))'
+  ](mocStateInitializeParams);
   await mocInrate.initialize(
     mocConnector.address,
     governor.address,

@@ -405,10 +405,10 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
     );
     console.log('Vendors Initialized');
 
-    await mocState.initialize(
-      mocStateInitializeParams,
-      { from: owner }
-    );
+    // Making sure to call the correct initialize function
+    await mocState.methods[
+      'initialize((address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,address,address,address,bool,uint256))'
+    ](mocStateInitializeParams);
     console.log('State Initialized');
 
     await commissionSplitter.initialize(

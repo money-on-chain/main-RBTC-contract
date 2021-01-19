@@ -124,7 +124,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
    */
   function mintBPro(uint256 btcToMint, address vendorAccount)
   public payable
-  whenNotPaused() transitionState() atLeastState(MoCState.States.BProDiscount) {
+  whenNotPaused() transitionState() notInProtectionMode() {
     /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
     (uint256 totalBtcSpent,
     uint256 btcCommission,
@@ -252,7 +252,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
   */
   function redeemFreeDoc(uint256 docAmount, address vendorAccount)
   public
-  whenNotPaused() transitionState() atLeastState(MoCState.States.BProDiscount) {
+  whenNotPaused() transitionState() notInProtectionMode() {
     /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
     (uint256 btcAmount,
     uint256 btcCommission,
@@ -547,6 +547,11 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
 
   modifier atMostState(MoCState.States _state) {
     require(mocState.state() <= _state, "Function cannot be called at this state");
+    _;
+  }
+
+  modifier notInProtectionMode() {
+    require(mocState.globalCoverage() > mocState.getProtected(), "Function cannot be called at protection mode.");
     _;
   }
 

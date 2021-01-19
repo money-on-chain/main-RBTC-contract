@@ -15,7 +15,10 @@ import "moc-governance/contracts/Governance/Governed.sol";
 import "moc-governance/contracts/Governance/IGovernor.sol";
 import "./MoCVendors.sol";
 
-contract MoCStateStructs {
+contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
+  using Math for uint256;
+  using SafeMath for uint256;
+
   struct InitializeParams {
     address connectorAddress;
     address governor;
@@ -34,11 +37,6 @@ contract MoCStateStructs {
     bool liquidationEnabled;
     uint256 protected;
   }
-}
-
-contract MoCState is MoCStateStructs, MoCLibConnection, MoCBase, MoCEMACalculator {
-  using Math for uint256;
-  using SafeMath for uint256;
 
   // This is the current state.
   States public state;
@@ -79,7 +77,7 @@ contract MoCState is MoCStateStructs, MoCLibConnection, MoCBase, MoCEMACalculato
   // [using mocPrecision]
   uint256 public protected;
 
-  function initialize(MoCStateStructs.InitializeParams memory params) public initializer {
+  function initialize(InitializeParams memory params) public initializer {
     initializePrecisions();
     initializeBase(params.connectorAddress);
     initializeContracts(params.mocTokenAddress, params.mocVendorsAddress);
@@ -152,12 +150,10 @@ contract MoCState is MoCStateStructs, MoCLibConnection, MoCBase, MoCEMACalculato
     // State 0
     Liquidated,
     // State 1
-    Protected,
-    // State 2
     BProDiscount,
-    // State 3
+    // State 2
     BelowCobj,
-    // State 4
+    // State 3
     AboveCobj
   }
 
@@ -672,9 +668,7 @@ contract MoCState is MoCStateStructs, MoCLibConnection, MoCBase, MoCEMACalculato
     if (cov <= liq && liquidationEnabled) {
       setLiquidationPrice();
       state = States.Liquidated;
-    } else if (cov <= protected) {
-      state = States.Protected;
-    } else if (cov > protected && cov <= utpdu) {
+    } else if (cov > liq && cov <= utpdu) {
       state = States.BProDiscount;
     } else if (cov > utpdu && cov <= cobj()) {
       state = States.BelowCobj;

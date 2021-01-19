@@ -8,7 +8,7 @@ contract MoCStateMock is MoCState {
 
   constructor() MoCState() public { }
 
-  function initialize(MoCStateStructs.InitializeParams memory params) public initializer {
+  function initialize(InitializeParams memory params) public initializer {
     _daysToSettlement = 4;
     super.initialize(params);
   }
