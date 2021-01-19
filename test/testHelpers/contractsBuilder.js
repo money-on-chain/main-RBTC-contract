@@ -248,6 +248,8 @@ const createContracts = params => async ({ owner, useMock }) => {
     mocPriceProvider.address,
     mocToken.address,
     mocVendors.address,
+    liquidationEnabled,
+    _protected,
     { from: owner }
   );
   const mockMocInrateChanger = await MocInrateChanger.new(
