@@ -427,14 +427,16 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
   * @return the BPro Tec Price [using reservePrecision]
   */
   function bucketBProTecPrice(bytes32 bucket) public view returns(uint256) {
+    uint256 coverageThreshold = 1;
+
+    // Check according to coverage
+    if (globalCoverage() < coverageThreshold.mul(mocLibConfig.mocPrecision)) {
+      return 1; // wei
+    }
+
     uint256 nBPro = bproxManager.getBucketNBPro(bucket);
     uint256 lb = lockedBitcoin(bucket);
     uint256 nB = bproxManager.getBucketNBTC(bucket);
-
-    // Check according to coverage
-    if (globalCoverage() < 1) {
-      return 0;
-    }
 
     return mocLibConfig.bproTecPrice(nB, lb, nBPro);
   }
