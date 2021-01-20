@@ -29,6 +29,11 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
   const MoCVendors = artifacts.require('./MoCVendors.sol');
   const MoCConnector = artifacts.require('./base/MoCConnector.sol');
   const MoCLibMock = artifacts.require('./mocks/MoCHelperLibMock.sol');
+
+  const MoCHelperLibHarness = artifacts.require(
+    './contracts/test-contracts/MoCHelperLibHarness.sol'
+  );
+
   const { toContract } = require('../utils/numberHelper');
 
   const { network, txParams } = await ConfigVariablesInitializer.initNetworkConfiguration({
@@ -109,6 +114,14 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
   const deployMocLibMock = async () => {
     await deployer.link(MoCLib, MoCLibMock);
     await deployer.deploy(MoCLibMock);
+  };
+
+  const deployMoCHelperLibHarness = async () => {
+    await deployer.link(MoCLib, MoCHelperLibHarness);
+    await deployer.deploy(MoCHelperLibHarness);
+    const mocHelperLibHarness = await MoCHelperLibHarness.deployed();
+    await mocHelperLibHarness.initialize();
+    console.log("MoCHelperLibHarness initialized");
   };
 
   const deployOracleMock = async () => {
@@ -509,7 +522,8 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
     setGovernance,
     createInstances,
     getContractAddresses,
-    deployMoCOracleMock
+    deployMoCOracleMock,
+    deployMoCHelperLibHarness
   };
 };
 
