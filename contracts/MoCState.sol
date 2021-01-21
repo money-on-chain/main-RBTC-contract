@@ -427,18 +427,27 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
   * @return the BPro Tec Price [using reservePrecision]
   */
   function bucketBProTecPrice(bytes32 bucket) public view returns(uint256) {
-    uint256 coverageThreshold = 1;
-
-    // Check according to coverage
-    if (globalCoverage() < coverageThreshold.mul(mocLibConfig.mocPrecision)) {
-      return 1; // wei
-    }
-
     uint256 nBPro = bproxManager.getBucketNBPro(bucket);
     uint256 lb = lockedBitcoin(bucket);
     uint256 nB = bproxManager.getBucketNBTC(bucket);
 
-    return mocLibConfig.bproTecPrice(nB, lb, nBPro);
+    uint256 bproPrice = mocLibConfig.bproTecPrice(nB, lb, nBPro);
+
+    // Calculate global coverage to avoid recursion
+    uint256 rbtcInBtcx = mocLibConfig.bproBtcValue(bproxManager.getBucketNBPro(BUCKET_X2), bproPrice);
+    uint256 rbtcInBag = bproxManager.getInrateBag(BUCKET_C0);
+
+    uint256 globalCoverage = rbtcInSystem.sub(rbtcInBtcx).sub(rbtcInBag);
+
+    uint256 nB_C0 = bproxManager.getBucketNBTC(BUCKET_C0);
+    uint256 coverageThreshold = uint256(1).mul(mocLibConfig.mocPrecision);
+
+    // Check according to calculated global coverage and BUCKET_C0
+    if (nB_C0 != 0 && globalCoverage < coverageThreshold) {
+      return 0; // wei
+    }
+
+    return bproPrice;
   }
 
   /**
