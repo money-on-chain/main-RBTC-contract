@@ -53,7 +53,7 @@
     "maxMintBPro": 0.05,
     "mocProportion": 0.01,
     "liquidationEnabled": false,
-    "protected": 1.5
+    "protected": 0
   },
   "regtest": {
     "initialPrice": 7800,
