@@ -551,7 +551,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
   }
 
   modifier notInProtectionMode() {
-    require(mocState.globalCoverage() >= mocState.getProtected(), "Function cannot be called at protection mode.");
+    require(mocState.globalCoverage() > mocState.getProtected(), "Function cannot be called at protection mode.");
     _;
   }
 
