@@ -10,6 +10,15 @@ contract MoCHelperLibHarness is MoCLibConnection, Initializable {
   }
 
   /**
+    Returns max uint256 value constant.
+
+    @return max uint256 value constant
+  */
+  function getMaxInt() public view returns(uint256) {
+    return mocLibConfig.getMaxInt();
+  }
+
+  /**
     Calculates average interest using integral function
 
     @dev T =  Rate = a * (x ** b) + c
