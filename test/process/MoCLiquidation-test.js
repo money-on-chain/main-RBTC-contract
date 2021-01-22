@@ -33,6 +33,7 @@ contract('MoC: Liquidation', function([
     this.governor = mocHelper.governor;
     this.mockMoCBucketContainerChanger = mocHelper.mockMoCBucketContainerChanger;
     this.mockMoCVendorsChanger = mocHelper.mockMoCVendorsChanger;
+    this.mockMocStateChanger = mocHelper.mockMocStateChanger;
   });
 
   beforeEach(async function() {
@@ -52,6 +53,11 @@ contract('MoC: Liquidation', function([
       const liquidationReached = await this.mocState.isLiquidationReached();
       assert(!liquidationReached, 'Liquidation state should not be reached');
       await mocHelper.setBitcoinPrice(3400 * mocHelper.MOC_PRECISION);
+
+      // Enable liquidation
+      await this.mockMocStateChanger.setLiquidationEnabled(true);
+      await this.governor.executeChange(this.mockMocStateChanger.address);
+
       const state = await this.mocState.state();
       mocHelper.assertBig(state, 3, 'State should be AboveCobj');
     });
@@ -145,6 +151,7 @@ contract('MoC: Liquidation', function([
         describe(`WHEN price goes to ${btcPrice}`, function() {
           it('THEN the user can redeem his Docs, receiving 1.5 RBTC in return', async function() {
             await mocHelper.setBitcoinPrice(btcPrice * mocHelper.MOC_PRECISION);
+
             const tx = await this.moc.redeemAllDoc({ from: userAccount });
             const redeemEvent = mocHelper.findEvents(tx, 'StableTokenRedeem')[0];
 
