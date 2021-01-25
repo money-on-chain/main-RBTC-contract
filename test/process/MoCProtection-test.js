@@ -7,7 +7,6 @@ let mocHelper;
 contract('MoC: Protection mode', function([owner, userAccount, otherAccount, vendorAccount]) {
   before(async function() {
     mocHelper = await testHelperBuilder({ owner });
-    ({ toContractBN } = mocHelper);
     this.moc = mocHelper.moc;
     this.mocState = mocHelper.mocState;
     this.mocConnector = mocHelper.mocConnector;
