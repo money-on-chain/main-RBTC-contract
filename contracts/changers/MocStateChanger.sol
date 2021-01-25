@@ -7,7 +7,7 @@ import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
  * @dev This contract is used to update the configuration of MoCState v017
  * with MoC --- governance.
  */
-contract MocStateChanger is ChangeContract, Ownable{
+contract MocStateChanger is ChangeContract, Ownable {
   MoCState public mocState;
   address public btcPriceProvider;
   uint256 public newPeg;
@@ -21,6 +21,8 @@ contract MocStateChanger is ChangeContract, Ownable{
   address public mocPriceProvider;
   address public mocToken;
   address public mocVendors;
+  bool public liquidationEnabled;
+  uint256 public protected;
 
   constructor(
     MoCState _mocState,
@@ -35,7 +37,9 @@ contract MocStateChanger is ChangeContract, Ownable{
     uint256 _maxMintBPro,
     address _mocPriceProvider,
     address _mocTokenAddress,
-    address _mocVendorsAddress
+    address _mocVendorsAddress,
+    bool _liquidationEnabled,
+    uint256 _protected
   ) public {
     mocState = _mocState;
     newPeg = _newPeg;
@@ -50,6 +54,8 @@ contract MocStateChanger is ChangeContract, Ownable{
     mocPriceProvider = _mocPriceProvider;
     mocToken = _mocTokenAddress;
     mocVendors = _mocVendorsAddress;
+    liquidationEnabled = _liquidationEnabled;
+    protected = _protected;
   }
 
   function execute() external {
@@ -65,6 +71,8 @@ contract MocStateChanger is ChangeContract, Ownable{
     mocState.setMoCPriceProvider(mocPriceProvider);
     mocState.setMoCToken(mocToken);
     mocState.setMoCVendors(mocVendors);
+    mocState.setLiquidationEnabled(liquidationEnabled);
+    mocState.setProtected(protected);
   }
 
   function setMaxMintBPro(uint256 _maxMintBPro) public onlyOwner() {
@@ -85,6 +93,14 @@ contract MocStateChanger is ChangeContract, Ownable{
 
   function setMoCVendors(address _mocVendorsAddress) public onlyOwner() {
     mocVendors = _mocVendorsAddress;
+  }
+
+  function setLiquidationEnabled(bool _liquidationEnabled) public onlyOwner() {
+    liquidationEnabled = _liquidationEnabled;
+  }
+
+  function setProtected(uint _protected) public onlyOwner() {
+    protected = _protected;
   }
 
   function setSmoothingFactor(uint256 factor) public onlyOwner() {

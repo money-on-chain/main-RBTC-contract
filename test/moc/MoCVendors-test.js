@@ -527,5 +527,36 @@ contract('MoC: MoCVendors', function([
         mocHelper.assertBig(totalPaidInMoC, 0, 'Total paid in MoC is incorrect');
       });
     });
+    describe('GIVEN the vendor markup can be changed via an array in changer contract', function() {
+      it('WHEN registering said vendor with a different markup value THEN VendorUpdated event is emitted', async function() {
+        // Register vendor
+        let vendor = await mocHelper.getVendorToRegisterAsArray(vendorAccount1, 0.001);
+
+        // Register vendor using harness contract
+        await this.mocVendorsChangerHarness.setVendorsToRegister(vendor);
+        await this.mocVendorsChangerHarness.setVendorsToUnregisterEmptyArray();
+        await this.governor.executeChange(this.mocVendorsChangerHarness.address);
+
+        // Update markup
+        const newMarkup = 0.005;
+        vendor = await mocHelper.getVendorToRegisterAsArray(vendorAccount1, newMarkup);
+
+        // Update vendor using harness contract
+        await this.mocVendorsChangerHarness.setVendorsToRegister(vendor);
+        await this.mocVendorsChangerHarness.setVendorsToUnregisterEmptyArray();
+        const updateVendorTx = await this.governor.executeChange(
+          this.mocVendorsChangerHarness.address
+        );
+
+        const [vendorUpdatedEvent] = await mocHelper.findEvents(updateVendorTx, 'VendorUpdated');
+
+        assert(vendorUpdatedEvent, 'Event was not emitted');
+        mocHelper.assertBigRBTC(
+          vendorUpdatedEvent.markup,
+          newMarkup,
+          'Vendor new markup is incorrect'
+        );
+      });
+    });
   });
 });

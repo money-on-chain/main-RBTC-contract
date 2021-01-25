@@ -1,4 +1,5 @@
 pragma solidity 0.5.8;
+pragma experimental ABIEncoderV2;
 
 import "openzeppelin-solidity/contracts/math/Math.sol";
 import "./interface/PriceProvider.sol";
@@ -17,6 +18,25 @@ import "./MoCVendors.sol";
 contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
   using Math for uint256;
   using SafeMath for uint256;
+
+  struct InitializeParams {
+    address connectorAddress;
+    address governor;
+    address btcPriceProvider;
+    uint256 liq;
+    uint256 utpdu;
+    uint256 maxDiscRate;
+    uint256 dayBlockSpan;
+    uint256 ema;
+    uint256 smoothFactor;
+    uint256 emaBlockSpan;
+    uint256 maxMintBPro;
+    address mocPriceProvider;
+    address mocTokenAddress;
+    address mocVendorsAddress;
+    bool liquidationEnabled;
+    uint256 protected;
+  }
 
   // This is the current state.
   States public state;
@@ -51,36 +71,28 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
   // Price to use at doc redemption at
   // liquidation event
   uint256 public liquidationPrice;
+  // Liquidation enabled
+  bool public liquidationEnabled;
+  // Protected limit
+  // [using mocPrecision]
+  uint256 public protected;
 
-  function initialize(
-    address connectorAddress,
-    address _governor,
-    address _btcPriceProvider,
-    uint256 _liq,
-    uint256 _utpdu,
-    uint256 _maxDiscRate,
-    uint256 _dayBlockSpan,
-    uint256 _ema,
-    uint256 _smoothFactor,
-    uint256 _emaBlockSpan,
-    uint256 _maxMintBPro,
-    address _mocPriceProvider,
-    address _mocTokenAddress,
-    address _mocVendorsAddress
-  ) public initializer {
+  function initialize(InitializeParams memory params) public initializer {
     initializePrecisions();
-    initializeBase(connectorAddress);
-    initializeContracts(_mocTokenAddress, _mocVendorsAddress);
+    initializeBase(params.connectorAddress);
+    initializeContracts(params.mocTokenAddress, params.mocVendorsAddress);
     initializeValues(
-      _governor,
-      _btcPriceProvider,
-      _liq,
-      _utpdu,
-      _maxDiscRate,
-      _dayBlockSpan,
-      _maxMintBPro,
-      _mocPriceProvider);
-    initializeMovingAverage(_ema, _smoothFactor, _emaBlockSpan);
+      params.governor,
+      params.btcPriceProvider,
+      params.liq,
+      params.utpdu,
+      params.maxDiscRate,
+      params.dayBlockSpan,
+      params.maxMintBPro,
+      params.mocPriceProvider,
+      params.liquidationEnabled,
+      params.protected);
+    initializeMovingAverage(params.ema, params.smoothFactor, params.emaBlockSpan);
   }
 
   /**
@@ -187,7 +199,7 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
     * BTCx values and interests holdings
     */
   function collateralRbtcInSystem() public view returns(uint256) {
-    uint256 rbtcInBtcx = mocConverter.bproxToBtc(bproxManager.getBucketNBPro(BUCKET_X2),BUCKET_X2);
+    uint256 rbtcInBtcx = mocConverter.bproxToBtcHelper(bproxManager.getBucketNBPro(BUCKET_X2),BUCKET_X2);
     uint256 rbtcInBag = bproxManager.getInrateBag(BUCKET_C0);
 
     return rbtcInSystem.sub(rbtcInBtcx).sub(rbtcInBag);
@@ -415,6 +427,23 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
   * @return the BPro Tec Price [using reservePrecision]
   */
   function bucketBProTecPrice(bytes32 bucket) public view returns(uint256) {
+    uint256 cov = globalCoverage();
+    uint256 coverageThreshold = uint256(1).mul(mocLibConfig.mocPrecision);
+
+    // If Protected Mode is reached
+    if (cov <= getProtected() && cov < coverageThreshold) {
+      return 0; // wei
+    }
+
+    return bucketBProTecPriceHelper(bucket);
+  }
+
+  /**
+  * @dev BUCKET BTC price of BPro (helper)
+  * @param bucket Name of the bucket used
+  * @return the BPro Tec Price [using reservePrecision]
+  */
+  function bucketBProTecPriceHelper(bytes32 bucket) public view returns(uint256) {
     uint256 nBPro = bproxManager.getBucketNBPro(bucket);
     uint256 lb = lockedBitcoin(bucket);
     uint256 nB = bproxManager.getBucketNBTC(bucket);
@@ -506,7 +535,7 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
    */
   function isLiquidationReached() public view returns(bool) {
     uint256 cov = globalCoverage();
-    if (state != States.Liquidated && cov <= liq)
+    if (state != States.Liquidated && cov <= liq && liquidationEnabled)
       return true;
     return false;
   }
@@ -608,6 +637,38 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
     peg = _peg;
   }
 
+  /**
+   * @dev return the value of the protected threshold configuration param
+   * @return protected threshold, currently 1.5
+   */
+  function getProtected() public view returns(uint256) {
+    return protected;
+  }
+
+  /**
+   * @dev sets the value of the protected threshold configuration param
+   * @param _protected protected threshold
+   */
+  function setProtected(uint _protected) public onlyAuthorizedChanger() {
+    protected = _protected;
+  }
+
+  /**
+   * @dev returns if is liquidation enabled.
+   * @return liquidationEnabled is liquidation enabled
+   */
+  function getLiquidationEnabled() public view returns(bool) {
+    return liquidationEnabled;
+  }
+
+  /**
+   * @dev returns if is liquidation enabled.
+   * @param _liquidationEnabled is liquidation enabled
+   */
+  function setLiquidationEnabled(bool _liquidationEnabled) public onlyAuthorizedChanger() {
+    liquidationEnabled = _liquidationEnabled;
+  }
+
   function nextState() public {
     // There is no coming back from Liquidation
     if (state == States.Liquidated)
@@ -616,7 +677,7 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
     States prevState = state;
     calculateBitcoinMovingAverage();
     uint256 cov = globalCoverage();
-    if (cov <= liq) {
+    if (cov <= liq && liquidationEnabled) {
       setLiquidationPrice();
       state = States.Liquidated;
     } else if (cov > liq && cov <= utpdu) {
@@ -653,27 +714,9 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
     return maxMintBPro;
   }
 
-  /**
-  * @dev return the bpro available to mint
-  * @return maxMintBProAvalaible  [using mocPrecision]
-  */
-  function maxMintBProAvalaible() public view returns(uint256) {
-
-    uint256 totalBPro = bproTotalSupply();
-    uint256 maxiMintBPro = getMaxMintBPro();
-
-    if (totalBPro >= maxiMintBPro) {
-      return 0;
-    }
-
-    uint256 availableMintBPro = maxiMintBPro.sub(totalBPro);
-
-    return availableMintBPro;
-  }
-
   /** END UPDATE V017: 01/11/2019 **/
 
-    /************************************/
+  /************************************/
   /***** UPGRADE v0110      ***********/
   /************************************/
 
@@ -794,7 +837,9 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
     uint256 _maxDiscRate,
     uint256 _dayBlockSpan,
     uint256 _maxMintBPro,
-    address _mocPriceProvider) internal {
+    address _mocPriceProvider,
+    bool _liquidationEnabled,
+    uint256 _protected) internal {
     liq = _liq;
     utpdu = _utpdu;
     bproMaxDiscountRate = _maxDiscRate;
@@ -806,6 +851,8 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
     peg = 1;
     maxMintBPro = _maxMintBPro;
     mocPriceProvider = PriceProvider(_mocPriceProvider);
+    liquidationEnabled = _liquidationEnabled;
+    protected = _protected;
   }
 
   function initializeContracts(address _mocTokenAddress, address _mocVendorsAddress) internal  {

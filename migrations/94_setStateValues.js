@@ -31,6 +31,8 @@ module.exports = async (deployer, currentNetwork, [owner]) => {
   const mocPriceProviderAddress = '0xEeae0B52Ac1F0D7D139898997b8367Dd67E3527c'; // mock
   const mocTokenAddress = '0x1dc4Bec7ce1ca27bA16F419c514b62c88B9Cb567';
   const mocVendorsAddress = '0x748C0ccbDFeb85DF79fE978e9BADe1c4aaE8c757';
+  const liquidationEnabled = false;
+  const _protected = toContract(1.5 * 10 ** 18);
 
   const mocStateChanger = await MoCStateChanger.new(
     mocStateAddress,
@@ -46,6 +48,8 @@ module.exports = async (deployer, currentNetwork, [owner]) => {
     mocPriceProviderAddress,
     mocTokenAddress,
     mocVendorsAddress,
+    liquidationEnabled,
+    _protected,
     { from: owner }
   );
 

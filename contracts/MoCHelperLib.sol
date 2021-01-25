@@ -15,6 +15,15 @@ library MoCHelperLib {
   uint256 constant UINT256_MAX = ~uint256(0);
 
   /**
+    Returns max uint256 value constant.
+
+    @return max uint256 value constant
+  */
+  function getMaxInt(MocLibConfig storage /*config*/) public pure returns(uint256) {
+    return UINT256_MAX;
+  }
+
+  /**
     Calculates average interest using integral function
 
     @dev T =  Rate = a * (x ** b) + c

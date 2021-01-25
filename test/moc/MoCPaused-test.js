@@ -32,8 +32,7 @@ const assertAllMocPausedFunctions = (owner, userAccount, vendorAccount) => {
     { name: 'alterRedeemRequestAmount', args: [false, 100] },
     { name: 'runSettlement', args: [1] },
     { name: 'dailyInratePayment', args: [{ from: owner }] },
-    { name: 'payBitProHoldersInterestPayment', args: [{ from: owner }] },
-    { name: 'setBurnoutAddress', args: [userAccount, { from: owner }] }
+    { name: 'payBitProHoldersInterestPayment', args: [{ from: owner }] }
   ];
   const txs = testFunctions.map(func => mocHelper.moc[func.name](...func.args));
 

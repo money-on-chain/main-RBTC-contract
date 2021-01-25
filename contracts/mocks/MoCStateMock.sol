@@ -1,4 +1,5 @@
 pragma solidity 0.5.8;
+pragma experimental ABIEncoderV2;
 
 import "../MoCState.sol";
 
@@ -7,39 +8,9 @@ contract MoCStateMock is MoCState {
 
   constructor() MoCState() public { }
 
-  function initialize(
-    address connectorAddress,
-    address _governor,
-    address _btcPriceProvider,
-    uint256 _liq,
-    uint256 _utpdu,
-    uint256 _maxDiscRate,
-    uint256 _dayBlockSpan,
-    uint256 _ema,
-    uint256 _smoothFactor,
-    uint256 _emaBlockSpan,
-    uint256 _maxMintBPro,
-    address _mocPriceProvider,
-    address _mocTokenAddress,
-    address _mocVendorsAddress
-  ) public initializer {
+  function initialize(InitializeParams memory params) public initializer {
     _daysToSettlement = 4;
-    super.initialize(
-      connectorAddress,
-      _governor,
-      _btcPriceProvider,
-      _liq,
-      _utpdu,
-      _maxDiscRate,
-      _dayBlockSpan,
-      _ema,
-      _smoothFactor,
-      _emaBlockSpan,
-      _maxMintBPro,
-      _mocPriceProvider,
-      _mocTokenAddress,
-      _mocVendorsAddress
-    );
+    super.initialize(params);
   }
 
   function setDaysToSettlement(uint256 daysToSettl) public {

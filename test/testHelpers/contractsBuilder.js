@@ -88,6 +88,9 @@ const baseParams = {
   docPower: toContract(1),
   mocProportion: toContract(0.01 * 10 ** 18), // mocPrecision
 
+  liquidationEnabled: false,
+  _protected: toContract(1.5 * 10 ** 18), // mocPrecision
+
   startStoppable: true
 };
 
@@ -182,7 +185,9 @@ const createContracts = params => async ({ owner, useMock }) => {
     docTmax,
     docPower,
     startStoppable,
-    mocProportion = baseParams.mocProportion
+    mocProportion = baseParams.mocProportion,
+    liquidationEnabled,
+    _protected
   } = params;
 
   const settlementContract = useMock ? MoCSettlementMock : MoCSettlement;
@@ -243,6 +248,8 @@ const createContracts = params => async ({ owner, useMock }) => {
     mocPriceProvider.address,
     mocToken.address,
     mocVendors.address,
+    liquidationEnabled,
+    _protected,
     { from: owner }
   );
   const mockMocInrateChanger = await MocInrateChanger.new(
@@ -284,6 +291,24 @@ const createContracts = params => async ({ owner, useMock }) => {
   const mockMocChanger = await MocChanger.new(moc.address, governor.address, stopper.address, {
     from: owner
   });
+  const mocStateInitializeParams = {
+    connectorAddress: mocConnector.address,
+    governor: governor.address,
+    btcPriceProvider: btcPriceProvider.address,
+    liq, // mocPrecision
+    utpdu, // mocPrecision
+    maxDiscRate: maxDiscountRate, // mocPrecision
+    dayBlockSpan, // no Precision
+    ema: btcPrice,
+    smoothFactor: smoothingFactor,
+    emaBlockSpan,
+    maxMintBPro,
+    mocPriceProvider: mocPriceProvider.address,
+    mocTokenAddress: mocToken.address,
+    mocVendorsAddress: mocVendors.address,
+    liquidationEnabled,
+    protected: _protected
+  };
 
   // Initialize contracts
   await mocConnector.initialize(
@@ -302,22 +327,10 @@ const createContracts = params => async ({ owner, useMock }) => {
   await moc.initialize(mocConnector.address, governor.address, stopper.address, startStoppable);
   await stopper.initialize(owner);
   await mocExchange.initialize(mocConnector.address);
-  await mocState.initialize(
-    mocConnector.address,
-    governor.address,
-    btcPriceProvider.address,
-    liq, // mocPrecision
-    utpdu, // mocPrecision
-    maxDiscountRate, // mocPrecision
-    dayBlockSpan, // no Precision
-    btcPrice,
-    smoothingFactor,
-    emaBlockSpan,
-    maxMintBPro,
-    mocPriceProvider.address,
-    mocToken.address,
-    mocVendors.address
-  );
+  // Making sure to call the correct initialize function
+  await mocState.methods[
+    'initialize((address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,address,address,address,bool,uint256))'
+  ](mocStateInitializeParams);
   await mocInrate.initialize(
     mocConnector.address,
     governor.address,

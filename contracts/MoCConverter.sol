@@ -59,6 +59,10 @@ contract MoCConverter is MoCBase, MoCLibConnection {
     return mocLibConfig.bproBtcValue(bproxAmount, mocState.bucketBProTecPrice(bucket));
   }
 
+  function bproxToBtcHelper(uint256 bproxAmount, bytes32 bucket) public view returns(uint256) {
+    return mocLibConfig.bproBtcValue(bproxAmount, mocState.bucketBProTecPriceHelper(bucket));
+  }
+
   function btcToBProx(uint256 btcAmount, bytes32 bucket) public view returns(uint256) {
     return mocLibConfig.maxBProWithBtc(btcAmount, mocState.bucketBProTecPrice(bucket));
   }

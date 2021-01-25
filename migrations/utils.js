@@ -29,6 +29,11 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
   const MoCVendors = artifacts.require('./MoCVendors.sol');
   const MoCConnector = artifacts.require('./base/MoCConnector.sol');
   const MoCLibMock = artifacts.require('./mocks/MoCHelperLibMock.sol');
+
+  const MoCHelperLibHarness = artifacts.require(
+    './contracts/test-contracts/MoCHelperLibHarness.sol'
+  );
+
   const { toContract } = require('../utils/numberHelper');
 
   const { network, txParams } = await ConfigVariablesInitializer.initNetworkConfiguration({
@@ -115,6 +120,14 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
   const deployMocLibMock = async () => {
     await deployer.link(MoCLib, MoCLibMock);
     await deployer.deploy(MoCLibMock);
+  };
+
+  const deployMoCHelperLibHarness = async () => {
+    await deployer.link(MoCLib, MoCHelperLibHarness);
+    await deployer.deploy(MoCHelperLibHarness);
+    const mocHelperLibHarness = await MoCHelperLibHarness.deployed();
+    await mocHelperLibHarness.initialize();
+    console.log("MoCHelperLibHarness initialized");
   };
 
   const deployOracleMock = async () => {
@@ -311,6 +324,24 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
     const governorAddress = await governorContractAddress();
     const stopperAddress = await stopperContractAddress();
     const mocOracleAddress = await mocOracle();
+    const mocStateInitializeParams = {
+      connectorAddress: mocConnector.address,
+      governor: governorAddress,
+      btcPriceProvider: oracleAddress,
+      liq: toContract(config.liq * 10 ** 18),
+      utpdu: toContract(config.utpdu * 10 ** 18),
+      maxDiscRate: toContract(config.maxDiscRate * 10 ** 18),
+      dayBlockSpan: config.dayBlockSpan,
+      ema: toContract(config.initialEma * 10 ** 18),
+      smoothFactor: toContract(config.smoothFactor * 10 ** 18),
+      emaBlockSpan: config.dayBlockSpan,
+      maxMintBPro: toContract(config.maxMintBPro * 10 ** 18),
+      mocPriceProvider: mocOracleAddress,
+      mocTokenAddress: mocToken.address,
+      mocVendorsAddress: mocVendors.address,
+      liquidationEnabled: config.liquidationEnabled,
+      protected: toContract(config.protected * 10 ** 18)
+    };
 
     console.log('Initializing MoC');
     await mocConnector.initialize(
@@ -393,22 +424,10 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
     );
     console.log('Vendors Initialized');
 
-    await mocState.initialize(
-      mocConnector.address,
-      governorAddress,
-      oracleAddress,
-      toContract(config.liq * 10 ** 18), // _liq
-      toContract(config.utpdu * 10 ** 18), // _utpdu
-      toContract(config.maxDiscRate * 10 ** 18), // _maxDiscRate
-      config.dayBlockSpan, // _dayBlockSpan
-      toContract(config.initialEma * 10 ** 18), // _ema
-      toContract(config.smoothFactor * 10 ** 18), // _smoothFactor
-      config.dayBlockSpan, // _emaBlockSpan
-      toContract(config.maxMintBPro * 10 ** 18),
-      mocOracleAddress,
-      mocToken.address,
-      mocVendors.address
-    );
+    // Making sure to call the correct initialize function
+    await mocState.methods[
+      'initialize((address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,address,address,address,bool,uint256))'
+    ](mocStateInitializeParams);
     console.log('State Initialized');
 
     await commissionSplitter.initialize(
@@ -510,6 +529,7 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
     createInstances,
     getContractAddresses,
     deployMoCOracleMock,
+    deployMoCHelperLibHarness,
     getProxies,
     getProxyAddress
   };

@@ -60,6 +60,7 @@ Governed
     uint256 finalCommissionAmount;
     uint256 leverage;
     uint256 startBlockNumber;
+    bool isProtectedMode;
   }
 
   // Contracts
@@ -279,39 +280,6 @@ Governed
     return settlementInfo.finalCommissionAmount;
   }
 
-/**
-  @dev Create Task structures for Settlement execution
-*/
-  function fixTasksPointer() public {
-    resetTaskPointers(
-      DELEVERAGING_TASK,
-      deleveragingStepCount,
-      deleveragingStep,
-      noFunction,
-      finishDeleveraging
-    );
-    resetTaskPointers(
-      DOC_REDEMPTION_TASK,
-      docRedemptionStepCount,
-      docRedemptionStep,
-      noFunction,
-      finishDocRedemption
-    );
-
-
-    bytes32[] memory tasks = new bytes32[](2);
-    tasks[0] = DELEVERAGING_TASK;
-    tasks[1] = DOC_REDEMPTION_TASK;
-
-    resetTaskGroupPointers(
-      SETTLEMENT_TASK,
-      tasks,
-      initializeSettlement,
-      finishSettlement,
-      true
-    );
-  }
-
   function initializeContracts() internal {
     docToken = DocToken(connector.docToken());
     bproxManager = MoCBProxManager(connector.bproxManager());
@@ -348,6 +316,10 @@ Governed
   which is the amount of redeem requests in the queue
 */
   function docRedemptionStepCount() internal view returns (uint256) {
+    // If Protected Mode is reached, DoCs in queue must not be redeemed until next settlement
+    if (mocState.globalCoverage() <= mocState.getProtected()) {
+      return 0;
+    }
     return redeemQueueLength;
   }
 
@@ -359,6 +331,13 @@ Governed
     settlementInfo.btcPrice = mocState.getBitcoinPrice();
     settlementInfo.btcxPrice = mocState.bucketBProTecPrice(BUCKET_X2);
     settlementInfo.startBlockNumber = block.number;
+
+    // Protected Mode
+    if (mocState.globalCoverage() <= mocState.getProtected()) {
+      settlementInfo.isProtectedMode = true;
+    } else {
+      settlementInfo.isProtectedMode = false;
+    }
 
     settlementInfo.docRedeemCount = redeemQueueLength;
     settlementInfo.deleveragingCount = bproxManager.getActiveAddressesCount(
@@ -414,7 +393,9 @@ Governed
       settlementInfo.btcPrice
     );
 
-    clear();
+    if (!settlementInfo.isProtectedMode) {
+      clear();
+    }
   }
 
   /**

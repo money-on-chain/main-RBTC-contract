@@ -19,7 +19,7 @@ coverage.json
 coverageEnv
 
 # lol macs
-.DS_Store/
+.DS_Store
 
 # truffle
 .node-xmlhttprequest-*
