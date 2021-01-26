@@ -34,7 +34,9 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
   MoCSettlement internal settlement;
   MoCExchange internal mocExchange;
   MoCInrate internal mocInrate;
-  MoCBurnout public mocBurnout;
+  /** DEPRECATED **/
+  // solium-disable-next-line mixedcase
+  MoCBurnout public DEPRECATED_mocBurnout;
 
   // Indicates if Rbtc remainder was sent and
   // BProToken was paused
@@ -64,7 +66,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
     mocConverter = MoCConverter(connector.mocConverter());
     mocExchange = MoCExchange(connector.mocExchange());
     mocInrate = MoCInrate(connector.mocInrate());
-    mocBurnout = MoCBurnout(connector.mocBurnout());
+    DEPRECATED_mocBurnout = MoCBurnout(connector.mocBurnout());
     //initializeGovernanceContracts
     Stoppable.initialize(stopperAddress, IGovernor(governorAddress), startStoppable);
   }
@@ -354,7 +356,6 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
 
     if (mocState.state() == MoCState.States.Liquidated) {
       liquidate();
-      mocBurnout.executeBurnout(steps);
     }
   }
 
