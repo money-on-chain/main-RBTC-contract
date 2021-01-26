@@ -122,6 +122,17 @@ contract('MoC', function([owner, vendorAccount]) {
             leverage: 1.1666666666666668
           }
         }
+      },
+      {
+        ...baseState,
+        nDoCs: 12000,
+        initialnB: 2.4,
+        btcPrice: { from: 10000, to: 1000 },
+        nDocsBtcAmount: 1.2,
+        expect: {
+          globals: { globalCoverage: 0.3, bproTecPrice: 0 },
+          C0: { lockedBitcoin: 12, coverage: 0.3 }
+        }
       }
     ];
 

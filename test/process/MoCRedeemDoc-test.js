@@ -356,4 +356,33 @@ contract('MoC', function([owner, userAccount, attacker, vendorAccount, ...accoun
       });
     });
   });
+
+  describe('Coverage below protection mode', function() {
+    describe(`GIVEN a user owns 1000 Docs, BTC price is 2000 USD, there is 1 BTC in Bucket 0 AND blockSpan is ${blockSpan}`, function() {
+      const from = userAccount;
+      beforeEach(async function() {
+        await this.moc.sendTransaction({
+          value: 1 * mocHelper.RESERVE_PRECISION
+        });
+        await mocHelper.mintDoc(from, 0.25, vendorAccount);
+        // Enabling Settlement
+        await mocHelper.mockMoCSettlementChanger.setBlockSpan(1);
+        await mocHelper.governor.executeChange(mocHelper.mockMoCSettlementChanger.address);
+        await mocHelper.setBitcoinPrice(2000 * mocHelper.MOC_PRECISION);
+      });
+      describe('WHEN a settlement is run', function() {
+        beforeEach(async function() {
+          await mocHelper.executeSettlement();
+        });
+        it('THEN docRedemptionStepCount should be 0', async function() {
+          const docRedemptionStepCount = await this.mocSettlement.docRedemptionStepCountForTest();
+          await mocHelper.assertBig(
+            docRedemptionStepCount,
+            0,
+            'docRedemptionStepCount Should be 0'
+          );
+        });
+      });
+    });
+  });
 });

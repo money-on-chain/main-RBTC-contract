@@ -30,4 +30,13 @@ contract MoCSettlementMock is MoCSettlement {
   function setBlockSpan(uint256 _blockSpan) public {
     blockSpan = _blockSpan;
   }
+
+  /**
+  @dev Returns the amount of steps for the Doc Redemption task
+  which is the amount of redeem requests in the queue
+  - Used in tests only -
+  */
+  function docRedemptionStepCountForTest() public view returns (uint256) {
+    return super.docRedemptionStepCount();
+  }
 }

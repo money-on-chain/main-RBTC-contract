@@ -430,8 +430,8 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
     uint256 cov = globalCoverage();
     uint256 coverageThreshold = uint256(1).mul(mocLibConfig.mocPrecision);
 
-    // If Protected Mode is reached
-    if (cov <= getProtected() && cov < coverageThreshold) {
+    // If Protected Mode is reached and below threshold
+    if (bucket == BUCKET_C0 && cov <= getProtected() && cov < coverageThreshold) {
       return 0; // wei
     }
 
