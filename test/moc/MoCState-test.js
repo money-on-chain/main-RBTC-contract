@@ -69,6 +69,7 @@ contract('MoC', function([owner, vendorAccount]) {
         }
       }, */
       {
+        ...baseState,
         nDoCs: 10000,
         initialnB: 6,
         btcPrice: { from: 10000, to: 5000 },

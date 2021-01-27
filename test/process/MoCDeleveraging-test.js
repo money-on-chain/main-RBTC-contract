@@ -302,7 +302,7 @@ contract('MoC: Delever X', function([owner, vendorAccount, ...allAccounts]) {
   ];
   scenarios.forEach(s => {
     const userPrevBalances = [];
-    describe(`GIVEN there is 1 BProx in Bucket ${BUCKET_X2}`, function() {
+    describe(`GIVEN there is 1 BProx in Bucket BUCKET_X2`, function() {
       beforeEach(async function() {
         await new Promise(resolve => {
           s.users.forEach(async (user, index) => {
