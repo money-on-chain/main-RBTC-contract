@@ -341,7 +341,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
   }
 
   function evalBucketLiquidation(bytes32 bucket) public availableBucket(bucket) notBaseBucket(bucket) whenSettlementReady() {
-    if (mocState.coverage(bucket) <= mocState.liq()) {
+    if (isBucketLiquidationReached(bucket)) {
       bproxManager.liquidateBucket(bucket, BUCKET_C0);
 
       emit BucketLiquidation(bucket);
@@ -351,22 +351,16 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
   /**
   * @dev Evaluates if liquidation state has been reached and runs liq if that's the case
   */
-  function evalLiquidation(uint256 steps) public {
-    mocState.nextState();
-
-    if (mocState.state() == MoCState.States.Liquidated) {
-      liquidate();
-    }
+  function evalLiquidation() public transitionState() {
+    // DO NOTHING. Everything is handled in transitionState() modifier.
   }
 
   /**
   * @dev Runs all settlement process
   */
   function runSettlement(uint256 steps) public whenNotPaused() transitionState() {
-    uint256 accumCommissions = settlement.runSettlement(steps);
-
     // Transfer accums commissions to commissions address
-    doTransfer(mocInrate.commissionsAddress(), accumCommissions);
+    doTransfer(mocInrate.commissionsAddress(), settlement.runSettlement(steps));
   }
 
   /**

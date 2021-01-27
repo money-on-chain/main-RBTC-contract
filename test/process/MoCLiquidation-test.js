@@ -67,7 +67,7 @@ contract('MoC: Liquidation', function([
       { name: 'redeemBPro', args: [1, vendorAccount], event: 'RiskProxRedeem' },
       { name: 'mintBProx', args: [BUCKET_X2, 0, vendorAccount], event: 'RiskProxMint' },
       { name: 'redeemBProx', args: [BUCKET_X2, 1, vendorAccount], event: 'RiskProxRedeem' },
-      { name: 'evalLiquidation', args: [100] },
+      { name: 'evalLiquidation', args: [] },
       { name: 'runSettlement', args: [100] }
     ].forEach(fn => {
       describe(`WHEN someone executes ${fn.name}`, function() {
@@ -95,7 +95,7 @@ contract('MoC: Liquidation', function([
         assert(paused, 'Not paused');
         const liquidationReached = await this.mocState.isLiquidationReached();
         assert(liquidationReached, 'Liquidation state should be reached');
-        await this.moc.evalLiquidation(100); // 100 Steps should be enough
+        await this.moc.evalLiquidation();
         const state = await this.mocState.state();
         mocHelper.assertBig(state, 0, 'State should be Liquidated');
       });
@@ -128,7 +128,7 @@ contract('MoC: Liquidation', function([
         const liquidationReached = await this.mocState.isLiquidationReached();
         assert(liquidationReached, 'Liquidation state should be reached');
         await setCommissionAccount(commissionAccount);
-        await this.moc.evalLiquidation(100); // 100 Steps should be enough
+        await this.moc.evalLiquidation();
         const state = await this.mocState.state();
         mocHelper.assertBig(state, 0, 'State should be Liquidated');
       });
