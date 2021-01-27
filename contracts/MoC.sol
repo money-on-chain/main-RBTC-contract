@@ -18,8 +18,7 @@ import "./MoCVendors.sol";
 
 contract MoCEvents {
   event BucketLiquidation(bytes32 bucket);
-
-  event SetMoCContract(address mocAddress);
+  event ContractLiquidated(address mocAddress);
 }
 
 contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
@@ -383,6 +382,8 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
       //sendRbtcRemainder
       doTransfer(mocInrate.commissionsAddress(), mocState.getRbtcRemainder());
       liquidationExecuted = true;
+
+      emit ContractLiquidated(connector.moc());
     }
   }
 
