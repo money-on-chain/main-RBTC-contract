@@ -317,6 +317,7 @@ Governed
   which is the amount of redeem requests in the queue
 */
   function docRedemptionStepCount() internal view returns (uint256) {
+    // If Protected Mode is reached, DoCs in queue must not be redeemed until next settlement
     if (mocState.globalCoverage() <= mocState.getProtected()) {
       return 0;
     }

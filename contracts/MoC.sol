@@ -16,6 +16,7 @@ import "moc-governance/contracts/Governance/IGovernor.sol";
 
 contract MoCEvents {
   event BucketLiquidation(bytes32 bucket);
+  event ContractLiquidated(address mocAddress);
 }
 
 contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
@@ -30,7 +31,9 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
   MoCSettlement internal settlement;
   MoCExchange internal mocExchange;
   MoCInrate internal mocInrate;
-  MoCBurnout public mocBurnout;
+  /** DEPRECATED **/
+  // solium-disable-next-line mixedcase
+  MoCBurnout public DEPRECATED_mocBurnout;
 
   // Indicates if Rbtc remainder was sent and
   // BProToken was paused
@@ -293,12 +296,11 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
   /**
   * @dev Evaluates if liquidation state has been reached and runs liq if that's the case
   */
-  function evalLiquidation(uint256 steps) public {
+  function evalLiquidation() public {
     mocState.nextState();
 
     if (mocState.state() == MoCState.States.Liquidated) {
       liquidate();
-      mocBurnout.executeBurnout(steps);
     }
   }
 
@@ -329,6 +331,8 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
       pauseBProToken();
       sendRbtcRemainder();
       liquidationExecuted = true;
+
+      emit ContractLiquidated(connector.moc());
     }
   }
 
@@ -350,7 +354,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
     mocConverter = MoCConverter(connector.mocConverter());
     mocExchange = MoCExchange(connector.mocExchange());
     mocInrate = MoCInrate(connector.mocInrate());
-    mocBurnout = MoCBurnout(connector.mocBurnout());
+    DEPRECATED_mocBurnout = MoCBurnout(connector.mocBurnout());
   }
 
   function initializeGovernanceContracts(address stopperAddress, address governorAddress, bool startStoppable) internal {

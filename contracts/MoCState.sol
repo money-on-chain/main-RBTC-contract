@@ -72,8 +72,10 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
     initializePrecisions();
     initializeBase(connectorAddress);
     initializeContracts();
-    initializeValues(_governor, _btcPriceProvider,_liq, _utpdu, _maxDiscRate, _dayBlockSpan, _maxMintBPro,
-      _liquidationEnabled, _protected);
+    initializeValues(
+      _governor, _btcPriceProvider,_liq, _utpdu, _maxDiscRate,
+      _dayBlockSpan, _maxMintBPro, _liquidationEnabled, _protected
+    );
     initializeMovingAverage(_ema, _smoothFactor, _emaBlockSpan);
   }
 
@@ -181,7 +183,7 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
     * BTCx values and interests holdings
     */
   function collateralRbtcInSystem() public view returns(uint256) {
-    uint256 rbtcInBtcx = mocConverter.bproxToBtc(bproxManager.getBucketNBPro(BUCKET_X2),BUCKET_X2);
+    uint256 rbtcInBtcx = mocConverter.bproxToBtcHelper(bproxManager.getBucketNBPro(BUCKET_X2),BUCKET_X2);
     uint256 rbtcInBag = bproxManager.getInrateBag(BUCKET_C0);
 
     return rbtcInSystem.sub(rbtcInBtcx).sub(rbtcInBag);
@@ -409,6 +411,23 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
   * @return the BPro Tec Price [using reservePrecision]
   */
   function bucketBProTecPrice(bytes32 bucket) public view returns(uint256) {
+    uint256 cov = globalCoverage();
+    uint256 coverageThreshold = uint256(1).mul(mocLibConfig.mocPrecision);
+
+    // If Protected Mode is reached and below threshold
+    if (bucket == BUCKET_C0 && cov <= getProtected() && cov < coverageThreshold) {
+      return 0; // wei
+    }
+
+    return bucketBProTecPriceHelper(bucket);
+  }
+
+  /**
+  * @dev BUCKET BTC price of BPro (helper)
+  * @param bucket Name of the bucket used
+  * @return the BPro Tec Price [using reservePrecision]
+  */
+  function bucketBProTecPriceHelper(bytes32 bucket) public view returns(uint256) {
     uint256 nBPro = bproxManager.getBucketNBPro(bucket);
     uint256 lb = lockedBitcoin(bucket);
     uint256 nB = bproxManager.getBucketNBTC(bucket);

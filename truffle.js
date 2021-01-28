@@ -78,6 +78,6 @@ module.exports = {
   },
   mocha: {
     useColors: true,
-    bail: true
+    bail: false
   }
 };

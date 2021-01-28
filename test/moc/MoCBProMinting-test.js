@@ -304,4 +304,22 @@ contract('MoC: MoCExchange', function([owner, userAccount]) {
       });
     });
   });
+
+  describe('BPro tec price', function() {
+    describe('GIVEN the user have 18 BPro and 80000 DOCs and Bitcoin price falls to 2000 and liquidation is not enabled', function() {
+      beforeEach(async function() {
+        await mocHelper.mintBProAmount(userAccount, 18);
+        await mocHelper.mintDocAmount(userAccount, 80000);
+        // Move price to change BProx price and make it different
+        // from BPro price
+        const btcPrice = toContractBN(2000 * mocHelper.MOC_PRECISION);
+        await mocHelper.setBitcoinPrice(btcPrice);
+      });
+      it('THEN the BProx price in RBTC should be 0 RBTC', async function() {
+        const bproTecPrice = await this.mocState.bproTecPrice();
+
+        mocHelper.assertBigRBTC(bproTecPrice, 0, 'BPro tec price price is incorrect');
+      });
+    });
+  });
 });

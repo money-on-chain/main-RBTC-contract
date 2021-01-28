@@ -77,6 +77,9 @@ const baseParams = {
   docPower: toContract(1),
   mocProportion: toContract(0.01 * 10 ** 18), // mocPrecision
 
+  liquidationEnabled: false,
+  _protected: toContract(1.5 * 10 ** 18), // mocPrecision
+
   startStoppable: true
 };
 
@@ -116,7 +119,9 @@ const createContracts = params => async ({ owner, useMock }) => {
     docTmax,
     docPower,
     startStoppable,
-    mocProportion = baseParams.mocProportion
+    mocProportion = baseParams.mocProportion,
+    liquidationEnabled,
+    _protected
   } = params;
 
   const settlementContract = useMock ? MoCSettlementMock : MoCSettlement;
@@ -170,6 +175,8 @@ const createContracts = params => async ({ owner, useMock }) => {
     smoothingFactor,
     emaBlockSpan,
     maxMintBPro,
+    liquidationEnabled,
+    _protected,
     { from: owner }
   );
   const mockMocInrateChanger = await MocInrateChanger.new(
@@ -236,7 +243,9 @@ const createContracts = params => async ({ owner, useMock }) => {
     btcPrice,
     smoothingFactor,
     emaBlockSpan,
-    maxMintBPro
+    maxMintBPro,
+    liquidationEnabled,
+    _protected
   );
   await mocInrate.initialize(
     mocConnector.address,
