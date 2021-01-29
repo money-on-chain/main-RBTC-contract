@@ -9,7 +9,6 @@ import "./MoCState.sol";
 import "./MoCConverter.sol";
 import "./MoCSettlement.sol";
 import "./MoCExchange.sol";
-import "./MoCBurnout.sol";
 import "./base/MoCBase.sol";
 import "moc-governance/contracts/Stopper/Stoppable.sol";
 import "moc-governance/contracts/Governance/IGovernor.sol";
@@ -33,7 +32,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
   MoCInrate internal mocInrate;
   /** DEPRECATED **/
   // solium-disable-next-line mixedcase
-  MoCBurnout public DEPRECATED_mocBurnout;
+  address public DEPRECATED_mocBurnout;
 
   // Indicates if Rbtc remainder was sent and
   // BProToken was paused
@@ -354,7 +353,6 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
     mocConverter = MoCConverter(connector.mocConverter());
     mocExchange = MoCExchange(connector.mocExchange());
     mocInrate = MoCInrate(connector.mocInrate());
-    DEPRECATED_mocBurnout = MoCBurnout(connector.mocBurnout());
   }
 
   function initializeGovernanceContracts(address stopperAddress, address governorAddress, bool startStoppable) internal {
