@@ -11,9 +11,9 @@ contract MoCBurnoutEvents {
   event BurnoutExecuted(uint256 addressCount);
   event BurnoutAddressProcessed(address indexed account, address burnoutAddress, uint256 btcAmount);
 }
-  /*************************************************/
-  /*****   THIS CONTRACT IS DEPRECATED   ***********/
-  /*************************************************/
+/*****************************************************/
+/*****   THIS CONTRACT IS DEPRECATED SINCE V0110 *****/
+/*****************************************************/
 /**
  * @title Burnout Queue for liquidation event
  * @dev Track all Burnout addresses that will be used in liquidation event. When liquidation happens

@@ -360,15 +360,18 @@ contract('MoC', function([owner, userAccount, attacker, vendorAccount, ...accoun
   describe('Coverage below protection mode', function() {
     describe(`GIVEN a user owns 1000 Docs, BTC price is 2000 USD, there is 1 BTC in Bucket 0 AND blockSpan is ${blockSpan}`, function() {
       const from = userAccount;
+      const docAmount = 0.25;
+      const lowPrice = 2000;
+      const normalPrice = 10000;
       beforeEach(async function() {
         await this.moc.sendTransaction({
           value: 1 * mocHelper.RESERVE_PRECISION
         });
-        await mocHelper.mintDoc(from, 0.25, vendorAccount);
+        await mocHelper.mintDoc(from, docAmount, vendorAccount);
         // Enabling Settlement
         await mocHelper.mockMoCSettlementChanger.setBlockSpan(1);
         await mocHelper.governor.executeChange(mocHelper.mockMoCSettlementChanger.address);
-        await mocHelper.setBitcoinPrice(2000 * mocHelper.MOC_PRECISION);
+        await mocHelper.setBitcoinPrice(lowPrice * mocHelper.MOC_PRECISION);
       });
       describe('WHEN a settlement is run', function() {
         beforeEach(async function() {
@@ -380,6 +383,16 @@ contract('MoC', function([owner, userAccount, attacker, vendorAccount, ...accoun
             docRedemptionStepCount,
             0,
             'docRedemptionStepCount Should be 0'
+          );
+        });
+        it(`THEN if BTC price is back to ${normalPrice}, docRedemptionStepCount should be ${docAmount}`, async function() {
+          await mocHelper.setBitcoinPrice(normalPrice * mocHelper.MOC_PRECISION);
+
+          const docRedemptionStepCountNormal = await this.mocSettlement.docRedemptionStepCountForTest();
+          await mocHelper.assertBig(
+            docRedemptionStepCountNormal,
+            docAmount,
+            'docRedemptionStepCount Should be greater than 0'
           );
         });
       });
