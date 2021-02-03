@@ -7,7 +7,7 @@ import "./MoCWhitelist.sol";
 /**
   @dev Provides access control between all MoC Contracts
  */
-contract MoCConnector is MoCWhitelist, Initializable {
+contract MoCConnector_v019 is MoCWhitelist, Initializable {
   // References
   address payable public moc;
   address public docToken;
