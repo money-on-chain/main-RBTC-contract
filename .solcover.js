@@ -11,5 +11,8 @@ module.exports = {
         'changers/productive',
         'test-contracts',
         'PartialExecution.sol'
-    ]
+    ],
+    mocha: {
+        enableTimeouts: false
+    }
 }
