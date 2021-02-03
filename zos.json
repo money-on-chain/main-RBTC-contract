@@ -6,7 +6,6 @@
     "MoC": "MoC",
     "MoCConnector": "MoCConnector",
     "MoCBProxManager": "MoCBProxManager",
-    "MoCBurnout": "MoCBurnout",
     "MoCSettlement": "MoCSettlementMock",
     "MoCConverter": "MoCConverter",
     "MoCState": "MoCStateMock",
