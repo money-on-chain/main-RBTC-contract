@@ -19,7 +19,7 @@ contract MoCBurnoutEvents {
  * @dev Track all Burnout addresses that will be used in liquidation event. When liquidation happens
  * all Docs of the holders in the queue will be sent to the corresponding burnout address.
  */
-contract MoCBurnout is MoCBase, MoCBurnoutEvents, PartialExecution {
+contract MoCBurnout_v019 is MoCBase, MoCBurnoutEvents, PartialExecution {
   using SafeMath for uint256;
 
   // Contracts
