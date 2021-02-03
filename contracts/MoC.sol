@@ -70,33 +70,33 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
 
   /****************************INTERFACE*******************************************/
 
-  function bproxBalanceOf(bytes32 bucket, address account) public view returns(uint256) {
-    return bproxManager.bproxBalanceOf(bucket, account);
-  }
+  // function bproxBalanceOf(bytes32 bucket, address account) public view returns(uint256) {
+  //   return bproxManager.bproxBalanceOf(bucket, account);
+  // }
 
   /**
     @dev Gets the RedeemRequest at the queue index position
     @param index queue position to get
     @return redeemer's address and amount he submitted
   */
-  function getRedeemRequestAt(uint256 index) public view returns(address, uint256) {
-    return settlement.getRedeemRequestAt(index);
-  }
+  // function getRedeemRequestAt(uint256 index) public view returns(address, uint256) {
+  //   return settlement.getRedeemRequestAt(index);
+  // }
 
   /**
     @dev returns current redeem queue size
    */
-  function redeemQueueSize() public view returns(uint256) {
-    return settlement.redeemQueueSize();
-  }
+  // function redeemQueueSize() public view returns(uint256) {
+  //   return settlement.redeemQueueSize();
+  // }
 
   /**
     @dev returns the total amount of Docs in the redeem queue for redeemer
     @param redeemer address for which ^ is computed
    */
-  function docAmountToRedeem(address redeemer) public view returns(uint256) {
-    return settlement.docAmountToRedeem(redeemer);
-  }
+  // function docAmountToRedeem(address redeemer) public view returns(uint256) {
+  //   return settlement.docAmountToRedeem(redeemer);
+  // }
 
 
   /**
@@ -119,9 +119,19 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
   /**
     @dev Mints BPRO and pays the comissions of the operation.
     @param btcToMint Amount in BTC to mint
+   */
+  function mintBPro(uint256 btcToMint)
+  public payable
+  whenNotPaused() transitionState() notInProtectionMode() {
+    mintBProVendors(btcToMint, address(0));
+  }
+
+  /**
+    @dev Mints BPRO and pays the comissions of the operation.
+    @param btcToMint Amount in BTC to mint
     @param vendorAccount Vendor address
    */
-  function mintBPro(uint256 btcToMint, address vendorAccount)
+  function mintBProVendors(uint256 btcToMint, address vendorAccount)
   public payable
   whenNotPaused() transitionState() notInProtectionMode() {
     /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
@@ -147,9 +157,19 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
   /**
    * @dev Redeems Bpro Tokens and pays the comissions of the operation
      @param bproAmount Amount in Bpro
+   */
+  function redeemBPro(uint256 bproAmount)
+  public
+  whenNotPaused() transitionState() atLeastState(MoCState.States.AboveCobj) {
+    redeemBProVendors(bproAmount, address(0));
+  }
+
+  /**
+   * @dev Redeems Bpro Tokens and pays the comissions of the operation
+     @param bproAmount Amount in Bpro
      @param vendorAccount Vendor address
    */
-  function redeemBPro(uint256 bproAmount, address vendorAccount)
+  function redeemBProVendors(uint256 bproAmount, address vendorAccount)
   public
   whenNotPaused() transitionState() atLeastState(MoCState.States.AboveCobj) {
     /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
@@ -168,9 +188,19 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
   /**
    * @dev Mint Doc tokens and pays the commisions of the operation
    * @param btcToMint Amount in RBTC to mint
+   */
+  function mintDoc(uint256 btcToMint)
+  public payable
+  whenNotPaused() transitionState() atLeastState(MoCState.States.AboveCobj) {
+    mintDocVendors(btcToMint, address(0));
+  }
+
+  /**
+   * @dev Mint Doc tokens and pays the commisions of the operation
+   * @param btcToMint Amount in RBTC to mint
    * @param vendorAccount Vendor address
    */
-  function mintDoc(uint256 btcToMint, address vendorAccount)
+  function mintDocVendors(uint256 btcToMint, address vendorAccount)
   public payable
   whenNotPaused() transitionState() atLeastState(MoCState.States.AboveCobj) {
     /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
@@ -197,9 +227,20 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
      @dev Redeems Bprox Tokens and pays the comissions of the operation in RBTC
      @param bucket Bucket to reedem, for example X2
      @param bproxAmount Amount in Bprox
+   */
+  function redeemBProx(bytes32 bucket, uint256 bproxAmount) public
+  whenNotPaused() whenSettlementReady() availableBucket(bucket) notBaseBucket(bucket)
+  transitionState() bucketStateTransition(bucket) {
+    redeemBProxVendors(bucket, bproxAmount, address(0));
+  }
+
+  /**
+     @dev Redeems Bprox Tokens and pays the comissions of the operation in RBTC
+     @param bucket Bucket to reedem, for example X2
+     @param bproxAmount Amount in Bprox
      @param vendorAccount Vendor address
    */
-  function redeemBProx(bytes32 bucket, uint256 bproxAmount, address vendorAccount) public
+  function redeemBProxVendors(bytes32 bucket, uint256 bproxAmount, address vendorAccount) public
   whenNotPaused() whenSettlementReady() availableBucket(bucket) notBaseBucket(bucket)
   transitionState() bucketStateTransition(bucket) {
     /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
@@ -219,9 +260,20 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
   * @dev BUCKET bprox minting
   * @param bucket Name of the bucket used
   * @param btcToMint amount to mint on RBTC
+  **/
+  function mintBProx(bytes32 bucket, uint256 btcToMint) public payable
+  whenNotPaused() whenSettlementReady() availableBucket(bucket) notBaseBucket(bucket)
+  transitionState() bucketStateTransition(bucket) {
+    mintBProxVendors(bucket, btcToMint, address(0));
+  }
+
+  /**
+  * @dev BUCKET bprox minting
+  * @param bucket Name of the bucket used
+  * @param btcToMint amount to mint on RBTC
   * @param vendorAccount Vendor address
   **/
-  function mintBProx(bytes32 bucket, uint256 btcToMint, address vendorAccount) public payable
+  function mintBProxVendors(bytes32 bucket, uint256 btcToMint, address vendorAccount) public payable
   whenNotPaused() whenSettlementReady() availableBucket(bucket) notBaseBucket(bucket)
   transitionState() bucketStateTransition(bucket) {
     /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
@@ -247,9 +299,19 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
   /**
   * @dev Redeems the requested amount for the msg.sender, or the max amount of free docs possible.
   * @param docAmount Amount of Docs to redeem.
+  */
+  function redeemFreeDoc(uint256 docAmount)
+  public
+  whenNotPaused() transitionState() notInProtectionMode() {
+    redeemFreeDocVendors(docAmount, address(0));
+  }
+
+  /**
+  * @dev Redeems the requested amount for the msg.sender, or the max amount of free docs possible.
+  * @param docAmount Amount of Docs to redeem.
   * @param vendorAccount Vendor address
   */
-  function redeemFreeDoc(uint256 docAmount, address vendorAccount)
+  function redeemFreeDocVendors(uint256 docAmount, address vendorAccount)
   public
   whenNotPaused() transitionState() notInProtectionMode() {
     /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
@@ -291,40 +353,40 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
     }
   }
 
-  /**
-  * @dev Calculates BitPro holders holder interest by taking the total amount of RBCs available on Bucket 0.
-  * BitPro interests = Nb (bucket 0) * bitProRate.
-  */
-  function calculateBitProHoldersInterest() public view returns(uint256, uint256) {
-    return mocInrate.calculateBitProHoldersInterest();
-  }
+  // /**
+  // * @dev Calculates BitPro holders holder interest by taking the total amount of RBCs available on Bucket 0.
+  // * BitPro interests = Nb (bucket 0) * bitProRate.
+  // */
+  // function calculateBitProHoldersInterest() public view returns(uint256, uint256) {
+  //   return mocInrate.calculateBitProHoldersInterest();
+  // }
 
-  function getBitProInterestAddress() public view returns(address payable) {
-    return mocInrate.getBitProInterestAddress();
-  }
+  // function getBitProInterestAddress() public view returns(address payable) {
+  //   return mocInrate.getBitProInterestAddress();
+  // }
 
-  function getBitProRate() public view returns(uint256) {
-    return mocInrate.getBitProRate();
-  }
+  // function getBitProRate() public view returns(uint256) {
+  //   return mocInrate.getBitProRate();
+  // }
 
-  function getBitProInterestBlockSpan() public view returns(uint256) {
-    return mocInrate.getBitProInterestBlockSpan();
-  }
+  // function getBitProInterestBlockSpan() public view returns(uint256) {
+  //   return mocInrate.getBitProInterestBlockSpan();
+  // }
 
-  function isDailyEnabled() public view returns(bool) {
-    return mocInrate.isDailyEnabled();
-  }
+  // function isDailyEnabled() public view returns(bool) {
+  //   return mocInrate.isDailyEnabled();
+  // }
 
-  function isBitProInterestEnabled() public view returns(bool) {
-    return mocInrate.isBitProInterestEnabled();
-  }
+  // function isBitProInterestEnabled() public view returns(bool) {
+  //   return mocInrate.isBitProInterestEnabled();
+  // }
 
   /**
     @dev Returns true if blockSpan number of blocks has pass since last execution
   */
-  function isSettlementEnabled() public view returns(bool) {
-    return settlement.isSettlementEnabled();
-  }
+  // function isSettlementEnabled() public view returns(bool) {
+  //   return settlement.isSettlementEnabled();
+  // }
 
   /**
    * @dev Checks if bucket liquidation is reached.
