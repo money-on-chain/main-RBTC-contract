@@ -19,6 +19,8 @@ const { BN, isBN } = web3.utils;
 
 chai.use(require('chai-bn')(BN)).should();
 
+const zeroAddress = '0x0000000000000000000000000000000000000000';
+
 const comissionsTxType = {
   MINT_BPRO_FEES_RBTC: new BN(1),
   REDEEM_BPRO_FEES_RBTC: new BN(2),
@@ -89,26 +91,33 @@ const approveMoCToken = mocToken => async (anotherAccount, amount, owner) => {
   await mocToken.approve(anotherAccount, web3.utils.toWei(amount.toString()), { from: owner });
 };
 
-const mintBPro = moc => async (from, reserveAmount, vendorAccount, applyPrecision = true) => {
+const mintBPro = moc => async (from, reserveAmount, vendorAccount = zeroAddress, applyPrecision = true) => {
   const reservePrecision = await moc.getReservePrecision();
 
   const reserveAmountToMint = applyPrecision
     ? toContract(reserveAmount * reservePrecision)
     : toContract(reserveAmount);
 
-  return moc.mintBPro(reserveAmountToMint, vendorAccount, {
+  return vendorAccount !== zeroAddress ?
+  moc.mintBProVendors(reserveAmountToMint, vendorAccount, {
     from,
     value: reserveAmountToMint
-  });
+  }) :
+  moc.mintBPro(reserveAmountToMint, {from, value: reserveAmountToMint});
 };
 
-const mintDoc = moc => async (from, reserveAmount, vendorAccount) => {
+const mintDoc = moc => async (from, reserveAmount, vendorAccount = zeroAddress) => {
   const reservePrecision = await moc.getReservePrecision();
   const reserveAmountWithReservePrecision = toContract(reserveAmount * reservePrecision);
-  return moc.mintDoc(reserveAmountWithReservePrecision, vendorAccount, {
-    from,
-    value: reserveAmountWithReservePrecision
-  });
+  return vendorAccount !== zeroAddress ?
+      moc.mintDocVendors(reserveAmountWithReservePrecision, vendorAccount, {
+        from,
+        value: reserveAmountWithReservePrecision
+      })
+      : moc.mintDoc(reserveAmountWithReservePrecision, {
+        from,
+        value: reserveAmountWithReservePrecision
+      });
 };
 
 const mintBProx = moc => async (from, vendorAccount, bucket, btcToMint, btcValue) => {
@@ -156,8 +165,13 @@ const mintBProAmount = (moc, mocState, mocInrate, mocVendors) => async (
   const commissionRbtcAmount =
     commissionRate > 0 ? btcTotal.mul(commissionRate).div(mocPrecision) : 0;
 
-  const vendor = await mocVendors.vendors(vendorAccount);
-  const { markup } = vendor;
+  let markup;
+  if(vendorAccount === zeroAddress) {
+    markup = 0;
+  } else {
+    const vendor = await mocVendors.vendors(vendorAccount);
+    markup = vendor.markup;
+  }
   const markupRbtcAmount = markup > 0 ? btcTotal.mul(markup).div(mocPrecision) : 0;
 
   const value = toContract(
@@ -247,9 +261,11 @@ const mintBProxAmount = (moc, mocState, mocInrate, mocVendors) => async (
   return moc.mintBProx(bucket, btcTotal, vendorAccount, { from: account, value });
 };
 
-const redeemBPro = moc => async (from, amount, vendorAccount) => {
+const redeemBPro = moc => async (from, amount, vendorAccount = zeroAddress) => {
   const reservePrecision = await moc.getReservePrecision();
-  return moc.redeemBPro(toContract(amount * reservePrecision), vendorAccount, { from });
+  return vendorAccount !== zeroAddress ?
+        moc.redeemBProVendors(toContract(amount * reservePrecision), vendorAccount, { from })
+      : moc.redeemBPro(toContract(amount * reservePrecision), {from});
 };
 
 const getDoCBalance = docToken => async address => docToken.balanceOf(address);

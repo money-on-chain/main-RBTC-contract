@@ -70,33 +70,33 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
 
   /****************************INTERFACE*******************************************/
 
-  // function bproxBalanceOf(bytes32 bucket, address account) public view returns(uint256) {
-  //   return bproxManager.bproxBalanceOf(bucket, account);
-  // }
+  function bproxBalanceOf(bytes32 bucket, address account) public view returns(uint256) {
+    return bproxManager.bproxBalanceOf(bucket, account);
+  }
 
   /**
     @dev Gets the RedeemRequest at the queue index position
     @param index queue position to get
     @return redeemer's address and amount he submitted
   */
-  // function getRedeemRequestAt(uint256 index) public view returns(address, uint256) {
-  //   return settlement.getRedeemRequestAt(index);
-  // }
+  function getRedeemRequestAt(uint256 index) public view returns(address, uint256) {
+    return settlement.getRedeemRequestAt(index);
+  }
 
   /**
     @dev returns current redeem queue size
    */
-  // function redeemQueueSize() public view returns(uint256) {
-  //   return settlement.redeemQueueSize();
-  // }
+  function redeemQueueSize() public view returns(uint256) {
+    return settlement.redeemQueueSize();
+  }
 
   /**
     @dev returns the total amount of Docs in the redeem queue for redeemer
     @param redeemer address for which ^ is computed
    */
-  // function docAmountToRedeem(address redeemer) public view returns(uint256) {
-  //   return settlement.docAmountToRedeem(redeemer);
-  // }
+  function docAmountToRedeem(address redeemer) public view returns(uint256) {
+    return settlement.docAmountToRedeem(redeemer);
+  }
 
 
   /**
@@ -121,8 +121,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
     @param btcToMint Amount in BTC to mint
    */
   function mintBPro(uint256 btcToMint)
-  public payable
-  whenNotPaused() transitionState() notInProtectionMode() {
+  public payable {
     mintBProVendors(btcToMint, address(0));
   }
 
@@ -159,8 +158,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
      @param bproAmount Amount in Bpro
    */
   function redeemBPro(uint256 bproAmount)
-  public
-  whenNotPaused() transitionState() atLeastState(MoCState.States.AboveCobj) {
+  public {
     redeemBProVendors(bproAmount, address(0));
   }
 
@@ -190,8 +188,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
    * @param btcToMint Amount in RBTC to mint
    */
   function mintDoc(uint256 btcToMint)
-  public payable
-  whenNotPaused() transitionState() atLeastState(MoCState.States.AboveCobj) {
+  public payable {
     mintDocVendors(btcToMint, address(0));
   }
 
@@ -228,9 +225,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
      @param bucket Bucket to reedem, for example X2
      @param bproxAmount Amount in Bprox
    */
-  function redeemBProx(bytes32 bucket, uint256 bproxAmount) public
-  whenNotPaused() whenSettlementReady() availableBucket(bucket) notBaseBucket(bucket)
-  transitionState() bucketStateTransition(bucket) {
+  function redeemBProx(bytes32 bucket, uint256 bproxAmount) public {
     redeemBProxVendors(bucket, bproxAmount, address(0));
   }
 
@@ -261,9 +256,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
   * @param bucket Name of the bucket used
   * @param btcToMint amount to mint on RBTC
   **/
-  function mintBProx(bytes32 bucket, uint256 btcToMint) public payable
-  whenNotPaused() whenSettlementReady() availableBucket(bucket) notBaseBucket(bucket)
-  transitionState() bucketStateTransition(bucket) {
+  function mintBProx(bytes32 bucket, uint256 btcToMint) public payable {
     mintBProxVendors(bucket, btcToMint, address(0));
   }
 
@@ -301,8 +294,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
   * @param docAmount Amount of Docs to redeem.
   */
   function redeemFreeDoc(uint256 docAmount)
-  public
-  whenNotPaused() transitionState() notInProtectionMode() {
+  public {
     redeemFreeDocVendors(docAmount, address(0));
   }
 
@@ -353,40 +345,40 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
     }
   }
 
-  // /**
-  // * @dev Calculates BitPro holders holder interest by taking the total amount of RBCs available on Bucket 0.
-  // * BitPro interests = Nb (bucket 0) * bitProRate.
-  // */
-  // function calculateBitProHoldersInterest() public view returns(uint256, uint256) {
-  //   return mocInrate.calculateBitProHoldersInterest();
-  // }
+  /**
+  * @dev Calculates BitPro holders holder interest by taking the total amount of RBCs available on Bucket 0.
+  * BitPro interests = Nb (bucket 0) * bitProRate.
+  */
+  function calculateBitProHoldersInterest() public view returns(uint256, uint256) {
+    return mocInrate.calculateBitProHoldersInterest();
+  }
 
-  // function getBitProInterestAddress() public view returns(address payable) {
-  //   return mocInrate.getBitProInterestAddress();
-  // }
+  function getBitProInterestAddress() public view returns(address payable) {
+    return mocInrate.getBitProInterestAddress();
+  }
 
-  // function getBitProRate() public view returns(uint256) {
-  //   return mocInrate.getBitProRate();
-  // }
+  function getBitProRate() public view returns(uint256) {
+    return mocInrate.getBitProRate();
+  }
 
-  // function getBitProInterestBlockSpan() public view returns(uint256) {
-  //   return mocInrate.getBitProInterestBlockSpan();
-  // }
+  function getBitProInterestBlockSpan() public view returns(uint256) {
+    return mocInrate.getBitProInterestBlockSpan();
+  }
 
-  // function isDailyEnabled() public view returns(bool) {
-  //   return mocInrate.isDailyEnabled();
-  // }
+  function isDailyEnabled() public view returns(bool) {
+    return mocInrate.isDailyEnabled();
+  }
 
-  // function isBitProInterestEnabled() public view returns(bool) {
-  //   return mocInrate.isBitProInterestEnabled();
-  // }
+  function isBitProInterestEnabled() public view returns(bool) {
+    return mocInrate.isBitProInterestEnabled();
+  }
 
   /**
     @dev Returns true if blockSpan number of blocks has pass since last execution
   */
-  // function isSettlementEnabled() public view returns(bool) {
-  //   return settlement.isSettlementEnabled();
-  // }
+  function isSettlementEnabled() public view returns(bool) {
+    return settlement.isSettlementEnabled();
+  }
 
   /**
    * @dev Checks if bucket liquidation is reached.
