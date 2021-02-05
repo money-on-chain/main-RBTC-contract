@@ -65,7 +65,7 @@ contract('MoC: Bucket Liquidation', function([owner, userAccount, otherAccount, 
     });
     describe('WHEN user tries to redeem his X2 position', function() {
       beforeEach(async function() {
-        tx = await this.moc.redeemBProx(BUCKET_X2, 1, vendorAccount, { from: userAccount });
+        tx = await mocHelper.redeemBProx(userAccount, BUCKET_X2, 1, vendorAccount);
       });
       it('AND BucketLiquidation event should be emitted', async function() {
         const bucketLiqEvents = mocHelper.findEvents(tx, 'BucketLiquidation');

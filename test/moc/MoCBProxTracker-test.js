@@ -59,13 +59,11 @@ contract('MoCBProxManager: BProx Address tracking ', function([
       });
       describe('WHEN account 1 liquidates his entire position', function() {
         beforeEach(async function() {
-          await this.moc.redeemBProx(
+          await mocHelper.redeemBProx(
+            account1,
             BUCKET_X2,
             toContractBN(1 * mocHelper.RESERVE_PRECISION),
-            vendorAccount,
-            {
-              from: account1
-            }
+            vendorAccount
           );
         });
         it('THEN tracker shrinks', async function() {
@@ -95,11 +93,7 @@ contract('MoCBProxManager: BProx Address tracking ', function([
       });
       describe('WHEN account 1 partially liquidates his position', function() {
         it('THEN tracker remains the same', async function() {
-          await this.moc.redeemBProx(
-            BUCKET_X2,
-            toContractBN(0.5 * mocHelper.RESERVE_PRECISION),
-            vendorAccount
-          );
+          await mocHelper.redeemBProx(account1, BUCKET_X2, 0.5, vendorAccount);
           const activeAddress = await this.bprox.getActiveAddresses(BUCKET_X2);
           const activeAddressLength = await this.bprox.getActiveAddressesCount(BUCKET_X2);
           assert.equal(activeAddressLength, 2, 'length should be unchanged');

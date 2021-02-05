@@ -55,13 +55,11 @@ contract('MoC : BTCx operations does not modify global indicators', function([
       [1, 3, 5].forEach(redValue => {
         describe(`AND user redeems ${redValue}`, function() {
           beforeEach(async function() {
-            await this.moc.redeemBProx(
+            await mocHelper.redeemBProx(
+              userAccount,
               BUCKET_X2,
               toContractBN(redValue * mocHelper.RESERVE_PRECISION),
-              vendorAccount,
-              {
-                from: userAccount
-              }
+              vendorAccount
             );
           });
           it('THEN global indicators should not change', async function() {

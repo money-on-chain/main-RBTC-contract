@@ -136,9 +136,12 @@ contract('MoC: RedeemBProx', function([owner, vendorAccount, ...accounts]) {
                 await mocHelper.setBitcoinPrice(user.btcPrice * mocHelper.MOC_PRECISION);
               }
 
-              await this.moc.redeemBProx(BUCKET_X2, userBProxBalance, vendorAccount, {
-                from: accounts[index + 1]
-              });
+              await mocHelper.redeemBProx(
+                accounts[index + 1],
+                BUCKET_X2,
+                userBProxBalance,
+                vendorAccount
+              );
 
               if (index === s.users.length - 1) resolve();
             });

@@ -5,15 +5,10 @@ const { BN } = web3.utils;
 let mocHelper;
 let BUCKET_X2;
 
-contract('MoC: Retrocompatibility', function([
-  owner,
-  userAccount,
-  commissionsAccount,
-  otherAddress
-]) {
+contract('MoC: Retrocompatibility', function([owner, userAccount]) {
   before(async function() {
     mocHelper = await testHelperBuilder({ owner });
-    ({ toContractBN, BUCKET_X2 } = mocHelper);
+    ({ BUCKET_X2 } = mocHelper);
     this.moc = mocHelper.moc;
     this.mockMocInrateChanger = mocHelper.mockMocInrateChanger;
     this.governor = mocHelper.governor;

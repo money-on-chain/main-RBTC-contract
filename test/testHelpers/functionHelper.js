@@ -203,7 +203,7 @@ const mintBProAmount = (moc, mocState, mocInrate, mocVendors) => async (
     new BigNumber(btcTotal).plus(commissionRbtcAmount).plus(markupRbtcAmount)
   );
 
-  return moc.mintBPro(toContract(btcTotal), vendorAccount, { from: account, value });
+  return moc.mintBProVendors(toContract(btcTotal), vendorAccount, { from: account, value });
 };
 
 const mintDocAmount = (moc, btcPriceProvider, mocInrate, mocVendors) => async (
@@ -244,7 +244,7 @@ const mintDocAmount = (moc, btcPriceProvider, mocInrate, mocVendors) => async (
 
   const value = toContract(btcTotal.plus(commissionRbtcAmount).plus(markupRbtcAmount));
 
-  return moc.mintDoc(toContract(btcTotal), vendorAccount, { from: account, value });
+  return moc.mintDocVendors(toContract(btcTotal), vendorAccount, { from: account, value });
 };
 
 const mintBProxAmount = (moc, mocState, mocInrate, mocVendors) => async (
@@ -283,7 +283,7 @@ const mintBProxAmount = (moc, mocState, mocInrate, mocVendors) => async (
     .add(btcTotal)
     .add(btcTotal);
 
-  return moc.mintBProx(bucket, btcTotal, vendorAccount, { from: account, value });
+  return moc.mintBProxVendors(bucket, btcTotal, vendorAccount, { from: account, value });
 };
 
 const redeemBPro = moc => async (from, amount, vendorAccount = zeroAddress) => {

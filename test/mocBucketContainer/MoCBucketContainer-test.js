@@ -56,7 +56,8 @@ contract('MoCBucketContainer', function([owner, account2, vendorAccount]) {
       });
       it('THEN redeemBProx must revert', async function() {
         await expectRevert(
-          this.moc.redeemBProx(
+          mocHelper.redeemBProx(
+            account2,
             bucketC0,
             toContractBN(0.5 * mocHelper.RESERVE_PRECISION),
             vendorAccount
@@ -77,7 +78,8 @@ contract('MoCBucketContainer', function([owner, account2, vendorAccount]) {
       });
       it('THEN redeemBProx must revert', async function() {
         await expectRevert(
-          this.moc.redeemBProx(
+          mocHelper.redeemBProx(
+            account2,
             bucketH8,
             toContractBN(0.5 * mocHelper.RESERVE_PRECISION),
             vendorAccount

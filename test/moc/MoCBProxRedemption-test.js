@@ -157,9 +157,22 @@ contract('MoC : MoCExchange', function([owner, userAccount, vendorAccount]) {
           ({ params } = await mocHelper.getContractReadyState(s));
           await mocHelper.setBitcoinPrice(params.btcPrice);
 
-          tx = await this.moc.redeemBProx(BUCKET_X2, toContractBN(params.nBProx), vendorAccount, {
-            from: userAccount
-          });
+          // TODO: This function should be called via the mocHelper and not directly.
+          // We need to understand why the precision is not helping.
+          // tx = await mocHelper.redeemBProx(
+          //   userAccount,
+          //   BUCKET_X2,
+          //   toContractBN(params.nBProx),
+          //   vendorAccount
+          // );
+          tx = await this.moc.redeemBProxVendors(
+            BUCKET_X2,
+            toContractBN(params.nBProx),
+            vendorAccount,
+            {
+              from: userAccount
+            }
+          );
 
           finalRbtcBalance = toContractBN(await web3.eth.getBalance(userAccount));
           txCost = await mocHelper.getTxCost(tx);
