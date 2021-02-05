@@ -41,7 +41,7 @@ contract('MoC : MoCExchange', function([owner, userAccount, vendorAccount]) {
             true
           );
 
-          const mintTx = await mocHelper.mintBProx(userAccount, vendorAccount, BUCKET_X2, 5);
+          const mintTx = await mocHelper.mintBProx(userAccount, BUCKET_X2, 5, vendorAccount);
           [mintEvent] = mocHelper.findEvents(mintTx, 'RiskProxMint');
         });
         it('THEN the interest taken includes all days to settlement', function() {

@@ -35,7 +35,7 @@ contract('MoCBProxManager: BProx Address tracking ', function([
     beforeEach(async function() {
       await mocHelper.mintBProAmount(owner, 30, vendorAccount);
       await mocHelper.mintDocAmount(owner, 50000, vendorAccount);
-      await mocHelper.mintBProx(account1, vendorAccount, BUCKET_X2, 1);
+      await mocHelper.mintBProx(account1, BUCKET_X2, 1, vendorAccount);
     });
     it('THEN he enters the address tracker', async function() {
       const activeAddress = await this.bprox.getActiveAddresses(BUCKET_X2);
@@ -49,7 +49,7 @@ contract('MoCBProxManager: BProx Address tracking ', function([
     });
     describe('AND another account also mints', function() {
       beforeEach(async function() {
-        await mocHelper.mintBProx(account2, vendorAccount, BUCKET_X2, 1);
+        await mocHelper.mintBProx(account2, BUCKET_X2, 1, vendorAccount);
       });
       it('THEN both get tracked', async function() {
         const activeAddress = await this.bprox.getActiveAddresses(BUCKET_X2);
@@ -76,7 +76,7 @@ contract('MoCBProxManager: BProx Address tracking ', function([
         });
         describe('AND a third user mints', function() {
           it('THEN tracker length is two and third user is tracked', async function() {
-            await mocHelper.mintBProx(account3, vendorAccount, BUCKET_X2, 1);
+            await mocHelper.mintBProx(account3, BUCKET_X2, 1, vendorAccount);
             const activeAddress = await this.bprox.getActiveAddresses(BUCKET_X2);
             const activeAddressLength = await this.bprox.getActiveAddressesCount(BUCKET_X2);
             assert.equal(activeAddressLength, 2, 'length should be two');
@@ -85,7 +85,7 @@ contract('MoCBProxManager: BProx Address tracking ', function([
         });
         describe('AND account1 mints again', function() {
           it('THEN tracker length is two and owner is last', async function() {
-            await mocHelper.mintBProx(account1, vendorAccount, BUCKET_X2, 1);
+            await mocHelper.mintBProx(account1, BUCKET_X2, 1, vendorAccount);
             const activeAddress = await this.bprox.getActiveAddresses(BUCKET_X2);
             const activeAddressLength = await this.bprox.getActiveAddressesCount(BUCKET_X2);
             assert.equal(activeAddressLength, 2, 'length should be two');

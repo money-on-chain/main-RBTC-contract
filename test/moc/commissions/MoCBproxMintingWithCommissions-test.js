@@ -271,7 +271,7 @@ contract('MoC : MoCExchange', function([
             await mocHelper.mocInrate.MINT_BPRO_FEES_RBTC()
           );
           await mocHelper.mintDoc(userAccount, 1000, vendorAccount);
-          const mint = mocHelper.mintBProx(userAccount, vendorAccount, BUCKET_X2, 8, 8);
+          const mint = mocHelper.mintBProx(userAccount, BUCKET_X2, 8, vendorAccount, 8);
           await expectRevert(mint, 'amount is not enough');
         });
       });
@@ -286,7 +286,7 @@ contract('MoC : MoCExchange', function([
             await mocHelper.mocInrate.MINT_BPRO_FEES_RBTC()
           );
           await mocHelper.mintDoc(userAccount, 1000, vendorAccount);
-          const mint = mocHelper.mintBProx(userAccount, vendorAccount, BUCKET_X2, 8, 8);
+          const mint = mocHelper.mintBProx(userAccount, BUCKET_X2, 8, vendorAccount, 8);
           await expectRevert(mint, 'amount is not enough');
         });
       });

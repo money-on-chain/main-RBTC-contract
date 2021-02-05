@@ -118,7 +118,7 @@ contract('MoC: RedeemBProx', function([owner, vendorAccount, ...accounts]) {
 
             await mocHelper.mintBProAmount(account, user.nBPro, vendorAccount);
             await mocHelper.mintDocAmount(account, user.nDoc, vendorAccount);
-            await mocHelper.mintBProx(account, vendorAccount, BUCKET_X2, user.bproxMint.nB);
+            await mocHelper.mintBProx(account, BUCKET_X2, user.bproxMint.nB, vendorAccount);
             if (index === s.users.length - 1) resolve();
           });
         });
