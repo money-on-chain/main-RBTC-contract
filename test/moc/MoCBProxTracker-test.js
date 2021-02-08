@@ -1,7 +1,7 @@
 const testHelperBuilder = require('../mocHelper.js');
 
 let mocHelper;
-let toContractBN;
+// let toContractBN;
 let BUCKET_X2;
 
 contract('MoCBProxManager: BProx Address tracking ', function([
@@ -13,7 +13,7 @@ contract('MoCBProxManager: BProx Address tracking ', function([
 ]) {
   before(async function() {
     mocHelper = await testHelperBuilder({ owner });
-    ({ toContractBN } = mocHelper);
+    // ({ toContractBN } = mocHelper);
     ({ BUCKET_X2 } = mocHelper);
     this.moc = mocHelper.moc;
     this.bprox = mocHelper.bprox;
@@ -59,12 +59,7 @@ contract('MoCBProxManager: BProx Address tracking ', function([
       });
       describe('WHEN account 1 liquidates his entire position', function() {
         beforeEach(async function() {
-          await mocHelper.redeemBProx(
-            account1,
-            BUCKET_X2,
-            toContractBN(1 * mocHelper.RESERVE_PRECISION),
-            vendorAccount
-          );
+          await mocHelper.redeemBProx(account1, BUCKET_X2, 1, vendorAccount);
         });
         it('THEN tracker shrinks', async function() {
           const activeAddress = await this.bprox.getActiveAddresses(BUCKET_X2);

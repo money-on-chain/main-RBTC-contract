@@ -8,7 +8,13 @@ let BUCKET_X2;
 const NOT_ENOUGH_FUNDS_ERROR = "sender doesn't have enough funds to send tx";
 
 // TODO: test BProx redeems with interests
-contract('MoC', function([owner, userAccount, commissionsAccount, vendorAccount, otherAddress]) {
+contract.only('MoC', function([
+  owner,
+  userAccount,
+  commissionsAccount,
+  vendorAccount,
+  otherAddress
+]) {
   before(async function() {
     mocHelper = await testHelperBuilder({ owner, useMock: true });
     ({ toContractBN } = mocHelper);
@@ -333,12 +339,7 @@ contract('MoC', function([owner, userAccount, commissionsAccount, vendorAccount,
           await mocHelper.approveMoCToken(mocHelper.moc.address, mocAmountToApprove, userAccount);
           const prevUserMoCBalance = await mocHelper.getMoCBalance(userAccount);
           const prevUserBtcBalance = toContractBN(await web3.eth.getBalance(userAccount));
-          const tx = await mocHelper.redeemBProx(
-            userAccount,
-            BUCKET_X2,
-            toContractBN(10 * mocHelper.RESERVE_PRECISION),
-            vendorAccount
-          );
+          const tx = await mocHelper.redeemBProx(userAccount, BUCKET_X2, 10, vendorAccount);
           const userMoCBalance = await mocHelper.getMoCBalance(userAccount);
           const diffMoC = prevUserMoCBalance.sub(userMoCBalance);
           const userBtcBalance = toContractBN(await web3.eth.getBalance(userAccount));
@@ -387,12 +388,7 @@ contract('MoC', function([owner, userAccount, commissionsAccount, vendorAccount,
           const prevUserMoCBalance = await mocHelper.getMoCBalance(otherAddress);
 
           // Redeem
-          await mocHelper.redeemBProx(
-            otherAddress,
-            BUCKET_X2,
-            toContractBN(bproxsToRedeem * mocHelper.RESERVE_PRECISION),
-            vendorAccount
-          );
+          await mocHelper.redeemBProx(otherAddress, BUCKET_X2, bproxsToRedeem, vendorAccount);
 
           const userMoCBalance = await mocHelper.getMoCBalance(otherAddress);
           const diffMoCFees = prevUserMoCBalance.sub(userMoCBalance);
@@ -426,12 +422,7 @@ contract('MoC', function([owner, userAccount, commissionsAccount, vendorAccount,
           try {
             await mocHelper.mintMoCToken(failingAddress, 0, owner);
             await mocHelper.approveMoCToken(mocHelper.moc.address, 0, failingAddress);
-            const tx = await mocHelper.redeemBProx(
-              userAccount,
-              BUCKET_X2,
-              toContractBN(10 * mocHelper.RESERVE_PRECISION),
-              vendorAccount
-            );
+            const tx = await mocHelper.redeemBProx(userAccount, BUCKET_X2, 10, vendorAccount);
             assert(tx === null, 'This should not happen');
           } catch (err) {
             assert(
@@ -482,12 +473,7 @@ contract('MoC', function([owner, userAccount, commissionsAccount, vendorAccount,
           const prevUserMoCBalance = await mocHelper.getMoCBalance(otherAddress);
 
           // Redeem
-          await mocHelper.redeemBProx(
-            otherAddress,
-            BUCKET_X2,
-            toContractBN(bproxsToRedeem * mocHelper.RESERVE_PRECISION),
-            vendorAccount
-          );
+          await mocHelper.redeemBProx(otherAddress, BUCKET_X2, bproxsToRedeem, vendorAccount);
 
           const userMoCBalance = await mocHelper.getMoCBalance(otherAddress);
           const diffMoCFees = prevUserMoCBalance.sub(userMoCBalance);

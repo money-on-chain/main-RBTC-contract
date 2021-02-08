@@ -6,14 +6,14 @@ const NOT_BUCKET_BASE = 'Bucket should not be a base type bucket';
 const bucketH8 = web3.utils.asciiToHex('H8', 32);
 const bucketC0 = web3.utils.asciiToHex('C0', 32);
 let mocHelper;
-let toContractBN;
+// let toContractBN;
 let BUCKET_X2;
 let BUCKET_C0;
 contract('MoCBucketContainer', function([owner, account2, vendorAccount]) {
   const c0Cobj = 3;
   before(async function() {
     mocHelper = await testHelperBuilder({ owner });
-    ({ toContractBN } = mocHelper);
+    // ({ toContractBN } = mocHelper);
     this.mocState = mocHelper.mocState;
     this.moc = mocHelper.moc;
     this.bprox = mocHelper.bprox;
@@ -56,12 +56,7 @@ contract('MoCBucketContainer', function([owner, account2, vendorAccount]) {
       });
       it('THEN redeemBProx must revert', async function() {
         await expectRevert(
-          mocHelper.redeemBProx(
-            account2,
-            bucketC0,
-            toContractBN(0.5 * mocHelper.RESERVE_PRECISION),
-            vendorAccount
-          ),
+          mocHelper.redeemBProx(account2, bucketC0, 0.5, vendorAccount),
           NOT_BUCKET_BASE
         );
       });
@@ -78,12 +73,7 @@ contract('MoCBucketContainer', function([owner, account2, vendorAccount]) {
       });
       it('THEN redeemBProx must revert', async function() {
         await expectRevert(
-          mocHelper.redeemBProx(
-            account2,
-            bucketH8,
-            toContractBN(0.5 * mocHelper.RESERVE_PRECISION),
-            vendorAccount
-          ),
+          mocHelper.redeemBProx(account2, bucketH8, 0.5, vendorAccount),
           BUCKET_NOT_AVAILABLE
         );
       });

@@ -61,12 +61,7 @@ contract('MoC : MoCExchange', function([owner, userAccount, vendorAccount]) {
               mintEvent.reserveTotal,
               false
             );
-            const redeemTx = await mocHelper.redeemBProx(
-              userAccount,
-              BUCKET_X2,
-              toContractBN(5, 'BTC'),
-              vendorAccount
-            );
+            const redeemTx = await mocHelper.redeemBProx(userAccount, BUCKET_X2, 5, vendorAccount);
 
             [redeemEvent] = mocHelper.findEvents(redeemTx, 'RiskProxRedeem');
           });

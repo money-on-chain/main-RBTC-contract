@@ -151,11 +151,12 @@ const mintBProx = moc => async (from, bucket, btcToMint, vendorAccount = zeroAdd
 
 const redeemBProx = moc => async (from, bucket, amount, vendorAccount = zeroAddress) => {
   const reservePrecision = await moc.getReservePrecision();
+  const amountWithPrecision = new BN(amount).mul(reservePrecision);
   return vendorAccount !== zeroAddress
-    ? moc.redeemBProxVendors(bucket, toContract(amount * reservePrecision), vendorAccount, {
+    ? moc.redeemBProxVendors(bucket, toContract(amountWithPrecision), vendorAccount, {
         from
       })
-    : moc.redeemBProx(bucket, toContract(amount * reservePrecision), { from });
+    : moc.redeemBProx(bucket, toContract(amountWithPrecision), { from });
 };
 
 const rbtcNeededToMintBpro = (moc, mocState) => async bproAmount => {
