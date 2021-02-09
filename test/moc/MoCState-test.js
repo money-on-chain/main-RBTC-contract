@@ -1,12 +1,11 @@
 const testHelperBuilder = require('../mocHelper.js');
 
 let mocHelper;
-// let toContractBN;
+
 const BUCKET_C0 = web3.utils.asciiToHex('C0', 32);
 contract('MoC', function([owner, vendorAccount]) {
   before(async function() {
     mocHelper = await testHelperBuilder({ owner });
-    // ({ toContractBN } = mocHelper);
     this.mocState = mocHelper.mocState;
     this.moc = mocHelper.moc;
     this.governor = mocHelper.governor;

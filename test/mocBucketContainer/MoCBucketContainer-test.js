@@ -6,14 +6,13 @@ const NOT_BUCKET_BASE = 'Bucket should not be a base type bucket';
 const bucketH8 = web3.utils.asciiToHex('H8', 32);
 const bucketC0 = web3.utils.asciiToHex('C0', 32);
 let mocHelper;
-// let toContractBN;
+
 let BUCKET_X2;
 let BUCKET_C0;
 contract('MoCBucketContainer', function([owner, account2, vendorAccount]) {
   const c0Cobj = 3;
   before(async function() {
     mocHelper = await testHelperBuilder({ owner });
-    // ({ toContractBN } = mocHelper);
     this.mocState = mocHelper.mocState;
     this.moc = mocHelper.moc;
     this.bprox = mocHelper.bprox;

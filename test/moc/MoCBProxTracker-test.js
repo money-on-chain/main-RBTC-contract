@@ -1,7 +1,6 @@
 const testHelperBuilder = require('../mocHelper.js');
 
 let mocHelper;
-// let toContractBN;
 let BUCKET_X2;
 
 contract('MoCBProxManager: BProx Address tracking ', function([
@@ -13,7 +12,6 @@ contract('MoCBProxManager: BProx Address tracking ', function([
 ]) {
   before(async function() {
     mocHelper = await testHelperBuilder({ owner });
-    // ({ toContractBN } = mocHelper);
     ({ BUCKET_X2 } = mocHelper);
     this.moc = mocHelper.moc;
     this.bprox = mocHelper.bprox;
