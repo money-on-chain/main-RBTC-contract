@@ -209,13 +209,11 @@ contract('MoC', function([owner, userAccount, commissionsAccount, vendorAccount,
             prevVendorAccountBtcBalance = toContractBN(await web3.eth.getBalance(vendorAccount));
             prevVendorAccountMoCBalance = await mocHelper.getMoCBalance(vendorAccount);
 
-            const redeemTx = await this.moc.redeemBProx(
+            const redeemTx = await mocHelper.redeemBProx(
+              userAccount,
               BUCKET_X2,
-              toContractBN(scenario.params.bproxsToRedeem * mocHelper.RESERVE_PRECISION),
-              vendorAccount,
-              {
-                from: userAccount
-              }
+              scenario.params.bproxsToRedeem,
+              vendorAccount
             );
             usedGas = await mocHelper.getTxCost(redeemTx);
           });
@@ -335,14 +333,7 @@ contract('MoC', function([owner, userAccount, commissionsAccount, vendorAccount,
           await mocHelper.approveMoCToken(mocHelper.moc.address, mocAmountToApprove, userAccount);
           const prevUserMoCBalance = await mocHelper.getMoCBalance(userAccount);
           const prevUserBtcBalance = toContractBN(await web3.eth.getBalance(userAccount));
-          const tx = await this.moc.redeemBProx(
-            BUCKET_X2,
-            toContractBN(10 * mocHelper.RESERVE_PRECISION),
-            vendorAccount,
-            {
-              from: userAccount
-            }
-          );
+          const tx = await mocHelper.redeemBProx(userAccount, BUCKET_X2, 10, vendorAccount);
           const userMoCBalance = await mocHelper.getMoCBalance(userAccount);
           const diffMoC = prevUserMoCBalance.sub(userMoCBalance);
           const userBtcBalance = toContractBN(await web3.eth.getBalance(userAccount));
@@ -391,14 +382,7 @@ contract('MoC', function([owner, userAccount, commissionsAccount, vendorAccount,
           const prevUserMoCBalance = await mocHelper.getMoCBalance(otherAddress);
 
           // Redeem
-          await this.moc.redeemBProx(
-            BUCKET_X2,
-            toContractBN(bproxsToRedeem * mocHelper.RESERVE_PRECISION),
-            vendorAccount,
-            {
-              from: otherAddress
-            }
-          );
+          await mocHelper.redeemBProx(otherAddress, BUCKET_X2, bproxsToRedeem, vendorAccount);
 
           const userMoCBalance = await mocHelper.getMoCBalance(otherAddress);
           const diffMoCFees = prevUserMoCBalance.sub(userMoCBalance);
@@ -432,14 +416,7 @@ contract('MoC', function([owner, userAccount, commissionsAccount, vendorAccount,
           try {
             await mocHelper.mintMoCToken(failingAddress, 0, owner);
             await mocHelper.approveMoCToken(mocHelper.moc.address, 0, failingAddress);
-            const tx = await this.moc.redeemBProx(
-              BUCKET_X2,
-              toContractBN(10 * mocHelper.RESERVE_PRECISION),
-              vendorAccount,
-              {
-                from: userAccount
-              }
-            );
+            const tx = await mocHelper.redeemBProx(userAccount, BUCKET_X2, 10, vendorAccount);
             assert(tx === null, 'This should not happen');
           } catch (err) {
             assert(
@@ -490,14 +467,7 @@ contract('MoC', function([owner, userAccount, commissionsAccount, vendorAccount,
           const prevUserMoCBalance = await mocHelper.getMoCBalance(otherAddress);
 
           // Redeem
-          await this.moc.redeemBProx(
-            BUCKET_X2,
-            toContractBN(bproxsToRedeem * mocHelper.RESERVE_PRECISION),
-            vendorAccount,
-            {
-              from: otherAddress
-            }
-          );
+          await mocHelper.redeemBProx(otherAddress, BUCKET_X2, bproxsToRedeem, vendorAccount);
 
           const userMoCBalance = await mocHelper.getMoCBalance(otherAddress);
           const diffMoCFees = prevUserMoCBalance.sub(userMoCBalance);
@@ -581,13 +551,11 @@ contract('MoC', function([owner, userAccount, commissionsAccount, vendorAccount,
           prevCommissionsAccountMoCBalance = await mocHelper.getMoCBalance(commissionsAccount);
           prevVendorAccountMoCBalance = await mocHelper.getMoCBalance(vendorAccount);
 
-          const redeemTx = await this.moc.redeemBProx(
+          const redeemTx = await mocHelper.redeemBProx(
+            userAccount,
             BUCKET_X2,
-            toContractBN(bproxsToRedeem * mocHelper.RESERVE_PRECISION),
-            vendorAccount,
-            {
-              from: userAccount
-            }
+            bproxsToRedeem,
+            vendorAccount
           );
           usedGas = await mocHelper.getTxCost(redeemTx);
         });

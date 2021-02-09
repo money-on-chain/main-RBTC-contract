@@ -119,9 +119,18 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
   /**
     @dev Mints BPRO and pays the comissions of the operation.
     @param btcToMint Amount in BTC to mint
+   */
+  function mintBPro(uint256 btcToMint)
+  public payable {
+    mintBProVendors(btcToMint, address(0));
+  }
+
+  /**
+    @dev Mints BPRO and pays the comissions of the operation.
+    @param btcToMint Amount in BTC to mint
     @param vendorAccount Vendor address
    */
-  function mintBPro(uint256 btcToMint, address vendorAccount)
+  function mintBProVendors(uint256 btcToMint, address vendorAccount)
   public payable
   whenNotPaused() transitionState() notInProtectionMode() {
     /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
@@ -147,9 +156,18 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
   /**
    * @dev Redeems Bpro Tokens and pays the comissions of the operation
      @param bproAmount Amount in Bpro
+   */
+  function redeemBPro(uint256 bproAmount)
+  public {
+    redeemBProVendors(bproAmount, address(0));
+  }
+
+  /**
+   * @dev Redeems Bpro Tokens and pays the comissions of the operation
+     @param bproAmount Amount in Bpro
      @param vendorAccount Vendor address
    */
-  function redeemBPro(uint256 bproAmount, address vendorAccount)
+  function redeemBProVendors(uint256 bproAmount, address vendorAccount)
   public
   whenNotPaused() transitionState() atLeastState(MoCState.States.AboveCobj) {
     /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
@@ -168,9 +186,18 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
   /**
    * @dev Mint Doc tokens and pays the commisions of the operation
    * @param btcToMint Amount in RBTC to mint
+   */
+  function mintDoc(uint256 btcToMint)
+  public payable {
+    mintDocVendors(btcToMint, address(0));
+  }
+
+  /**
+   * @dev Mint Doc tokens and pays the commisions of the operation
+   * @param btcToMint Amount in RBTC to mint
    * @param vendorAccount Vendor address
    */
-  function mintDoc(uint256 btcToMint, address vendorAccount)
+  function mintDocVendors(uint256 btcToMint, address vendorAccount)
   public payable
   whenNotPaused() transitionState() atLeastState(MoCState.States.AboveCobj) {
     /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
@@ -197,9 +224,18 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
      @dev Redeems Bprox Tokens and pays the comissions of the operation in RBTC
      @param bucket Bucket to reedem, for example X2
      @param bproxAmount Amount in Bprox
+   */
+  function redeemBProx(bytes32 bucket, uint256 bproxAmount) public {
+    redeemBProxVendors(bucket, bproxAmount, address(0));
+  }
+
+  /**
+     @dev Redeems Bprox Tokens and pays the comissions of the operation in RBTC
+     @param bucket Bucket to reedem, for example X2
+     @param bproxAmount Amount in Bprox
      @param vendorAccount Vendor address
    */
-  function redeemBProx(bytes32 bucket, uint256 bproxAmount, address vendorAccount) public
+  function redeemBProxVendors(bytes32 bucket, uint256 bproxAmount, address vendorAccount) public
   whenNotPaused() whenSettlementReady() availableBucket(bucket) notBaseBucket(bucket)
   transitionState() bucketStateTransition(bucket) {
     /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
@@ -219,9 +255,18 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
   * @dev BUCKET bprox minting
   * @param bucket Name of the bucket used
   * @param btcToMint amount to mint on RBTC
+  **/
+  function mintBProx(bytes32 bucket, uint256 btcToMint) public payable {
+    mintBProxVendors(bucket, btcToMint, address(0));
+  }
+
+  /**
+  * @dev BUCKET bprox minting
+  * @param bucket Name of the bucket used
+  * @param btcToMint amount to mint on RBTC
   * @param vendorAccount Vendor address
   **/
-  function mintBProx(bytes32 bucket, uint256 btcToMint, address vendorAccount) public payable
+  function mintBProxVendors(bytes32 bucket, uint256 btcToMint, address vendorAccount) public payable
   whenNotPaused() whenSettlementReady() availableBucket(bucket) notBaseBucket(bucket)
   transitionState() bucketStateTransition(bucket) {
     /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
@@ -247,9 +292,18 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
   /**
   * @dev Redeems the requested amount for the msg.sender, or the max amount of free docs possible.
   * @param docAmount Amount of Docs to redeem.
+  */
+  function redeemFreeDoc(uint256 docAmount)
+  public {
+    redeemFreeDocVendors(docAmount, address(0));
+  }
+
+  /**
+  * @dev Redeems the requested amount for the msg.sender, or the max amount of free docs possible.
+  * @param docAmount Amount of Docs to redeem.
   * @param vendorAccount Vendor address
   */
-  function redeemFreeDoc(uint256 docAmount, address vendorAccount)
+  function redeemFreeDocVendors(uint256 docAmount, address vendorAccount)
   public
   whenNotPaused() transitionState() notInProtectionMode() {
     /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/

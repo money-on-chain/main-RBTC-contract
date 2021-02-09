@@ -14,7 +14,7 @@ const assertAllMintReedemMocHelperPausedFunctions = (userAccount, vendorAccount)
     { name: 'mintDoc', args: [userAccount, 10000, vendorAccount] },
     {
       name: 'mintBProx',
-      args: [userAccount, vendorAccount, BUCKET_X2, toContractBN(10), toContractBN(9000)]
+      args: [userAccount, BUCKET_X2, toContractBN(10), vendorAccount, toContractBN(9000)]
     },
     { name: 'redeemFreeDoc', args: [{ userAccount, docAmount: 3, vendorAccount }] },
     { name: 'redeemBPro', args: [userAccount, 10, vendorAccount] }
@@ -28,7 +28,7 @@ const assertAllMintReedemMocHelperPausedFunctions = (userAccount, vendorAccount)
 
 const assertAllMocPausedFunctions = (owner, userAccount, vendorAccount) => {
   const testFunctions = [
-    { name: 'redeemBProx', args: [BUCKET_X2, 3, vendorAccount] },
+    { name: 'redeemBProxVendors', args: [BUCKET_X2, 3, vendorAccount] },
     { name: 'alterRedeemRequestAmount', args: [false, 100] },
     { name: 'runSettlement', args: [1] },
     { name: 'dailyInratePayment', args: [{ from: owner }] },

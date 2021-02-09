@@ -20,11 +20,11 @@ contract RevertingOnSend {
   }
 
   function mintBProx(bytes32 bucket, uint256 bproxAmountToMint, address vendorAccount) public payable {
-    moc.mintBProx.value(msg.value)(bucket, bproxAmountToMint, vendorAccount);
+    moc.mintBProxVendors.value(msg.value)(bucket, bproxAmountToMint, vendorAccount);
   }
 
   function mintDoc(uint256 docAmountToMint, address vendorAccount) public payable {
-    moc.mintDoc.value(msg.value)(docAmountToMint, vendorAccount);
+    moc.mintDocVendors.value(msg.value)(docAmountToMint, vendorAccount);
   }
 
   function redeemDoCRequest(uint256 docAmount) public {

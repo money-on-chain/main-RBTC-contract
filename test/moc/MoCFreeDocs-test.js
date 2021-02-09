@@ -196,13 +196,11 @@ contract.skip('MoC', function([owner, userAccount, otherAccount, vendorAccount])
             describe(`AND ${scenario.params.docsToRedeem} docs are redeemed`, function() {
               beforeEach(async function() {
                 userBtcBalance = await web3.eth.getBalance(userAccount);
-                redeemTx = await this.moc.redeemFreeDoc(
-                  toContractBN(scenario.params.docsToRedeem * mocHelper.MOC_PRECISION),
-                  vendorAccount,
-                  {
-                    from: userAccount
-                  }
-                );
+                redeemTx = await mocHelper.redeemFreeDoc({
+                  userAccount,
+                  docAmount: scenario.params.docsToRedeem,
+                  vendorAccount
+                });
                 usedGas = toContractBN(await mocHelper.getTxCost(redeemTx));
               });
               it(`THEN the redeemers BTC balance is increased by redeeming only ${scenario.expect.docsToRedeem} docs`, async function() {
@@ -422,13 +420,11 @@ contract.skip('MoC', function([owner, userAccount, otherAccount, vendorAccount])
               describe(`AND ${scenario.params.docsToRedeem} docs are redeemed`, function() {
                 beforeEach(async function() {
                   userBtcBalance = toContractBN(await web3.eth.getBalance(userAccount));
-                  redeemTx = await this.moc.redeemFreeDoc(
-                    toContractBN(scenario.params.docsToRedeem * mocHelper.RESERVE_PRECISION),
-                    vendorAccount,
-                    {
-                      from: userAccount
-                    }
-                  );
+                  redeemTx = await mocHelper.redeemFreeDoc({
+                    userAccount,
+                    docAmount: scenario.params.docsToRedeem,
+                    vendorAccount
+                  });
                   usedGas = await mocHelper.getTxCost(redeemTx);
                 });
                 it(`THEN the redeemers BTC balance is increased by redeeming only ${scenario.expect.docsToRedeem} docs`, async function() {

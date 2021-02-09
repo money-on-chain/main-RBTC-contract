@@ -1,12 +1,11 @@
 const testHelperBuilder = require('../mocHelper.js');
 
 let mocHelper;
-let toContractBN;
+
 const BUCKET_C0 = web3.utils.asciiToHex('C0', 32);
 contract('MoC', function([owner, vendorAccount]) {
   before(async function() {
     mocHelper = await testHelperBuilder({ owner });
-    ({ toContractBN } = mocHelper);
     this.mocState = mocHelper.mocState;
     this.moc = mocHelper.moc;
     this.governor = mocHelper.governor;
@@ -155,24 +154,12 @@ contract('MoC', function([owner, vendorAccount]) {
               // It will be always the middle between the two values.
               await mocHelper.setSmoothingFactor(0.5 * 10 ** 18);
 
-              if (contractReadyState.nDoCs) {
-                await this.moc.mintDoc(
-                  toContractBN(contractReadyState.nDocsBtcAmount),
-                  vendorAccount,
-                  {
-                    value: toContractBN(contractReadyState.nDocsBtcAmount)
-                  }
-                );
+              if (state.nDoCs) {
+                await mocHelper.mintDoc(owner, state.nDocsBtcAmount, vendorAccount);
               }
 
-              if (contractReadyState.nBPro) {
-                await this.moc.mintBPro(
-                  toContractBN(contractReadyState.bproBtcAmount),
-                  vendorAccount,
-                  {
-                    value: toContractBN(contractReadyState.bproBtcAmount)
-                  }
-                );
+              if (state.nBPro) {
+                await mocHelper.mintBPro(owner, state.bproBtcAmount, vendorAccount);
               }
 
               await mocHelper.setBitcoinPrice(contractReadyState.btcPrice.to);
