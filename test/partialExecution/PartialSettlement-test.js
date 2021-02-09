@@ -88,7 +88,7 @@ const runScenario = scenario => {
   return reduced.then(lastTx => txs.concat(lastTx));
 };
 
-contract.only('MoC: Partial Settlement execution', function([owner, vendorAccount, ...accounts]) {
+contract('MoC: Partial Settlement execution', function([owner, vendorAccount, ...accounts]) {
   before(async function() {
     mocHelper = await testHelperBuilder({ owner, useMock: true });
     ({ toContractBN } = mocHelper);

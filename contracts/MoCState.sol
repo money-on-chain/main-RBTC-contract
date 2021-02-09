@@ -3,6 +3,7 @@ pragma experimental ABIEncoderV2;
 
 import "openzeppelin-solidity/contracts/math/Math.sol";
 import "./interface/PriceProvider.sol";
+import "./interface/TexPriceProvider.sol";
 import "./MoCEMACalculator.sol";
 import "./base/MoCBase.sol";
 import "./MoCLibConnection.sol";
@@ -735,7 +736,7 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
   **/
   function setMoCPriceProvider(address mocProviderAddress) public onlyAuthorizedChanger() {
     address oldMoCPriceProviderAddress = address(mocPriceProvider);
-    mocPriceProvider = PriceProvider(mocProviderAddress);
+    mocPriceProvider = TexPriceProvider(mocProviderAddress);
     emit MoCPriceProviderUpdated(oldMoCPriceProviderAddress, address(mocPriceProvider));
   }
 
@@ -751,11 +752,11 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
   * @dev Gets the MoCPrice
   * @return price MoC price
   **/
-  function getMoCPrice() public view returns(uint256) {
-    (bytes32 price, bool has) = mocPriceProvider.peek();
-    require(has, "Oracle have no MoC Price");
+  function getMoCPrice() public view returns(uint256 price) {
+    price = mocPriceProvider.getLastClosingPrice(address(docToken), address(mocToken));
+    require(price > 0, "Invalid price");
 
-    return uint256(price);
+    return price;
   }
 
   /**********************
@@ -850,7 +851,7 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
     state = States.AboveCobj;
     peg = 1;
     maxMintBPro = _maxMintBPro;
-    mocPriceProvider = PriceProvider(_mocPriceProvider);
+    mocPriceProvider = TexPriceProvider(_mocPriceProvider);
     liquidationEnabled = _liquidationEnabled;
     protected = _protected;
   }
@@ -886,7 +887,7 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
   /** and rename price interfaces **/
   /** Variables and events **/
 
-  PriceProvider internal mocPriceProvider;
+  TexPriceProvider internal mocPriceProvider;
   MoCToken internal mocToken;
   MoCVendors internal mocVendors;
 

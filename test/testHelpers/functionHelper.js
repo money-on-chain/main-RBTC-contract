@@ -47,7 +47,7 @@ const getBitcoinPrice = btcPriceProvider => async () => {
 
 // Mock MoC price provider doesn't use second and third parameter
 const setMoCPrice = mocPriceProvider => async mocPrice =>
-  mocPriceProvider.post(toContract(mocPrice), 0, mocPriceProvider.address);
+  mocPriceProvider.setPrice(toContract(mocPrice));
 
 const getMoCPrice = mocPriceProvider => async () => {
   const priceValue = await mocPriceProvider.peek();
