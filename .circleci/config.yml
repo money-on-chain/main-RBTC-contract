@@ -13,8 +13,8 @@ jobs:
         - run: sudo apt-get install make gcc g++ python git bash
         - node/install-packages
         - run: npm run solium
-        - run: npm run test
         - run: npm run eslint
+        - run: npm run test
 
 orbs:
   node: circleci/node@2.0.0
