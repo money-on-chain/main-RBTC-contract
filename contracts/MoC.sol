@@ -23,7 +23,7 @@ contract MoCEvents {
 contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
   using SafeMath for uint256;
 
-  // Contracts
+  /// @dev Contracts.
   DocToken internal docToken;
   BProToken internal bproToken;
   MoCBProxManager internal bproxManager;
@@ -32,21 +32,30 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
   MoCSettlement internal settlement;
   MoCExchange internal mocExchange;
   MoCInrate internal mocInrate;
+  /// @dev 'MoCBurnout' is deprecated. DO NOT use this variable.
   /** DEPRECATED **/
   // solium-disable-next-line mixedcase
   address public DEPRECATED_mocBurnout;
 
-  // Indicates if Rbtc remainder was sent and
-  // BProToken was paused
+  /// @dev Indicates if Rbtc remainder was sent and BProToken was paused
   bool internal liquidationExecuted;
 
-  // Fallback
   //TODO: We must research if fallback function is really needed.
+  /**
+    @dev Fallback function
+  */
   function() external payable whenNotPaused() transitionState() {
     bproxManager.addValuesToBucket(BUCKET_C0, msg.value, 0, 0);
     mocState.addToRbtcInSystem(msg.value);
   }
 
+  /**
+    @dev Initializes the contract
+    @param connectorAddress MoCConnector contract address
+    @param governorAddress Governor contract address
+    @param stopperAddress Stopper contract address
+    @param startStoppable Indicates if the contract starts being unstoppable or not
+  */
   function initialize(
     address connectorAddress,
     address governorAddress,
@@ -70,6 +79,12 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
 
   /****************************INTERFACE*******************************************/
 
+  /**
+    @dev Gets the BProx balance of an address
+    @param bucket Name of the bucket
+    @param account Address
+    @return BProx balance of the address
+  */
   function bproxBalanceOf(bytes32 bucket, address account) public view returns(uint256) {
     return bproxManager.bproxBalanceOf(bucket, account);
   }
@@ -84,15 +99,17 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
   }
 
   /**
-    @dev returns current redeem queue size
+    @dev Returns current redeem queue size
+    @return redeem queue size
    */
   function redeemQueueSize() public view returns(uint256) {
     return settlement.redeemQueueSize();
   }
 
   /**
-    @dev returns the total amount of Docs in the redeem queue for redeemer
+    @dev Returns the total amount of Docs in the redeem queue for redeemer
     @param redeemer address for which ^ is computed
+    @return total amount of Docs in the redeem queue for redeemer
    */
   function docAmountToRedeem(address redeemer) public view returns(uint256) {
     return settlement.docAmountToRedeem(redeemer);
@@ -117,7 +134,8 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
   }
 
   /**
-    @dev Mints BPRO and pays the comissions of the operation.
+    @dev Mints BPRO and pays the comissions of the operation (retrocompatible function).
+    @dev Retrocompatible function.
     @param btcToMint Amount in BTC to mint
    */
   function mintBPro(uint256 btcToMint)
@@ -154,19 +172,19 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
   }
 
   /**
-   * @dev Redeems Bpro Tokens and pays the comissions of the operation
-     @param bproAmount Amount in Bpro
-   */
+    @dev Redeems Bpro Tokens and pays the comissions of the operation (retrocompatible function).
+    @param bproAmount Amount in Bpro
+  */
   function redeemBPro(uint256 bproAmount)
   public {
     redeemBProVendors(bproAmount, address(0));
   }
 
   /**
-   * @dev Redeems Bpro Tokens and pays the comissions of the operation
-     @param bproAmount Amount in Bpro
-     @param vendorAccount Vendor address
-   */
+    @dev Redeems Bpro Tokens and pays the comissions of the operation
+    @param bproAmount Amount in Bpro
+    @param vendorAccount Vendor address
+  */
   function redeemBProVendors(uint256 bproAmount, address vendorAccount)
   public
   whenNotPaused() transitionState() atLeastState(MoCState.States.AboveCobj) {
@@ -184,9 +202,10 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
   }
 
   /**
-   * @dev Mint Doc tokens and pays the commisions of the operation
-   * @param btcToMint Amount in RBTC to mint
-   */
+    @dev Mint Doc tokens and pays the commisions of the operation (retrocompatible function).
+    @dev Retrocompatible function.
+    @param btcToMint Amount in RBTC to mint
+  */
   function mintDoc(uint256 btcToMint)
   public payable {
     mintDocVendors(btcToMint, address(0));
@@ -221,20 +240,21 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
   }
 
   /**
-     @dev Redeems Bprox Tokens and pays the comissions of the operation in RBTC
-     @param bucket Bucket to reedem, for example X2
-     @param bproxAmount Amount in Bprox
-   */
+    @dev Redeems Bprox Tokens and pays the comissions of the operation in RBTC (retrocompatible function).
+    @dev Retrocompatible function.
+    @param bucket Bucket to reedem, for example X2
+    @param bproxAmount Amount in Bprox
+  */
   function redeemBProx(bytes32 bucket, uint256 bproxAmount) public {
     redeemBProxVendors(bucket, bproxAmount, address(0));
   }
 
   /**
-     @dev Redeems Bprox Tokens and pays the comissions of the operation in RBTC
-     @param bucket Bucket to reedem, for example X2
-     @param bproxAmount Amount in Bprox
-     @param vendorAccount Vendor address
-   */
+    @dev Redeems Bprox Tokens and pays the comissions of the operation in RBTC
+    @param bucket Bucket to reedem, for example X2
+    @param bproxAmount Amount in Bprox
+    @param vendorAccount Vendor address
+  */
   function redeemBProxVendors(bytes32 bucket, uint256 bproxAmount, address vendorAccount) public
   whenNotPaused() whenSettlementReady() availableBucket(bucket) notBaseBucket(bucket)
   transitionState() bucketStateTransition(bucket) {
@@ -252,20 +272,21 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
   }
 
   /**
-  * @dev BUCKET bprox minting
-  * @param bucket Name of the bucket used
-  * @param btcToMint amount to mint on RBTC
-  **/
+    @dev BUCKET bprox minting (retrocompatible function).
+    @dev Retrocompatible function.
+    @param bucket Name of the bucket used
+    @param btcToMint amount to mint on RBTC
+  */
   function mintBProx(bytes32 bucket, uint256 btcToMint) public payable {
     mintBProxVendors(bucket, btcToMint, address(0));
   }
 
   /**
-  * @dev BUCKET bprox minting
-  * @param bucket Name of the bucket used
-  * @param btcToMint amount to mint on RBTC
-  * @param vendorAccount Vendor address
-  **/
+    @dev BUCKET bprox minting
+    @param bucket Name of the bucket used
+    @param btcToMint amount to mint on RBTC
+    @param vendorAccount Vendor address
+  */
   function mintBProxVendors(bytes32 bucket, uint256 btcToMint, address vendorAccount) public payable
   whenNotPaused() whenSettlementReady() availableBucket(bucket) notBaseBucket(bucket)
   transitionState() bucketStateTransition(bucket) {
@@ -290,8 +311,9 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
   }
 
   /**
-  * @dev Redeems the requested amount for the msg.sender, or the max amount of free docs possible.
-  * @param docAmount Amount of Docs to redeem.
+    @dev Redeems the requested amount for the msg.sender, or the max amount of free docs possible (retrocompatible function).
+    @dev Retrocompatible function.
+    @param docAmount Amount of Docs to redeem.
   */
   function redeemFreeDoc(uint256 docAmount)
   public {
@@ -299,9 +321,9 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
   }
 
   /**
-  * @dev Redeems the requested amount for the msg.sender, or the max amount of free docs possible.
-  * @param docAmount Amount of Docs to redeem.
-  * @param vendorAccount Vendor address
+    @dev Redeems the requested amount for the msg.sender, or the max amount of free docs possible.
+    @param docAmount Amount of Docs to redeem.
+    @param vendorAccount Vendor address
   */
   function redeemFreeDocVendors(uint256 docAmount, address vendorAccount)
   public
@@ -320,9 +342,9 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
   }
 
   /**
-  * @dev Allow redeem on liquidation state, user DoCs get burned and he receives
-  * the equivalent BTCs if can be covered, or the maximum available
-  **/
+    @dev Allow redeem on liquidation state, user DoCs get burned and he receives
+    the equivalent BTCs if can be covered, or the maximum available
+  */
   function redeemAllDoc() public atState(MoCState.States.Liquidated) {
     mocExchange.redeemAllDoc(msg.sender, msg.sender);
   }
@@ -335,8 +357,8 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
   }
 
   /**
-  * @dev Pays the BitPro interest and transfers it to the address mocInrate.bitProInterestAddress
-  * BitPro interests = Nb (bucket 0) * bitProRate.
+    @dev Pays the BitPro interest and transfers it to the address mocInrate.bitProInterestAddress
+    BitPro interests = Nb (bucket 0) * bitProRate.
   */
   function payBitProHoldersInterestPayment() public whenNotPaused() {
     uint256 toPay = mocInrate.payBitProHoldersInterestPayment();
@@ -346,21 +368,33 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
   }
 
   /**
-  * @dev Calculates BitPro holders holder interest by taking the total amount of RBCs available on Bucket 0.
-  * BitPro interests = Nb (bucket 0) * bitProRate.
+    @dev Calculates BitPro holders holder interest by taking the total amount of RBTCs available on Bucket 0.
+    BitPro interests = Nb (bucket 0) * bitProRate.
   */
   function calculateBitProHoldersInterest() public view returns(uint256, uint256) {
     return mocInrate.calculateBitProHoldersInterest();
   }
 
+  /**
+    @dev Gets the target address to transfer BitPro Holders rate
+    @return Target address to transfer BitPro Holders interest
+  */
   function getBitProInterestAddress() public view returns(address payable) {
     return mocInrate.getBitProInterestAddress();
   }
 
+  /**
+    @dev Gets the rate for BitPro Holders
+    @return BitPro Rate
+  */
   function getBitProRate() public view returns(uint256) {
     return mocInrate.getBitProRate();
   }
 
+  /**
+    @dev Gets the blockspan of BPRO that represents the frecuency of BitPro holders interest payment
+    @return returns power of bitProInterestBlockSpan
+  */
   function getBitProInterestBlockSpan() public view returns(uint256) {
     return mocInrate.getBitProInterestBlockSpan();
   }
@@ -374,16 +408,18 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
   }
 
   /**
-    @dev Returns true if blockSpan number of blocks has pass since last execution
+    @dev Indicates if settlement is enabled
+    @return Returns true if blockSpan number of blocks has passed since last execution; otherwise false
   */
   function isSettlementEnabled() public view returns(bool) {
     return settlement.isSettlementEnabled();
   }
 
   /**
-   * @dev Checks if bucket liquidation is reached.
-   * @return true if bucket liquidation is reached, false otherwise
-   */
+    @dev Checks if bucket liquidation is reached.
+    @param bucket Name of bucket.
+    @return true if bucket liquidation is reached, false otherwise
+  */
   function isBucketLiquidationReached(bytes32 bucket) public view returns(bool) {
     if (mocState.coverage(bucket) <= mocState.liq()) {
       return true;
@@ -400,14 +436,15 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
   }
 
   /**
-  * @dev Evaluates if liquidation state has been reached and runs liq if that's the case
+    @dev Evaluates if liquidation state has been reached and runs liq if that's the case
   */
   function evalLiquidation() public transitionState() {
     // DO NOTHING. Everything is handled in transitionState() modifier.
   }
 
   /**
-  * @dev Runs all settlement process
+    @dev Runs all settlement process
+    @param steps Number of steps
   */
   function runSettlement(uint256 steps) public whenNotPaused() transitionState() {
     // Transfer accums commissions to commissions address
@@ -415,9 +452,11 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
   }
 
   /**
-  * @dev Send RBTC to a user and update RbtcInSystem in MoCState
-  * @return result of the transaction
-  **/
+    @dev Send RBTC to a user and update RbtcInSystem in MoCState
+    @param receiver address of receiver
+    @param btcAmount amount to transfer
+    @return result of the transaction
+  */
   function sendToAddress(address payable receiver, uint256 btcAmount) public onlyWhitelisted(msg.sender) returns(bool) {
     if (btcAmount == 0) {
       return true;
@@ -447,6 +486,17 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
   /** Upgrade to support multiple commission rates **/
   /** Internal functions **/
 
+  /**
+    @dev Transfer mint operation fees (commissions + vendor markup)
+    @param sender address of msg.sender
+    @param value amount of msg.value
+    @param totalBtcSpent amount in RBTC spent
+    @param btcCommission commission amount in RBTC
+    @param mocCommission commission amount in MoC
+    @param vendorAccount address of vendor
+    @param btcMarkup vendor markup in RBTC
+    @param mocMarkup vendor markup in MoC
+  */
   // solium-disable-next-line security/no-assign-params
   function transferCommissions(
     address payable sender,
@@ -480,6 +530,14 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
     doTransfer(sender, change);
   }
 
+  /**
+    @dev Transfer operation fees in MoC (commissions + vendor markup)
+    @param sender address of msg.sender
+    @param mocCommission commission amount in MoC
+    @param vendorAccount address of vendor
+    @param mocMarkup vendor markup in MoC
+    @param totalMoCFee commission + vendor markup in MoC
+  */
   // solium-disable-next-line security/no-assign-params
   function transferMocCommission(
     address sender,
@@ -512,6 +570,15 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
     }
   }
 
+  /**
+    @dev Transfer redeem operation fees (commissions + vendor markup)
+    @param sender address of msg.sender
+    @param btcCommission commission amount in RBTC
+    @param mocCommission commission amount in MoC
+    @param vendorAccount address of vendor
+    @param btcMarkup vendor markup in RBTC
+    @param mocMarkup vendor markup in MoC
+  */
   function redeemWithMoCFees(
     address sender,
     uint256 btcCommission,
@@ -531,6 +598,12 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
     }
   }
 
+  /**
+    @dev Transfer operation fees in RBTC (commissions + vendor markup)
+    @param vendorAccount address of vendor
+    @param btcCommission commission amount in RBTC
+    @param btcMarkup vendor markup in RBTC
+  */
   function transferBtcCommission(address payable vendorAccount, uint256 btcCommission, uint256 btcMarkup) internal {
     MoCVendors mocVendors = MoCVendors(mocState.getMoCVendors());
 
@@ -555,17 +628,21 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
   /** END UPDATE V0110: 24/09/2020 **/
 
   /**
-  * @dev Transfer using transfer function and updates global RBTC register in MoCState
-  **/
+    @dev Transfer using transfer function and updates global RBTC register in MoCState
+    @param receiver address of receiver
+    @param btcAmount amount in RBTC
+  */
   function doTransfer(address payable receiver, uint256 btcAmount) private {
     mocState.subtractRbtcFromSystem(btcAmount);
     receiver.transfer(btcAmount);
   }
 
   /**
-  * @dev Transfer using send function and updates global RBTC register in MoCState
-  * @return Execution result
-  **/
+    @dev Transfer using send function and updates global RBTC register in MoCState
+    @param receiver address of receiver
+    @param btcAmount amount in RBTC
+    @return Execution result
+  */
   function doSend(address payable receiver, uint256 btcAmount) private returns(bool) {
     // solium-disable-next-line security/no-send
     bool result = receiver.send(btcAmount);

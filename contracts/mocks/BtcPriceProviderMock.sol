@@ -7,6 +7,10 @@ contract BtcPriceProviderMock is PriceFeed, PriceProvider {
   bytes32 btcPrice;
   bool has;
 
+  /**
+    @dev Constructor
+    @param price BTC price for mock contract
+  */
   constructor(uint256 price) public {
     btcPrice = bytes32(price);
     has = true;

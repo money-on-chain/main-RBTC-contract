@@ -29,7 +29,7 @@ contract MoCWhitelist {
   }
 
   /**
-   * @dev Remove account to whitelist
+   * @dev Remove account from whitelist
    */
   function remove(address account) internal {
     require(account != address(0), "Account must not be 0x0");

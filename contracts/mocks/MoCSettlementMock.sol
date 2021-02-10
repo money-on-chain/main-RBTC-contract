@@ -6,6 +6,9 @@ contract MoCSettlementMock is MoCSettlement {
   //Step count that complete the execution in all tests
   uint256 constant STEPS = 100;
 
+  /**
+    @dev Constructor
+  */
   constructor() MoCSettlementMock () public { }
 
   function() external {
@@ -33,8 +36,7 @@ contract MoCSettlementMock is MoCSettlement {
 
   /**
   @dev Returns the amount of steps for the Doc Redemption task
-  which is the amount of redeem requests in the queue
-  - Used in tests only -
+  which is the amount of redeem requests in the queue. (Used in tests only)
   */
   function docRedemptionStepCountForTest() public view returns (uint256) {
     return super.docRedemptionStepCount();

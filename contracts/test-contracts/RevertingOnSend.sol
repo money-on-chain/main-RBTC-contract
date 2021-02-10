@@ -6,6 +6,10 @@ contract RevertingOnSend {
   MoC moc;
   bool acceptMoney = true;
 
+  /**
+    @dev Constructor
+    @param mocAddress MoC contract address
+  */
   constructor (address payable mocAddress) public {
     moc = MoC(mocAddress);
   }

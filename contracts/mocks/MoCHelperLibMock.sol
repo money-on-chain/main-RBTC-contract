@@ -7,6 +7,9 @@ contract MoCHelperLibMock {
   MoCHelperLib.MocLibConfig internal mocLibConfig;
   event MethodCalled(bytes32 name);
 
+  /**
+    @dev Constructor
+  */
   constructor() public {
     mocLibConfig = MoCHelperLib.MocLibConfig({
       reservePrecision: 10 ** 18,

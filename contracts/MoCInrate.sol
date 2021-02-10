@@ -92,7 +92,6 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
 
   /**
     @dev Calculates an average interest rate between after and before free doc Redemption
-
     @param docRedeem Docs to redeem [using mocPrecision]
     @return Interest rate value [using mocPrecision]
    */
@@ -105,6 +104,21 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
 
   /** END UPDATE V017: 01/11/2019 **/
 
+  /**
+    @dev Initializes the contract
+    @param connectorAddress MoCConnector contract address
+    @param _governor Governor contract address
+    @param btcxTmin  Minimum interest rate [using mocPrecision]
+    @param btcxPower Power is a parameter for interest rate calculation [using noPrecision]
+    @param btcxTmax Maximun interest rate [using mocPrecision]
+    @param _bitProRate BitPro holder interest rate [using mocPrecision]
+    @param blockSpanBitPro BitPro blockspan to configure payments periods[using mocPrecision]
+    @param bitProInterestTargetAddress Target address to transfer the weekly BitPro holders interest
+    @param commissionsAddressTarget Target addres to transfer commissions of mint/redeem
+    @param _docTmin Upgrade to support red doc inrate parameter
+    @param _docPower Upgrade to support red doc inrate parameter
+    @param _docTmax Upgrade to support red doc inrate parameter
+  */
   function initialize(
     address connectorAddress,
     address _governor,
@@ -231,18 +245,18 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
     return bitProInterestAddress;
   }
 
-   /**
-    @dev Sets the target address to transfer BitPro Holders rate
-    @param newBitProInterestAddress New BitPro rate
-   */
+  /**
+   @dev Sets the target address to transfer BitPro Holders rate
+   @param newBitProInterestAddress New BitPro rate
+  */
   function setBitProInterestAddress(address payable newBitProInterestAddress ) public onlyAuthorizedChanger() {
     bitProInterestAddress = newBitProInterestAddress;
   }
 
-   /**
-    @dev Sets the target address to transfer commissions of Mint/Redeem transactions
-    @param newCommissionsAddress New commisions address
-   */
+  /**
+   @dev Sets the target address to transfer commissions of Mint/Redeem transactions
+   @param newCommissionsAddress New commisions address
+  */
   function setCommissionsAddress(address payable newCommissionsAddress) public onlyAuthorizedChanger() {
     commissionsAddress = newCommissionsAddress;
   }
@@ -267,7 +281,6 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
 
   /**
     @dev Calculates an average interest rate between after and before mint/redeem
-
     @param bucket Name of the bucket involved in the operation
     @param btcAmount Value of the operation from which calculates the inrate [using reservePrecision]
     @param onMinting Value that represents if the calculation is based on mint or on redeem
@@ -281,8 +294,7 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
   }
 
   /**
-    @dev returns the amount of BTC to pay in concept of interest
-    to bucket C0
+    @dev returns the amount of BTC to pay in concept of interest to bucket C0
    */
   function dailyInrate() public view returns(uint256) {
     uint256 daysToSettl = mocState.daysToSettlement();
@@ -372,6 +384,12 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
     return finalCommissionAmount;
   }
 
+  /**
+    @dev calculates the vendor markup rate from the passed vendor account and amount
+    @param vendorAccount Vendor address
+    @param amount Total value from which apply the vendor markup rate [using reservePrecision]
+    @return finalCommissionAmount [using reservePrecision]
+  */
   function calculateVendorMarkup(address vendorAccount, uint256 amount) public view
     returns (uint256 markup) {
     // Calculate according to vendor markup
@@ -501,8 +519,7 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
   }
 
   /**
-    @dev This function calculates the interest to return
-    if a user redeem all Btcx in existance
+    @dev This function calculates the interest to return if a user redeem all Btcx in existance
     @param bucket Bucket to use to calculate interest
     @return Interests [using reservePrecision]
   */
@@ -515,7 +532,6 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
 
   /**
     @dev Calculates the final amount of Bucket 0 DoCs on BProx mint/redeem
-
     @param bucket Name of the bucket involved in the operation
     @param btcAmount Value of the operation from which calculates the inrate [using reservePrecision]
     @return Final bucket 0 Doc amount
@@ -537,7 +553,6 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
 
   /**
     @dev Returns the days to use for interests calculation
-
     @param countAllDays Value that represents if the calculation is based on mint or on redeem
     @return days [using dayPrecision]
    */
@@ -582,7 +597,6 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
    * @param btcxMax Maximun interest rate [using mocPrecision]
    * @param _bitProRate BitPro holder interest rate [using mocPrecision]
    * @param blockSpanBitPro BitPro blockspan to configure payments periods[using mocPrecision]
-
    * @param bitProInterestsTarget Target address to transfer the weekly BitPro holders interest
    */
   function initializeValues(

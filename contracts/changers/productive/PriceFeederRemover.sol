@@ -15,6 +15,9 @@ contract PriceFeederRemover is ChangeContract {
   Medianizer public medianizer;
   address public priceFeed;
 
+  /**
+    @dev Constructor
+  */
   constructor(Medianizer _medianizer, address _priceFeed) public {
     medianizer = _medianizer;
     priceFeed = _priceFeed;

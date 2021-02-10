@@ -71,24 +71,30 @@ Governed
 
   /**
   @dev Block Number of the last successful execution
-**/
+  */
   uint256 internal lastProcessedBlock;
   /**
   @dev Min number of blocks settlement should be re evaluated on
-**/
+  */
   uint256 internal blockSpan;
   /**
   @dev Information for Settlement execution
-**/
+  */
   SettlementInfo internal settlementInfo;
   /**
   @dev Redeem queue
-**/
+  */
   RedeemRequest[] private redeemQueue;
   uint256 private redeemQueueLength;
 
   mapping(address => UserRedeemRequest) private redeemMapping;
 
+  /**
+    @dev Initializes the contract
+    @param connectorAddress MoCConnector contract address
+    @param _governor Governor contract address
+    @param _blockSpan Blockspan configuration blockspan of settlement
+  */
   function initialize(
     address connectorAddress,
     address _governor,
@@ -123,10 +129,10 @@ Governed
   }
 
   /**
-  @dev Gets the RedeemRequest at the queue index position
-  @param _index queue position to get
-  @return redeemer's address and amount he submitted
-*/
+    @dev Gets the RedeemRequest at the queue index position
+    @param _index queue position to get
+    @return redeemer's address and amount he submitted
+  */
   function getRedeemRequestAt(uint256 _index)
   public
   view
@@ -137,61 +143,61 @@ Governed
   }
 
   /**
-  @dev Gets the number of blocks the settlemnet will be allowed to run
-*/
+    @dev Gets the number of blocks the settlemnet will be allowed to run
+  */
   function getBlockSpan() public view returns (uint256) {
     return blockSpan;
   }
 
   /**
- @dev Verify that the index is smaller than the length of the redeem request queue
- @param _index queue position to get
- */
+    @dev Verify that the index is smaller than the length of the redeem request queue
+    @param _index queue position to get
+  */
   modifier withinBoundaries(uint256 _index) {
     require(_index < redeemQueueLength, "Index out of boundaries");
     _;
   }
 
   /**
-  @dev Returns the current redeem request queue's length
- */
+    @dev Returns the current redeem request queue's length
+  */
   function redeemQueueSize() public view returns (uint256) {
     return redeemQueueLength;
   }
 
   /**
-  @dev Returns true if blockSpan number of blocks has pass since last execution
-*/
+    @dev Returns true if blockSpan number of blocks has pass since last execution
+  */
   function isSettlementEnabled() public view returns (bool) {
     return nextSettlementBlock() <= block.number;
   }
 
   /**
-  @dev Returns true if the settlment is running
-*/
+    @dev Returns true if the settlment is running
+  */
   function isSettlementRunning() public view returns (bool) {
     return isGroupRunning(SETTLEMENT_TASK);
   }
 
   /**
-  @dev Returns true if the settlment is ready
-*/
+    @dev Returns true if the settlment is ready
+  */
   function isSettlementReady() public view returns (bool) {
     return isGroupReady(SETTLEMENT_TASK);
   }
 
   /**
-  @dev Returns the next block from which settlement is possible
- */
+    @dev Returns the next block from which settlement is possible
+  */
   function nextSettlementBlock() public view returns (uint256) {
     return lastProcessedBlock.add(blockSpan);
   }
 
   /**
-  @dev returns the total amount of Docs in the redeem queue for _who
-  @param _who address for which ^ is computed
-  @return total amount of Docs in the redeem queue for _who [using mocPrecision]
- */
+    @dev returns the total amount of Docs in the redeem queue for _who
+    @param _who address for which ^ is computed
+    @return total amount of Docs in the redeem queue for _who [using mocPrecision]
+  */
   function docAmountToRedeem(address _who) public view returns (uint256) {
     if (!redeemMapping[_who].activeRedeemer) {
       return 0;
@@ -203,10 +209,10 @@ Governed
   }
 
   /**
-  @dev push a new redeem request to the queue for the sender or updates the amount if the user has a redeem request
-  @param amount amount he is willing to redeem [using mocPrecision]
-  @param redeemer redeemer address
-*/
+    @dev push a new redeem request to the queue for the sender or updates the amount if the user has a redeem request
+    @param amount amount he is willing to redeem [using mocPrecision]
+    @param redeemer redeemer address
+  */
   function addRedeemRequest(uint256 amount, address payable redeemer)
   public
   onlyWhitelisted(msg.sender)
@@ -225,19 +231,19 @@ Governed
   }
 
   /**
-  @dev empty the queue
- */
+    @dev empty the queue
+  */
   function clear() public onlyWhitelisted(msg.sender) {
     redeemQueueLength = 0;
   }
 
   /**
-  @dev Alters the redeem amount position for the redeemer
-  @param isAddition true if adding amount to redeem, false to substract.
-  @param delta the amount to add/substract to current position [using mocPrecision]
-  @param redeemer address to alter amount for
-  @return the filled amount [using mocPrecision]
-*/
+    @dev Alters the redeem amount position for the redeemer
+    @param isAddition true if adding amount to redeem, false to substract.
+    @param delta the amount to add/substract to current position [using mocPrecision]
+    @param redeemer address to alter amount for
+    @return the filled amount [using mocPrecision]
+  */
   function alterRedeemRequestAmount(
     bool isAddition,
     uint256 delta,
@@ -265,10 +271,10 @@ Governed
   }
 
   /**
-* @dev Runs settlement process in steps
-  @param steps Amount of steps to run
-  @return The commissions collected in the executed steps
-*/
+    @dev Runs settlement process in steps
+    @param steps Amount of steps to run
+    @return The commissions collected in the executed steps
+  */
   function runSettlement(uint256 steps)
   public
   onlyWhitelisted(msg.sender)

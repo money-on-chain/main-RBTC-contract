@@ -7,6 +7,14 @@ import "./MoCBucketContainer.sol";
 contract MoCBProxManager is MoCBucketContainer {
   using SafeMath for uint256;
   uint256 constant MIN_ALLOWED_BALANCE = 0;
+
+  /**
+    @dev Initializes the contract
+    @param connectorAddress MoCConnector contract address
+    @param _governor Governor contract address
+    @param _c0Cobj Bucket C0 objective coverage
+    @param _x2Cobj Bucket X2 objective coverage
+  */
   function initialize(
     address connectorAddress,
     address _governor,
@@ -60,7 +68,7 @@ contract MoCBProxManager is MoCBucketContainer {
   }
 
   /**
-    @dev  Removes the amount of BProx and substract BTC cost from bucket
+    @dev Removes the amount of BProx and substract BTC cost from bucket
     @param bucket bucket from which the BProx will be removed
     @param userAddress user address to redeem for
     @param bproxAmount bprox amount to redeem [using mocPresicion]
@@ -114,8 +122,9 @@ contract MoCBProxManager is MoCBucketContainer {
   }
 
   /**
-   * @dev intializes values of the contract
-   */
+   @dev intializes values of the contract
+   @param _governor Governor contract address
+  */
   function initializeValues(address _governor) internal {
     governor = IGovernor(_governor);
   }

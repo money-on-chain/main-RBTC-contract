@@ -24,6 +24,11 @@ contract MoCConverter is MoCBase, MoCLibConnection {
     return mocLibConfig.totalBProInBtc(amount, tecPrice);
   }
 
+  /**
+  * @dev Converts BTC to BPro
+  * @param btcAmount BTC amount
+  * @return BPro amount
+  */
   function btcToBPro(uint256 btcAmount) public view returns(uint256) {
     return mocLibConfig.maxBProWithBtc(btcAmount, mocState.bproTecPrice());
   }
@@ -31,7 +36,8 @@ contract MoCConverter is MoCBase, MoCLibConnection {
   /**
   * @dev BTC equivalent for the amount of bpro given applying the spotDiscountRate
   * @param amount amount of BPro [using mocPrecision]
-   */
+  * @return BTC amount
+  */
   function bproDiscToBtc(uint256 amount) public view returns(uint256) {
     uint256 discountRate = mocState.bproSpotDiscountRate();
     uint256 totalBtcValue = bproToBtc(amount);

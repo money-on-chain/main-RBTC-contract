@@ -124,6 +124,10 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
   MoCInrate internal mocInrate;
   MoC internal moc;
 
+  /**
+    @dev Initializes the contract
+    @param connectorAddress MoCConnector contract address
+  */
   function initialize(address connectorAddress) public initializer {
     initializePrecisions();
     initializeBase(connectorAddress);
@@ -138,11 +142,11 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
   /** Upgrade to support multiple commission rates **/
   /** Public functions **/
 
-    /**
-  * @dev Converts MoC commission from RBTC to MoC price
-  * @param btcAmount Amount to be converted to MoC price
-  * @return Amount converted to MoC Price, Bitcoin price and MoC price
-  **/
+  /**
+   @dev Converts MoC commission from RBTC to MoC price
+   @param btcAmount Amount to be converted to MoC price
+   @return Amount converted to MoC Price, Bitcoin price and MoC price
+  */
   function convertToMoCPrice(uint256 btcAmount) public view returns (uint256, uint256, uint256) {
     uint256 btcPrice = mocState.getBitcoinPrice();
     uint256 mocPrice = mocState.getMoCPrice();
@@ -153,6 +157,12 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
     return (amountInMoC, btcPrice, mocPrice);
   }
 
+  /**
+   @dev Converts MoC commission from RBTC to MoC price
+   @param owner address of token owner
+   @param spender address of token spender
+   @return MoC balance of owner and MoC allowance of spender
+  */
   function getMoCTokenBalance(address owner, address spender) public view
   returns (uint256 mocBalance, uint256 mocAllowance) {
     mocBalance = 0;
@@ -170,10 +180,10 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
   }
 
   /**
-   * @dev Calculates commissions in MoC and BTC
-   * @param params Params defined in CommissionParamsStruct
-   * @return Commissions calculated in MoC price and bitcoin price; and Bitcoin and MoC prices
-   **/
+   @dev Calculates commissions in MoC and BTC
+   @param params Params defined in CommissionParamsStruct
+   @return Commissions calculated in MoC price and bitcoin price; and Bitcoin and MoC prices
+  */
   function calculateCommissionsWithPrices(CommissionParamsStruct memory params)
   public view
   returns (CommissionReturnStruct memory ret) {
@@ -210,8 +220,11 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
   /** END UPDATE V0110: 24/09/2020 **/
 
   /**
-   * @dev Mint BPros and give it to the msg.sender
-   */
+   @dev Mint BPros and give it to the msg.sender
+   @param account Address of minter
+   @param btcAmount Amount in BTC to mint
+   @param vendorAccount Vendor address
+  */
 // solium-disable-next-line security/no-assign-params
   function mintBPro(address account, uint256 btcAmount, address vendorAccount)
     public
@@ -273,12 +286,12 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
   }
 
   /**
-   * @dev Sender burns his BProS and redeems the equivalent BTCs
-   * @param account Address of the redeeemer
-   * @param bproAmount Amount of BPros to be redeemed
-   * @param vendorAccount Vendor address
-   * @return bitcoins to transfer to the redeemer and commission spent (in BTC and MoC), using [using reservePrecision]
-   **/
+   @dev Sender burns his BProS and redeems the equivalent BTCs
+   @param account Address of the redeeemer
+   @param bproAmount Amount of BPros to be redeemed
+   @param vendorAccount Vendor address
+   @return bitcoins to transfer to the redeemer and commission spent (in BTC and MoC), using [using reservePrecision]
+  */
   function redeemBPro(address account, uint256 bproAmount, address vendorAccount)
     public
     onlyWhitelisted(msg.sender)
@@ -328,11 +341,11 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
   }
 
   /**
-  * @dev Redeems the requested amount for the account, or the max amount of free docs possible.
-  * @param account Address of the redeeemer
-  * @param docAmount Amount of Docs to redeem [using mocPrecision]
-  * @param vendorAccount Vendor address
-  * @return bitcoins to transfer to the redeemer and commission spent (in BTC and MoC), using [using reservePrecision]
+   @dev Redeems the requested amount for the account, or the max amount of free docs possible.
+   @param account Address of the redeeemer
+   @param docAmount Amount of Docs to redeem [using mocPrecision]
+   @param vendorAccount Vendor address
+   @return bitcoins to transfer to the redeemer and commission spent (in BTC and MoC), using [using reservePrecision]
   */
   function redeemFreeDoc(address account, uint256 docAmount, address vendorAccount)
     public
@@ -377,12 +390,12 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
   }
 
   /**
-   * @dev Mint Max amount of Docs and give it to the msg.sender
-   * @param account minter user address
-   * @param btcToMint btc amount the user intents to convert to DoC [using rbtPresicion]
-   * @param vendorAccount Vendor address
-   * @return the actual amount of btc used and the btc commission (in BTC and MoC) for them [using rbtPresicion]
-   */
+   @dev Mint Max amount of Docs and give it to the msg.sender
+   @param account minter user address
+   @param btcToMint btc amount the user intents to convert to DoC [using rbtPresicion]
+   @param vendorAccount Vendor address
+   @return the actual amount of btc used and the btc commission (in BTC and MoC) for them [using rbtPresicion]
+  */
   function mintDoc(address account, uint256 btcToMint, address vendorAccount)
     public
     onlyWhitelisted(msg.sender)
@@ -425,12 +438,12 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
   }
 
   /**
-   * @dev User DoCs get burned and he receives the equivalent BTCs in return
-   * @param userAddress Address of the user asking to redeem
-   * @param amount Verified amount of Docs to be redeemed [using mocPrecision]
-   * @param btcPrice bitcoin price [using mocPrecision]
-   * @return true and commission spent (in BTC and MoC) if btc send was completed, false if fails.
-   **/
+   @dev User DoCs get burned and he receives the equivalent BTCs in return
+   @param userAddress Address of the user asking to redeem
+   @param amount Verified amount of Docs to be redeemed [using mocPrecision]
+   @param btcPrice bitcoin price [using mocPrecision]
+   @return true and commission spent (in BTC and MoC) if btc send was completed, false if fails.
+  */
   function redeemDocWithPrice(
     address payable userAddress,
     uint256 amount,
@@ -466,12 +479,12 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
   }
 
   /**
-   * @dev Allow redeem on liquidation state, user DoCs get burned and he receives
-   * the equivalent RBTCs according to liquidationPrice
-   * @param origin address owner of the DoCs
-   * @param destination address to send the RBTC
-   * @return The amount of RBTC in sent for the redemption or 0 if send does not succed
-   **/
+   @dev Allow redeem on liquidation state, user DoCs get burned and he receives
+   the equivalent RBTCs according to liquidationPrice
+   @param origin address owner of the DoCs
+   @param destination address to send the RBTC
+   @return The amount of RBTC in sent for the redemption or 0 if send does not succed
+  */
   function redeemAllDoc(address origin, address payable destination)
     public
     onlyWhitelisted(msg.sender)
@@ -545,13 +558,13 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
   }
 
   /**
-   * @dev BUCKET Bprox minting. Mints Bprox for the specified bucket
-   * @param account owner of the new minted Bprox
-   * @param bucket bucket name
-   * @param btcToMint rbtc amount to mint [using reservePrecision]
-   * @param vendorAccount Vendor address
-   * @return total RBTC Spent (btcToMint more interest) and commission spent (in BTC and MoC) [using reservePrecision]
-   **/
+   @dev BUCKET Bprox minting. Mints Bprox for the specified bucket
+   @param account owner of the new minted Bprox
+   @param bucket bucket name
+   @param btcToMint rbtc amount to mint [using reservePrecision]
+   @param vendorAccount Vendor address
+   @return total RBTC Spent (btcToMint more interest) and commission spent (in BTC and MoC) [using reservePrecision]
+  */
   function mintBProx(address payable account, bytes32 bucket, uint256 btcToMint, address vendorAccount)
     public
     onlyWhitelisted(msg.sender)
@@ -604,14 +617,14 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
   }
 
   /**
-   * @dev Sender burns his BProx, redeems the equivalent amount of BPros, return
-   * the "borrowed" DOCs and recover pending interests
-   * @param account user address to redeem bprox from
-   * @param bucket Bucket where the BProxs are hold
-   * @param bproxAmount Amount of BProxs to be redeemed [using mocPrecision]
-   * @param vendorAccount Vendor address
-   * @return the actual amount of btc to redeem and the btc commission (in BTC and MoC) for them [using reservePrecision]
-   **/
+   @dev Sender burns his BProx, redeems the equivalent amount of BPros, return
+   the "borrowed" DOCs and recover pending interests
+   @param account user address to redeem bprox from
+   @param bucket Bucket where the BProxs are hold
+   @param bproxAmount Amount of BProxs to be redeemed [using mocPrecision]
+   @param vendorAccount Vendor address
+   @return the actual amount of btc to redeem and the btc commission (in BTC and MoC) for them [using reservePrecision]
+  */
   function redeemBProx(
     address payable account,
     bytes32 bucket,
@@ -682,7 +695,7 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
     @param bproxAmount Amount of BProx to redeem [using mocPrecision]
     @param bproxPrice Price of one BProx in RBTC [using reservePrecision]
     @return result of the RBTC sending transaction [using reservePrecision]
-  **/
+  */
   function forceRedeemBProx(
     bytes32 bucket,
     address payable account,
@@ -709,8 +722,7 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
     @param bproxAmount Amount of BProx to redeem [using mocPrecision]
     @param bproxPrice Price of one BProx in RBTC [using reservePrecision]
     @return Bitcoin total value of the redemption [using reservePrecision]
-
-  **/
+  */
   function burnBProxFor(
     bytes32 bucket,
     address payable account,
@@ -736,8 +748,8 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
   /** Internal functions **/
 
   /**
-   * @dev Internal function to avoid stack too deep errors
-   **/
+   @dev Internal function to avoid stack too deep errors
+  */
   function redeemBProxInternal(
     address account,
     bytes32 bucket,
@@ -763,8 +775,8 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
   }
 
   /**
-   * @dev Internal function to avoid stack too deep errors
-  **/
+   @dev Internal function to avoid stack too deep errors
+  */
   function mintBProInternal(address account, uint256 btcAmount, RiskProMintStruct memory details, address vendorAccount) internal {
     mintBPro(
       account,
@@ -781,8 +793,8 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
   }
 
   /**
-   * @dev Internal function to avoid stack too deep errors
-  **/
+   @dev Internal function to avoid stack too deep errors
+  */
   function mintBProxInternal(address account, bytes32 bucket, RiskProxMintStruct memory details, address vendorAccount) internal {
     emit RiskProxMint(
       bucket,
@@ -802,8 +814,8 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
   }
 
   /**
-   * @dev Internal function to avoid stack too deep errors
-  **/
+   @dev Internal function to avoid stack too deep errors
+  */
   function mintDocInternal(address account, StableTokenMintStruct memory details, address vendorAccount) internal {
     emit StableTokenMint(
       account,
@@ -820,8 +832,8 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
   }
 
   /**
-   * @dev Internal function to avoid stack too deep errors
-  **/
+   @dev Internal function to avoid stack too deep errors
+  */
   function redeemFreeDocInternal(address account, FreeStableTokenRedeemStruct memory details, address vendorAccount) internal {
     emit FreeStableTokenRedeem(
       account,
@@ -839,8 +851,8 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
   }
 
   /**
-   * @dev Internal function to avoid stack too deep errors
-  **/
+   @dev Internal function to avoid stack too deep errors
+  */
   function redeemBProInternal(address account, RiskProRedeemStruct memory details, address vendorAccount) internal {
     emit RiskProRedeem(
       account,
@@ -857,8 +869,8 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
   }
 
   /**
-   * @dev Internal function to avoid stack too deep errors
-  **/
+   @dev Internal function to avoid stack too deep errors
+  */
   function redeemDocWithPriceInternal(address account, uint256 amount, StableTokenRedeemStruct memory details, address vendorAccount) internal {
     emit StableTokenRedeem(
       account, //userAddress,
@@ -883,7 +895,7 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
     @param bucketTo Destination bucket to which the BTC are moving
     @param totalBtc Amount of BTC moving between buckets [using reservePrecision]
     @param lev lev of the L bucket [using mocPrecision]
-  **/
+  */
   function moveExtraFundsToBucket(
     bytes32 bucketFrom,
     bytes32 bucketTo,
@@ -911,11 +923,11 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
   }
 
   /**
-   * @dev Returns RBTCs for user in concept of interests refund
-   * @param bucket Bucket where the BProxs are hold
-   * @param rbtcToRedeem Total RBTC value of the redemption [using reservePrecision]
-   * @return Interests [using reservePrecision]
-   **/
+   @dev Returns RBTCs for user in concept of interests refund
+   @param bucket Bucket where the BProxs are hold
+   @param rbtcToRedeem Total RBTC value of the redemption [using reservePrecision]
+   @return Interests [using reservePrecision]
+  */
   function recoverInterests(bytes32 bucket, uint256 rbtcToRedeem)
     internal
     returns (uint256)

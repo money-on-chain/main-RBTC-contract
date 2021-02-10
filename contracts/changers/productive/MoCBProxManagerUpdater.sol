@@ -11,7 +11,7 @@ contract MoCBProxManagerUpdater is UpgraderTemplate {
   address public newImplementation;
 
   /**
-    @notice Constructor
+    @dev Constructor
     @param _proxy Address of the proxy to be upgraded
     @param _upgradeDelegator Address of the upgradeDelegator in charge of that proxy
     @param _newImplementation Address of the contract the proxy will delegate to

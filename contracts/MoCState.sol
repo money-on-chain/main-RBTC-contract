@@ -78,6 +78,10 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
   // [using mocPrecision]
   uint256 public protected;
 
+  /**
+    @dev Initializes the contract
+    @param params Params defined in InitializeParams struct
+  */
   function initialize(InitializeParams memory params) public initializer {
     initializePrecisions();
     initializeBase(params.connectorAddress);
@@ -97,34 +101,35 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
   }
 
   /**
-  * @param rate Discount rate at liquidation level [using mocPrecision]
-  **/
+   @dev Sets the max discount rate.
+   @param rate Discount rate at liquidation level [using mocPrecision]
+  */
   function setMaxDiscountRate(uint256 rate) public onlyAuthorizedChanger() {
     require(rate < mocLibConfig.mocPrecision, "rate is lower than mocPrecision");
 
     bproMaxDiscountRate = rate;
   }
 
-    /**
-   * @dev return the value of the BPro max discount rate configuration param
-   * @return bproMaxDiscountRate BPro max discount rate
-   */
+  /**
+   @dev Returns the value of the BPro max discount rate configuration param
+   @return bproMaxDiscountRate BPro max discount rate
+  */
   function getMaxDiscountRate() public view returns(uint256) {
     return bproMaxDiscountRate;
   }
 
   /**
-  * @dev Defines how many blocks there are in a day
-  * @param blockSpan blocks there are in a day
-  **/
+    @dev Defines how many blocks there are in a day
+    @param blockSpan blocks there are in a day
+  */
   function setDayBlockSpan(uint256 blockSpan) public onlyAuthorizedChanger() {
     dayBlockSpan = blockSpan;
   }
 
   /**
-  * @dev Sets a new BTCProvider contract
-  * @param btcProviderAddress blocks there are in a day
-  **/
+   @dev Sets a new BTCProvider contract
+   @param btcProviderAddress address of the BTC price provider contract
+  */
   function setBtcPriceProvider(address btcProviderAddress) public onlyAuthorizedChanger() {
     address oldBtcPriceProviderAddress = address(btcPriceProvider);
     btcPriceProvider = PriceProvider(btcProviderAddress);
@@ -132,19 +137,21 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
   }
 
   /**
-  * @dev Gets the BTCPriceProviderAddress
-  * @return btcPriceProvider blocks there are in a day
-  **/
+   @dev Gets the BTCPriceProviderAddress
+   @return address of the BTC price provider contract
+  */
   function getBtcPriceProvider() public view returns(address) {
     return address(btcPriceProvider);
   }
+
   /**
-   * @dev Gets how many blocks there are in a day
-   * @return blocks there are in a day
-   */
+   @dev Gets how many blocks there are in a day
+   @return blocks there are in a day
+  */
   function getDayBlockSpan() public view returns(uint256) {
     return dayBlockSpan;
   }
+
   /******STATE MACHINE*********/
 
   enum States {
@@ -158,17 +165,17 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
     AboveCobj
   }
 
-/**
-  * @dev Subtract the btc amount passed by parameter to the total Bitcoin Amount
-  * @param btcAmount Amount that will be subtract to rbtcInSystem
+  /**
+   @dev Subtract the btc amount passed by parameter to the total Bitcoin Amount
+   @param btcAmount Amount that will be subtract to rbtcInSystem
   */
   function subtractRbtcFromSystem(uint256 btcAmount) public onlyWhitelisted(msg.sender) {
     rbtcInSystem = rbtcInSystem.sub(btcAmount);
   }
 
   /**
-  * @dev btcAmount Add the btc amount passed by parameter to the total Bitcoin Amount
-  * @param btcAmount Amount that will be added to rbtcInSystem
+   @dev btcAmount Add the btc amount passed by parameter to the total Bitcoin Amount
+   @param btcAmount Amount that will be added to rbtcInSystem
   */
   function addToRbtcInSystem(uint256 btcAmount) public onlyWhitelisted(msg.sender) {
     rbtcInSystem = rbtcInSystem.add(btcAmount);
@@ -190,15 +197,14 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
 
   /**
     @dev Target coverage for complete system
-   */
+  */
   function cobj() public view returns(uint256) {
     return bproxManager.getBucketCobj(BUCKET_C0);
   }
 
   /**
-    * @dev Amount of Bitcoins in the system excluding
-    * BTCx values and interests holdings
-    */
+    @dev Amount of Bitcoins in the system excluding BTCx values and interests holdings
+  */
   function collateralRbtcInSystem() public view returns(uint256) {
     uint256 rbtcInBtcx = mocConverter.bproxToBtcHelper(bproxManager.getBucketNBPro(BUCKET_X2),BUCKET_X2);
     uint256 rbtcInBag = bproxManager.getInrateBag(BUCKET_C0);
@@ -206,9 +212,10 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
     return rbtcInSystem.sub(rbtcInBtcx).sub(rbtcInBag);
   }
 
-  /** @dev GLOBAL Coverage
-    * @return coverage [using mocPrecision]
-    */
+  /**
+    @dev GLOBAL Coverage
+    @return coverage [using mocPrecision]
+  */
   function globalCoverage() public view returns(uint256) {
     uint256 lB = globalLockedBitcoin();
 
@@ -216,9 +223,9 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
   }
 
   /**
-  * @dev BUCKET lockedBitcoin
-  * @param bucket Name of the bucket used
-  * @return lockedBitcoin amount [using reservePrecision]
+   @dev BUCKET lockedBitcoin
+   @param bucket Name of the bucket used
+   @return lockedBitcoin amount [using reservePrecision]
   */
   function lockedBitcoin(bytes32 bucket) public view returns(uint256) {
     uint256 nDoc = bproxManager.getBucketNDoc(bucket);
@@ -227,9 +234,9 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
   }
 
   /**
-  * @dev Gets RBTC in BitPro within specified bucket
-  * @param bucket Name of the bucket used
-  * @return Bitcoin amount of BitPro in Bucket [using reservePrecision]
+   @dev Gets RBTC in BitPro within specified bucket
+   @param bucket Name of the bucket used
+   @return Bitcoin amount of BitPro in Bucket [using reservePrecision]
   */
   function getRbtcInBitPro(bytes32 bucket) public view returns(uint256) {
     uint256 nB = bproxManager.getBucketNBTC(bucket);
@@ -243,9 +250,8 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
   }
 
   /**
-  * @dev Gets the RBTC in the contract that not corresponds
-    to Doc collateral
-  * @return RBTC remainder [using reservePrecision]
+   @dev Gets the RBTC in the contract that not corresponds to Doc collateral
+   @return RBTC remainder [using reservePrecision]
   */
   function getRbtcRemainder() public view returns(uint256) {
     uint256 lB = globalLockedBitcoin();
@@ -258,9 +264,9 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
   }
 
   /**
-  * @dev BUCKET Coverage
-  * @param bucket Name of the bucket used
-  * @return coverage [using coveragePrecision]
+   @dev BUCKET Coverage
+   @param bucket Name of the bucket used
+   @return coverage [using coveragePrecision]
   */
   function coverage(bytes32 bucket) public view returns(uint256) {
     if (!bproxManager.isBucketBase(bucket) && bproxManager.isBucketEmpty(bucket)) {
@@ -273,26 +279,26 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
     return mocLibConfig.coverage(nB, lB);
   }
 
-    /**
-  * @dev Abundance ratio, receives tha amount of doc to use the value of doc0 and Doc total supply
-  * @return abundance ratio [using mocPrecision]
+  /**
+   @dev Abundance ratio, receives tha amount of doc to use the value of doc0 and Doc total supply
+   @return abundance ratio [using mocPrecision]
   */
   function abundanceRatio(uint256 doc0) public view returns(uint256) {
     return mocLibConfig.abundanceRatio(doc0, docTotalSupply());
   }
 
   /**
-  * @dev Relation between docs in bucket 0 and Doc total supply
-  * @return abundance ratio [using mocPrecision]
+   @dev Relation between docs in bucket 0 and Doc total supply
+   @return abundance ratio [using mocPrecision]
   */
   function currentAbundanceRatio() public view returns(uint256) {
     return abundanceRatio(getBucketNDoc(BUCKET_C0));
   }
 
   /**
-  * @dev BUCKET Leverage
-  * @param bucket Name of the bucket used
-  * @return coverage [using mocPrecision]
+   @dev BUCKET Leverage
+   @param bucket Name of the bucket used
+   @return coverage [using mocPrecision]
   */
   function leverage(bytes32 bucket) public view returns(uint256) {
     uint256 cov = coverage(bucket);
@@ -301,23 +307,24 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
   }
 
   /**
-  * @dev GLOBAL maxDoc
-  * @return abundance ratio [using mocPrecision]
+   @dev GLOBAL maxDoc
+   @return abundance ratio [using mocPrecision]
   */
   function globalMaxDoc() public view returns(uint256) {
     return mocLibConfig.maxDoc(collateralRbtcInSystem(), cobj(), docTotalSupply(), peg, getBitcoinPrice(), getBcons());
   }
 
   /**
-  * @return amount of docs in bucket 0, that can be redeemed outside of settlement [using mocPrecision]
+   @dev Returns the amount of DoCs in bucket 0, that can be redeemed outside of settlement
+   @return amount of docs in bucket 0, that can be redeemed outside of settlement [using mocPrecision]
   */
   function freeDoc() public view returns(uint256) {
     return bproxManager.getBucketNDoc(BUCKET_C0);
   }
 
   /**
-  * @dev BUCKET maxDoc
-  * @return abundance ratio [using mocPrecision]
+   @dev BUCKET maxDoc
+   @return abundance ratio [using mocPrecision]
   */
   function maxDoc(bytes32 bucket) public view returns(uint256) {
     uint256 nB = bproxManager.getBucketNBTC(bucket);
@@ -328,8 +335,8 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
   }
 
   /**
-  * @dev GLOBAL maxBPro
-  * @return maxBPro for redeem [using reservePrecision]
+   @dev GLOBAL maxBPro
+   @return maxBPro for redeem [using reservePrecision]
   */
   function globalMaxBPro() public view returns(uint256) {
     uint256 bproPrice = bproUsdPrice();
@@ -340,17 +347,18 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
   }
 
   /**
-  * @dev ABSOLUTE maxDoc
-  * @return maxDoc to issue [using mocPrecision]
+   @dev ABSOLUTE maxDoc
+   @return maxDoc to issue [using mocPrecision]
   */
   function absoluteMaxDoc() public view returns(uint256) {
     return Math.min(globalMaxDoc(), maxDoc(BUCKET_C0));
   }
 
-  /** @dev BUCKET maxBPro to redeem / mint
-      @param bucket Name of the bucket used
-    * @return maxBPro for redeem [using mocPrecision]
-    */
+  /**
+    @dev BUCKET maxBPro to redeem / mint
+    @param bucket Name of the bucket used
+    @return maxBPro for redeem [using mocPrecision]
+  */
   function maxBPro(bytes32 bucket) public view returns(uint256) {
     uint256 nB = bproxManager.getBucketNBTC(bucket);
     uint256 nDoc = bproxManager.getBucketNDoc(bucket);
@@ -362,10 +370,10 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
     );
   }
 
- /**
-  * @dev GLOBAL max bprox to mint
-  * @param bucket Name of the bucket used
-  * @return maxBProx [using reservePrecision]
+  /**
+   @dev GLOBAL max bprox to mint
+   @param bucket Name of the bucket used
+   @return maxBProx [using reservePrecision]
   */
   function maxBProx(bytes32 bucket) public view returns(uint256) {
     uint256 maxBtc = maxBProxBtcValue(bucket);
@@ -374,9 +382,9 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
   }
 
   /**
-  * @dev GLOBAL max bprox to mint
-  * @param bucket Name of the bucket used
-  * @return maxBProx BTC value to mint [using reservePrecision]
+   @dev GLOBAL max bprox to mint
+   @param bucket Name of the bucket used
+   @return maxBProx BTC value to mint [using reservePrecision]
   */
   function maxBProxBtcValue(bytes32 bucket) public view returns(uint256) {
     uint256 nDoc0 = bproxManager.getBucketNDoc(BUCKET_C0);
@@ -385,16 +393,17 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
     return mocLibConfig.maxBProxBtcValue(nDoc0, peg, getBitcoinPrice(), bucketLev);
   }
 
-  /** @dev ABSOLUTE maxBPro
-  * @return maxDoc to issue [using mocPrecision]
+  /**
+   @dev ABSOLUTE maxBPro
+   @return maxDoc to issue [using mocPrecision]
   */
   function absoluteMaxBPro() public view returns(uint256) {
     return Math.min(globalMaxBPro(), maxBPro(BUCKET_C0));
   }
 
   /**
-  * @dev DISCOUNT maxBPro
-  * @return maxBPro for mint with discount [using mocPrecision]
+   @dev DISCOUNT maxBPro
+   @return maxBPro for mint with discount [using mocPrecision]
   */
   function maxBProWithDiscount() public view returns(uint256) {
     uint256 nDoc = docTotalSupply();
@@ -407,25 +416,25 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
   }
 
   /**
-  * @dev GLOBAL lockedBitcoin
-  * @return lockedBitcoin amount [using reservePrecision]
+   @dev GLOBAL lockedBitcoin
+   @return lockedBitcoin amount [using reservePrecision]
   */
   function globalLockedBitcoin() public view returns(uint256) {
     return mocLibConfig.lockedBitcoin(getBitcoinPrice(), docTotalSupply(), peg);
   }
 
   /**
-  * @dev BTC price of BPro
-  * @return the BPro Tec Price [using reservePrecision]
+   @dev BTC price of BPro
+   @return the BPro Tec Price [using reservePrecision]
   */
   function bproTecPrice() public view returns(uint256) {
     return bucketBProTecPrice(BUCKET_C0);
   }
 
   /**
-  * @dev BUCKET BTC price of BPro
-  * @param bucket Name of the bucket used
-  * @return the BPro Tec Price [using reservePrecision]
+   @dev BUCKET BTC price of BPro
+   @param bucket Name of the bucket used
+   @return the BPro Tec Price [using reservePrecision]
   */
   function bucketBProTecPrice(bytes32 bucket) public view returns(uint256) {
     uint256 cov = globalCoverage();
@@ -440,9 +449,9 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
   }
 
   /**
-  * @dev BUCKET BTC price of BPro (helper)
-  * @param bucket Name of the bucket used
-  * @return the BPro Tec Price [using reservePrecision]
+   @dev BUCKET BTC price of BPro (helper)
+   @param bucket Name of the bucket used
+   @return the BPro Tec Price [using reservePrecision]
   */
   function bucketBProTecPriceHelper(bytes32 bucket) public view returns(uint256) {
     uint256 nBPro = bproxManager.getBucketNBPro(bucket);
@@ -453,8 +462,8 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
   }
 
   /**
-  * @dev BTC price of BPro with spot discount applied
-  * @return the BPro Tec Price [using reservePrecision]
+   @dev BTC price of BPro with spot discount applied
+   @return the BPro Tec Price [using reservePrecision]
   */
   function bproDiscountPrice() public view returns(uint256) {
     uint256 bproTecprice = bproTecPrice();
@@ -464,8 +473,8 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
   }
 
   /**
-  * @dev BPro USD PRICE
-  * @return the BPro USD Price [using mocPrecision]
+   @dev BPro USD PRICE
+   @return the BPro USD Price [using mocPrecision]
   */
   function bproUsdPrice() public view returns(uint256) {
     uint256 bproBtcPrice = bproTecPrice();
@@ -475,10 +484,10 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
   }
 
  /**
-  * @dev GLOBAL max bprox to mint
-  * @param bucket Name of the bucket used
-  * @return max BPro allowed to be spent to mint BProx [using reservePrecision]
-  **/
+   @dev GLOBAL max bprox to mint
+   @param bucket Name of the bucket used
+   @return max BPro allowed to be spent to mint BProx [using reservePrecision]
+  */
   function maxBProxBProValue(bytes32 bucket) public view returns(uint256) {
     uint256 btcValue = maxBProxBtcValue(bucket);
 
@@ -486,9 +495,9 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
   }
 
   /**
-  * @dev BUCKET BProx price in BPro
-  * @param bucket Name of the bucket used
-  * @return BProx BPro Price [using mocPrecision]
+   @dev BUCKET BProx price in BPro
+   @param bucket Name of the bucket used
+   @return BProx BPro Price [using mocPrecision]
   */
   function bproxBProPrice(bytes32 bucket) public view returns(uint256) {
     // Otherwise, it reverts.
@@ -503,9 +512,9 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
   }
 
   /**
-  * @dev GLOBAL BTC Discount rate to apply to BProPrice.
-  * @return BPro discount rate [using DISCOUNT_PRECISION].
-   */
+   @dev GLOBAL BTC Discount rate to apply to BProPrice.
+   @return BPro discount rate [using DISCOUNT_PRECISION].
+  */
   function bproSpotDiscountRate() public view returns(uint256) {
     uint256 cov = globalCoverage();
 
@@ -514,14 +523,16 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
 
   /**
     @dev Calculates the number of days to next settlement based dayBlockSpan
-   */
+    @return days to next settlement
+  */
   function daysToSettlement() public view returns(uint256) {
     return blocksToSettlement().mul(mocLibConfig.dayPrecision).div(dayBlockSpan);
   }
 
   /**
-    @dev Number of blocks to settlement
-   */
+    @dev Calculates the number of blocks to settlement
+    @return Number of blocks to settlement
+  */
   function blocksToSettlement() public view returns(uint256) {
     if (mocSettlement.nextSettlementBlock() <= block.number) {
       return 0;
@@ -531,8 +542,9 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
   }
 
   /**
-   * @dev Verifies if forced liquidation is reached checking if globalCoverage <= liquidation (currently 1.04)
-   * @return true if liquidation state is reached, false otherwise
+    @dev Verifies if forced liquidation is reached checking if globalCoverage <= liquidation (currently 1.04)
+     and if liquidation is enabled
+    @return true if liquidation state is reached, false otherwise
    */
   function isLiquidationReached() public view returns(bool) {
     uint256 cov = globalCoverage();
@@ -542,8 +554,9 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
   }
 
   /**
-    @dev Returns the price to use for doc redeem in a liquidation event
-   */
+    @dev Gets the price to use for doc redeem in a liquidation event
+    @return price to use for doc redeem in a liquidation event
+  */
   function getLiquidationPrice() public view returns(uint256) {
     return liquidationPrice;
   }
@@ -591,85 +604,88 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
 
 
   /**
-   * @dev return the value of the liq threshold configuration param
-   * @return liq threshold, currently 1.04
-   */
+   @dev return the value of the liq threshold configuration param
+   @return liq threshold, currently 1.04
+  */
   function getLiq() public view returns(uint256) {
     return liq;
   }
 
   /**
-   * @dev sets the value of the liq threshold configuration param
-   * @param _liq liquidation threshold
-   */
+   @dev sets the value of the liq threshold configuration param
+   @param _liq liquidation threshold
+  */
   function setLiq(uint _liq) public onlyAuthorizedChanger(){
     liq = _liq;
   }
 
   /**
-   * @dev return the value of the utpdu threshold configuration param
-   * @return utpdu Universal TPro discount sales coverage threshold
-   */
+    @dev return the value of the utpdu threshold configuration param
+    @return utpdu Universal TPro discount sales coverage threshold
+  */
   function getUtpdu() public view returns(uint256) {
     return utpdu;
   }
 
   /**
-   * @dev sets the value of the utpdu threshold configuration param
-   * @param _utpdu Universal TPro discount sales coverage threshold
-   */
+   @dev sets the value of the utpdu threshold configuration param
+   @param _utpdu Universal TPro discount sales coverage threshold
+  */
   function setUtpdu(uint _utpdu) public onlyAuthorizedChanger(){
     utpdu = _utpdu;
   }
 
   /**
-   * @dev returns the relation between DOC and dollar. By default it is 1.
-   * @return peg relation between DOC and dollar
-   */
+   @dev returns the relation between DOC and dollar. By default it is 1.
+   @return peg relation between DOC and dollar
+  */
   function getPeg() public view returns(uint256) {
     return peg;
   }
 
   /**
-   * @dev sets the relation between DOC and dollar. By default it is 1.
-   * @param _peg relation between DOC and dollar
-   */
+   @dev sets the relation between DOC and dollar. By default it is 1.
+   @param _peg relation between DOC and dollar
+  */
   function setPeg(uint _peg) public onlyAuthorizedChanger(){
     peg = _peg;
   }
 
   /**
-   * @dev return the value of the protected threshold configuration param
-   * @return protected threshold, currently 1.5
-   */
+   @dev return the value of the protected threshold configuration param
+   @return protected threshold, currently 1.5
+  */
   function getProtected() public view returns(uint256) {
     return protected;
   }
 
   /**
-   * @dev sets the value of the protected threshold configuration param
-   * @param _protected protected threshold
-   */
+   @dev sets the value of the protected threshold configuration param
+   @param _protected protected threshold
+  */
   function setProtected(uint _protected) public onlyAuthorizedChanger() {
     protected = _protected;
   }
 
   /**
-   * @dev returns if is liquidation enabled.
-   * @return liquidationEnabled is liquidation enabled
-   */
+   @dev returns if is liquidation enabled.
+   @return liquidationEnabled is liquidation enabled
+  */
   function getLiquidationEnabled() public view returns(bool) {
     return liquidationEnabled;
   }
 
   /**
-   * @dev returns if is liquidation enabled.
-   * @param _liquidationEnabled is liquidation enabled
-   */
+   @dev returns if is liquidation enabled.
+   @param _liquidationEnabled is liquidation enabled
+  */
   function setLiquidationEnabled(bool _liquidationEnabled) public onlyAuthorizedChanger() {
     liquidationEnabled = _liquidationEnabled;
   }
 
+  /**
+   @dev Transitions to next state.
+  */
   function nextState() public {
     // There is no coming back from Liquidation
     if (state == States.Liquidated)
@@ -701,16 +717,17 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
   /** Public functions **/
 
   /**
-  * @param _maxMintBPro [using mocPrecision]
-  **/
+   @dev Sets max mint BPro value
+   @param _maxMintBPro [using mocPrecision]
+  */
   function setMaxMintBPro(uint256 _maxMintBPro) public onlyAuthorizedChanger() {
     maxMintBPro = _maxMintBPro;
   }
 
-   /**
-   * @dev return Max value posible to mint of BPro
-   * @return maxMintBPro
-   */
+  /**
+    @dev return Max value posible to mint of BPro
+    @return maxMintBPro
+  */
   function getMaxMintBPro() public view returns(uint256) {
     return maxMintBPro;
   }
@@ -731,9 +748,9 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
    *********************/
 
   /**
-  * @dev Sets a new MoCProvider contract
-  * @param mocProviderAddress MoC price provider address
-  **/
+   @dev Sets a new MoCProvider contract
+   @param mocProviderAddress MoC price provider address
+  */
   function setMoCPriceProvider(address mocProviderAddress) public onlyAuthorizedChanger() {
     address oldMoCPriceProviderAddress = address(mocPriceProvider);
     mocPriceProvider = TexPriceProvider(mocProviderAddress);
@@ -741,17 +758,17 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
   }
 
   /**
-  * @dev Gets the MoCPriceProviderAddress
-  * @return mocPriceProvider MoC price provider address
-  **/
+   @dev Gets the MoCPriceProviderAddress
+   @return MoC price provider address
+  */
   function getMoCPriceProvider() public view returns(address) {
     return address(mocPriceProvider);
   }
 
   /**
-  * @dev Gets the MoCPrice
-  * @return price MoC price
-  **/
+   @dev Gets the MoCPrice
+   @return MoC price
+  */
   function getMoCPrice() public view returns(uint256 price) {
     price = mocPriceProvider.getLastClosingPrice(address(docToken), address(mocToken));
     require(price > 0, "Invalid price");
@@ -763,11 +780,19 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
     MoC TOKEN
    *********************/
 
+  /**
+   @dev Sets the MoC token contract address
+   @param mocTokenAddress MoC token contract address
+  */
   // TODO: Suggestion: create a "MoCConnectorChanger" contract and whitelist the address
   function setMoCToken(address mocTokenAddress) public onlyAuthorizedChanger() {
     setMoCTokenInternal(mocTokenAddress);
   }
 
+  /**
+   @dev Gets the MoC token contract address
+   @return MoC token contract address
+  */
   function getMoCToken() public view returns(address) {
     return address(mocToken);
   }
@@ -777,10 +802,18 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
    *********************/
 
   // TODO: Suggestion: create a "MoCConnectorChanger" contract and whitelist the address
+  /**
+   @dev Sets the MoCVendors contract address
+   @param mocVendorsAddress MoCVendors contract address
+  */
   function setMoCVendors(address mocVendorsAddress) public onlyAuthorizedChanger() {
     setMoCVendorsInternal(mocVendorsAddress);
   }
 
+  /**
+   @dev Gets the MoCVendors contract addfress
+   @return MoCVendors contract address
+  */
   function getMoCVendors() public view returns(address) {
     return address(mocVendors);
   }
@@ -800,6 +833,10 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
     MoC TOKEN
    *********************/
 
+  /**
+   @dev Sets the MoC token contract address (internal function)
+   @param mocTokenAddress MoC token contract address
+  */
   function setMoCTokenInternal(address mocTokenAddress) internal {
     mocToken = MoCToken(mocTokenAddress);
 
@@ -810,6 +847,10 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
     MoC VENDORS
    *********************/
 
+  /**
+   @dev Sets the MoCVendors contract address (internal function)
+   @param mocVendorsAddress MoCVendors contract address
+  */
   function setMoCVendorsInternal(address mocVendorsAddress) internal {
     mocVendors = MoCVendors(mocVendorsAddress);
 
@@ -821,7 +862,7 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
   /**
     @dev Calculates price at liquidation event as the relation between
     the doc total supply and the amount of RBTC available to distribute
-   */
+  */
   function setLiquidationPrice() internal {
     // When coverage is below 1, the amount to
     // distribute is all the RBTC in the contract

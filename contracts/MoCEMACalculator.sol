@@ -4,7 +4,6 @@ import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "moc-governance/contracts/Governance/Governed.sol";
 import "moc-governance/contracts/Governance/IGovernor.sol";
 
-/** @title Btc Price Provider. */
 contract MoCEMACalculator is Governed {
   using SafeMath for uint256;
 
@@ -40,6 +39,7 @@ contract MoCEMACalculator is Governed {
   function getEmaCalculationBlockSpan() public view returns(uint256){
     return emaCalculationBlockSpan;
   }
+
   /**
   * @param blockSpan Defines how many blocks should pass between BMA calculations
   **/
@@ -55,12 +55,13 @@ contract MoCEMACalculator is Governed {
     return lastEmaCalculation;
   }
 
-    /** @dev Provides Bitcoin's Price and Moving average.
-    * More information of EMA calculation https://en.wikipedia.org/wiki/Exponential_smoothing
+  /**
+    @dev Provides Bitcoin's Price and Moving average.
+     More information of EMA calculation https://en.wikipedia.org/wiki/Exponential_smoothing
     * @param initialEma Initial ema value
     * @param smoothFactor Weight coefficient for EMA calculation.
     * @param emaBlockSpan Block count in a period for EMA calculation
-    */
+  */
   function initializeMovingAverage(uint256 initialEma, uint256 smoothFactor, uint256 emaBlockSpan) internal {
     _doSetSmoothingFactor(smoothFactor);
     lastEmaCalculation = block.number;
@@ -68,10 +69,11 @@ contract MoCEMACalculator is Governed {
     emaCalculationBlockSpan = emaBlockSpan;
   }
 
-  /** @dev Calculates a EMA of the price.
-    * More information of EMA calculation https://en.wikipedia.org/wiki/Exponential_smoothing
-    * @param btcPrice Current price.
-    */
+  /**
+    @dev Calculates a EMA of the price.
+     More information of EMA calculation https://en.wikipedia.org/wiki/Exponential_smoothing
+    @param btcPrice Current price.
+  */
   function setBitcoinMovingAverage(uint256 btcPrice) internal {
     if (shouldCalculateEma()) {
       uint256 weightedPrice = btcPrice.mul(smoothingFactor);
@@ -85,8 +87,9 @@ contract MoCEMACalculator is Governed {
     }
   }
 
-  /** @dev Calculates the smoothing factor complement
-    */
+  /**
+    @dev Calculates the smoothing factor complement
+  */
   function coefficientComp() internal view returns(uint256) {
     return FACTOR_PRECISION.sub(smoothingFactor);
   }
