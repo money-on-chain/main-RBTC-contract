@@ -229,7 +229,7 @@ Said collection should be empty at the end of the process.
 ### System Liquidation
 
 If the BTC/USD price drops drastically, an none of the incentive mechanisms along the coverage dropping prevents it to cross the liquidation threshold (currently: coverage < 1.04) the system will enter the liquidation state and the liquidation function will be available to be executed.
-Although there is an specific method to evaluate liquidation (`evalLiquidation`), to guarantee this process is executed, the same logic is evaluated and, if needed, executed in every MoC state changing method. For example, mintDoC, redeemBPro, etc or even settlement itself; every that has the `transitionState` modifier actually.
+Although there is an specific method to evaluate liquidation (`evalLiquidation`), to guarantee this process is executed, the same logic is evaluated and, if needed, executed in every MoC state changing method. For example, mintDocVendors, redeemBProVendors, etc or even settlement itself; every that has the `transitionState` modifier actually.
 Liquidation process will invalidate the BitPro Token (it cannot be transfer any more) as a precaution measure as it has no more RBTC backing it, it has no value. Users can redeem all of their DoCs at once, valued at the liquidation price.
 
 ### Bucket Liquidation
@@ -266,7 +266,7 @@ MoC system is a network of cooperative contracts working together to ultimately 
 - Inherits from: MoCEvents, MoCLibConnection, MoCBase, Stoppable
 
   MoC is the main contract of the MoC ecosystem, it's the entry point of almost every public interaction with it and it articulates the main logic and relations between the rest of the contracts.
-  It is also the _only one_ that receives RBTC and holds the actual value of the system. The only methods marked as `payable` belongs to this contract and corresponds with the actual two ways of adding "value" to the system minting BitPro and DoC: - `function mintBPro() public payable transitionState() { ... }` - `function mintDoc() public payable transitionState() atLeastState(MoCState.States.AboveCobj) { ... }`
+  It is also the _only one_ that receives RBTC and holds the actual value of the system. The only methods marked as `payable` belongs to this contract and corresponds with the actual two ways of adding "value" to the system minting BitPro and DoC: - `function mintBProVendors() public payable transitionState() { ... }` - `function mintDocVendors() public payable transitionState() atLeastState(MoCState.States.AboveCobj) { ... }`
   You'll also notice that many of it's methods just "redirects" to a more specif contract, abstracting it from the `msg.sender` and `msg.value`; for example:
 
 ```sol

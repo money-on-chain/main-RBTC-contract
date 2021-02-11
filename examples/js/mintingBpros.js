@@ -71,18 +71,36 @@ const execute = async () => {
     throw Error('Can not find MoCState contract.');
   }
 
-  const mintBpro = async btcAmount => {
+  const mintBpro = async (btcAmount, vendorAccount) => {
     const [from] = await web3.eth.getAccounts();
     const weiAmount = web3.utils.toWei(btcAmount, 'ether');
-    // Computes commision value
-    const commissionValue = new BigNumber(
-      await mocInrate.methods.calcCommissionValue(weiAmount).call()
-    );
-    // Computes totalBtcAmount to call mintBpro
-    const totalBtcAmount = toContract(commissionValue.plus(weiAmount));
+    let btcCommission;
+    let mocCommission;
+    let btcMarkup;
+    let mocMarkup;
+    // Set transaction types
+    const txTypeFeesRBTC = await mocHelper.mocInrate.MINT_BPRO_FEES_RBTC();
+    const txTypeFeesMOC = await mocHelper.mocInrate.MINT_BPRO_FEES_MOC();
+    // Compute fees
+    const params = {
+      account: from,
+      amount: toContractBN(weiAmount).toString(),
+      txTypeFeesMOC: txTypeFeesMOC.toString(),
+      txTypeFeesRBTC: txTypeFeesRBTC.toString(),
+      vendorAccount
+    };
+
+    ({
+      btcCommission,
+      mocCommission,
+      btcMarkup,
+      mocMarkup
+    } = await mocHelper.mocExchange.calculateCommissionsWithPrices(params, { from }));
+    // Computes totalBtcAmount to call mintBproVendors
+    const totalBtcAmount = toContract(btcCommission.plus(btcMarkup).plus(weiAmount));
     console.log(`Calling Bpro minting with account: ${from} and amount: ${weiAmount}.`);
     moc.methods
-      .mintBPro(weiAmount)
+      .mintBProVendors(weiAmount, vendorAccount)
       .send({ from, value: totalBtcAmount, gasPrice }, function(error, transactionHash) {
         if (error) console.log(error);
         if (transactionHash) console.log('txHash: '.concat(transactionHash));

@@ -60,12 +60,12 @@ const execute = async () => {
 
   const [from] = await web3.eth.getAccounts();
 
-  const redeemBtc2x = async btc2xAmount => {
+  const redeemBtc2x = async (btc2xAmount, vendorAccount) => {
     const weiAmount = web3.utils.toWei(btc2xAmount, 'ether');
 
     console.log(`Calling redeem BTC2X with account: ${from}, amount: ${weiAmount}.`);
     moc.methods
-      .redeemBProx(strToBytes32(bucketX2), weiAmount)
+      .redeemBProxVendors(strToBytes32(bucketX2), weiAmount, vendorAccount)
       .send({ from, gasPrice }, function(error, transactionHash) {
         if (error) console.log(error);
         if (transactionHash) console.log('txHash: '.concat(transactionHash));

@@ -112,7 +112,9 @@ But in some circumstances you may not find such a user. In those cases, you may 
 
 ## Minting BitPros
 
-In this tutorial the method (or function) that is of interest to us is `function mintBPro(uint256 btcToMint) public payable`. As you can see this function is payable, this means that it is prepared to receive RBTCs.
+In this tutorial the method (or function) that is of interest to us is `function mintBProVendors(uint256 btcToMint, address vendorAccount) public payable`. As you can see this function is payable, this means that it is prepared to receive RBTCs.
+
+NOTE: there is a retrocompatibility function called `function mintBPro(uint256 btcToMint)` which is suitable for those who are already integrated to MoC platform and are not ready to use vendor functionality. In the future we are planning to deprecate this method.
 
 ### Parameters of the operation
 
@@ -208,17 +210,19 @@ npm run deploy-reset-development
 ​
 Having done that lets you use our contract as a dependency to your contract. For this let's suppose you are doing some kind of contract that when executing a certain task charges a fixed commission. Now let's suppose that the commission is sent in RBTCs because it is easier for the user but actually you want some BitPros. The good news is that you can do this instantly just by minting them. The code necessary to do this is actually pretty simple.
 ​
-You just have to import the contract
+You just have to import the contracts
 ​
 
 ```js
 import 'money-on-chain/contracts/MoC.sol';
+import 'money-on-chain/contracts/MoCInrate.sol';
+import 'money-on-chain/contracts/MoCExchange.sol';
 ```
 
-Receive the address in the constructor in order to be able to interact with it later, and the vendorAccount address needed to do the operation
+Receive the addresses in the constructor in order to be able to interact with it later, and the vendorAccount address needed to do the operation
 
 ```js
-constructor (MoC _mocContract, address vendorAccount, rest of your params...) {
+constructor (MoC _mocContract, MoCInrate _mocInrateContract, MoCExchange _mocExchangeContract, address vendorAccount, rest of your params...) {
 //....rest of your constructor....
 }
 ```
@@ -227,7 +231,19 @@ constructor (MoC _mocContract, address vendorAccount, rest of your params...) {
 ​
 
 ```js
-moc.mintBPro(msg.value, vendorAccount);
+// Calculate operation fees
+CommissionParamsStruct memory params;
+params.account = '<address_of_minter>';
+params.amount = btcAmount; // BTC amount you want to mint
+params.txTypeFeesMOC = mocInrate.MINT_BPRO_FEES_MOC();
+params.txTypeFeesRBTC = mocInrate.MINT_BPRO_FEES_RBTC();
+params.vendorAccount = vendorAccount;
+
+CommissionReturnStruct memory commission = mocExchange.calculateCommissionsWithPrices(params);
+
+uint256 fees = commission.btcCommission - commission.btcMarkup;
+// If commission is paid in RBTC, substract it from value
+moc.mintBProVendors.value(msg.value)(msg.value - fees);
 ```
 
 You can send it immediately to you so you can start using it right away. In order to do this you should add a few more lines similar to the ones before, only that you will have to use the bpro token.
@@ -240,11 +256,17 @@ pragma solidity 0.5.8;
 ​
 import "money-on-chain/contracts/MoC.sol";
 import "money-on-chain/contracts/token/BProToken.sol";
+import 'money-on-chain/contracts/MoCInrate.sol';
+import 'money-on-chain/contracts/MoCExchange.sol';
 // Here you will import your own dependencies
 ​
 contract YourMintingBproContract {
     // Address of the MoC contract
     MoC public moc;
+    // Address of the MoCInrate contract
+    MoCInrate public mocInrate;
+    // Address of the MoCExchange contract
+    MoCExchange public moCExchange;
     // Address of the bitpro token
     BProToken public bpro;
     // Address that will receive the commissions
@@ -253,8 +275,10 @@ contract YourMintingBproContract {
     address public vendorAccount;
     // rest of your variables
 ​
-    constructor (MoC _moc, BProToken _bpro, address _receiverAddress, address _vendorAccount) public {
-        moc = _moc;
+    constructor (MoC _mocContract, MoCInrate _mocInrateContract, MoCExchange _mocExchangeContract, BProToken _bpro, address _receiverAddress, address _vendorAccount) public {
+        moc = _mocContract;
+        mocInrate = _mocInrateContract;
+        moCExchange = _mocExchangeContract;
         bpro = _bpro;
         receiverAddress = _receiverAddress;
         vendorAccount = _vendorAccount;
@@ -262,11 +286,22 @@ contract YourMintingBproContract {
     }
 ​
     function doTask() public payable {
-        // Mint some new BitPro
-        moc.mintBPro(msg.value, vendorAccount);
-​        // Transfer it to your receiver account
-        bpro.transfer(receiverAddress, bpro.balanceOf(address(this)));
-        // Rest of the function to actually perform the task
+      // Calculate operation fees
+      CommissionParamsStruct memory params;
+      params.account = address(this); // address of minter
+      params.amount = btcAmount; // BTC amount you want to mint
+      params.txTypeFeesMOC = mocInrate.MINT_BPRO_FEES_MOC();
+      params.txTypeFeesRBTC = mocInrate.MINT_BPRO_FEES_RBTC();
+      params.vendorAccount = vendorAccount;
+
+      CommissionReturnStruct memory commission = mocExchange.calculateCommissionsWithPrices(params);
+      // If commission is paid in RBTC, substract it from value
+      uint256 fees = commission.btcCommission - commission.btcMarkup;
+      // Mint some new BitPro
+      moc.mintBProVendors.value(msg.value)(msg.value - fees);
+​      // Transfer it to your receiver account
+      bpro.transfer(receiverAddress, bpro.balanceOf(address(this)));
+      // Rest of the function to actually perform the task
     }
     // rest of your contract
 }
@@ -281,7 +316,9 @@ The Money On Chain's Smart Contract suite is in control of the redeeming of its 
 
 This means that to redeem BitPros you must interact with the suite. The entry point are the same as explained in [Minting BitPros](#minting-BitPros).
 
-In this tutorial the method(or function) that is of interest to us is `function redeemBPro(uint256 bproAmount, address vendorAccount) public`.
+In this tutorial the method(or function) that is of interest to us is `function redeemBProVendors(uint256 bproAmount, address vendorAccount) public`.
+
+NOTE: there is a retrocompatibility function called `function redeemBPro(uint256 btcToMint)` which is suitable for those who are already integrated to MoC platform and are not ready to use vendor functionality. In the future we are planning to deprecate this method.
 
 ### Parameters of the operation
 
@@ -447,7 +484,9 @@ That DOC is an _ERC20_ Token means that any user that has already some tokens ca
 
 DOC can only be minted in exchange for RBTC. Given an amount of RBTC paid to the contract, the system calculates the corresponding DOCs amount to mint, RBTC and DOC balances are added to the Money on Chain system and the new tokens are sent to the user.
 
-In this tutorial the method (or function) that is of interest to us is `function mintDoc(uint256 btcToMint, address vendorAccount) public payable` As you can see this function is payable, this means that it is prepared to receive RBTCs.
+In this tutorial the method (or function) that is of interest to us is `function mintDocVendors(uint256 btcToMint, address vendorAccount) public payable` As you can see this function is payable, this means that it is prepared to receive RBTCs.
+
+NOTE: there is a retrocompatibility function called `function mintDoc(uint256 btcToMint)` which is suitable for those who are already integrated to MoC platform and are not ready to use vendor functionality. In the future we are planning to deprecate this method.
 
 ### Parameters of the operation
 
@@ -522,17 +561,19 @@ npm install --save -E git+https://git@github.com/money-on-chain/main-RBTC-contra
 
 Having done that lets you use our contract as a dependency to your contract. For this let's suppose you are doing some kind of contract that when executing a certain task charges a fixed commission. Now let's suppose that the commission is sent in RBTCs because it is easier for the user but actually you want some DOCs. The good news is that you can do this instantly just by minting them. The code necessary to do this is actually pretty simple.
 ​
-You just have to import the contract
+You just have to import the contracts
 ​
 
 ```js
 import 'money-on-chain/contracts/MoC.sol';
+import 'money-on-chain/contracts/MoCInrate.sol';
+import 'money-on-chain/contracts/MoCExchange.sol';
 ```
 
-Receive the address in the constructor in order to be able to interact with it later, and the vendorAccount address needed to do the operation
+Receive the addresses in the constructor in order to be able to interact with it later, and the vendorAccount address needed to do the operation
 
 ```js
-constructor (MoC _mocContract, address vendorAccount, rest of your params...) {
+constructor (MoC _mocContract, MoCInrate _mocInrateContract, MoCExchange _mocExchangeContract, address vendorAccount, rest of your params...) {
 //....rest of your constructor....
 }
 ```
@@ -541,7 +582,19 @@ constructor (MoC _mocContract, address vendorAccount, rest of your params...) {
 ​
 
 ```js
-moc.mintDoc(msg.value, vendorAccount);
+// Calculate operation fees
+CommissionParamsStruct memory params;
+params.account = '<address_of_minter>';
+params.amount = btcAmount; // BTC amount you want to mint
+params.txTypeFeesMOC = mocInrate.MINT_DOC_FEES_MOC();
+params.txTypeFeesRBTC = mocInrate.MINT_DOC_FEES_RBTC();
+params.vendorAccount = vendorAccount;
+
+CommissionReturnStruct memory commission = mocExchange.calculateCommissionsWithPrices(params);
+
+uint256 fees = commission.btcCommission - commission.btcMarkup;
+// If commission is paid in RBTC, substract it from value
+moc.mintDocVendors.value(msg.value)(msg.value - fees);
 ```
 ​
 You can send it immediately to you so you can start using it right away. In order to do this you should add a few more lines similar to the ones before, only that you will have to use the bpro token.
@@ -555,13 +608,17 @@ pragma solidity 0.5.8;
 ​
 import "money-on-chain/contracts/MoC.sol";
 import "money-on-chain/contracts/token/DocToken.sol";
+import 'money-on-chain/contracts/MoCInrate.sol';
+import 'money-on-chain/contracts/MoCExchange.sol';
 // Here you will import your own dependencies
 ​
 contract YourMintingDocContract {
     // Address of the MoC contract
     MoC public moc;
-    // Address of the MocInrate contract
+    // Address of the MoCInrate contract
     MoCInrate public mocInrate;
+    // Address of the MoCExchange contract
+    MoCExchange public moCExchange;
     // Address of the doc token
     DocToken public doc;
     // Address that will receive all the commissions
@@ -570,8 +627,10 @@ contract YourMintingDocContract {
     address public vendorAccount;
     // rest of your variables
 
-    constructor (MoC _moc, DocToken _doc, address _receiverAddress, address _vendorAccount) public {
-        moc = _moc;
+    constructor (MoC _mocContract, MoCInrate _mocInrateContract, MoCExchange _mocExchangeContract, DocToken _doc, address _receiverAddress, address _vendorAccount) public {
+        moc = _mocContract;
+        mocInrate = _mocInrateContract;
+        moCExchange = _mocExchangeContract;
         doc = _doc;
         receiverAddress = _receiverAddress;
         vendorAccount = _vendorAccount;
@@ -579,10 +638,21 @@ contract YourMintingDocContract {
     }
 ​
     function doTask() public payable {
-        // Mint some new BitPro
-        moc.mintDoc(msg.value, vendorAccount);
+      // Calculate operation fees
+      CommissionParamsStruct memory params;
+      params.account = address(this); // address of minter
+      params.amount = btcAmount; // BTC amount you want to mint
+      params.txTypeFeesMOC = mocInrate.MINT_DOC_FEES_MOC();
+      params.txTypeFeesRBTC = mocInrate.MINT_DOC_FEES_RBTC();
+      params.vendorAccount = vendorAccount;
+
+      CommissionReturnStruct memory commission = mocExchange.calculateCommissionsWithPrices(params);
+      // If commission is paid in RBTC, substract it from value
+      uint256 fees = commission.btcCommission - commission.btcMarkup;
+      // Mint some new DoC
+      moc.mintDocVendors.value(msg.value)(msg.value - fees);
 ​        // Transfer it to your receiver account
-        bpro.transfer(receiverAddress, doc.balanceOf(address(this)));
+        doc.transfer(receiverAddress, doc.balanceOf(address(this)));
         // Rest of the function to actually perform the task
     }
     // rest of your contract
@@ -599,7 +669,8 @@ There are three ways to redeem DOCs:
 
 - On settlement: A DoC redeem request can be created to redeem any amount of DoCs, but this will be processed on the next settlement. The amount can be greater than the user's balance at request time, allowing to, for example, redeem all future user's DoCs regardless of whether their balance increases. The functions that interests us are: `function redeemDocRequest(uint256 docAmount) public` and `function alterRedeemRequestAmount(bool isAddition, uint256 delta) public`
 
-- Outside of settlement: Only free DoCs can be redeemed outside of the settlement. Free DoCs are those that were not transferred to another to provide leverage. The function that interests us is: `function redeemFreeDoc(uint256 docAmount, address vendorAccount) public`.
+- Outside of settlement: Only free DoCs can be redeemed outside of the settlement. Free DoCs are those that were not transferred to another to provide leverage. The function that interests us is: `function redeemFreeDocVendors(uint256 docAmount, address vendorAccount) public`.
+NOTE: there is a retrocompatibility function called `redeemFreeDoc(uint256 docAmount)` which is suitable for those who are already integrated to MoC platform and are not ready to use vendor functionality. In the future we are planning to deprecate this method.
 
 - On Liquidation State: The user can redeem all his DoCs with the method: `function redeemAllDoc() public`
 
@@ -931,7 +1002,9 @@ The daily rate can be obtained invoking the `dailyInrate()` view of the **MocInr
 
 BTC2X can only be minted in exchange for RBTC.
 
-In this tutorial the method (or function) that is of interest to us is `function mintBProx(bytes32 bucket, uint256 btcToMint, address vendorAccount) public payable` As you can see this function is payable, this means that it is prepared to receive RBTCs.
+In this tutorial the method (or function) that is of interest to us is `function mintBProxVendors(bytes32 bucket, uint256 btcToMint, address vendorAccount) public payable` As you can see this function is payable, this means that it is prepared to receive RBTCs.
+
+NOTE: there is a retrocompatibility function called `function mintBProx(bytes32 bucket, uint256 btcToMint)` which is suitable for those who are already integrated to MoC platform and are not ready to use vendor functionality. In the future we are planning to deprecate this method.
 
 ### Parameters of the operation
 
@@ -1028,17 +1101,19 @@ npm install --save -E git+https://git@github.com/money-on-chain/main-RBTC-contra
 
 Having done that lets you use our contract as a dependency to your contract. For this let's suppose you are doing some kind of contract that when executing a certain task charges a fixed commission. Now let's suppose that the commission is sent in RBTCs because it is easier for the user but actually you want some BTC2X. The good news is that you can do this instantly just by minting them. The code necessary to do this is actually pretty simple.
 ​
-You just have to import the contract
+You just have to import the contracts
 ​
 
 ```js
 import 'money-on-chain/contracts/MoC.sol';
+import 'money-on-chain/contracts/MoCInrate.sol';
+import 'money-on-chain/contracts/MoCExchange.sol';
 ```
 
-Receive the address in the constructor in order to be able to interact with it later, and the vendorAccount address needed to do the operation
+Receive the addresses in the constructor in order to be able to interact with it later, and the vendorAccount address needed to do the operation
 
 ```js
-constructor (MoC _mocContract, address vendorAccount, rest of your params...) {
+constructor (MoC _mocContract, MoCInrate _mocInrateContract, MoCExchange _mocExchangeContract, address vendorAccount, rest of your params...) {
 //....rest of your constructor....
 }
 ```
@@ -1047,7 +1122,19 @@ constructor (MoC _mocContract, address vendorAccount, rest of your params...) {
 ​
 
 ```js
-moc.mintBProx(BUCKET_X2, msg.value, vendorAccount);
+// Calculate operation fees
+CommissionParamsStruct memory params;
+params.account = address(this); // address of minter
+params.amount = btcAmount; // BTC amount you want to mint
+params.txTypeFeesMOC = mocInrate.MINT_BTCX_FEES_MOC();
+params.txTypeFeesRBTC = mocInrate.MINT_BTCX_FEES_RBTC();
+params.vendorAccount = vendorAccount;
+
+CommissionReturnStruct memory commission = mocExchange.calculateCommissionsWithPrices(params);
+// If commission is paid in RBTC, substract it from value
+uint256 fees = commission.btcCommission - commission.btcMarkup;
+// Mint some new BTCX
+moc.mintBProxVendors.value(msg.value)(msg.value - fees);
 ```
 
 You can send it immediately to you so you can start using it right away. In order to do this you should add a few more lines similar to the ones before, only that you will have to use the bpro token.
@@ -1060,27 +1147,47 @@ This will leave you with a contract similar to the following
 pragma solidity 0.5.8;
 ​
 import "money-on-chain/contracts/MoC.sol";
+import "money-on-chain/contracts/token/BProToken.sol";
+import 'money-on-chain/contracts/MoCInrate.sol';
+import 'money-on-chain/contracts/MoCExchange.sol';
 // Here you will import your own dependencies
 ​
 contract YourMintingBtc2xContract {
     // Address of the MoC contract
     MoC public moc;
+    // Address of the MoCInrate contract
+    MoCInrate public mocInrate;
+    // Address of the MoCExchange contract
+    MoCExchange public moCExchange;
     // Define a constant to call bucket X2
 ​    bytes32 constant public BUCKET_X2 = "X2";
     // Address that will receive the markup
     address public vendorAccount;
     // rest of your variables
 
-    constructor (MoC _moc, address _vendorAccount) public {
-        moc = _moc;
+    constructor (MoC _mocContract, MoCInrate _mocInrateContract, MoCExchange _mocExchangeContract, address _vendorAccount) public {
+        moc = _mocContract;
+        mocInrate = _mocInrateContract;
+        moCExchange = _mocExchangeContract;
         vendorAccount = _vendorAccount;
         // You could have more variables to initialize here
     }
 ​
     function doTask() public payable {
-        // Mint some new BTCX
-        moc.mintBProx(BUCKET_X2, btcToMint, vendorAccount);
-        // Rest of the function to actually perform the task
+      // Calculate operation fees
+      CommissionParamsStruct memory params;
+      params.account = address(this); // address of minter
+      params.amount = btcAmount; // BTC amount you want to mint
+      params.txTypeFeesMOC = mocInrate.MINT_BTCX_FEES_MOC();
+      params.txTypeFeesRBTC = mocInrate.MINT_BTCX_FEES_RBTC();
+      params.vendorAccount = vendorAccount;
+
+      CommissionReturnStruct memory commission = mocExchange.calculateCommissionsWithPrices(params);
+      // If commission is paid in RBTC, substract it from value
+      uint256 fees = commission.btcCommission - commission.btcMarkup;
+      // Mint some new BTCX
+      moc.mintBProxVendors.value(msg.value)(msg.value - fees);
+      // Rest of the function to actually perform the task
     }
     // rest of your contract
 }
@@ -1090,7 +1197,9 @@ contract YourMintingBtc2xContract {
 
 The Money On Chain's Smart Contract suite is in control of redeeming its tokens, including the BTC2X token. This means that the return of BTC2X is controlled programmatically by said suite. ​A user can "sell" their BTC2X back to the contract and have RBTC deposited are sent back to the user, alongside the refunded interests (waiting in inrateBag) for the remaining time until the settlement (not yet charged).
 
-In this tutorial the method (or function) that is of interest to us is `function redeemBProx(bytes32 bucket, uint256 bproxAmount, address vendorAccount) public`.
+In this tutorial the method (or function) that is of interest to us is `function redeemBProxVendors(bytes32 bucket, uint256 bproxAmount, address vendorAccount) public`.
+
+NOTE: there is a retrocompatibility function called `function redeemBProx(bytes32 bucket, uint256 bproxAmount)` which is suitable for those who are already integrated to MoC platform and are not ready to use vendor functionality. In the future we are planning to deprecate this method.
 
 ### Parameters of the operation
 
@@ -1620,7 +1729,6 @@ const execute = async () => {
   }
 
   const mintBpro = async (btcAmount, vendorAccount) => {
-    web3.eth.getAccounts().then(console.log);
     const [from] = await web3.eth.getAccounts();
     const weiAmount = web3.utils.toWei(btcAmount, 'ether');
     let btcCommission;
@@ -1645,11 +1753,11 @@ const execute = async () => {
       btcMarkup,
       mocMarkup
     } = await mocHelper.mocExchange.calculateCommissionsWithPrices(params, { from }));
-    // Computes totalBtcAmount to call mintBpro
+    // Computes totalBtcAmount to call mintBproVendors
     const totalBtcAmount = toContract(btcCommission.plus(btcMarkup).plus(weiAmount));
     console.log(`Calling Bpro minting with account: ${from} and amount: ${weiAmount}.`);
     moc.methods
-      .mintBPro(weiAmount, vendorAccount)
+      .mintBProVendors(weiAmount, vendorAccount)
       .send({ from, value: totalBtcAmount, gasPrice }, function(error, transactionHash) {
         if (error) console.log(error);
         if (transactionHash) console.log('txHash: '.concat(transactionHash));
@@ -1968,7 +2076,7 @@ const execute = async () => {
 
     console.log(`Calling redeem Bpro with account: ${from} and amount: ${weiAmount}.`);
     moc.methods
-      .redeemBPro(weiAmount, vendorAccount)
+      .redeemBProVendors(weiAmount, vendorAccount)
       .send({ from, gasPrice }, function(error, transactionHash) {
         if (error) console.log(error);
         if (transactionHash) console.log('txHash: '.concat(transactionHash));
@@ -2125,11 +2233,11 @@ const execute = async () => {
       btcMarkup,
       mocMarkup
     } = await mocHelper.mocExchange.calculateCommissionsWithPrices(params, { from }));
-    // Computes totalBtcAmount to call mintDoc
+    // Computes totalBtcAmount to call mintDocVendors
     const totalBtcAmount = toContract(btcCommission.plus(btcMarkup).plus(weiAmount));
     console.log(`Calling Doc minting, account: ${from}, amount: ${weiAmount}.`);
     moc.methods
-      .mintDoc(weiAmount, vendorAccount)
+      .mintDocVendors(weiAmount, vendorAccount)
       .send({ from, value: totalBtcAmount, gasPrice }, function(error, transactionHash) {
         if (error) console.log(error);
         if (transactionHash) console.log('txHash: '.concat(transactionHash));
@@ -2274,7 +2382,6 @@ const execute = async () => {
         console.log(receipt);
       })
       .on('error', console.error);
-
   };
 
   const docAmount = '10000';
@@ -2630,11 +2737,11 @@ const execute = async () => {
       btcMarkup,
       mocMarkup
     } = await mocHelper.mocExchange.calculateCommissionsWithPrices(params, { from }));
-    // Computes totalBtcAmount to call mintDoc
+    // Computes totalBtcAmount to call mintBProxVendors
     const totalBtcAmount = toContract(btcInterestAmount.plus(btcCommission).plus(btcMarkup).plus(weiAmount));
     console.log(`Calling mint BTC2X with ${btcAmount} Btcs with account: ${from}.`);
     moc.methods
-      .mintBProx(strToBytes32(bucketX2), weiAmount, vendorAccount)
+      .mintBProxVendors(strToBytes32(bucketX2), weiAmount, vendorAccount)
       .send({ from, value: totalBtcAmount, gasPrice }, function(error, transactionHash) {
         if (error) console.log(error);
         if (transactionHash) console.log('txHash: '.concat(transactionHash));
@@ -2759,7 +2866,7 @@ const execute = async () => {
 
     console.log(`Calling redeem BTC2X with account: ${from}, amount: ${weiAmount}.`);
     moc.methods
-      .redeemBProx(strToBytes32(bucketX2), weiAmount, vendorAccount)
+      .redeemBProxVendors(strToBytes32(bucketX2), weiAmount, vendorAccount)
       .send({ from, gasPrice }, function(error, transactionHash) {
         if (error) console.log(error);
         if (transactionHash) console.log('txHash: '.concat(transactionHash));
