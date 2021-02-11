@@ -18,10 +18,25 @@ contract MoCConnector is MoCWhitelist, Initializable {
   address public mocSettlement;
   address public mocExchange;
   address public mocInrate;
-  address public mocBurnout;
+  /** DEPRECATED **/
+  // solium-disable-next-line mixedcase
+  address public DEPRECATED_mocBurnout;
 
   bool internal initialized;
 
+  /**
+    @dev Initializes the contract
+    @param mocAddress MoC contract address
+    @param docAddress DoCToken contract address
+    @param bproAddress BProToken contract address
+    @param bproxAddress BProxManager contract address
+    @param stateAddress MoCState contract address
+    @param settlementAddress MoCSettlement contract address
+    @param converterAddress MoCConverter contract address
+    @param exchangeAddress MoCExchange contract address
+    @param inrateAddress MoCInrate contract address
+    @param burnoutBookAddress (DEPRECATED) MoCBurnout contract address. DO NOT USE.
+  */
   function initialize(
     address payable mocAddress,
     address docAddress,
@@ -43,7 +58,7 @@ contract MoCConnector is MoCWhitelist, Initializable {
     mocConverter = converterAddress;
     mocExchange = exchangeAddress;
     mocInrate = inrateAddress;
-    mocBurnout = burnoutBookAddress;
+    DEPRECATED_mocBurnout = burnoutBookAddress;
 
     // Add to Whitelist
     add(mocAddress);

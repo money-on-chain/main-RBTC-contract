@@ -38,8 +38,8 @@ contract('MoC: Protection mode', function([owner, userAccount, otherAccount, ven
       mocHelper.assertBig(state, 3, 'State should be AboveCobj');
     });
     [
-      { name: 'mintBPro', args: [1, vendorAccount], value: 1, event: 'RiskProMint' },
-      { name: 'redeemFreeDoc', args: [1, vendorAccount], event: 'FreeStableTokenRedeem' }
+      { name: 'mintBProVendors', args: [1, vendorAccount], value: 1, event: 'RiskProMint' },
+      { name: 'redeemFreeDocVendors', args: [1, vendorAccount], event: 'FreeStableTokenRedeem' }
     ].forEach(fn => {
       describe(`WHEN someone executes ${fn.name}`, function() {
         let tx;

@@ -35,10 +35,7 @@ contract('MoC', function([owner, vendorAccount]) {
           // Max at the start
           const lastBtcMax = await this.mocState.maxBProxBtcValue(BUCKET_X2);
           // First minting
-          await this.moc.mintBProx(BUCKET_X2, btcTotal, vendorAccount, {
-            from: userAccount,
-            value: btcTotal
-          });
+          await mocHelper.mintBProx(userAccount, BUCKET_X2, nB, vendorAccount, nB);
 
           const newBtcMax = await this.mocState.maxBProxBtcValue(BUCKET_X2);
 

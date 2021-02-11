@@ -23,6 +23,9 @@ contract PriceFeederAdder is ChangeContract {
   Medianizer public medianizer;
   address public priceFeedOwner;
 
+  /**
+    @dev Constructor
+  */
   constructor(PriceFactory _priceFactory, Medianizer _medianizer, address _priceFeedOwner) public {
     priceFactory = _priceFactory;
     medianizer = _medianizer;

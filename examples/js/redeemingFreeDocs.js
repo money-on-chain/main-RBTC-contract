@@ -65,12 +65,12 @@ const execute = async () => {
 
   const [from] = await web3.eth.getAccounts();
 
-  const redeemFreeDoc = async docAmount => {
+  const redeemFreeDoc = async (docAmount, vendorAccount) => {
     const weiAmount = web3.utils.toWei(docAmount, 'ether');
 
-    console.log(`Calling redeem free Doc, account: ${from}, amount: ${weiAmount}.`);
+    console.log(`Calling redeem Doc request, account: ${from}, amount: ${weiAmount}.`);
     moc.methods
-      .redeemFreeDoc(weiAmount)
+      .redeemFreeDoc(weiAmount, vendorAccount)
       .send({ from, gasPrice }, function(error, transactionHash) {
         if (error) console.log(error);
         if (transactionHash) console.log('txHash: '.concat(transactionHash));
@@ -82,7 +82,6 @@ const execute = async () => {
         console.log(receipt);
       })
       .on('error', console.error);
-
   };
 
   const docAmount = '10000';

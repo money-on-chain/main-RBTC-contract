@@ -67,11 +67,12 @@ const execute = async () => {
 
   const [from] = await web3.eth.getAccounts();
 
-  const redeemBpro = async bproAmount => {
+  const redeemBpro = async (bproAmount, vendorAccount) => {
     const weiAmount = web3.utils.toWei(bproAmount, 'ether');
+
     console.log(`Calling redeem Bpro with account: ${from} and amount: ${weiAmount}.`);
     moc.methods
-      .redeemBPro(weiAmount)
+      .redeemBProVendors(weiAmount, vendorAccount)
       .send({ from, gasPrice }, function(error, transactionHash) {
         if (error) console.log(error);
         if (transactionHash) console.log('txHash: '.concat(transactionHash));

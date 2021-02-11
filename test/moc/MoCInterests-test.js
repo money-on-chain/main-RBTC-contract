@@ -159,9 +159,10 @@ contract('MoC : MoCExchange', function([owner, userAccount, vendorAccount]) {
           await this.mocState.setDaysToSettlement(toContractBN(2, 'DAY'));
           ({ params } = mocHelper.getContractReadyState(s));
           await mocHelper.mintBProxAmount(userAccount, BUCKET_X2, 5, vendorAccount);
-
-          await this.moc.redeemFreeDoc(toContractBN(params.freeDocRedeem.nDoCs), vendorAccount, {
-            from: userAccount
+          await mocHelper.redeemFreeDoc({
+            userAccount,
+            docAmount: params.freeDocRedeem.nDoCs,
+            vendorAccount
           });
         });
         it(`THEN inrate should be ${s.expect.inrate}`, async function() {

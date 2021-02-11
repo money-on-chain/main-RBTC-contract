@@ -178,22 +178,5 @@ contract('MoC : MoCExchange', function([owner, userAccount, vendorAccount]) {
         });
       });
     });
-
-    describe('GIVEN the user have 18 BPro and 80000 DOCs and Bitcoin price falls to 2000 and days to settlement is 2 and liquidation is not enabled', function() {
-      beforeEach(async function() {
-        await this.mocState.setDaysToSettlement(toContractBN(2, 'DAY'));
-        await mocHelper.mintBProAmount(userAccount, 18, vendorAccount);
-        await mocHelper.mintDocAmount(userAccount, 80000, vendorAccount);
-        // Move price to change BProx price and make it different
-        // from BPro price
-        btcPrice = toContractBN(2000 * mocHelper.MOC_PRECISION);
-        await mocHelper.setBitcoinPrice(btcPrice);
-      });
-      it('THEN the BProx price in RBTC should be 0 RBTC', async function() {
-        const bprox2BtcPrice = await this.mocState.bucketBProTecPrice(BUCKET_X2);
-
-        mocHelper.assertBigRBTC(bprox2BtcPrice, 0, 'BProx BTC price is incorrect');
-      });
-    });
   });
 });

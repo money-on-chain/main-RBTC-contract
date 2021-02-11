@@ -248,7 +248,7 @@ contract('MoCHelperLib: Inrate', function([owner]) {
       });
     });
     describe('WHEN value to test are 1 and 1', function() {
-      it('THEN inrateAvg should be ', async function() {
+      it('THEN inrateAvg should be 0', async function() {
         const inrate = await mocHelperLib.inrateAvg(
           toContractBN(baseParams.tMax),
           toContractBN(baseParams.power),
@@ -278,7 +278,7 @@ contract('MoCHelperLib: Inrate', function([owner]) {
       });
     });
     describe('WHEN initial abundance ratio is 0 and final 0.7', function() {
-      it('THEN inrateAvg should be ', async function() {
+      it('THEN inrateAvg should be 0.00016975261944407', async function() {
         const inrate = await mocHelperLib.inrateAvg(
           toContractBN(baseParams.tMax),
           toContractBN(baseParams.power),
@@ -295,7 +295,7 @@ contract('MoCHelperLib: Inrate', function([owner]) {
       });
     });
     describe('WHEN value to test are 0.7 and 0.7', function() {
-      it('THEN inrateAvg should be ', async function() {
+      it('THEN inrateAvg should be 0.00007834736282034', async function() {
         const inrate = await mocHelperLib.inrateAvg(
           toContractBN(baseParams.tMax),
           toContractBN(baseParams.power),
@@ -435,7 +435,7 @@ contract('MoCHelperLib: Inrate', function([owner]) {
         }
       ];
       scenarios.forEach(s => {
-        it(`WHEN power is ${s.power} THEN AvgInt should be ${s.expect}`, async function() {
+        it(`WHEN power is ${s.power} THEN AvgInt should be ${s.expect.inrate}`, async function() {
           const scenario = getContractReadyState(s);
           const inrate = await mocHelperLib.avgInt(
             toContractBN(scenario.tMax),

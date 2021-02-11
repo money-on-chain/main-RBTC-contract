@@ -91,11 +91,7 @@ contract('MoC: MoCExchange', function([owner, userAccount, vendorAccount]) {
       let maxBPro;
       const from = userAccount;
       beforeEach(async function() {
-        const rbtcToMintBpro = toContractBN(11 * mocHelper.RESERVE_PRECISION);
-        await this.moc.mintBPro(rbtcToMintBpro, vendorAccount, {
-          from,
-          value: rbtcToMintBpro
-        });
+        await mocHelper.mintBPro(from, 11, vendorAccount);
         c0PrevBProBalance = await this.mocState.getBucketNBPro(BUCKET_C0);
         c0PrevBTCBalance = await this.mocState.getBucketNBTC(BUCKET_C0);
         initialBProBalance = await mocHelper.getBProBalance(userAccount);

@@ -18,7 +18,6 @@ const BPro = artifacts.require('./contracts/BProToken.sol');
 const BProxManager = artifacts.require('./contracts/MoCBProxManager.sol');
 const MoCSettlement = artifacts.require('./contracts/MoCSettlement.sol');
 
-const MoCBurnout = artifacts.require('./contracts/MoCBurnout.sol');
 const MoCConnector = artifacts.require('./contracts/base/MoCConnector.sol');
 const Governor = artifacts.require('moc-governance/contracts/Governance/Governor.sol');
 const ProxyAdmin = artifacts.require('ProxyAdmin');
@@ -44,7 +43,6 @@ const MoCInrateProxy = Contracts.getFromLocal('MoCInrate');
 const MoCSettlementMockProxy = Contracts.getFromLocal('MoCSettlementMock');
 const BProxManagerProxy = Contracts.getFromLocal('MoCBProxManager');
 const MoCSettlementProxy = Contracts.getFromLocal('MoCSettlement');
-const MoCBurnoutProxy = Contracts.getFromLocal('MoCBurnout');
 const MoCConnectorProxy = Contracts.getFromLocal('MoCConnector');
 const GovernorProxy = Contracts.getFromLocal('Governor');
 const StopperProxy = Contracts.getFromLocal('Stopper');
@@ -210,7 +208,6 @@ const createContracts = params => async ({ owner, useMock }) => {
   const mocConverterProxy = await project.createProxy(MoCConverterProxy);
   const mocExchangeProxy = await project.createProxy(MoCExchangeProxy);
   const mocInrateProxy = await project.createProxy(MoCInrateProxy);
-  const mocBurnoutProxy = await project.createProxy(MoCBurnoutProxy);
   const mocProxy = await project.createProxy(MoCProxy);
   const commissionSplitterProxy = await project.createProxy(CommissionSplitterProxy);
   const mocVendorsProxy = await project.createProxy(MoCVendorsProxy);
@@ -227,7 +224,6 @@ const createContracts = params => async ({ owner, useMock }) => {
   const mocConverter = await MoCConverter.at(mocConverterProxy.address);
   const mocExchange = await MoCExchange.at(mocExchangeProxy.address);
   const mocInrate = await MoCInrate.at(mocInrateProxy.address);
-  const mocBurnout = await MoCBurnout.at(mocBurnoutProxy.address);
   const moc = await MoC.at(mocProxy.address);
   const commissionSplitter = await CommissionSplitter.at(commissionSplitterProxy.address);
   const governor = await Governor.at(governorProxy.address);
@@ -321,7 +317,7 @@ const createContracts = params => async ({ owner, useMock }) => {
     mocConverter.address,
     mocExchange.address,
     mocInrate.address,
-    mocBurnout.address
+    mocVendors.address // pass other address as parameter because MoCBurnout is deprecated
   );
   await mocConverter.initialize(mocConnector.address);
   await moc.initialize(mocConnector.address, governor.address, stopper.address, startStoppable);
@@ -348,7 +344,6 @@ const createContracts = params => async ({ owner, useMock }) => {
   );
   await bprox.initialize(mocConnector.address, governor.address, c0Cobj, x2Cobj);
   await mocSettlement.initialize(mocConnector.address, governor.address, settlementBlockSpan);
-  await mocBurnout.initialize(mocConnector.address);
   await governor.initialize(owner);
   await commissionSplitter.initialize(moc.address, owner, mocProportion, governor.address);
   await upgradeDelegator.initialize(governor.address, proxyAdmin.address);
@@ -376,7 +371,6 @@ const createContracts = params => async ({ owner, useMock }) => {
   await project.changeProxyAdmin(mocConverterProxy.address, proxyAdmin.address);
   await project.changeProxyAdmin(mocExchangeProxy.address, proxyAdmin.address);
   await project.changeProxyAdmin(mocInrateProxy.address, proxyAdmin.address);
-  await project.changeProxyAdmin(mocBurnoutProxy.address, proxyAdmin.address);
   await project.changeProxyAdmin(mocProxy.address, proxyAdmin.address);
   await project.changeProxyAdmin(governorProxy.address, proxyAdmin.address);
   await project.changeProxyAdmin(stopperProxy.address, proxyAdmin.address);
@@ -402,7 +396,6 @@ const createContracts = params => async ({ owner, useMock }) => {
     bprox,
     bpro,
     doc,
-    mocBurnout,
     mocSettlement,
     btcPriceProvider,
     mockMocStateChanger,

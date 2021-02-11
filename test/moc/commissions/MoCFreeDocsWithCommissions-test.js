@@ -194,13 +194,11 @@ contract('MoC', function([owner, userAccount, commissionsAccount, vendorAccount,
             prevVendorAccountBtcBalance = toContractBN(await web3.eth.getBalance(vendorAccount));
             prevVendorAccountMoCBalance = await mocHelper.getMoCBalance(vendorAccount);
 
-            const redeemTx = await this.moc.redeemFreeDoc(
-              toContractBN(scenario.params.docsToRedeem * mocHelper.RESERVE_PRECISION),
-              vendorAccount,
-              {
-                from: userAccount
-              }
-            );
+            const redeemTx = await mocHelper.redeemFreeDoc({
+              userAccount,
+              docAmount: scenario.params.docsToRedeem,
+              vendorAccount
+            });
             usedGas = await mocHelper.getTxCost(redeemTx);
           });
           describe(`WHEN ${scenario.params.docsToRedeem} doc are redeeming`, function() {
@@ -537,13 +535,11 @@ contract('MoC', function([owner, userAccount, commissionsAccount, vendorAccount,
           prevCommissionsAccountMoCBalance = await mocHelper.getMoCBalance(commissionsAccount);
           prevVendorAccountMoCBalance = await mocHelper.getMoCBalance(vendorAccount);
 
-          const redeemTx = await this.moc.redeemFreeDoc(
-            toContractBN(docsToRedeem * mocHelper.RESERVE_PRECISION),
-            vendorAccount,
-            {
-              from: userAccount
-            }
-          );
+          const redeemTx = await mocHelper.redeemFreeDoc({
+            userAccount,
+            docAmount: docsToRedeem,
+            vendorAccount
+          });
           usedGas = await mocHelper.getTxCost(redeemTx);
         });
         describe(`WHEN ${docsToRedeem} doc are redeeming`, function() {

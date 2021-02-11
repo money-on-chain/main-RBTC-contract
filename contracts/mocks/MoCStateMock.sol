@@ -6,6 +6,9 @@ import "../MoCState.sol";
 contract MoCStateMock is MoCState {
   uint256 internal _daysToSettlement;
 
+  /**
+    @dev Constructor
+  */
   constructor() MoCState() public { }
 
   function initialize(InitializeParams memory params) public initializer {

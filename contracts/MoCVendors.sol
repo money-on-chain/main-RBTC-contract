@@ -62,6 +62,11 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed {
   mapping(address => VendorDetails) public vendors;
   address[] public vendorsList;
 
+  /**
+    @dev Initializes the contract
+    @param connectorAddress MoCConnector contract address
+    @param _governor Governor contract address
+  */
   function initialize(
     address connectorAddress,
     address _governor
@@ -72,10 +77,20 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed {
     initializeValues(_governor);
   }
 
+  /**
+    @dev Gets the count of active registered vendors
+    @return Amount of active registered vendors
+  */
   function getVendorsCount() public view returns(uint vendorsCount) {
     return vendorsList.length;
   }
 
+  /**
+    @dev Allows to register a vendor
+    @param account Vendor address
+    @param markup Markup which vendor will perceive from mint/redeem operations
+    @return true if vendor was registered successfully; otherwise false
+  */
   function registerVendor(address account, uint256 markup) public onlyAuthorizedChanger() returns (bool isActive) {
     require(account != address(0), "Vendor account must not be 0x0");
     require(markup <= VENDOR_MAX_MARKUP, "Vendor markup must not be greater than 1%");
@@ -99,6 +114,11 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed {
     return vendors[account].isActive;
   }
 
+  /**
+    @dev Allows to unregister a vendor
+    @param account Vendor address
+    @return false if vendor was unregistered successfully; otherwise false
+  */
   function unregisterVendor(address account) public onlyAuthorizedChanger() onlyActiveVendor(account) returns (bool isActive) {
     uint8 i = 0;
     while (i < vendorsList.length && vendorsList[i] != account) {
@@ -118,6 +138,10 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed {
     return vendors[account].isActive;
   }
 
+  /**
+    @dev Allows an active vendor (msg.sender) to add staking
+    @param staking Staking the vendor wants to add
+  */
   function addStake(uint256 staking) public onlyActiveVendor(msg.sender) {
     MoCToken mocToken = MoCToken(mocState.getMoCToken());
     (uint256 mocBalance, uint256 mocAllowance) = mocExchange.getMoCTokenBalance(msg.sender, address(this));
@@ -131,6 +155,10 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed {
     emit VendorStakeAdded(msg.sender, staking);
   }
 
+  /**
+    @dev Allows an active vendor (msg.sender) to remove staking
+    @param staking Staking the vendor wants to add
+  */
   function removeStake(uint256 staking) public onlyActiveVendor(msg.sender) {
     MoCToken mocToken = MoCToken(mocState.getMoCToken());
 
@@ -143,6 +171,13 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed {
     emit VendorStakeRemoved(msg.sender, staking);
   }
 
+  /**
+    @dev Allows to update paid markup to vendor
+    @param account Vendor address
+    @param mocAmount paid markup in MoC
+    @param rbtcAmount paid markup in RBTC
+    @param totalMoCAmount total paid in MoC
+  */
   function updatePaidMarkup(address account, uint256 mocAmount, uint256 rbtcAmount, uint256 totalMoCAmount)
   public
   onlyWhitelisted(msg.sender) {
@@ -151,34 +186,69 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed {
     vendors[account].paidRBTC = vendors[account].paidRBTC.add(rbtcAmount);
   }
 
+  /**
+    @dev Gets if a vendor is active
+    @param account Vendor address
+    @return true if vendor is active; false otherwise
+  */
   function getIsActive(address account) public view
   returns (bool) {
     return vendors[account].isActive;
   }
+
+  /**
+    @dev Gets vendor markup
+    @param account Vendor address
+    @return Vendor markup
+  */
   function getMarkup(address account) public view
   returns (uint256) {
     return vendors[account].markup;
   }
 
+  /**
+    @dev Gets vendor total paid in MoC
+    @param account Vendor address
+    @return Vendor total paid in MoC
+  */
   function getTotalPaidInMoC(address account) public view
   returns (uint256) {
     return vendors[account].totalPaidInMoC;
   }
+
+  /**
+    @dev Gets vendor staking
+    @param account Vendor address
+    @return Vendor staking
+  */
   function getStaking(address account) public view
   returns (uint256) {
     return vendors[account].staking;
   }
 
+  /**
+    @dev Gets vendor paid in MoC
+    @param account Vendor address
+    @return Vendor paid in MoC
+  */
   function getPaidMoC(address account) public view
   returns (uint256) {
     return vendors[account].paidMoC;
   }
 
+  /**
+    @dev Gets vendor paid in RBTC
+    @param account Vendor address
+    @return Vendor total paid in RBTC
+  */
   function getPaidRBTC(address account) public view
   returns (uint256) {
     return vendors[account].paidRBTC;
   }
 
+  /**
+    @dev Allows to reset all active vendor's total paid in MoC during settlement
+  */
   function resetTotalPaidInMoC() public onlyWhitelisted(msg.sender) {
     // Triggered by settlement
     for (uint8 i = 0; i < vendorsList.length; i++) {
@@ -203,6 +273,10 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed {
     governor = IGovernor(_governor);
   }
 
+  /**
+    @dev Checks if vendor is active
+    @param account Vendor address
+  */
   modifier onlyActiveVendor(address account) {
     require(account != address(0), "Vendor account must not be 0x0");
     require(vendors[account].isActive == true, "Vendor is inexistent or inactive");
