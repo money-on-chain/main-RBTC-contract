@@ -154,7 +154,7 @@
     "governor": "0xC5a3d6cBe0EeF0cF20cF7CA5540deaac19b2129e",
     "stopper": "0xEddE995F0ddBa802e8a45Cbdcbdaf083D7D987f7",
     "proxyAdmin": "0x03cE6B189F63563BFfA070f9E1768413CE1D0f36",
-    "mocOracle": "0xEeae0B52Ac1F0D7D139898997b8367Dd67E3527c",
+    "mocOracle": "0x686cA7E1724963a6872784D2a71100906970f0C4",
     "initialPrice": 11500,
     "initialEma": 9450,
     "dayBlockSpan": 2880,

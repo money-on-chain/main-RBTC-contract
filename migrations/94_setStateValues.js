@@ -28,7 +28,9 @@ module.exports = async (deployer, currentNetwork, [owner]) => {
   const smoothingFactor = toContract(0.01653 * 10 ** 18);
   const emaBlockSpan = 2880;
   const maxMintBPro = toContract(20 * 10 ** 18);
-  const mocPriceProviderAddress = '0xEeae0B52Ac1F0D7D139898997b8367Dd67E3527c'; // mock
+
+  const mocPriceProviderAddress = '0x686cA7E1724963a6872784D2a71100906970f0C4'; // mock
+
   const mocTokenAddress = '0x1dc4Bec7ce1ca27bA16F419c514b62c88B9Cb567';
   const mocVendorsAddress = '0x748C0ccbDFeb85DF79fE978e9BADe1c4aaE8c757';
   const liquidationEnabled = false;
