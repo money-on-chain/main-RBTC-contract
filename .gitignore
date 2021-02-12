@@ -36,3 +36,6 @@ zos.dev-*.json
 
 #compiled contracts
 build/contracts
+
+# mnemonic
+mnemonic.txt
