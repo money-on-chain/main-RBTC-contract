@@ -1,8 +1,21 @@
 const HDWalletProvider = require('truffle-hdwallet-provider');
+const fs = require('fs')
+
+const mnemonic_file = './mnemonic.txt'
+let mnemonic;
 
 // Change mnemonic according to who is deploying
-const mnemonic =
-  process.env.MNEMONIC || 'lab direct float merit wall huge wheat loyal maple cup battle butter';
+try {
+  if (fs.existsSync(mnemonic_file)) {
+    mnemonic = fs.readFileSync(mnemonic_file, { encoding:'utf8', flag:'r' });
+    console.log()
+  } else {
+    mnemonic =
+      process.env.MNEMONIC || 'lab direct float merit wall huge wheat loyal maple cup battle butter';
+  }
+} catch (err) {
+  console.error(err);
+}
 
 module.exports = {
   // See <http://truffleframework.com/docs/advanced/configuration>
