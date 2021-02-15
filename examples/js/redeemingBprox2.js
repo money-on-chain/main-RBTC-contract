@@ -85,9 +85,10 @@ const execute = async () => {
   console.log('=== User BTC2X Balance: '.concat(userBalance.toString()));
 
   const btc2xAmount = '0.00001';
+  const vendorAccount = '<vendor-address>'
 
   // Call redeem
-  await redeemBtc2x(btc2xAmount);
+  await redeemBtc2x(btc2xAmount, vendorAccount);
 };
 
 execute()
