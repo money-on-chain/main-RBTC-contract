@@ -1,6 +1,6 @@
 {
   "pathToRoot": "./",
-  "outputPath": "./docs",
+  "outputPath": "./docs/abis",
   "noCompilation": true,
   "compiler": "npx truffle compile --all",
   "language": "en",
@@ -61,6 +61,7 @@
     "SetCommissionFinalAddressChanger.json",
     "SetCommissionMocProportionChanger.json",
     "UpgradeabilityProxy.json",
+    "UpgraderChanger.json",
     "ZOSLibAddress.json",
     "ZOSLibOwnable.json"
   ]
