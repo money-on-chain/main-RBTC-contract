@@ -8,13 +8,13 @@ import "./MoCConstants.sol";
 /**
   @dev General usefull modifiers and functions
  */
-contract MoCBase is MoCConstants, Initializable{
+contract MoCBase is MoCConstants, Initializable {
   // Contracts
   MoCConnector public connector;
 
   bool internal initialized;
 
-  function initializeBase(address connectorAddress) internal initializer  {
+  function initializeBase(address connectorAddress) internal initializer {
     connector = MoCConnector(connectorAddress);
   }
 
