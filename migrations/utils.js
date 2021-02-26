@@ -395,8 +395,6 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
     ); // mocPrecision
     console.log('BProxManager Initialized');
 
-    console.log('Burnout Initialized');
-
     await mocSettlement.initialize(
       mocConnector.address,
       governorAddress,
