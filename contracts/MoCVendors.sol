@@ -61,6 +61,8 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed {
   // Variables
   mapping(address => VendorDetails) public vendors;
   address[] public vendorsList;
+  address public vendorMoCDepositAddress;
+  uint256 public vendorRequiredMoCs;
 
   /**
     @dev Initializes the contract
@@ -69,12 +71,14 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed {
   */
   function initialize(
     address connectorAddress,
-    address _governor
+    address _governor,
+    address _vendorMoCDepositAddress,
+    uint256 _vendorRequiredMoCs
   ) public initializer {
     initializePrecisions();
     initializeBase(connectorAddress);
     initializeContracts();
-    initializeValues(_governor);
+    initializeValues(_governor, _vendorMoCDepositAddress, _vendorRequiredMoCs);
   }
 
   /**
@@ -91,13 +95,19 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed {
     @param markup Markup which vendor will perceive from mint/redeem operations
     @return true if vendor was registered successfully; otherwise false
   */
-  function registerVendor(address account, uint256 markup) public onlyAuthorizedChanger() returns (bool isActive) {
+  function registerVendor(address account, uint256 markup) public returns (bool isActive) {
     require(account != address(0), "Vendor account must not be 0x0");
     require(markup <= VENDOR_MAX_MARKUP, "Vendor markup must not be greater than 1%");
     // Change the error message according to the value of the VENDORS_LIST_ARRAY_MAX_LENGTH constant
     require(vendorsList.length < VENDORS_LIST_ARRAY_MAX_LENGTH, "vendorsList length must be between 1 and 100");
 
+    MoCToken mocToken = MoCToken(mocState.getMoCToken());
+
     if (vendors[account].isActive == false) {
+      // Vendor nneds to transfer MoCs to a configured address before registering
+      // If vendor does not have enough funds in MoC (transfer fails), they cannot be registered
+      mocToken.transferFrom(msg.sender, vendorMoCDepositAddress, vendorRequiredMoCs);
+
       // Map vendor details to vendor address
       vendors[account].isActive = true;
       vendors[account].markup = markup;
@@ -119,7 +129,7 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed {
     @param account Vendor address
     @return false if vendor was unregistered successfully; otherwise false
   */
-  function unregisterVendor(address account) public onlyAuthorizedChanger() onlyActiveVendor(account) returns (bool isActive) {
+  function unregisterVendor(address account) public onlyActiveVendor(account) returns (bool isActive) {
     uint8 i = 0;
     while (i < vendorsList.length && vendorsList[i] != account) {
       i++;
@@ -269,8 +279,26 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed {
     mocExchange = MoCExchange(connector.mocExchange());
   }
 
-  function initializeValues(address _governor) internal {
+  function initializeValues(address _governor, address _vendorMoCDepositAddress, uint256 _vendorRequiredMoCs) internal {
     governor = IGovernor(_governor);
+    vendorMoCDepositAddress = _vendorMoCDepositAddress;
+    vendorRequiredMoCs = _vendorRequiredMoCs;
+  }
+
+  /**
+    @dev Sets the address which will receive the initial amount of MoC required for a vendor to register.
+    @param _vendorMoCDepositAddress Address which will receive the initial MoC required for a vendor to register.
+  */
+  function setVendorMoCDepositAddress(address _vendorMoCDepositAddress) public onlyAuthorizedChanger() {
+    vendorMoCDepositAddress = _vendorMoCDepositAddress;
+  }
+
+  /**
+    @dev Sets the initial amount of MoC required for a vendor to register.
+    @param _vendorRequiredMoCs Initial amount of MoC required for a vendor to register.
+  */
+  function setVendorRequiredMoCs(uint256 _vendorRequiredMoCs) public onlyAuthorizedChanger() {
+    vendorRequiredMoCs = _vendorRequiredMoCs;
   }
 
   /**
