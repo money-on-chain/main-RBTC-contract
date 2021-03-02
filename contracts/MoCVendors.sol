@@ -90,7 +90,7 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed {
   }
 
   /**
-    @dev Allows to register a vendor
+    @dev Allows a vendor to register themselves
     @param account Vendor address
     @param markup Markup which vendor will perceive from mint/redeem operations
     @return true if vendor was registered successfully; otherwise false
@@ -125,27 +125,26 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed {
   }
 
   /**
-    @dev Allows to unregister a vendor
-    @param account Vendor address
+    @dev Allows a vendor to unregister themselves
     @return false if vendor was unregistered successfully; otherwise false
   */
-  function unregisterVendor(address account) public onlyActiveVendor(account) returns (bool isActive) {
+  function unregisterVendor() public onlyActiveVendor(msg.sender) returns (bool isActive) {
     uint8 i = 0;
-    while (i < vendorsList.length && vendorsList[i] != account) {
+    while (i < vendorsList.length && vendorsList[i] != msg.sender) {
       i++;
     }
     // If vendor is found, then unregister it
     if (i < vendorsList.length) {
-      vendors[account].isActive = false;
+      vendors[msg.sender].isActive = false;
       vendorsList[i] = vendorsList[vendorsList.length - 1];
       delete vendorsList[vendorsList.length - 1];
       vendorsList.length--;
 
-      emit VendorUnregistered(account);
+      emit VendorUnregistered(msg.sender);
       return false;
     }
 
-    return vendors[account].isActive;
+    return vendors[msg.sender].isActive;
   }
 
   /**
