@@ -365,7 +365,7 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
     }
 
     var targetAddressCommission = owner;
-    if (config.targetAddressCommissionPayment != '') {
+    if (config.targetAddressCommissionPayment !== '') {
       targetAddressCommission = config.targetAddressCommissionPayment;
     }
 
