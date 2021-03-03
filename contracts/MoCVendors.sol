@@ -124,10 +124,10 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed {
   }
 
   /**
-    @dev Allows a vendor to unregister themselves
+    @dev Allows a vendor to unregister themselves (msg.sender)
     @return false if vendor was unregistered successfully; otherwise false
   */
-  function unregisterVendor() public onlyActiveVendor(msg.sender) returns (bool isActive) {
+  function unregisterVendor() public onlyActiveVendor() returns (bool isActive) {
     uint8 i = 0;
     while (i < vendorsList.length && vendorsList[i] != msg.sender) {
       i++;
@@ -150,7 +150,7 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed {
     @dev Allows an active vendor (msg.sender) to add staking
     @param staking Staking the vendor wants to add
   */
-  function addStake(uint256 staking) public onlyActiveVendor(msg.sender) {
+  function addStake(uint256 staking) public onlyActiveVendor() {
     MoCToken mocToken = MoCToken(mocState.getMoCToken());
     (uint256 mocBalance, uint256 mocAllowance) = mocExchange.getMoCTokenBalance(msg.sender, address(this));
 
@@ -167,7 +167,7 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed {
     @dev Allows an active vendor (msg.sender) to remove staking
     @param staking Staking the vendor wants to add
   */
-  function removeStake(uint256 staking) public onlyActiveVendor(msg.sender) {
+  function removeStake(uint256 staking) public onlyActiveVendor() {
     MoCToken mocToken = MoCToken(mocState.getMoCToken());
 
     require(staking > 0, "Staking should be greater than 0");
@@ -300,12 +300,10 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed {
   }
 
   /**
-    @dev Checks if vendor is active
-    @param account Vendor address
+    @dev Checks if vendor (msg.sender) is active
   */
-  modifier onlyActiveVendor(address account) {
-    require(account != address(0), "Vendor account must not be 0x0");
-    require(vendors[account].isActive == true, "Vendor is inexistent or inactive");
+  modifier onlyActiveVendor() {
+    require(vendors[msg.sender].isActive == true, "Vendor is inexistent or inactive");
     _;
   }
 
