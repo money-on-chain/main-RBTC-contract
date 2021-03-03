@@ -360,12 +360,12 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
     console.log('Converter Initialized');
 
     var targetAddressBitPro = owner;
-    if (config.targetAddressBitProInterest != '') {
+    if (config.targetAddressBitProInterest !== '') {
       targetAddressBitPro = config.targetAddressBitProInterest;
     }
 
     var targetAddressCommission = owner;
-    if (config.targetAddressCommissionPayment != '') {
+    if (config.targetAddressCommissionPayment !== '') {
       targetAddressCommission = config.targetAddressCommissionPayment;
     }
 
@@ -379,7 +379,7 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
       config.dayBlockSpan * config.daysBitProHolderExecutePayment, // Blockspan to execute payment once a week
       targetAddressBitPro, // Target address of BitPro interest
       commissionSplitter.address, // Target address of commission payment
-      //toContract(config.commissionRate * 10 ** 18), // commissionRate [mocPrecision]
+      // toContract(config.commissionRate * 10 ** 18), // commissionRate [mocPrecision]
       toContract(config.docTmin * 10 ** 18), // docTmin [using mocPrecision]
       toContract(config.docPower), // docPower [no precision]
       toContract(config.docTmax * 10 ** 18) // docTmax [using mocPrecision]
@@ -395,8 +395,6 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
     ); // mocPrecision
     console.log('BProxManager Initialized');
 
-    console.log('Burnout Initialized');
-
     await mocSettlement.initialize(
       mocConnector.address,
       governorAddress,
@@ -404,9 +402,16 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
     );
     console.log('Settlement Initialized');
 
+    let vendorMoCDepositAddress = owner;
+    if (config.vendorMoCDepositAddress !== '') {
+      ({ vendorMoCDepositAddress } = config.vendorMoCDepositAddress);
+    }
+
     await mocVendors.initialize(
       mocConnector.address,
-      governorAddress
+      governorAddress,
+      vendorMoCDepositAddress,
+      config.vendorRequiredMoCs
     );
     console.log('Vendors Initialized');
 
