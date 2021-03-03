@@ -91,37 +91,36 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed {
 
   /**
     @dev Allows a vendor to register themselves
-    @param account Vendor address
     @param markup Markup which vendor will perceive from mint/redeem operations
     @return true if vendor was registered successfully; otherwise false
   */
-  function registerVendor(address account, uint256 markup) public returns (bool isActive) {
-    require(account != address(0), "Vendor account must not be 0x0");
+  function registerVendor(uint256 markup) public returns (bool isActive) {
+    require(msg.sender != address(0), "Vendor account must not be 0x0");
     require(markup <= VENDOR_MAX_MARKUP, "Vendor markup must not be greater than 1%");
     // Change the error message according to the value of the VENDORS_LIST_ARRAY_MAX_LENGTH constant
     require(vendorsList.length < VENDORS_LIST_ARRAY_MAX_LENGTH, "vendorsList length must be between 1 and 100");
 
     MoCToken mocToken = MoCToken(mocState.getMoCToken());
 
-    if (vendors[account].isActive == false) {
-      // Vendor nneds to transfer MoCs to a configured address before registering
+    if (vendors[msg.sender].isActive == false) {
+      // Vendor needs to transfer MoCs to a configured address before registering
       // If vendor does not have enough funds in MoC (transfer fails), they cannot be registered
       mocToken.transferFrom(msg.sender, vendorMoCDepositAddress, vendorRequiredMoCs);
 
       // Map vendor details to vendor address
-      vendors[account].isActive = true;
-      vendors[account].markup = markup;
+      vendors[msg.sender].isActive = true;
+      vendors[msg.sender].markup = markup;
 
-      vendorsList.push(account);
+      vendorsList.push(msg.sender);
 
-      emit VendorRegistered(account, markup);
-    } else if (vendors[account].markup != markup) {
-      vendors[account].markup = markup;
+      emit VendorRegistered(msg.sender, markup);
+    } else if (vendors[msg.sender].markup != markup) {
+      vendors[msg.sender].markup = markup;
 
-      emit VendorUpdated(account, markup);
+      emit VendorUpdated(msg.sender, markup);
     }
 
-    return vendors[account].isActive;
+    return vendors[msg.sender].isActive;
   }
 
   /**
