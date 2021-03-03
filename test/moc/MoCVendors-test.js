@@ -6,8 +6,6 @@ const testHelperBuilder = require('../mocHelper.js');
 let mocHelper;
 let toContractBN;
 
-const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
-
 contract('MoC: MoCVendors', function([
   owner,
   userAccount,
@@ -101,18 +99,19 @@ contract('MoC: MoCVendors', function([
       let vendorInMapping;
 
       before(async function() {
-        await mocHelper.mintMoCToken(scenario.params.account, scenario.params.mocAmount, owner);
-        await mocHelper.approveMoCToken(
-          this.mocVendors.address,
-          scenario.params.mocAmount,
-          scenario.params.account
-        );
-
         // Register vendor for test
         registerVendorTx = await mocHelper.registerVendor(
           scenario.params.account,
           scenario.params.markup,
           owner
+        );
+
+        // Mint and approve MoC token to use in the rest of the functions
+        await mocHelper.mintMoCToken(scenario.params.account, scenario.params.mocAmount, owner);
+        await mocHelper.approveMoCToken(
+          this.mocVendors.address,
+          scenario.params.mocAmount,
+          scenario.params.account
         );
 
         // Commission rates for test are set in functionHelper.js
@@ -313,21 +312,9 @@ contract('MoC: MoCVendors', function([
         await expectRevert(removeStakeTx, 'Vendor is inexistent or inactive');
       });
     });
-    describe('GIVEN a vendor with zero address is invalid', function() {
-      it('WHEN trying to register a vendor with zero address THEN an error should be raised', async function() {
-        const registerVendorTx = await mocHelper.registerVendor(ZERO_ADDRESS, 0.01, owner);
-
-        await expectRevert(registerVendorTx, 'Vendor account must not be 0x0');
-      });
-      it('WHEN trying to unregister a vendor with zero address THEN an error should be raised', async function() {
-        const unregisterVendorTx = await this.mocVendors.unregisterVendor({ from: ZERO_ADDRESS });
-
-        await expectRevert(unregisterVendorTx, 'Vendor account must not be 0x0');
-      });
-    });
     describe('GIVEN there is a maximum markup that can be assigned to a vendor', function() {
       it('WHEN trying to register a vendor with an invalid value THEN an error should be raised', async function() {
-        const registerVendorTx = await mocHelper.registerVendor(vendorAccount4, 10, owner);
+        const registerVendorTx = mocHelper.registerVendor(vendorAccount4, 10, owner);
 
         await expectRevert(registerVendorTx, 'Vendor markup must not be greater than 1%');
       });
@@ -393,22 +380,23 @@ contract('MoC: MoCVendors', function([
     });
     describe('GIVEN vendors can be registered and unregistered by themselves', function() {
       it('WHEN registering more vendors than allowed THEN an error should be raised', async function() {
+        const password = '!@superpassword';
+        let account;
         /* eslint-disable no-await-in-loop */
         // 20 batches of 5 vendors at a time because of out-of-gas errors
         for (let i = 0; i < 20; i++) {
           for (let j = 0; j < 5; j++) {
-            const account = web3.utils.randomHex(20);
+            account = await web3.eth.personal.newAccount(password);
+            await web3.eth.personal.unlockAccount(account, password, 600);
             await mocHelper.registerVendor(account, (i * j) / 100000, owner);
           }
         }
         /* eslint-enable no-await-in-loop */
 
         // Add a new vendor - should not be possible
-        const registerVendorTx = await mocHelper.registerVendor(
-          web3.utils.randomHex(20),
-          0.001,
-          owner
-        );
+        account = await web3.eth.personal.newAccount(password);
+        await web3.eth.personal.unlockAccount(account, password, 600);
+        const registerVendorTx = await mocHelper.registerVendor(account, 0.001, owner);
 
         await expectRevert(registerVendorTx, 'vendorsList length must be between 1 and 100');
       });
@@ -453,7 +441,10 @@ contract('MoC: MoCVendors', function([
         const newMarkup = 0.005;
 
         // Update vendor markup
-        const updateVendorTx = await this.mocVendors.registerVendor(0.01, { from: vendorAccount1 });
+        const updateVendorTx = await this.mocVendors.registerVendor(
+          toContractBN(newMarkup * mocHelper.MOC_PRECISION),
+          { from: vendorAccount1 }
+        );
 
         const [vendorUpdatedEvent] = await mocHelper.findEvents(updateVendorTx, 'VendorUpdated');
 
