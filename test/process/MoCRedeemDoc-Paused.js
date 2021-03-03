@@ -18,17 +18,13 @@ contract('MoC Paused', function([owner, userAccount, vendorAccount, ...accounts]
     this.revertingContract = mocHelper.revertingContract;
     this.mockMoCSettlementChanger = mocHelper.mockMoCSettlementChanger;
     this.governor = mocHelper.governor;
-    this.mockMoCVendorsChanger = mocHelper.mockMoCVendorsChanger;
   });
 
   beforeEach(async function() {
     await mocHelper.revertState();
 
     // Register vendor for test
-    await this.mockMoCVendorsChanger.setVendorsToRegister(
-      await mocHelper.getVendorToRegisterAsArray(vendorAccount, 0)
-    );
-    await this.governor.executeChange(this.mockMoCVendorsChanger.address);
+    await mocHelper.registerVendor(vendorAccount, 0, owner);
   });
 
   describe('DoC Redeem', function() {
@@ -40,8 +36,8 @@ contract('MoC Paused', function([owner, userAccount, vendorAccount, ...accounts]
           value: 1 * mocHelper.RESERVE_PRECISION
         });
         await mocHelper.mintDoc(from, 0.25, vendorAccount);
-        await mocHelper.mockMoCSettlementChanger.setBlockSpan(blockSpan);
-        await mocHelper.governor.executeChange(mocHelper.mockMoCSettlementChanger.address);
+        await this.mockMoCSettlementChanger.setBlockSpan(blockSpan);
+        await this.governor.executeChange(mocHelper.mockMoCSettlementChanger.address);
       });
       describe('WHEN he tries to redeem 2000 Docs', function() {
         describe(`AND MoC contract is paused before ${blockSpan} blocks`, function() {
@@ -96,8 +92,8 @@ contract('MoC Paused', function([owner, userAccount, vendorAccount, ...accounts]
         await this.moc.sendTransaction({
           value: 1 * mocHelper.RESERVE_PRECISION
         });
-        await mocHelper.mockMoCSettlementChanger.setBlockSpan(1);
-        await mocHelper.governor.executeChange(mocHelper.mockMoCSettlementChanger.address);
+        await this.mockMoCSettlementChanger.setBlockSpan(1);
+        await this.governor.executeChange(mocHelper.mockMoCSettlementChanger.address);
         await mocHelper.stopper.pause(mocHelper.moc.address);
         const paused = await mocHelper.moc.paused();
         assert(paused, 'MoC contract must be paused');

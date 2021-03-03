@@ -39,14 +39,11 @@ const executeSettlementRound = async round => {
   return mocHelper.moc.runSettlement(round.step);
 };
 
-const initializeSettlement = async (vendorAccount, accounts) => {
+const initializeSettlement = async (vendorAccount, owner, accounts) => {
   await mocHelper.revertState();
 
   // Register vendor for test
-  await mocHelper.mockMoCVendorsChanger.setVendorsToRegister(
-    await mocHelper.getVendorToRegisterAsArray(vendorAccount, 0)
-  );
-  await mocHelper.governor.executeChange(mocHelper.mockMoCVendorsChanger.address);
+  await mocHelper.registerVendor(vendorAccount, 0, owner);
 
   // Avoid interests
   await mocHelper.mocState.setDaysToSettlement(0);
@@ -118,7 +115,7 @@ contract('MoC: Partial Settlement execution', function([owner, vendorAccount, ..
         let txs = [];
         describe(scenario.description, function() {
           before(async function() {
-            await initializeSettlement(vendorAccount, accounts);
+            await initializeSettlement(vendorAccount, owner, accounts);
             txs = await runScenario(scenario);
           });
 
@@ -178,7 +175,7 @@ contract('MoC: Partial Settlement execution', function([owner, vendorAccount, ..
   describe('Consecutive Settlements', function() {
     describe('GIVEN first settlement is executed', function() {
       before(async function() {
-        await initializeSettlement(vendorAccount, accounts);
+        await initializeSettlement(vendorAccount, owner, accounts);
         await mocHelper.moc.runSettlement(4);
         await mocHelper.setBitcoinPrice(toContractBN(8000, 'USD'));
         await mocHelper.moc.runSettlement(4);

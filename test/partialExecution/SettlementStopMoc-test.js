@@ -67,7 +67,6 @@ contract('MoC: Partial Settlement execution', function([owner, vendorAccount, ..
     ({ toContractBN } = mocHelper);
     ({ BUCKET_X2 } = mocHelper);
     this.governor = mocHelper.governor;
-    this.mockMoCVendorsChanger = mocHelper.mockMoCVendorsChanger;
   });
 
   describe('WHEN the settlement is only partially executed', function() {

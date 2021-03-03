@@ -21,17 +21,13 @@ contract('MoC', function([owner, userAccount, attacker, vendorAccount, ...accoun
     this.revertingContract = mocHelper.revertingContract;
     this.mockMoCSettlementChanger = mocHelper.mockMoCSettlementChanger;
     this.governor = mocHelper.governor;
-    this.mockMoCVendorsChanger = mocHelper.mockMoCVendorsChanger;
   });
 
   beforeEach(async function() {
     await mocHelper.revertState();
 
     // Register vendor for test
-    await this.mockMoCVendorsChanger.setVendorsToRegister(
-      await mocHelper.getVendorToRegisterAsArray(vendorAccount, 0)
-    );
-    await this.governor.executeChange(this.mockMoCVendorsChanger.address);
+    await mocHelper.registerVendor(vendorAccount, 0, owner);
   });
 
   describe('DoC Redeem DoS attack mitigation', function() {
@@ -58,8 +54,8 @@ contract('MoC', function([owner, userAccount, attacker, vendorAccount, ...accoun
         // From now reverting
         await this.revertingContract.setAcceptingMoney(false);
         // Enabling Settlement
-        await mocHelper.mockMoCSettlementChanger.setBlockSpan(1);
-        await mocHelper.governor.executeChange(mocHelper.mockMoCSettlementChanger.address);
+        await this.mockMoCSettlementChanger.setBlockSpan(1);
+        await this.governor.executeChange(mocHelper.mockMoCSettlementChanger.address);
       });
 
       describe('WHEN a settlement is run', function() {
@@ -97,8 +93,8 @@ contract('MoC', function([owner, userAccount, attacker, vendorAccount, ...accoun
           value: 1 * mocHelper.RESERVE_PRECISION
         });
         await mocHelper.mintDoc(from, 0.25, vendorAccount);
-        await mocHelper.mockMoCSettlementChanger.setBlockSpan(blockSpan);
-        await mocHelper.governor.executeChange(mocHelper.mockMoCSettlementChanger.address);
+        await this.mockMoCSettlementChanger.setBlockSpan(blockSpan);
+        await this.governor.executeChange(mocHelper.mockMoCSettlementChanger.address);
       });
       it(`THEN blockSpan should be ${blockSpan}`, async function() {
         const actualBlockSpan = await this.mocSettlement.getBlockSpan();
@@ -290,8 +286,8 @@ contract('MoC', function([owner, userAccount, attacker, vendorAccount, ...accoun
           from: accounts[2]
         });
 
-        await mocHelper.mockMoCSettlementChanger.setBlockSpan(1);
-        await mocHelper.governor.executeChange(mocHelper.mockMoCSettlementChanger.address);
+        await this.mockMoCSettlementChanger.setBlockSpan(1);
+        await this.governor.executeChange(mocHelper.mockMoCSettlementChanger.address);
       });
       describe('WHEN he cancel it AND settlement is executed', function() {
         let toCancel;
@@ -369,8 +365,8 @@ contract('MoC', function([owner, userAccount, attacker, vendorAccount, ...accoun
         });
         await mocHelper.mintDoc(from, docAmount, vendorAccount);
         // Enabling Settlement
-        await mocHelper.mockMoCSettlementChanger.setBlockSpan(1);
-        await mocHelper.governor.executeChange(mocHelper.mockMoCSettlementChanger.address);
+        await this.mockMoCSettlementChanger.setBlockSpan(1);
+        await this.governor.executeChange(mocHelper.mockMoCSettlementChanger.address);
         await mocHelper.setBitcoinPrice(lowPrice * mocHelper.MOC_PRECISION);
       });
       describe('WHEN a settlement is run', function() {

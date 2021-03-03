@@ -32,7 +32,6 @@ contract('MoC: Liquidation', function([
     this.bprox = mocHelper.bprox;
     this.governor = mocHelper.governor;
     this.mockMoCBucketContainerChanger = mocHelper.mockMoCBucketContainerChanger;
-    this.mockMoCVendorsChanger = mocHelper.mockMoCVendorsChanger;
     this.mockMocStateChanger = mocHelper.mockMocStateChanger;
   });
 
@@ -40,10 +39,7 @@ contract('MoC: Liquidation', function([
     await mocHelper.revertState();
 
     // Register vendor for test
-    await this.mockMoCVendorsChanger.setVendorsToRegister(
-      await mocHelper.getVendorToRegisterAsArray(vendorAccount, 0)
-    );
-    await this.governor.executeChange(this.mockMoCVendorsChanger.address);
+    await mocHelper.registerVendor(vendorAccount, 0, owner);
   });
 
   describe('GIVEN there are BPros and Docs for a target coverage AND BTC price drops to 3400', function() {

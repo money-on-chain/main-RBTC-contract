@@ -13,8 +13,6 @@ contract('MoC', function([owner, userAccount, vendorAccount]) {
     this.moc = mocHelper.moc;
     this.mocState = mocHelper.mocState;
     this.mocConnector = mocHelper.mocConnector;
-    this.governor = mocHelper.governor;
-    this.mockMoCVendorsChanger = mocHelper.mockMoCVendorsChanger;
   });
 
   describe('Doc minting', function() {
@@ -22,10 +20,7 @@ contract('MoC', function([owner, userAccount, vendorAccount]) {
       await mocHelper.revertState();
 
       // Register vendor for test
-      await this.mockMoCVendorsChanger.setVendorsToRegister(
-        await mocHelper.getVendorToRegisterAsArray(vendorAccount, 0)
-      );
-      await this.governor.executeChange(this.mockMoCVendorsChanger.address);
+      await mocHelper.registerVendor(vendorAccount, 0, owner);
     });
     describe('GIVEN the coverage is below Cobj', function() {
       beforeEach(async function() {

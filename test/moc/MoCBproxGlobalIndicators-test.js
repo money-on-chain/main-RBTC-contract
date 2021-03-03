@@ -12,8 +12,6 @@ contract('MoC : BTCx operations does not modify global indicators', function([
     mocHelper = await testHelperBuilder({ owner, useMock: true });
     this.moc = mocHelper.moc;
     this.mocState = mocHelper.mocState;
-    this.governor = mocHelper.governor;
-    this.mockMoCVendorsChanger = mocHelper.mockMoCVendorsChanger;
     ({ toContractBN } = mocHelper);
     ({ BUCKET_X2 } = mocHelper);
   });
@@ -22,10 +20,7 @@ contract('MoC : BTCx operations does not modify global indicators', function([
     await mocHelper.revertState();
 
     // Register vendor for test
-    await this.mockMoCVendorsChanger.setVendorsToRegister(
-      await mocHelper.getVendorToRegisterAsArray(vendorAccount, 0)
-    );
-    await this.governor.executeChange(this.mockMoCVendorsChanger.address);
+    await mocHelper.registerVendor(vendorAccount, 0, owner);
   });
 
   describe('GIVEN there are 10 BitPro and 50000 Docs in the system', function() {

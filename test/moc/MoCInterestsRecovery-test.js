@@ -11,8 +11,6 @@ contract('MoC : MoCExchange', function([owner, userAccount, vendorAccount]) {
     this.moc = mocHelper.moc;
     this.mocState = mocHelper.mocState;
     this.mocInrate = mocHelper.mocInrate;
-    this.governor = mocHelper.governor;
-    this.mockMoCVendorsChanger = mocHelper.mockMoCVendorsChanger;
     ({ BUCKET_X2 } = mocHelper);
   });
 
@@ -26,10 +24,7 @@ contract('MoC : MoCExchange', function([owner, userAccount, vendorAccount]) {
           await mocHelper.revertState();
 
           // Register vendor for test
-          await this.mockMoCVendorsChanger.setVendorsToRegister(
-            await mocHelper.getVendorToRegisterAsArray(vendorAccount, 0)
-          );
-          await this.governor.executeChange(this.mockMoCVendorsChanger.address);
+          await mocHelper.registerVendor(vendorAccount, 0, owner);
 
           await this.mocState.setDaysToSettlement(toContractBN(days, 'DAY'));
           await mocHelper.mintBPro(userAccount, 18, vendorAccount);
