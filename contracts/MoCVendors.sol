@@ -33,6 +33,12 @@ contract MoCVendorsEvents {
   event TotalPaidInMoCReset(
     address account
   );
+  event VendorMoCDepositAddressChanged (
+    address vendorMoCDepositAddress
+  );
+  event VendorRequiredMoCsChanged (
+    uint256 vendorRequiredMoCs
+  );
 }
 
 contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed {
@@ -284,11 +290,29 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed {
   }
 
   /**
+    @dev Returns the address which will receive the initial amount of MoC required for a vendor to register.
+  */
+  function getVendorMoCDepositAddress() public view returns(address) {
+    return vendorMoCDepositAddress;
+  }
+
+  /**
     @dev Sets the address which will receive the initial amount of MoC required for a vendor to register.
     @param _vendorMoCDepositAddress Address which will receive the initial MoC required for a vendor to register.
   */
   function setVendorMoCDepositAddress(address _vendorMoCDepositAddress) public onlyAuthorizedChanger() {
+    require(_vendorMoCDepositAddress != address(0), "vendorMoCDepositAddress must not be 0x0");
+
     vendorMoCDepositAddress = _vendorMoCDepositAddress;
+
+    emit VendorMoCDepositAddressChanged(_vendorMoCDepositAddress);
+  }
+
+  /**
+    @dev Returns the initial amount of MoC required for a vendor to register.
+  */
+  function getVendorRequiredMoCs() public view returns (uint256){
+    return vendorRequiredMoCs;
   }
 
   /**
@@ -297,6 +321,8 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed {
   */
   function setVendorRequiredMoCs(uint256 _vendorRequiredMoCs) public onlyAuthorizedChanger() {
     vendorRequiredMoCs = _vendorRequiredMoCs;
+
+    emit VendorRequiredMoCsChanged(_vendorRequiredMoCs);
   }
 
   /**
