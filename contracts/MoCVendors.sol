@@ -277,18 +277,6 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed {
     }
   }
 
-  function initializeContracts() internal {
-    moc = MoC(connector.moc());
-    mocState = MoCState(connector.mocState());
-    mocExchange = MoCExchange(connector.mocExchange());
-  }
-
-  function initializeValues(address _governor, address _vendorMoCDepositAddress, uint256 _vendorRequiredMoCs) internal {
-    governor = IGovernor(_governor);
-    vendorMoCDepositAddress = _vendorMoCDepositAddress;
-    vendorRequiredMoCs = _vendorRequiredMoCs;
-  }
-
   /**
     @dev Returns the address which will receive the initial amount of MoC required for a vendor to register.
   */
@@ -323,6 +311,18 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed {
     vendorRequiredMoCs = _vendorRequiredMoCs;
 
     emit VendorRequiredMoCsChanged(_vendorRequiredMoCs);
+  }
+
+  function initializeContracts() internal {
+    moc = MoC(connector.moc());
+    mocState = MoCState(connector.mocState());
+    mocExchange = MoCExchange(connector.mocExchange());
+  }
+
+  function initializeValues(address _governor, address _vendorMoCDepositAddress, uint256 _vendorRequiredMoCs) internal {
+    governor = IGovernor(_governor);
+    vendorMoCDepositAddress = _vendorMoCDepositAddress;
+    vendorRequiredMoCs = _vendorRequiredMoCs;
   }
 
   /**
