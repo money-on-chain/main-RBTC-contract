@@ -32,8 +32,12 @@ const assertAllStoppedFunctions = vendorAccount => {
   );
 };
 
-const initializeSettlement = async (vendorAccount, accounts) => {
+const initializeSettlement = async (vendorAccount, owner, accounts) => {
   await mocHelper.revertState();
+
+  // Register vendor for test
+  await mocHelper.registerVendor(vendorAccount, 0, owner);
+
   // Avoid interests
   await mocHelper.mocState.setDaysToSettlement(0);
   const docAccounts = accounts.slice(0, 5);
@@ -72,7 +76,7 @@ contract('MoC: Partial Settlement execution', function([owner, vendorAccount, ..
   describe('WHEN the settlement is only partially executed', function() {
     let tx;
     before(async function() {
-      await initializeSettlement(vendorAccount, testAccounts);
+      await initializeSettlement(vendorAccount, owner, testAccounts);
       tx = await mocHelper.moc.runSettlement(2);
     });
     after(function() {

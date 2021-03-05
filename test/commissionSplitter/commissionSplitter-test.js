@@ -78,6 +78,9 @@ contract('CommissionSplitter', function([owner, userAccount, commissionsAccount,
           // deploying Commission splitter
           splitterPrecision = await commissionSplitter.PRECISION();
 
+          // Register vendor for test
+          await mocHelper.registerVendor(vendorAccount, 0, owner);
+
           // Commission rates for test are set in functionHelper.js
           await mocHelper.mockMocInrateChanger.setCommissionRates(
             await mocHelper.getCommissionsArrayNonZero()
