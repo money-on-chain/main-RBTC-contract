@@ -84,6 +84,7 @@ module.exports = {
   },
   mocha: {
     useColors: true,
-    bail: false
+    bail: false,
+    enableTimeouts: false
   }
 };
