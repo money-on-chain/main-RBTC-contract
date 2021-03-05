@@ -104,7 +104,7 @@ contract('MoC: Partial Settlement execution', function([owner, vendorAccount, ..
   });
   describe('WHEN the settlement is set to stall AND executed with 100 steps', function() {
     before(async function() {
-      await initializeSettlement(vendorAccount, testAccounts);
+      await initializeSettlement(vendorAccount, owner, testAccounts);
       await setToStall();
       await mocHelper.moc.runSettlement(100);
     });

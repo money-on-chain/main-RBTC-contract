@@ -464,7 +464,7 @@ contract('MoC: MoCVendors', function([
         let account;
         let index = 0;
         const mocAmount = 1000;
-        const blockGasLimit = 6800000;
+        const blockGasLimit = 6000000;
 
         // Register vendors and set up values for test
         /* eslint-disable no-await-in-loop */

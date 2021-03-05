@@ -16,6 +16,7 @@ contract('MoC: Doc Redeem on Settlement with commissions', function([
     this.mocSettlement = mocHelper.mocSettlement;
     this.governor = mocHelper.governor;
     this.mocVendors = mocHelper.mocVendors;
+    this.mockMocInrateChanger = mocHelper.mockMocInrateChanger;
   });
   describe('GIVEN there are commisions set and there are 3 users with doc redeem requests', function() {
     let prevCommissionsAccountBtcBalance;

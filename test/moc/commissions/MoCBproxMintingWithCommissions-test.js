@@ -25,6 +25,7 @@ contract('MoC : MoCExchange', function([
     this.mockMocStateChanger = mocHelper.mockMocStateChanger;
     this.governor = mocHelper.governor;
     this.mocVendors = mocHelper.mocVendors;
+    this.mockMocInrateChanger = mocHelper.mockMocInrateChanger;
   });
 
   beforeEach(async function() {
