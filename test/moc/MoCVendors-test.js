@@ -6,6 +6,9 @@ const testHelperBuilder = require('../mocHelper.js');
 let mocHelper;
 let toContractBN;
 
+const NOT_AUTHORIZED_CHANGER = 'not_authorized_changer';
+const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
+
 contract('MoC: MoCVendors', function([
   owner,
   userAccount,
@@ -15,7 +18,9 @@ contract('MoC: MoCVendors', function([
   vendorAccount2,
   vendorAccount3,
   vendorAccount4,
-  vendorAccount5
+  vendorAccount5,
+  unauthorizedAccount,
+  ...accounts
 ]) {
   before(async function() {
     mocHelper = await testHelperBuilder({ owner });
@@ -380,23 +385,21 @@ contract('MoC: MoCVendors', function([
     });
     describe('GIVEN vendors can be registered and unregistered by themselves', function() {
       it('WHEN registering more vendors than allowed THEN an error should be raised', async function() {
-        const password = '!@superpassword';
         let account;
+        let index = 0;
         /* eslint-disable no-await-in-loop */
         // 20 batches of 5 vendors at a time because of out-of-gas errors
         for (let i = 0; i < 20; i++) {
           for (let j = 0; j < 5; j++) {
-            account = await web3.eth.personal.newAccount(password);
-            await web3.eth.personal.unlockAccount(account, password, 600);
-            await mocHelper.registerVendor(account, (i * j) / 100000, owner);
+            index++;
+            account = accounts[index]; // accounts must be different
+            await mocHelper.registerVendor(account, index / 100000, owner);
           }
         }
         /* eslint-enable no-await-in-loop */
 
         // Add a new vendor - should not be possible
-        account = await web3.eth.personal.newAccount(password);
-        await web3.eth.personal.unlockAccount(account, password, 600);
-        const registerVendorTx = await mocHelper.registerVendor(account, 0.001, owner);
+        const registerVendorTx = mocHelper.registerVendor(accounts[index++], 0.001, owner);
 
         await expectRevert(registerVendorTx, 'vendorsList length must be between 1 and 100');
       });
@@ -453,6 +456,143 @@ contract('MoC: MoCVendors', function([
           vendorUpdatedEvent.markup,
           newMarkup,
           'Vendor new markup is incorrect'
+        );
+      });
+    });
+    describe('GIVEN settlement runs', function() {
+      it('WHEN iterating over 100 active vendors THEN amount paid in MoC is reset for each vendor', async function() {
+        let account;
+        let index = 0;
+        const mocAmount = 1000;
+        const blockGasLimit = 6800000;
+
+        // Register vendors and set up values for test
+        /* eslint-disable no-await-in-loop */
+        // 20 batches of 5 vendors at a time because of out-of-gas errors
+        for (let i = 0; i < 20; i++) {
+          for (let j = 0; j < 5; j++) {
+            index++;
+            account = accounts[index]; // accounts must be different
+            await mocHelper.registerVendor(account, index / 100000, owner);
+
+            // Mint MoC token
+            await mocHelper.mintMoCToken(account, mocAmount, owner);
+            await mocHelper.approveMoCToken(this.mocVendors.address, mocAmount, account);
+
+            // Add staking
+            await this.mocVendors.addStake(toContractBN(mocAmount * mocHelper.MOC_PRECISION), {
+              from: account
+            });
+
+            // Mint BPRO
+            await mocHelper.mintBProAmount(
+              userAccount,
+              1000,
+              account,
+              await mocHelper.mocInrate.MINT_BPRO_FEES_RBTC()
+            );
+          }
+        }
+        /* eslint-enable no-await-in-loop */
+
+        // Enabling Settlement
+        await this.mocSettlement.setBlockSpan(1);
+        const settlementTx = await mocHelper.executeSettlement();
+        const receipt = await web3.eth.getTransactionReceipt(settlementTx.tx);
+
+        assert(receipt.cumulativeGasUsed <= blockGasLimit, 'Block gas limit reached');
+      });
+    });
+  });
+
+  describe('MoCVendors settings params', function() {
+    const scenario = {
+      vendorMoCDepositAddress: inexistentVendorAccount, // Any address will do
+      vendorRequiredMoCs: 2000
+    };
+    describe('GIVEN the default vendorMoCDepositAddress', function() {
+      let tx;
+
+      it(`THEN an unauthorized account ${unauthorizedAccount} tries to change vendorMoCDepositAddress to ${scenario.vendorMoCDepositAddress}`, async function() {
+        try {
+          await this.mocVendors.setVendorMoCDepositAddress(scenario.vendorMoCDepositAddress, {
+            from: unauthorizedAccount
+          });
+        } catch (err) {
+          assert(
+            NOT_AUTHORIZED_CHANGER === err.reason,
+            `${unauthorizedAccount} Should not be authorized to set vendorMoCDepositAddress`
+          );
+        }
+      });
+      it('THEN an authorized account tries to change vendorMoCDepositAddress to zero address', async function() {
+        await this.mockMoCVendorsChanger.setVendorMoCDepositAddress(ZERO_ADDRESS);
+        const changeAddressTx = this.governor.executeChange(this.mockMoCVendorsChanger.address);
+
+        await expectRevert(changeAddressTx, 'vendorMoCDepositAddress must not be 0x0');
+      });
+      it(`THEN an authorized contract tries to change vendorMoCDepositAddress to ${scenario.vendorMoCDepositAddress}`, async function() {
+        await this.mockMoCVendorsChanger.setVendorMoCDepositAddress(
+          scenario.vendorMoCDepositAddress
+        );
+        tx = await this.governor.executeChange(this.mockMoCVendorsChanger.address);
+        const newVendorMoCDepositAddress = await this.mocVendors.getVendorMoCDepositAddress();
+
+        assert(
+          newVendorMoCDepositAddress === scenario.vendorMoCDepositAddress,
+          `vendorMoCDepositAddress should be ${scenario.vendorMoCDepositAddress}`
+        );
+      });
+      it('THEN VendorMoCDepositAddressChanged event is emitted', async function() {
+        const [vendorMoCDepositAddressChangedEvent] = await mocHelper.findEvents(
+          tx,
+          'VendorMoCDepositAddressChanged'
+        );
+        assert(
+          vendorMoCDepositAddressChangedEvent.vendorMoCDepositAddress ===
+            scenario.vendorMoCDepositAddress,
+          'New address is different'
+        );
+      });
+    });
+    describe('GIVEN the default vendorRequiredMoCs', function() {
+      let tx;
+      let vendorRequiredMoCsBN;
+
+      it(`THEN an unauthorized account ${unauthorizedAccount} tries to change vendorRequiredMoCs to ${scenario.vendorRequiredMoCs}`, async function() {
+        vendorRequiredMoCsBN = toContractBN(scenario.vendorRequiredMoCs * mocHelper.MOC_PRECISION);
+
+        try {
+          await this.mocVendors.setVendorRequiredMoCs(toContractBN(vendorRequiredMoCsBN), {
+            from: unauthorizedAccount
+          });
+        } catch (err) {
+          assert(
+            NOT_AUTHORIZED_CHANGER === err.reason,
+            `${unauthorizedAccount} Should not be authorized to set vendorRequiredMoCs`
+          );
+        }
+      });
+      it(`THEN an authorized contract tries to change vendorRequiredMoCs to ${scenario.vendorRequiredMoCs}`, async function() {
+        await this.mockMoCVendorsChanger.setVendorRequiredMoCs(toContractBN(vendorRequiredMoCsBN));
+        tx = await this.governor.executeChange(this.mockMoCVendorsChanger.address);
+        const newVendorRequiredMoCs = await this.mocVendors.getVendorRequiredMoCs();
+
+        mocHelper.assertBig(
+          newVendorRequiredMoCs,
+          vendorRequiredMoCsBN,
+          `vendorRequiredMoCs should be ${scenario.vendorRequiredMoCs}`
+        );
+      });
+      it('THEN VendorRequiredMoCsChanged event is emitted', async function() {
+        const [vendorRequiredMoCsChangedEvent] = await mocHelper.findEvents(
+          tx,
+          'VendorRequiredMoCsChanged'
+        );
+        mocHelper.assertBig(
+          vendorRequiredMoCsChangedEvent.vendorRequiredMoCs,
+          vendorRequiredMoCsBN,
+          `vendorRequiredMoCs should be ${scenario.vendorRequiredMoCs}`
         );
       });
     });
