@@ -289,11 +289,7 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed {
     @param _vendorMoCDepositAddress Address which will receive the initial MoC required for a vendor to register.
   */
   function setVendorMoCDepositAddress(address _vendorMoCDepositAddress) public onlyAuthorizedChanger() {
-    require(_vendorMoCDepositAddress != address(0), "vendorMoCDepositAddress must not be 0x0");
-
-    vendorMoCDepositAddress = _vendorMoCDepositAddress;
-
-    emit VendorMoCDepositAddressChanged(_vendorMoCDepositAddress);
+    setVendorMoCDepositAddressInternal(_vendorMoCDepositAddress);
   }
 
   /**
@@ -308,9 +304,7 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed {
     @param _vendorRequiredMoCs Initial amount of MoC required for a vendor to register.
   */
   function setVendorRequiredMoCs(uint256 _vendorRequiredMoCs) public onlyAuthorizedChanger() {
-    vendorRequiredMoCs = _vendorRequiredMoCs;
-
-    emit VendorRequiredMoCsChanged(_vendorRequiredMoCs);
+    setVendorRequiredMoCsInternal(_vendorRequiredMoCs);
   }
 
   function initializeContracts() internal {
@@ -321,8 +315,30 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed {
 
   function initializeValues(address _governor, address _vendorMoCDepositAddress, uint256 _vendorRequiredMoCs) internal {
     governor = IGovernor(_governor);
-    setVendorMoCDepositAddress(_vendorMoCDepositAddress);
-    setVendorRequiredMoCs(_vendorRequiredMoCs);
+    setVendorMoCDepositAddressInternal(_vendorMoCDepositAddress);
+    setVendorRequiredMoCsInternal(_vendorRequiredMoCs);
+  }
+
+  /**
+    @dev Sets the address which will receive the initial amount of MoC required for a vendor to register.
+    @param _vendorMoCDepositAddress Address which will receive the initial MoC required for a vendor to register.
+  */
+  function setVendorMoCDepositAddressInternal(address _vendorMoCDepositAddress) internal {
+    require(_vendorMoCDepositAddress != address(0), "vendorMoCDepositAddress must not be 0x0");
+
+    vendorMoCDepositAddress = _vendorMoCDepositAddress;
+
+    emit VendorMoCDepositAddressChanged(_vendorMoCDepositAddress);
+  }
+
+  /**
+    @dev Sets the initial amount of MoC required for a vendor to register.
+    @param _vendorRequiredMoCs Initial amount of MoC required for a vendor to register.
+  */
+  function setVendorRequiredMoCsInternal(uint256 _vendorRequiredMoCs) internal {
+    vendorRequiredMoCs = _vendorRequiredMoCs;
+
+    emit VendorRequiredMoCsChanged(_vendorRequiredMoCs);
   }
 
   /**
