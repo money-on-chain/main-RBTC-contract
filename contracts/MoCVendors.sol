@@ -321,8 +321,8 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed {
 
   function initializeValues(address _governor, address _vendorMoCDepositAddress, uint256 _vendorRequiredMoCs) internal {
     governor = IGovernor(_governor);
-    vendorMoCDepositAddress = _vendorMoCDepositAddress;
-    vendorRequiredMoCs = _vendorRequiredMoCs;
+    setVendorMoCDepositAddress(_vendorMoCDepositAddress);
+    setVendorRequiredMoCs(_vendorRequiredMoCs);
   }
 
   /**
