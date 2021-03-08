@@ -1,0 +1,707 @@
+[
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "bucket",
+        "type": "bytes32"
+      }
+    ],
+    "name": "getBucketNBPro",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "governor",
+    "outputs": [
+      {
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "bucket",
+        "type": "bytes32"
+      }
+    ],
+    "name": "getActiveAddresses",
+    "outputs": [
+      {
+        "name": "",
+        "type": "address[]"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "bucketName",
+        "type": "bytes32"
+      },
+      {
+        "name": "btc",
+        "type": "uint256"
+      },
+      {
+        "name": "doc",
+        "type": "uint256"
+      },
+      {
+        "name": "bprox",
+        "type": "uint256"
+      }
+    ],
+    "name": "substractValuesFromBucket",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "toLiquidate",
+        "type": "bytes32"
+      },
+      {
+        "name": "destination",
+        "type": "bytes32"
+      }
+    ],
+    "name": "liquidateBucket",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "bucketName",
+        "type": "bytes32"
+      },
+      {
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "deliverInrate",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "bucket",
+        "type": "bytes32"
+      }
+    ],
+    "name": "getActiveAddressesCount",
+    "outputs": [
+      {
+        "name": "count",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "BUCKET_X2",
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "bucketName",
+        "type": "bytes32"
+      },
+      {
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "recoverInrate",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "bucket",
+        "type": "bytes32"
+      }
+    ],
+    "name": "isBucketBase",
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "bucket",
+        "type": "bytes32"
+      }
+    ],
+    "name": "getBucketNDoc",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "bucketName",
+        "type": "bytes32"
+      },
+      {
+        "name": "btcAmount",
+        "type": "uint256"
+      }
+    ],
+    "name": "payInrate",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "connector",
+    "outputs": [
+      {
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "bucket",
+        "type": "bytes32"
+      }
+    ],
+    "name": "getInrateBag",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "_bucket",
+        "type": "bytes32"
+      },
+      {
+        "name": "_cobj",
+        "type": "uint256"
+      }
+    ],
+    "name": "setBucketCobj",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "bucket",
+        "type": "bytes32"
+      }
+    ],
+    "name": "isBucketEmpty",
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "bucketName",
+        "type": "bytes32"
+      },
+      {
+        "name": "btc",
+        "type": "uint256"
+      },
+      {
+        "name": "doc",
+        "type": "uint256"
+      },
+      {
+        "name": "bprox",
+        "type": "uint256"
+      }
+    ],
+    "name": "addValuesToBucket",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "bucket",
+        "type": "bytes32"
+      }
+    ],
+    "name": "getBucketCobj",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "newIGovernor",
+        "type": "address"
+      }
+    ],
+    "name": "changeIGovernor",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "origin",
+        "type": "bytes32"
+      },
+      {
+        "name": "destination",
+        "type": "bytes32"
+      }
+    ],
+    "name": "emptyBucket",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "bucket",
+        "type": "bytes32"
+      }
+    ],
+    "name": "getBucketNBTC",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "bucketName",
+        "type": "bytes32"
+      }
+    ],
+    "name": "clearBucketBalances",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "from",
+        "type": "bytes32"
+      },
+      {
+        "name": "to",
+        "type": "bytes32"
+      },
+      {
+        "name": "btc",
+        "type": "uint256"
+      },
+      {
+        "name": "docs",
+        "type": "uint256"
+      }
+    ],
+    "name": "moveBtcAndDocs",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "BUCKET_C0",
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "bucket",
+        "type": "bytes32"
+      }
+    ],
+    "name": "isAvailableBucket",
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "name": "from",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "name": "to",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "name": "reserves",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "stableTokens",
+        "type": "uint256"
+      }
+    ],
+    "name": "BucketMovement",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "name": "name",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "name": "cobj",
+        "type": "uint256"
+      }
+    ],
+    "name": "BucketCreation",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "name": "name",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "name": "nReserve",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "nStable",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "nRiskProx",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "inrateBag",
+        "type": "uint256"
+      }
+    ],
+    "name": "BucketStateUpdate",
+    "type": "event"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "_governor",
+        "type": "address"
+      }
+    ],
+    "name": "initialize",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "connectorAddress",
+        "type": "address"
+      },
+      {
+        "name": "_governor",
+        "type": "address"
+      },
+      {
+        "name": "_c0Cobj",
+        "type": "uint256"
+      },
+      {
+        "name": "_x2Cobj",
+        "type": "uint256"
+      }
+    ],
+    "name": "initialize",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "bucket",
+        "type": "bytes32"
+      },
+      {
+        "name": "userAddress",
+        "type": "address"
+      }
+    ],
+    "name": "bproxBalanceOf",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "bucket",
+        "type": "bytes32"
+      },
+      {
+        "name": "userAddress",
+        "type": "address"
+      },
+      {
+        "name": "index",
+        "type": "uint256"
+      }
+    ],
+    "name": "hasValidBalance",
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "bucket",
+        "type": "bytes32"
+      },
+      {
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "name": "bproxAmount",
+        "type": "uint256"
+      },
+      {
+        "name": "totalCost",
+        "type": "uint256"
+      }
+    ],
+    "name": "assignBProx",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "bucket",
+        "type": "bytes32"
+      },
+      {
+        "name": "userAddress",
+        "type": "address"
+      },
+      {
+        "name": "bproxAmount",
+        "type": "uint256"
+      },
+      {
+        "name": "totalCost",
+        "type": "uint256"
+      }
+    ],
+    "name": "removeBProx",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "bucket",
+        "type": "bytes32"
+      },
+      {
+        "name": "userAddress",
+        "type": "address"
+      },
+      {
+        "name": "value",
+        "type": "uint256"
+      }
+    ],
+    "name": "setBProxBalanceOf",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]

@@ -1,0 +1,1109 @@
+[
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "getReservePrecision",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "BUCKET_X2",
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "connector",
+    "outputs": [
+      {
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "BUCKET_C0",
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "getDayPrecision",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "getMocPrecision",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "reserveTotal",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "commission",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "reservePrice",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "mocCommissionValue",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "mocPrice",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "btcMarkup",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "mocMarkup",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "vendorAccount",
+        "type": "address"
+      }
+    ],
+    "name": "RiskProMint",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "name": "riskProTecPrice",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "riskProDiscountPrice",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "RiskProWithDiscountMint",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "reserveTotal",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "commission",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "reservePrice",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "mocCommissionValue",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "mocPrice",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "btcMarkup",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "mocMarkup",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "vendorAccount",
+        "type": "address"
+      }
+    ],
+    "name": "RiskProRedeem",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "reserveTotal",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "commission",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "reservePrice",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "mocCommissionValue",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "mocPrice",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "btcMarkup",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "mocMarkup",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "vendorAccount",
+        "type": "address"
+      }
+    ],
+    "name": "StableTokenMint",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "reserveTotal",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "commission",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "reservePrice",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "mocCommissionValue",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "mocPrice",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "btcMarkup",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "mocMarkup",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "vendorAccount",
+        "type": "address"
+      }
+    ],
+    "name": "StableTokenRedeem",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "reserveTotal",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "commission",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "interests",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "reservePrice",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "mocCommissionValue",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "mocPrice",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "btcMarkup",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "mocMarkup",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "vendorAccount",
+        "type": "address"
+      }
+    ],
+    "name": "FreeStableTokenRedeem",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "name": "bucket",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "reserveTotal",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "interests",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "leverage",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "commission",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "reservePrice",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "mocCommissionValue",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "mocPrice",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "btcMarkup",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "mocMarkup",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "vendorAccount",
+        "type": "address"
+      }
+    ],
+    "name": "RiskProxMint",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "name": "bucket",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "name": "commission",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "reserveTotal",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "interests",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "leverage",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "reservePrice",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "mocCommissionValue",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "mocPrice",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "btcMarkup",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "mocMarkup",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "vendorAccount",
+        "type": "address"
+      }
+    ],
+    "name": "RiskProxRedeem",
+    "type": "event"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "connectorAddress",
+        "type": "address"
+      }
+    ],
+    "name": "initialize",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "btcAmount",
+        "type": "uint256"
+      }
+    ],
+    "name": "convertToMoCPrice",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "owner",
+        "type": "address"
+      },
+      {
+        "name": "spender",
+        "type": "address"
+      }
+    ],
+    "name": "getMoCTokenBalance",
+    "outputs": [
+      {
+        "name": "mocBalance",
+        "type": "uint256"
+      },
+      {
+        "name": "mocAllowance",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "components": [
+          {
+            "name": "account",
+            "type": "address"
+          },
+          {
+            "name": "amount",
+            "type": "uint256"
+          },
+          {
+            "name": "txTypeFeesMOC",
+            "type": "uint8"
+          },
+          {
+            "name": "txTypeFeesRBTC",
+            "type": "uint8"
+          },
+          {
+            "name": "vendorAccount",
+            "type": "address"
+          }
+        ],
+        "name": "params",
+        "type": "tuple"
+      }
+    ],
+    "name": "calculateCommissionsWithPrices",
+    "outputs": [
+      {
+        "components": [
+          {
+            "name": "btcCommission",
+            "type": "uint256"
+          },
+          {
+            "name": "mocCommission",
+            "type": "uint256"
+          },
+          {
+            "name": "btcPrice",
+            "type": "uint256"
+          },
+          {
+            "name": "mocPrice",
+            "type": "uint256"
+          },
+          {
+            "name": "btcMarkup",
+            "type": "uint256"
+          },
+          {
+            "name": "mocMarkup",
+            "type": "uint256"
+          }
+        ],
+        "name": "ret",
+        "type": "tuple"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "name": "bproAmount",
+        "type": "uint256"
+      },
+      {
+        "name": "vendorAccount",
+        "type": "address"
+      }
+    ],
+    "name": "redeemBPro",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "name": "docAmount",
+        "type": "uint256"
+      },
+      {
+        "name": "vendorAccount",
+        "type": "address"
+      }
+    ],
+    "name": "redeemFreeDoc",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "name": "btcToMint",
+        "type": "uint256"
+      },
+      {
+        "name": "vendorAccount",
+        "type": "address"
+      }
+    ],
+    "name": "mintDoc",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "userAddress",
+        "type": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "name": "btcPrice",
+        "type": "uint256"
+      }
+    ],
+    "name": "redeemDocWithPrice",
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool"
+      },
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "origin",
+        "type": "address"
+      },
+      {
+        "name": "destination",
+        "type": "address"
+      }
+    ],
+    "name": "redeemAllDoc",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "name": "btcAmount",
+        "type": "uint256"
+      },
+      {
+        "name": "vendorAccount",
+        "type": "address"
+      }
+    ],
+    "name": "mintBPro",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "name": "btcCommission",
+        "type": "uint256"
+      },
+      {
+        "name": "bproAmount",
+        "type": "uint256"
+      },
+      {
+        "name": "rbtcValue",
+        "type": "uint256"
+      },
+      {
+        "name": "mocCommission",
+        "type": "uint256"
+      },
+      {
+        "name": "btcPrice",
+        "type": "uint256"
+      },
+      {
+        "name": "mocPrice",
+        "type": "uint256"
+      },
+      {
+        "name": "btcMarkup",
+        "type": "uint256"
+      },
+      {
+        "name": "mocMarkup",
+        "type": "uint256"
+      },
+      {
+        "name": "vendorAccount",
+        "type": "address"
+      }
+    ],
+    "name": "mintBPro",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "name": "bucket",
+        "type": "bytes32"
+      },
+      {
+        "name": "btcToMint",
+        "type": "uint256"
+      },
+      {
+        "name": "vendorAccount",
+        "type": "address"
+      }
+    ],
+    "name": "mintBProx",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "name": "bucket",
+        "type": "bytes32"
+      },
+      {
+        "name": "bproxAmount",
+        "type": "uint256"
+      },
+      {
+        "name": "vendorAccount",
+        "type": "address"
+      }
+    ],
+    "name": "redeemBProx",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "bucket",
+        "type": "bytes32"
+      },
+      {
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "name": "bproxAmount",
+        "type": "uint256"
+      },
+      {
+        "name": "bproxPrice",
+        "type": "uint256"
+      }
+    ],
+    "name": "forceRedeemBProx",
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "bucket",
+        "type": "bytes32"
+      },
+      {
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "name": "bproxAmount",
+        "type": "uint256"
+      },
+      {
+        "name": "bproxPrice",
+        "type": "uint256"
+      }
+    ],
+    "name": "burnBProxFor",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]
