@@ -23,16 +23,11 @@ contract.skip('MoC: Gas limit on deleveraging', function([owner, vendorAccount, 
     this.mocSettlement = mocHelper.mocSettlement;
     this.bprox = mocHelper.bprox;
     this.moc = mocHelper.moc;
-    this.governor = mocHelper.governor;
-    this.mockMoCVendorsChanger = mocHelper.mockMoCVendorsChanger;
 
     mocHelper.revertState();
 
     // Register vendor for test
-    await this.mockMoCVendorsChanger.setVendorsToRegister(
-      await mocHelper.getVendorToRegisterAsArray(vendorAccount, 0)
-    );
-    await this.governor.executeChange(this.mockMoCVendorsChanger.address);
+    await mocHelper.registerVendor(vendorAccount, 0, owner);
 
     await initializeDeleveraging(owner, vendorAccount, initialAccounts.slice(0, 100));
     await initializeDeleveraging(owner, vendorAccount, initialAccounts.slice(100, 200));

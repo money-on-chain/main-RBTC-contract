@@ -17,7 +17,7 @@
     "block-utils": "scripts/mine_blocks.sh",
     "truffle-compile": "truffle compile --all",
     "solium": "npx ethlint -d contracts/",
-    "eslint": "eslint 'test/**/*.js' 'scripts/**/*.js'",
+    "eslint": "npx truffle compile --all; npx eslint 'test/**/*.js' 'scripts/**/*.js'",
     "migrate-development": "npx truffle migrate --network development",
     "deploy-reset-development": "rm zos.dev-*.json; rm -r build/contracts; npx truffle migrate --network development --reset",
     "deploy-reset-regtest": "rm zos.dev-*.json; rm -r build/contracts; cat zos.json.empty > zos.json; npx truffle migrate --network regtest --reset",

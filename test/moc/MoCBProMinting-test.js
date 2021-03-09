@@ -11,8 +11,6 @@ contract('MoC: MoCExchange', function([owner, userAccount, vendorAccount]) {
     ({ toContractBN } = mocHelper);
     this.moc = mocHelper.moc;
     this.mocState = mocHelper.mocState;
-    this.governor = mocHelper.governor;
-    this.mockMoCVendorsChanger = mocHelper.mockMoCVendorsChanger;
     ({ BUCKET_C0 } = mocHelper);
   });
 
@@ -20,10 +18,7 @@ contract('MoC: MoCExchange', function([owner, userAccount, vendorAccount]) {
     await mocHelper.revertState();
 
     // Register vendor for test
-    await this.mockMoCVendorsChanger.setVendorsToRegister(
-      await mocHelper.getVendorToRegisterAsArray(vendorAccount, 0)
-    );
-    await this.governor.executeChange(this.mockMoCVendorsChanger.address);
+    await mocHelper.registerVendor(vendorAccount, 0, owner);
   });
 
   describe('BPro minting', function() {

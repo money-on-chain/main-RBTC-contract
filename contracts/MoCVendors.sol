@@ -33,6 +33,12 @@ contract MoCVendorsEvents {
   event TotalPaidInMoCReset(
     address account
   );
+  event VendorMoCDepositAddressChanged (
+    address vendorMoCDepositAddress
+  );
+  event VendorRequiredMoCsChanged (
+    uint256 vendorRequiredMoCs
+  );
 }
 
 contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed {
@@ -61,6 +67,8 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed {
   // Variables
   mapping(address => VendorDetails) public vendors;
   address[] public vendorsList;
+  address public vendorMoCDepositAddress;
+  uint256 public vendorRequiredMoCs;
 
   /**
     @dev Initializes the contract
@@ -69,12 +77,14 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed {
   */
   function initialize(
     address connectorAddress,
-    address _governor
+    address _governor,
+    address _vendorMoCDepositAddress,
+    uint256 _vendorRequiredMoCs
   ) public initializer {
     initializePrecisions();
     initializeBase(connectorAddress);
     initializeContracts();
-    initializeValues(_governor);
+    initializeValues(_governor, _vendorMoCDepositAddress, _vendorRequiredMoCs);
   }
 
   /**
@@ -86,63 +96,67 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed {
   }
 
   /**
-    @dev Allows to register a vendor
-    @param account Vendor address
+    @dev Allows a vendor to register themselves
     @param markup Markup which vendor will perceive from mint/redeem operations
     @return true if vendor was registered successfully; otherwise false
   */
-  function registerVendor(address account, uint256 markup) public onlyAuthorizedChanger() returns (bool isActive) {
-    require(account != address(0), "Vendor account must not be 0x0");
+  function registerVendor(uint256 markup) public returns (bool isActive) {
+    require(msg.sender != address(0), "Vendor account must not be 0x0");
     require(markup <= VENDOR_MAX_MARKUP, "Vendor markup must not be greater than 1%");
     // Change the error message according to the value of the VENDORS_LIST_ARRAY_MAX_LENGTH constant
     require(vendorsList.length < VENDORS_LIST_ARRAY_MAX_LENGTH, "vendorsList length must be between 1 and 100");
 
-    if (vendors[account].isActive == false) {
+    MoCToken mocToken = MoCToken(mocState.getMoCToken());
+
+    if (vendors[msg.sender].isActive == false) {
+      // Vendor needs to transfer MoCs to a configured address before registering
+      // If vendor does not have enough funds in MoC (transfer fails), they cannot be registered
+      mocToken.transferFrom(msg.sender, vendorMoCDepositAddress, vendorRequiredMoCs);
+
       // Map vendor details to vendor address
-      vendors[account].isActive = true;
-      vendors[account].markup = markup;
+      vendors[msg.sender].isActive = true;
+      vendors[msg.sender].markup = markup;
 
-      vendorsList.push(account);
+      vendorsList.push(msg.sender);
 
-      emit VendorRegistered(account, markup);
-    } else if (vendors[account].markup != markup) {
-      vendors[account].markup = markup;
+      emit VendorRegistered(msg.sender, markup);
+    } else if (vendors[msg.sender].markup != markup) {
+      vendors[msg.sender].markup = markup;
 
-      emit VendorUpdated(account, markup);
+      emit VendorUpdated(msg.sender, markup);
     }
 
-    return vendors[account].isActive;
+    return vendors[msg.sender].isActive;
   }
 
   /**
-    @dev Allows to unregister a vendor
-    @param account Vendor address
+    @dev Allows a vendor to unregister themselves (msg.sender)
     @return false if vendor was unregistered successfully; otherwise false
   */
-  function unregisterVendor(address account) public onlyAuthorizedChanger() onlyActiveVendor(account) returns (bool isActive) {
+  function unregisterVendor() public onlyActiveVendor() returns (bool isActive) {
     uint8 i = 0;
-    while (i < vendorsList.length && vendorsList[i] != account) {
+    while (i < vendorsList.length && vendorsList[i] != msg.sender) {
       i++;
     }
     // If vendor is found, then unregister it
     if (i < vendorsList.length) {
-      vendors[account].isActive = false;
+      vendors[msg.sender].isActive = false;
       vendorsList[i] = vendorsList[vendorsList.length - 1];
       delete vendorsList[vendorsList.length - 1];
       vendorsList.length--;
 
-      emit VendorUnregistered(account);
+      emit VendorUnregistered(msg.sender);
       return false;
     }
 
-    return vendors[account].isActive;
+    return vendors[msg.sender].isActive;
   }
 
   /**
     @dev Allows an active vendor (msg.sender) to add staking
     @param staking Staking the vendor wants to add
   */
-  function addStake(uint256 staking) public onlyActiveVendor(msg.sender) {
+  function addStake(uint256 staking) public onlyActiveVendor() {
     MoCToken mocToken = MoCToken(mocState.getMoCToken());
     (uint256 mocBalance, uint256 mocAllowance) = mocExchange.getMoCTokenBalance(msg.sender, address(this));
 
@@ -159,7 +173,7 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed {
     @dev Allows an active vendor (msg.sender) to remove staking
     @param staking Staking the vendor wants to add
   */
-  function removeStake(uint256 staking) public onlyActiveVendor(msg.sender) {
+  function removeStake(uint256 staking) public onlyActiveVendor() {
     MoCToken mocToken = MoCToken(mocState.getMoCToken());
 
     require(staking > 0, "Staking should be greater than 0");
@@ -263,23 +277,75 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed {
     }
   }
 
+  /**
+    @dev Returns the address which will receive the initial amount of MoC required for a vendor to register.
+  */
+  function getVendorMoCDepositAddress() public view returns(address) {
+    return vendorMoCDepositAddress;
+  }
+
+  /**
+    @dev Sets the address which will receive the initial amount of MoC required for a vendor to register.
+    @param _vendorMoCDepositAddress Address which will receive the initial MoC required for a vendor to register.
+  */
+  function setVendorMoCDepositAddress(address _vendorMoCDepositAddress) public onlyAuthorizedChanger() {
+    setVendorMoCDepositAddressInternal(_vendorMoCDepositAddress);
+  }
+
+  /**
+    @dev Returns the initial amount of MoC required for a vendor to register.
+  */
+  function getVendorRequiredMoCs() public view returns (uint256){
+    return vendorRequiredMoCs;
+  }
+
+  /**
+    @dev Sets the initial amount of MoC required for a vendor to register.
+    @param _vendorRequiredMoCs Initial amount of MoC required for a vendor to register.
+  */
+  function setVendorRequiredMoCs(uint256 _vendorRequiredMoCs) public onlyAuthorizedChanger() {
+    setVendorRequiredMoCsInternal(_vendorRequiredMoCs);
+  }
+
   function initializeContracts() internal {
     moc = MoC(connector.moc());
     mocState = MoCState(connector.mocState());
     mocExchange = MoCExchange(connector.mocExchange());
   }
 
-  function initializeValues(address _governor) internal {
+  function initializeValues(address _governor, address _vendorMoCDepositAddress, uint256 _vendorRequiredMoCs) internal {
     governor = IGovernor(_governor);
+    setVendorMoCDepositAddressInternal(_vendorMoCDepositAddress);
+    setVendorRequiredMoCsInternal(_vendorRequiredMoCs);
   }
 
   /**
-    @dev Checks if vendor is active
-    @param account Vendor address
+    @dev Sets the address which will receive the initial amount of MoC required for a vendor to register.
+    @param _vendorMoCDepositAddress Address which will receive the initial MoC required for a vendor to register.
   */
-  modifier onlyActiveVendor(address account) {
-    require(account != address(0), "Vendor account must not be 0x0");
-    require(vendors[account].isActive == true, "Vendor is inexistent or inactive");
+  function setVendorMoCDepositAddressInternal(address _vendorMoCDepositAddress) internal {
+    require(_vendorMoCDepositAddress != address(0), "vendorMoCDepositAddress must not be 0x0");
+
+    vendorMoCDepositAddress = _vendorMoCDepositAddress;
+
+    emit VendorMoCDepositAddressChanged(_vendorMoCDepositAddress);
+  }
+
+  /**
+    @dev Sets the initial amount of MoC required for a vendor to register.
+    @param _vendorRequiredMoCs Initial amount of MoC required for a vendor to register.
+  */
+  function setVendorRequiredMoCsInternal(uint256 _vendorRequiredMoCs) internal {
+    vendorRequiredMoCs = _vendorRequiredMoCs;
+
+    emit VendorRequiredMoCsChanged(_vendorRequiredMoCs);
+  }
+
+  /**
+    @dev Checks if vendor (msg.sender) is active
+  */
+  modifier onlyActiveVendor() {
+    require(vendors[msg.sender].isActive == true, "Vendor is inexistent or inactive");
     _;
   }
 

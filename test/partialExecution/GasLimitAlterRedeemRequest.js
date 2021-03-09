@@ -95,10 +95,7 @@ contract.skip('MoC: Gas limit on alter redeem request', function([
     await mocHelper.revertState();
 
     // Register vendor for test
-    await this.mockMoCVendorsChanger.setVendorsToRegister(
-      await mocHelper.getVendorToRegisterAsArray(vendorAccount, 0)
-    );
-    await this.governor.executeChange(this.mockMoCVendorsChanger.address);
+    await mocHelper.registerVendor(vendorAccount, 0, owner);
 
     await initializeSettlement(
       owner,

@@ -45,7 +45,6 @@
     "MocStateChanger.json",
     "MocStateMaxMintBProChanger.json",
     "MoCVendorsChanger.json",
-    "MoCVendorsChangerHarness.json",
     "MoCVendorsEvents.json",
     "Ownable.json",
     "PartialExecution.json",

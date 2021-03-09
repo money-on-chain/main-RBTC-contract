@@ -6,8 +6,6 @@ contract('MoC: RedeemBProx', function([owner, vendorAccount, ...accounts]) {
   before(async function() {
     mocHelper = await testHelperBuilder({ owner, useMock: true });
     this.moc = mocHelper.moc;
-    this.governor = mocHelper.governor;
-    this.mockMoCVendorsChanger = mocHelper.mockMoCVendorsChanger;
     ({ BUCKET_X2 } = mocHelper);
   });
 
@@ -15,10 +13,7 @@ contract('MoC: RedeemBProx', function([owner, vendorAccount, ...accounts]) {
     await mocHelper.revertState();
 
     // Register vendor for test
-    await this.mockMoCVendorsChanger.setVendorsToRegister(
-      await mocHelper.getVendorToRegisterAsArray(vendorAccount, 0)
-    );
-    await this.governor.executeChange(this.mockMoCVendorsChanger.address);
+    await mocHelper.registerVendor(vendorAccount, 0, owner);
   });
 
   const scenarios = [

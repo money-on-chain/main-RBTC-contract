@@ -19,15 +19,6 @@ contract('MoC: Retrocompatibility', function([owner, userAccount]) {
 
   beforeEach(async function() {
     await mocHelper.revertState();
-    // Commission rates for test are set in functionHelper.js
-    // await mocHelper.mockMocInrateChanger.setCommissionRates(
-    //   await mocHelper.getCommissionsArrayNonZero()
-    // );
-
-    // // set commissions address
-    // await mocHelper.mockMocInrateChanger.setCommissionsAddress(commissionsAccount);
-    // // update params
-    // await mocHelper.governor.executeChange(mocHelper.mockMocInrateChanger.address);
   });
 
   describe('GIVEN since the user wants to mint and redeem BPro with the retrocompatible functions', function() {

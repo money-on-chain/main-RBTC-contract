@@ -16,8 +16,6 @@ contract('MoCBucketContainer', function([owner, account2, vendorAccount]) {
     this.mocState = mocHelper.mocState;
     this.moc = mocHelper.moc;
     this.bprox = mocHelper.bprox;
-    this.governor = mocHelper.governor;
-    this.mockMoCVendorsChanger = mocHelper.mockMoCVendorsChanger;
     ({ BUCKET_C0, BUCKET_X2 } = mocHelper);
   });
 
@@ -25,10 +23,7 @@ contract('MoCBucketContainer', function([owner, account2, vendorAccount]) {
     await mocHelper.revertState();
 
     // Register vendor for test
-    await this.mockMoCVendorsChanger.setVendorsToRegister(
-      await mocHelper.getVendorToRegisterAsArray(vendorAccount, 0)
-    );
-    await this.governor.executeChange(this.mockMoCVendorsChanger.address);
+    await mocHelper.registerVendor(vendorAccount, 0, owner);
   });
 
   describe('GIVEN the Moc contract was created', function() {

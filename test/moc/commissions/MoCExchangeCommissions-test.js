@@ -16,30 +16,25 @@ contract('MoC: MoCExchange', function([
     this.moc = mocHelper.moc;
     this.mockMocInrateChanger = mocHelper.mockMocInrateChanger;
     this.governor = mocHelper.governor;
-    this.mockMoCVendorsChanger = mocHelper.mockMoCVendorsChanger;
     this.mocVendors = mocHelper.mocVendors;
   });
 
   beforeEach(async function() {
     await mocHelper.revertState();
 
-    const vendor1 = await mocHelper.getVendorToRegisterAsArray(vendorAccount1, 0.01);
-    const vendor2 = await mocHelper.getVendorToRegisterAsArray(vendorAccount2, 0.002);
-    const vendors = vendor1.concat(vendor2);
-
     // Register vendors for test
-    await this.mockMoCVendorsChanger.setVendorsToRegister(vendors);
-    await this.governor.executeChange(this.mockMoCVendorsChanger.address);
+    await mocHelper.registerVendor(vendorAccount1, 0.01, owner);
+    await mocHelper.registerVendor(vendorAccount2, 0.002, owner);
 
     // Commission rates for test are set in functionHelper.js
-    await mocHelper.mockMocInrateChanger.setCommissionRates(
+    await this.mockMocInrateChanger.setCommissionRates(
       await mocHelper.getCommissionsArrayNonZero()
     );
 
     // set commissions address
-    await mocHelper.mockMocInrateChanger.setCommissionsAddress(commissionsAccount);
+    await this.mockMocInrateChanger.setCommissionsAddress(commissionsAccount);
     // update params
-    await mocHelper.governor.executeChange(mocHelper.mockMocInrateChanger.address);
+    await this.governor.executeChange(mocHelper.mockMocInrateChanger.address);
   });
 
   describe('Calculate commissions with prices', function() {

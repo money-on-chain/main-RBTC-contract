@@ -31,14 +31,8 @@ contract('MoC: Gas limit on settlement', function([owner, vendorAccount, ...btcx
     ({ toContractBN } = mocHelper);
     ({ BUCKET_X2 } = mocHelper);
 
-    this.governor = mocHelper.governor;
-    this.mockMoCVendorsChanger = mocHelper.mockMoCVendorsChanger;
-
     // Register vendor for test
-    await this.mockMoCVendorsChanger.setVendorsToRegister(
-      await mocHelper.getVendorToRegisterAsArray(vendorAccount, 0)
-    );
-    await this.governor.executeChange(this.mockMoCVendorsChanger.address);
+    await mocHelper.registerVendor(vendorAccount, 0, owner);
   });
 
   describe(`GIVEN there are 100 redeemRequests and ${BTCX_OWNERS_QUANTITY} btcx owners`, function() {

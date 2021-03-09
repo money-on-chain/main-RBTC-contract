@@ -8,18 +8,13 @@ contract('MoC: Bucket Liquidation', function([owner, userAccount, otherAccount, 
     ({ BUCKET_X2 } = mocHelper);
     this.moc = mocHelper.moc;
     this.mocState = mocHelper.mocState;
-    this.governor = mocHelper.governor;
-    this.mockMoCVendorsChanger = mocHelper.mockMoCVendorsChanger;
   });
 
   beforeEach(async function() {
     await mocHelper.revertState();
 
     // Register vendor for test
-    await this.mockMoCVendorsChanger.setVendorsToRegister(
-      await mocHelper.getVendorToRegisterAsArray(vendorAccount, 0)
-    );
-    await this.governor.executeChange(this.mockMoCVendorsChanger.address);
+    await mocHelper.registerVendor(vendorAccount, 0, owner);
   });
 
   describe('GIVEN user has X2 positions AND BTC price drops to half', function() {
