@@ -1,54 +1,75 @@
 /* eslint-disable no-console */
-const AdminUpgradeabilityProxy = artifacts.require('AdminUpgradeabilityProxy');
 const UpgraderChanger = artifacts.require('./changers/UpgraderChanger.sol');
 const Governor = artifacts.require('moc-governance/contracts/Governance/Governor.sol');
 
 const MoCState = artifacts.require('./MoCState.sol');
+const MoCStateMock = artifacts.require('./mocks/MoCStateMock.sol');
 const MoCStateChangerDeploy = artifacts.require('./MoCStateChangerDeploy.sol');
 
-const deployConfig = require('./deployConfig.json');
+const BigNumber = require('bignumber.js');
+const { getConfig, getNetwork, saveConfig, shouldExecuteChanges } = require('./helper');
 
-module.exports = async (deployer, currentNetwork, [owner], callback) => {
+module.exports = async callback => {
   try {
-    // Get proxy contract
-    const proxyMocState = await AdminUpgradeabilityProxy.at(
-      deployConfig[currentNetwork].addresses.MoCState
-    );
-
-    // Upgrade delegator and Governor addresses (used to make changes to contracts)
-    const upgradeDelegatorAddress = deployConfig[currentNetwork].addresses.UpgradeDelegator;
-    const governor = await Governor.at(deployConfig[currentNetwork].addresses.Governor);
+    const network = getNetwork(process.argv);
+    const config = getConfig(network);
 
     // Deploy contract implementation
-    console.log('- Deploy MoCState');
-    const mocState = await deployer.deploy(MoCState);
+    console.log('Deploy MoCState');
+    let mocState;
+    if (network === 'development') {
+      mocState = await MoCStateMock.new();
+    } else {
+      mocState = await MoCState.new();
+    }
 
-    // Upgrade contracts with proxy (using the contract address of contracts just deployed)
-    console.log('- Upgrade MoCState');
-    const upgradeMocState = await deployer.deploy(
-      UpgraderChanger,
-      proxyMocState.address,
-      upgradeDelegatorAddress,
+    // Upgrade contracts with proxy (using the contract address of contract just deployed)
+    console.log('Upgrade MoCState');
+    const upgradeMocState = await UpgraderChanger.new(
+      config.proxyAddresses.MoCState,
+      config.implementationAddresses.UpgradeDelegator,
       mocState.address
     );
 
-    // Execute changes in contracts
-    console.log('Execute change - MoCState');
-    await governor.executeChange(upgradeMocState.address);
+    // Save implementation address and changer address to config file
+    config.implementationAddresses.MoCState = mocState.address;
+    config.changerAddresses['9_MoCState'] = upgradeMocState.address;
+    saveConfig(network, config);
+
+    let governor;
+    if (shouldExecuteChanges(network)) {
+      // Execute changes in contracts
+      console.log('Execute change - MoCState');
+      governor = await Governor.at(config.implementationAddresses.Governor);
+      await governor.executeChange(upgradeMocState.address);
+    }
+
+    const mocPrecision = 10 ** 18;
+    const protectedValue = BigNumber(config.valuesToAssign.protected)
+      .times(mocPrecision)
+      .toString();
 
     // Use changer contract
     const mocStateChangerDeploy = await MoCStateChangerDeploy.new(
-      deployConfig[currentNetwork].addresses.MoCPriceProvider,
-      deployConfig[currentNetwork].addresses.MoCToken,
-      deployConfig[currentNetwork].addresses.MoCVendorsAddress, // NEWLY DEPLOYED
-      deployConfig[currentNetwork].valuesToAssign.liquidationEnabled,
-      deployConfig[currentNetwork].valuesToAssign.protected,
-      { from: owner }
+      config.proxyAddresses.MoCState,
+      config.implementationAddresses.MoCPriceProvider,
+      config.implementationAddresses.MoCToken,
+      config.proxyAddresses.MoCVendors, // NEWLY DEPLOYED
+      config.valuesToAssign.liquidationEnabled,
+      protectedValue
     );
 
-    // Execute changes in MoCState
-    console.log('Execute change - MoCStateChangerDeploy');
-    await governor.executeChange(mocStateChangerDeploy.address);
+    // Save changer address to config file
+    config.changerAddresses['9_MoCInrateChangerDeploy'] = mocStateChangerDeploy.address;
+    saveConfig(network, config);
+
+    if (shouldExecuteChanges(network)) {
+      // Execute changes in MoCState
+      console.log('Execute change - MoCStateChangerDeploy');
+      await governor.executeChange(mocStateChangerDeploy.address);
+    }
+
+    console.log('MoCState implementation address: ', mocState.address);
   } catch (error) {
     console.log(error);
   }

@@ -9,15 +9,23 @@ import "../MocInrateChanger.sol";
  * Use for deploy only
  */
 contract MocInrateChangerDeploy is MocInrateChanger {
-  MoCInrate private mocInrate;
-
   constructor(
-    MoCInrate _mocInrate,
-    CommissionRates[] memory _commissionRates
-  ) public {
-    mocInrate = _mocInrate;
-    setCommissionRatesInternal(_commissionRates);
-  }
+      MoCInrate _mocInrate,
+      CommissionRates[] memory _commissionRates
+    )
+    MocInrateChanger(
+      _mocInrate,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      _commissionRates
+    )
+  public { }
 
   function execute() external {
     /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/

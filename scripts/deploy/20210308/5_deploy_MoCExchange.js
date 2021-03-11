@@ -1,39 +1,41 @@
 /* eslint-disable no-console */
-const AdminUpgradeabilityProxy = artifacts.require('AdminUpgradeabilityProxy');
 const UpgraderChanger = artifacts.require('./changers/UpgraderChanger.sol');
 const Governor = artifacts.require('moc-governance/contracts/Governance/Governor.sol');
 
 const MoCExchange = artifacts.require('./MoCExchange.sol');
 
-const deployConfig = require('./deployConfig.json');
+const { getConfig, getNetwork, saveConfig, shouldExecuteChanges } = require('./helper');
 
-module.exports = async (deployer, currentNetwork, [owner], callback) => {
+module.exports = async callback => {
   try {
-    // Get proxy contract
-    const proxyMocExchange = await AdminUpgradeabilityProxy.at(
-      deployConfig[currentNetwork].addresses.MoCExchange
-    );
-
-    // Upgrade delegator and Governor addresses (used to make changes to contracts)
-    const upgradeDelegatorAddress = deployConfig[currentNetwork].addresses.UpgradeDelegator;
-    const governor = await Governor.at(deployConfig[currentNetwork].addresses.Governor);
+    const network = getNetwork(process.argv);
+    const config = getConfig(network);
 
     // Deploy contract implementation
-    console.log('- Deploy MoCExchange');
-    const mocExchange = await deployer.deploy(MoCExchange);
+    console.log('Deploy MoCExchange');
+    const mocExchange = await MoCExchange.new();
 
-    // Upgrade contracts with proxy (using the contract address of contracts just deployed)
-    console.log('- Upgrade MoCExchange');
-    const upgradeMocExchange = await deployer.deploy(
-      UpgraderChanger,
-      proxyMocExchange.address,
-      upgradeDelegatorAddress,
+    // Upgrade contracts with proxy (using the contract address of contract just deployed)
+    console.log('Upgrade MoCExchange');
+    const upgradeMocExchange = await UpgraderChanger.new(
+      config.proxyAddresses.MoCExchange,
+      config.implementationAddresses.UpgradeDelegator,
       mocExchange.address
     );
 
-    // Execute changes in contracts
-    console.log('Execute change - MoCExchange');
-    await governor.executeChange(upgradeMocExchange.address);
+    // Save implementation address and changer address to config file
+    config.implementationAddresses.MoCExchange = mocExchange.address;
+    config.changerAddresses['5_MoCExchange'] = upgradeMocExchange.address;
+    saveConfig(network, config);
+
+    if (shouldExecuteChanges(network)) {
+      // Execute changes in contracts
+      console.log('Execute change - MoCExchange');
+      const governor = await Governor.at(config.implementationAddresses.Governor);
+      await governor.executeChange(upgradeMocExchange.address);
+    }
+
+    console.log('MoCExchange implementation address: ', mocExchange.address);
   } catch (error) {
     console.log(error);
   }

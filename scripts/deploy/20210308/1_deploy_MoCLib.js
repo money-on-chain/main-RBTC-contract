@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 const MoCLib = artifacts.require('./MoCHelperLib.sol');
 
 const MoC = artifacts.require('./MoC.sol');
@@ -7,26 +8,33 @@ const MoCExchange = artifacts.require('./MoCExchange.sol');
 const MoCInrate = artifacts.require('./MoCInrate.sol');
 const MoCVendors = artifacts.require('./MoCVendors.sol');
 
-const deployConfig = require('./deployConfig.json');
-const utils = require('../../../migrations/utils');
-const allConfigs = require('../../../migrations/configs/config');
+const { getConfig, getNetwork, saveConfig } = require('./helper');
 
-module.exports = async (deployer, currentNetwork, [owner], callback) => {
+module.exports = async callback => {
   try {
-    // Deploy new MoCHelperLib implementation
-    await deployer.deploy(MoCLib);
+    const network = getNetwork(process.argv);
+    const config = getConfig(network);
+    // const [owner] = await web3.eth.getAccounts();
 
-    // Current network config values: allConfigs[currentNetwork]
+    // Deploy new MoCHelperLib implementation
+    console.log('Deploy MoCHelperLib');
+    const mocHelperLib = await MoCLib.new();
+
+    // Save implementation address to config file
+    config.implementationAddresses.MoCHelperLib = mocHelperLib.address;
+    saveConfig(network, config);
 
     // Link MoCHelperLib
-    await deployer.link(MoCLib, MoC);
-    await deployer.link(MoCLib, MoCConverter);
-    await deployer.link(MoCLib, MoCState);
-    await deployer.link(MoCLib, MoCExchange);
-    await deployer.link(MoCLib, MoCInrate);
-    await deployer.link(MoCLib, MoCVendors);
+    console.log('Link MoCHelperLib');
+    MoC.link(MoCLib, mocHelperLib.address);
+    MoCConverter.link(MoCLib, mocHelperLib.address);
+    MoCState.link(MoCLib, mocHelperLib.address);
+    MoCExchange.link(MoCLib, mocHelperLib.address);
+    MoCInrate.link(MoCLib, mocHelperLib.address);
+    MoCVendors.link(MoCLib, mocHelperLib.address);
+
+    console.log('MoCHelperLib implementation address: ', mocHelperLib.address);
   } catch (error) {
-    // eslint-disable-next-line no-console
     console.log(error);
   }
 

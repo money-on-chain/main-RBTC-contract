@@ -9,20 +9,31 @@ import "../MocStateChanger.sol";
  */
 contract MocStateChangerDeploy is MocStateChanger {
   constructor(
-    MoCState _mocState,
-    address _mocPriceProvider,
-    address _mocTokenAddress,
-    address _mocVendorsAddress,
-    bool _liquidationEnabled,
-    uint256 _protected
-  ) public {
-    mocState = _mocState;
-    mocPriceProvider = _mocPriceProvider;
-    mocToken = _mocTokenAddress;
-    mocVendors = _mocVendorsAddress;
-    liquidationEnabled = _liquidationEnabled;
-    protected = _protected;
-  }
+      MoCState _mocState,
+      address _mocPriceProvider,
+      address _mocTokenAddress,
+      address _mocVendorsAddress,
+      bool _liquidationEnabled,
+      uint256 _protected
+    )
+    MocStateChanger(
+      _mocState,
+      _mocPriceProvider, // passing other address instead
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      _mocPriceProvider,
+      _mocTokenAddress,
+      _mocVendorsAddress,
+      _liquidationEnabled,
+      _protected
+    )
+  public { }
 
   function execute() external {
     mocState.setMoCPriceProvider(mocPriceProvider);

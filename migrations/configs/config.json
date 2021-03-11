@@ -27,7 +27,21 @@
     "liquidationEnabled": false,
     "protected": 1.5,
     "vendorMoCDepositAddress": "",
-    "vendorRequiredMoCs": 1000
+    "vendorRequiredMoCs": 1000,
+    "commissionRates": {
+      "MINT_BPRO_FEES_RBTC": 0.001,
+      "REDEEM_BPRO_FEES_RBTC": 0.001,
+      "MINT_DOC_FEES_RBTC": 0.001,
+      "REDEEM_DOC_FEES_RBTC": 0.001,
+      "MINT_BTCX_FEES_RBTC": 0.001,
+      "REDEEM_BTCX_FEES_RBTC": 0.001,
+      "MINT_BPRO_FEES_MOC": 0.001,
+      "REDEEM_BPRO_FEES_MOC": 0.001,
+      "MINT_DOC_FEES_MOC": 0.001,
+      "REDEEM_DOC_FEES_MOC": 0.001,
+      "MINT_BTCX_FEES_MOC": 0.001,
+      "REDEEM_BTCX_FEES_MOC": 0.001
+    }
   },
   "development": {
     "initialPrice": 7800,
@@ -57,7 +71,21 @@
     "liquidationEnabled": false,
     "protected": 1.5,
     "vendorMoCDepositAddress": "",
-    "vendorRequiredMoCs": 1000
+    "vendorRequiredMoCs": 1000,
+    "commissionRates": {
+      "MINT_BPRO_FEES_RBTC": 0.001,
+      "REDEEM_BPRO_FEES_RBTC": 0.001,
+      "MINT_DOC_FEES_RBTC": 0.001,
+      "REDEEM_DOC_FEES_RBTC": 0.001,
+      "MINT_BTCX_FEES_RBTC": 0.001,
+      "REDEEM_BTCX_FEES_RBTC": 0.001,
+      "MINT_BPRO_FEES_MOC": 0.001,
+      "REDEEM_BPRO_FEES_MOC": 0.001,
+      "MINT_DOC_FEES_MOC": 0.001,
+      "REDEEM_DOC_FEES_MOC": 0.001,
+      "MINT_BTCX_FEES_MOC": 0.001,
+      "REDEEM_BTCX_FEES_MOC": 0.001
+    }
   },
   "regtest": {
     "initialPrice": 7800,
@@ -87,7 +115,21 @@
     "liquidationEnabled": false,
     "protected": 1.5,
     "vendorMoCDepositAddress": "",
-    "vendorRequiredMoCs": 1000
+    "vendorRequiredMoCs": 1000,
+    "commissionRates": {
+      "MINT_BPRO_FEES_RBTC": 0.001,
+      "REDEEM_BPRO_FEES_RBTC": 0.001,
+      "MINT_DOC_FEES_RBTC": 0.001,
+      "REDEEM_DOC_FEES_RBTC": 0.001,
+      "MINT_BTCX_FEES_RBTC": 0.001,
+      "REDEEM_BTCX_FEES_RBTC": 0.001,
+      "MINT_BPRO_FEES_MOC": 0.001,
+      "REDEEM_BPRO_FEES_MOC": 0.001,
+      "MINT_DOC_FEES_MOC": 0.001,
+      "REDEEM_DOC_FEES_MOC": 0.001,
+      "MINT_BTCX_FEES_MOC": 0.001,
+      "REDEEM_BTCX_FEES_MOC": 0.001
+    }
   },
   "rskTestnet": {
     "oracle": "0x667bd3d048FaEBb85bAa0E9f9D87cF4c8CDFE849",
@@ -122,7 +164,21 @@
     "liquidationEnabled": false,
     "protected": 1.5,
     "vendorMoCDepositAddress": "",
-    "vendorRequiredMoCs": 1000
+    "vendorRequiredMoCs": 1000,
+    "commissionRates": {
+      "MINT_BPRO_FEES_RBTC": 0.001,
+      "REDEEM_BPRO_FEES_RBTC": 0.001,
+      "MINT_DOC_FEES_RBTC": 0.001,
+      "REDEEM_DOC_FEES_RBTC": 0.001,
+      "MINT_BTCX_FEES_RBTC": 0.001,
+      "REDEEM_BTCX_FEES_RBTC": 0.001,
+      "MINT_BPRO_FEES_MOC": 0.001,
+      "REDEEM_BPRO_FEES_MOC": 0.001,
+      "MINT_DOC_FEES_MOC": 0.001,
+      "REDEEM_DOC_FEES_MOC": 0.001,
+      "MINT_BTCX_FEES_MOC": 0.001,
+      "REDEEM_BTCX_FEES_MOC": 0.001
+    }
   },
   "rskMainnet": {
     "oracle": "0x667bd3d048FaEBb85bAa0E9f9D87cF4c8CDFE849",
@@ -157,6 +213,20 @@
     "liquidationEnabled": false,
     "protected": 1.5,
     "vendorMoCDepositAddress": "",
-    "vendorRequiredMoCs": 1000
+    "vendorRequiredMoCs": 1000,
+    "commissionRates": {
+      "MINT_BPRO_FEES_RBTC": 0.001,
+      "REDEEM_BPRO_FEES_RBTC": 0.001,
+      "MINT_DOC_FEES_RBTC": 0.001,
+      "REDEEM_DOC_FEES_RBTC": 0.001,
+      "MINT_BTCX_FEES_RBTC": 0.001,
+      "REDEEM_BTCX_FEES_RBTC": 0.001,
+      "MINT_BPRO_FEES_MOC": 0.001,
+      "REDEEM_BPRO_FEES_MOC": 0.001,
+      "MINT_DOC_FEES_MOC": 0.001,
+      "REDEEM_DOC_FEES_MOC": 0.001,
+      "MINT_BTCX_FEES_MOC": 0.001,
+      "REDEEM_BTCX_FEES_MOC": 0.001
+    }
   }
 }

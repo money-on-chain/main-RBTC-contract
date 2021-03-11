@@ -1,39 +1,41 @@
 /* eslint-disable no-console */
-const AdminUpgradeabilityProxy = artifacts.require('AdminUpgradeabilityProxy');
 const UpgraderChanger = artifacts.require('./changers/UpgraderChanger.sol');
 const Governor = artifacts.require('moc-governance/contracts/Governance/Governor.sol');
 
 const MoCConverter = artifacts.require('./MoCConverter.sol');
 
-const deployConfig = require('./deployConfig.json');
+const { getConfig, getNetwork, saveConfig, shouldExecuteChanges } = require('./helper');
 
-module.exports = async (deployer, currentNetwork, [owner], callback) => {
+module.exports = async callback => {
   try {
-    // Get proxy contract
-    const proxyMocConverter = await AdminUpgradeabilityProxy.at(
-      deployConfig[currentNetwork].addresses.MoCConverter
-    );
-
-    // Upgrade delegator and Governor addresses (used to make changes to contracts)
-    const upgradeDelegatorAddress = deployConfig[currentNetwork].addresses.UpgradeDelegator;
-    const governor = await Governor.at(deployConfig[currentNetwork].addresses.Governor);
+    const network = getNetwork(process.argv);
+    const config = getConfig(network);
 
     // Deploy contract implementation
-    console.log('- Deploy MoCConverter');
-    const mocConverter = await deployer.deploy(MoCConverter);
+    console.log('Deploy MoCConverter');
+    const mocConverter = await MoCConverter.new();
 
-    // Upgrade contracts with proxy (using the contract address of contracts just deployed)
-    console.log('- Upgrade MoCConverter');
-    const upgradeMocConverter = await deployer.deploy(
-      UpgraderChanger,
-      proxyMocConverter.address,
-      upgradeDelegatorAddress,
+    // Upgrade contracts with proxy (using the contract address of contract just deployed)
+    console.log('Upgrade MoCConverter');
+    const upgradeMocConverter = await UpgraderChanger.new(
+      config.proxyAddresses.MoCConverter,
+      config.implementationAddresses.UpgradeDelegator,
       mocConverter.address
     );
 
-    // Execute changes in contracts
-    console.log('Execute change - MoCConverter');
-    await governor.executeChange(upgradeMocConverter.address);
+    // Save implementation address and changer address to config file
+    config.implementationAddresses.MoCConverter = mocConverter.address;
+    config.changerAddresses['8_MoCConverter'] = upgradeMocConverter.address;
+    saveConfig(network, config);
+
+    if (shouldExecuteChanges(network)) {
+      // Execute changes in contracts
+      console.log('Execute change - MoCConverter');
+      const governor = await Governor.at(config.implementationAddresses.Governor);
+      await governor.executeChange(upgradeMocConverter.address);
+    }
+
+    console.log('MoCConverter implementation address: ', mocConverter.address);
   } catch (error) {
     console.log(error);
   }

@@ -1,87 +1,86 @@
 /* eslint-disable no-console */
-const AdminUpgradeabilityProxy = artifacts.require('AdminUpgradeabilityProxy');
 const UpgraderChanger = artifacts.require('./changers/UpgraderChanger.sol');
 const Governor = artifacts.require('moc-governance/contracts/Governance/Governor.sol');
 
 const MoCInrate = artifacts.require('./MoCInrate.sol');
-const MoCInrateChangerDeploy = artifacts.require('./MoCInrateChangerDeploy.sol');
+const MoCInrateChangerDeploy = artifacts.require('./MocInrateChangerDeploy.sol');
 
 const BigNumber = require('bignumber.js');
-const deployConfig = require('./deployConfig.json');
+const { getConfig, getNetwork, saveConfig, shouldExecuteChanges } = require('./helper');
 
-const getCommissionsArray = mocInrate => async currentNetwork => {
+const getCommissionsArray = mocInrate => async config => {
   const mocPrecision = 10 ** 18;
 
   const ret = [
     {
       txType: (await mocInrate.MINT_BPRO_FEES_RBTC()).toString(),
-      fee: BigNumber(deployConfig[currentNetwork].valuesToAssign.newCommissionRate)
+      fee: BigNumber(config.valuesToAssign.commissionRates.MINT_BPRO_FEES_RBTC)
         .times(mocPrecision)
         .toString()
     },
     {
       txType: (await mocInrate.REDEEM_BPRO_FEES_RBTC()).toString(),
-      fee: BigNumber(deployConfig[currentNetwork].valuesToAssign.newCommissionRate)
+      fee: BigNumber(config.valuesToAssign.commissionRates.REDEEM_BPRO_FEES_RBTC)
         .times(mocPrecision)
         .toString()
     },
     {
       txType: (await mocInrate.MINT_DOC_FEES_RBTC()).toString(),
-      fee: BigNumber(deployConfig[currentNetwork].valuesToAssign.newCommissionRate)
+      fee: BigNumber(config.valuesToAssign.commissionRates.MINT_DOC_FEES_RBTC)
         .times(mocPrecision)
         .toString()
     },
     {
       txType: (await mocInrate.REDEEM_DOC_FEES_RBTC()).toString(),
-      fee: BigNumber(deployConfig[currentNetwork].valuesToAssign.newCommissionRate)
+      fee: BigNumber(config.valuesToAssign.commissionRates.REDEEM_DOC_FEES_RBTC)
         .times(mocPrecision)
         .toString()
     },
     {
       txType: (await mocInrate.MINT_BTCX_FEES_RBTC()).toString(),
-      fee: BigNumber(deployConfig[currentNetwork].valuesToAssign.newCommissionRate)
+      fee: BigNumber(config.valuesToAssign.commissionRates.MINT_BTCX_FEES_RBTC)
         .times(mocPrecision)
         .toString()
     },
     {
       txType: (await mocInrate.REDEEM_BTCX_FEES_RBTC()).toString(),
-      fee: BigNumber(deployConfig[currentNetwork].valuesToAssign.newCommissionRate)
+      fee: BigNumber(config.valuesToAssign.commissionRates.REDEEM_BTCX_FEES_RBTC)
         .times(mocPrecision)
         .toString()
     },
     {
       txType: (await mocInrate.MINT_BPRO_FEES_MOC()).toString(),
-      fee: BigNumber(deployConfig[currentNetwork].valuesToAssign.newCommissionRate)
+      fee: BigNumber(config.valuesToAssign.commissionRates.MINT_BPRO_FEES_MOC)
         .times(mocPrecision)
         .toString()
     },
     {
       txType: (await mocInrate.REDEEM_BPRO_FEES_MOC()).toString(),
-      fee: BigNumber(deployConfig[currentNetwork].valuesToAssign.newCommissionRate)
+      fee: BigNumber(config.valuesToAssign.commissionRates.REDEEM_BPRO_FEES_MOC)
         .times(mocPrecision)
         .toString()
     },
     {
       txType: (await mocInrate.MINT_DOC_FEES_MOC()).toString(),
-      fee: BigNumber(deployConfig[currentNetwork].valuesToAssign.newCommissionRate)
+      fee: BigNumber(config.valuesToAssign.commissionRates.MINT_DOC_FEES_MOC)
         .times(mocPrecision)
         .toString()
     },
     {
       txType: (await mocInrate.REDEEM_DOC_FEES_MOC()).toString(),
-      fee: BigNumber(deployConfig[currentNetwork].valuesToAssign.newCommissionRate)
+      fee: BigNumber(config.valuesToAssign.commissionRates.REDEEM_DOC_FEES_MOC)
         .times(mocPrecision)
         .toString()
     },
     {
       txType: (await mocInrate.MINT_BTCX_FEES_MOC()).toString(),
-      fee: BigNumber(deployConfig[currentNetwork].valuesToAssign.newCommissionRate)
+      fee: BigNumber(config.valuesToAssign.commissionRates.MINT_BTCX_FEES_MOC)
         .times(mocPrecision)
         .toString()
     },
     {
       txType: (await mocInrate.REDEEM_BTCX_FEES_MOC()).toString(),
-      fee: BigNumber(deployConfig[currentNetwork].valuesToAssign.newCommissionRate)
+      fee: BigNumber(config.valuesToAssign.commissionRates.REDEEM_BTCX_FEES_MOC)
         .times(mocPrecision)
         .toString()
     }
@@ -89,46 +88,56 @@ const getCommissionsArray = mocInrate => async currentNetwork => {
   return ret;
 };
 
-module.exports = async (deployer, currentNetwork, [owner], callback) => {
+module.exports = async callback => {
   try {
-    // Get proxy contract
-    const proxyMocInrate = await AdminUpgradeabilityProxy.at(
-      deployConfig[currentNetwork].addresses.MoCInrate
-    );
-
-    // Upgrade delegator and Governor addresses (used to make changes to contracts)
-    const upgradeDelegatorAddress = deployConfig[currentNetwork].addresses.UpgradeDelegator;
-    const governor = await Governor.at(deployConfig[currentNetwork].addresses.Governor);
+    const network = getNetwork(process.argv);
+    const config = getConfig(network);
 
     // Deploy contract implementation
-    console.log('- Deploy MoCInrate');
-    const mocInrate = await deployer.deploy(MoCInrate);
+    console.log('Deploy MoCInrate');
+    const mocInrate = await MoCInrate.new();
 
-    // Upgrade contracts with proxy (using the contract address of contracts just deployed)
-    console.log('- Upgrade MoCInrate');
-    const upgradeMocInrate = await deployer.deploy(
-      UpgraderChanger,
-      proxyMocInrate.address,
-      upgradeDelegatorAddress,
+    // Upgrade contracts with proxy (using the contract address of contract just deployed)
+    console.log('Upgrade MoCInrate');
+    const upgradeMocInrate = await UpgraderChanger.new(
+      config.proxyAddresses.MoCInrate,
+      config.implementationAddresses.UpgradeDelegator,
       mocInrate.address
     );
 
-    // Execute changes in contracts
-    console.log('Execute change - MoCInrate');
-    await governor.executeChange(upgradeMocInrate.address);
+    // Save implementation address and changer address to config file
+    config.implementationAddresses.MoCInrate = mocInrate.address;
+    config.changerAddresses['7_MoCInrate'] = upgradeMocInrate.address;
+    saveConfig(network, config);
+
+    let governor;
+    if (shouldExecuteChanges(network)) {
+      // Execute changes in contracts
+      console.log('Execute change - MoCInrate');
+      governor = await Governor.at(config.implementationAddresses.Governor);
+      await governor.executeChange(upgradeMocInrate.address);
+    }
 
     // Setting commissions
-    const commissions = await getCommissionsArray(mocInrate)(currentNetwork);
+    const commissions = await getCommissionsArray(mocInrate)(config);
 
     // Use changer contract
-    const mockMocInrateChangerDeploy = await MoCInrateChangerDeploy.new(
-      mocInrate.address,
+    const mocInrateChangerDeploy = await MoCInrateChangerDeploy.new(
+      config.proxyAddresses.MoCInrate,
       commissions
     );
 
-    // Execute changes in MoCInrate
-    console.log('Execute change - MoCInrateChangerDeploy');
-    await governor.executeChange(mockMocInrateChangerDeploy.address);
+    // Save changer address to config file
+    config.changerAddresses['7_MoCInrateChangerDeploy'] = mocInrateChangerDeploy.address;
+    saveConfig(network, config);
+
+    if (shouldExecuteChanges(network)) {
+      // Execute changes in MoCInrate
+      console.log('Execute change - MoCInrateChangerDeploy');
+      await governor.executeChange(mocInrateChangerDeploy.address);
+    }
+
+    console.log('MoCInrate implementation address: ', mocInrate.address);
   } catch (error) {
     console.log(error);
   }

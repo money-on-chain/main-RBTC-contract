@@ -1,37 +1,41 @@
 /* eslint-disable no-console */
-const AdminUpgradeabilityProxy = artifacts.require('AdminUpgradeabilityProxy');
 const UpgraderChanger = artifacts.require('./changers/UpgraderChanger.sol');
 const Governor = artifacts.require('moc-governance/contracts/Governance/Governor.sol');
 
 const MoC = artifacts.require('./MoC.sol');
 
-const deployConfig = require('./deployConfig.json');
+const { getConfig, getNetwork, saveConfig, shouldExecuteChanges } = require('./helper');
 
-module.exports = async (deployer, currentNetwork, [owner], callback) => {
+module.exports = async callback => {
   try {
-    // Get proxy contract
-    const proxyMoc = await AdminUpgradeabilityProxy.at(deployConfig[currentNetwork].addresses.MoC);
-
-    // Upgrade delegator and Governor addresses (used to make changes to contracts)
-    const upgradeDelegatorAddress = deployConfig[currentNetwork].addresses.UpgradeDelegator;
-    const governor = await Governor.at(deployConfig[currentNetwork].addresses.Governor);
+    const network = getNetwork(process.argv);
+    const config = getConfig(network);
 
     // Deploy contract implementation
-    console.log('- Deploy MoC');
-    const moc = await deployer.deploy(MoC);
+    console.log('Deploy MoC');
+    const moc = await MoC.new(MoC);
 
-    // Upgrade contracts with proxy (using the contract address of contracts just deployed)
-    console.log('- Upgrade MoC');
-    const upgradeMoc = await deployer.deploy(
-      UpgraderChanger,
-      proxyMoc.address,
-      upgradeDelegatorAddress,
+    // Upgrade contracts with proxy (using the contract address of contract just deployed)
+    console.log('Upgrade MoC');
+    const upgradeMoc = await UpgraderChanger.new(
+      config.proxyAddresses.MoC,
+      config.implementationAddresses.UpgradeDelegator,
       moc.address
     );
 
-    // Execute changes in contracts
-    console.log('Execute change - MoC');
-    await governor.executeChange(upgradeMoc.address);
+    // Save implementation address and changer address to config file
+    config.implementationAddresses.MoC = moc.address;
+    config.changerAddresses['4_MoC'] = upgradeMoc.address;
+    saveConfig(network, config);
+
+    if (shouldExecuteChanges(network)) {
+      // Execute changes in contracts
+      console.log('Execute change - MoC');
+      const governor = await Governor.at(config.implementationAddresses.Governor);
+      await governor.executeChange(upgradeMoc.address);
+    }
+
+    console.log('MoC implementation address: ', moc.address);
   } catch (error) {
     console.log(error);
   }
