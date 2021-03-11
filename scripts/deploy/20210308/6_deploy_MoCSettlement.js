@@ -37,7 +37,7 @@ module.exports = async callback => {
 
     console.log('MoCSettlement implementation address: ', mocSettlement.address);
   } catch (error) {
-    console.log(error);
+    callback(error);
   }
 
   callback();

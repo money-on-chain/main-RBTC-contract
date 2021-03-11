@@ -71,7 +71,7 @@ module.exports = async callback => {
 
     console.log('MoCState implementation address: ', mocState.address);
   } catch (error) {
-    console.log(error);
+    callback(error);
   }
 
   callback();

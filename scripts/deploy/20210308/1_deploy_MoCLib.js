@@ -35,7 +35,7 @@ module.exports = async callback => {
 
     console.log('MoCHelperLib implementation address: ', mocHelperLib.address);
   } catch (error) {
-    console.log(error);
+    callback(error);
   }
 
   callback();

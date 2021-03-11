@@ -37,7 +37,7 @@ module.exports = async callback => {
 
     console.log('MoCConverter implementation address: ', mocConverter.address);
   } catch (error) {
-    console.log(error);
+    callback(error);
   }
 
   callback();

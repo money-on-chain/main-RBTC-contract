@@ -139,7 +139,7 @@ module.exports = async callback => {
 
     console.log('MoCInrate implementation address: ', mocInrate.address);
   } catch (error) {
-    console.log(error);
+    callback(error);
   }
 
   callback();

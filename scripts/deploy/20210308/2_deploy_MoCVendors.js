@@ -73,7 +73,7 @@ module.exports = async callback => {
 
     // console.log('MoCVendors implementation address: ', mocVendors.address);
   } catch (error) {
-    console.log(error);
+    callback(error);
   }
 
   callback();

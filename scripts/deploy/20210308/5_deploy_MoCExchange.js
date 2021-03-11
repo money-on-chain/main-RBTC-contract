@@ -37,7 +37,7 @@ module.exports = async callback => {
 
     console.log('MoCExchange implementation address: ', mocExchange.address);
   } catch (error) {
-    console.log(error);
+    callback(error);
   }
 
   callback();

@@ -26,5 +26,6 @@ for S in $SCRIPTS; do
     echo "------------------------------------------------------------"
     echo "Running: $S"
     truffle exec $DIR/$S --network $NETWORK
+    [ $? -eq 0 ]  || exit 1
     echo "------------------------------------------------------------"
 done
