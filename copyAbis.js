@@ -4,10 +4,7 @@ const fs = require('fs');
 const contractNames = [
   'BProToken',
   'CommissionSplitter',
-  'CommissionsAddressChanger',
   'DocToken',
-  'Governed',
-  'Governor',
   'MoC',
   'MoCBProxManager',
   'MoCConnector',
@@ -16,21 +13,15 @@ const contractNames = [
   'MoCHelperLib',
   'MoCInrate',
   'MoCSettlement',
-  'MoCSettlementChanger',
   'MoCState',
   'MoCToken',
   'MoCVendors',
   'MoCVendorsEvents',
-  'MocInrateBitProInterestChanger',
-  'MocMakeStoppableChanger',
-  'MocStateMaxMintBProChanger',
   'PriceFeed',
   'PriceFeederAdder',
   'PriceFeederRemover',
   'PriceFeederWhitelist',
-  'ProxyAdmin',
-  'SetCommissionFinalAddressChanger',
-  'SetCommissionMocProportionChanger'
+  'ProxyAdmin'
 ];
 
 const abisPath = './abis';
