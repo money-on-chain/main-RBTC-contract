@@ -20,7 +20,7 @@ contract MoCEvents {
   event ContractLiquidated(address mocAddress);
 }
 
-contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
+contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable {
   using SafeMath for uint256;
 
   /// @dev Contracts.
