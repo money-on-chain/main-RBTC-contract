@@ -20,6 +20,7 @@ SCRIPTS="
 7_deploy_MoCInrate.js
 8_deploy_MoCConverter.js
 9_deploy_MoCState.js
+10_check_deploy.js
 "
 
 for S in $SCRIPTS; do

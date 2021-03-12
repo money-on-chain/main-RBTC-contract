@@ -13,7 +13,12 @@ module.exports = async (deployer, currentNetwork, [owner]) => {
   );
 
   let filePath = `../scripts/deploy/20210308/deployConfig-${currentNetwork}.json`;
+  let filePathCopy = `../scripts/deploy/20210308/deployConfig-${currentNetwork}-original.json`;
   filePath = path.join(__dirname, filePath);
+  filePathCopy = path.join(__dirname, filePathCopy);
   console.log(`--- Saving deploy configuration to ${filePath} ---`);
-  return saveConfig(filePath, allConfigs[currentNetwork]);
+  await saveConfig(filePath, allConfigs[currentNetwork]);
+  console.log(`--- Saving copy of deploy configuration to ${filePathCopy} ---`);
+  // Save a copy of the file to use for checking after new deploy
+  return saveConfig(filePathCopy, allConfigs[currentNetwork]);
 };
