@@ -10,7 +10,6 @@ contract('MoC: Daily interests payment', function([owner, account, vendorAccount
     this.moc = mocHelper.moc;
     this.mocState = mocHelper.mocState;
     this.governor = mocHelper.governor;
-    this.mockMoCVendorsChanger = mocHelper.mockMoCVendorsChanger;
     ({ BUCKET_C0, BUCKET_X2 } = mocHelper);
   });
 
@@ -18,10 +17,7 @@ contract('MoC: Daily interests payment', function([owner, account, vendorAccount
     await mocHelper.revertState();
 
     // Register vendor for test
-    await this.mockMoCVendorsChanger.setVendorsToRegister(
-      await mocHelper.getVendorToRegisterAsArray(vendorAccount, 0)
-    );
-    await this.governor.executeChange(this.mockMoCVendorsChanger.address);
+    await mocHelper.registerVendor(vendorAccount, 0, owner);
   });
 
   const scenarios = [

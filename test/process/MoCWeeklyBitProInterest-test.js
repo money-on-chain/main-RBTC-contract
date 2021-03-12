@@ -17,7 +17,6 @@ contract('MoC: BitPro holder interests payment', function([
     this.mocState = mocHelper.mocState;
     this.mockMocInrateChanger = mocHelper.mockMocInrateChanger;
     this.governor = mocHelper.governor;
-    this.mockMoCVendorsChanger = mocHelper.mockMoCVendorsChanger;
     ({ BUCKET_C0 } = mocHelper);
   });
 
@@ -25,10 +24,7 @@ contract('MoC: BitPro holder interests payment', function([
     await mocHelper.revertState();
 
     // Register vendor for test
-    await this.mockMoCVendorsChanger.setVendorsToRegister(
-      await mocHelper.getVendorToRegisterAsArray(vendorAccount, 0)
-    );
-    await this.governor.executeChange(this.mockMoCVendorsChanger.address);
+    await mocHelper.registerVendor(vendorAccount, 0, owner);
   });
 
   const scenarios = [

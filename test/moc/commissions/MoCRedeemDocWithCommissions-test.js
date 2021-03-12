@@ -15,8 +15,8 @@ contract('MoC: Doc Redeem on Settlement with commissions', function([
     this.moc = mocHelper.moc;
     this.mocSettlement = mocHelper.mocSettlement;
     this.governor = mocHelper.governor;
-    this.mockMoCVendorsChanger = mocHelper.mockMoCVendorsChanger;
     this.mocVendors = mocHelper.mocVendors;
+    this.mockMocInrateChanger = mocHelper.mockMocInrateChanger;
   });
   describe('GIVEN there are commisions set and there are 3 users with doc redeem requests', function() {
     let prevCommissionsAccountBtcBalance;
@@ -24,20 +24,17 @@ contract('MoC: Doc Redeem on Settlement with commissions', function([
 
     before(async function() {
       // Register vendor for test
-      await this.mockMoCVendorsChanger.setVendorsToRegister(
-        await mocHelper.getVendorToRegisterAsArray(vendorAccount, 0.01)
-      );
-      await this.governor.executeChange(this.mockMoCVendorsChanger.address);
+      await mocHelper.registerVendor(vendorAccount, 0.01, owner);
 
       // Commission rates for test are set in functionHelper.js
-      await mocHelper.mockMocInrateChanger.setCommissionRates(
+      await this.mockMocInrateChanger.setCommissionRates(
         await mocHelper.getCommissionsArrayNonZero()
       );
 
       // set commissions address
-      await mocHelper.mockMocInrateChanger.setCommissionsAddress(commissionsAccount);
+      await this.mockMocInrateChanger.setCommissionsAddress(commissionsAccount);
       // update params
-      await mocHelper.governor.executeChange(mocHelper.mockMocInrateChanger.address);
+      await this.governor.executeChange(mocHelper.mockMocInrateChanger.address);
 
       const txTypeMintBpro = await mocHelper.mocInrate.MINT_BPRO_FEES_RBTC();
       const txTypeMintDoc = await mocHelper.mocInrate.MINT_DOC_FEES_RBTC();

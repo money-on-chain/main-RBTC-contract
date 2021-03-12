@@ -25,7 +25,9 @@
     "maxMintBPro": 0.05,
     "mocProportion": 0.01,
     "liquidationEnabled": false,
-    "protected": 1.5
+    "protected": 1.5,
+    "vendorMoCDepositAddress": "",
+    "vendorRequiredMoCs": 1000
   },
   "development": {
     "initialPrice": 7800,
@@ -53,7 +55,9 @@
     "maxMintBPro": 0.05,
     "mocProportion": 0.01,
     "liquidationEnabled": false,
-    "protected": 1.5
+    "protected": 1.5,
+    "vendorMoCDepositAddress": "",
+    "vendorRequiredMoCs": 1000
   },
   "regtest": {
     "initialPrice": 7800,
@@ -81,7 +85,9 @@
     "maxMintBPro": 0.05,
     "mocProportion": 0.01,
     "liquidationEnabled": false,
-    "protected": 1.5
+    "protected": 1.5,
+    "vendorMoCDepositAddress": "",
+    "vendorRequiredMoCs": 1000
   },
   "rskTestnet": {
     "oracle": "0x667bd3d048FaEBb85bAa0E9f9D87cF4c8CDFE849",
@@ -114,7 +120,9 @@
     "maxMintBPro": 20,
     "mocProportion": 0.01,
     "liquidationEnabled": false,
-    "protected": 1.5
+    "protected": 1.5,
+    "vendorMoCDepositAddress": "",
+    "vendorRequiredMoCs": 1000
   },
   "rskMainnet": {
     "oracle": "0x667bd3d048FaEBb85bAa0E9f9D87cF4c8CDFE849",
@@ -147,6 +155,8 @@
     "maxMintBPro": 20,
     "mocProportion": 0.01,
     "liquidationEnabled": false,
-    "protected": 1.5
+    "protected": 1.5,
+    "vendorMoCDepositAddress": "",
+    "vendorRequiredMoCs": 1000
   }
 }

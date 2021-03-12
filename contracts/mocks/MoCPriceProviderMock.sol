@@ -1,27 +1,30 @@
 pragma solidity 0.5.8;
 
-import "../interface/TexPriceProvider.sol";
+import "../interface/PriceFeed.sol";
+import "../interface/PriceProvider.sol";
 
-contract MoCPriceProviderMock is TexPriceProvider {
-  uint256 mocPrice;
+contract MoCPriceProviderMock is PriceFeed, PriceProvider {
+  bytes32 mocPrice;
+  bool has;
 
   /**
     @dev Constructor
     @param price MoC price for mock contract
   */
   constructor(uint256 price) public {
-    setPrice(price);
+    mocPrice = bytes32(price);
+    has = true;
   }
 
-  function setPrice(uint256 price) public {
-    mocPrice = price;
+  function peek() external view returns (bytes32, bool) {
+    return (mocPrice, has);
   }
 
-  /**
-    @dev Getter for every value related to a pair
-    @return lastClosingPrice - the last price from a successful matching
-  */
-  function getLastClosingPrice(address /*_baseToken*/, address /*_secondaryToken*/) public view returns (uint256 lastClosingPrice) {
-    return mocPrice;
+  function poke(uint128 val_, uint32) external {
+    mocPrice = bytes32(uint256(val_));
+  }
+
+  function post(uint128 val_, uint32, address) external {
+    mocPrice = bytes32(uint256(val_));
   }
 }

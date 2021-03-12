@@ -8,18 +8,13 @@ contract('MoC', function([owner, vendorAccount]) {
     mocHelper = await testHelperBuilder({ owner });
     this.mocState = mocHelper.mocState;
     this.moc = mocHelper.moc;
-    this.governor = mocHelper.governor;
-    this.mockMoCVendorsChanger = mocHelper.mockMoCVendorsChanger;
   });
 
   beforeEach(async function() {
     await mocHelper.revertState();
 
     // Register vendor for test
-    await this.mockMoCVendorsChanger.setVendorsToRegister(
-      await mocHelper.getVendorToRegisterAsArray(vendorAccount, 0)
-    );
-    await this.governor.executeChange(this.mockMoCVendorsChanger.address);
+    await mocHelper.registerVendor(vendorAccount, 0, owner);
   });
 
   describe('State variables', function() {

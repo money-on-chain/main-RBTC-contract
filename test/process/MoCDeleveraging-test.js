@@ -17,18 +17,13 @@ contract('MoC: Delever X', function([owner, vendorAccount, ...allAccounts]) {
     this.mocState = mocHelper.mocState;
     this.mocSettlement = mocHelper.mocSettlement;
     this.revertingContract = mocHelper.revertingContract;
-    this.governor = mocHelper.governor;
-    this.mockMoCVendorsChanger = mocHelper.mockMoCVendorsChanger;
   });
 
   beforeEach(async function() {
     await mocHelper.revertState();
 
     // Register vendor for test
-    await this.mockMoCVendorsChanger.setVendorsToRegister(
-      await mocHelper.getVendorToRegisterAsArray(vendorAccount, 0)
-    );
-    await this.governor.executeChange(this.mockMoCVendorsChanger.address);
+    await mocHelper.registerVendor(vendorAccount, 0, owner);
   });
 
   describe('DoS attack mitigation', function() {
