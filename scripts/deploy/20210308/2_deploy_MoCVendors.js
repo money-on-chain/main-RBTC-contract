@@ -22,7 +22,7 @@ module.exports = async callback => {
     // Initialize contract
     const initData = await mocVendors.contract.methods
       .initialize(
-        config.proxyAddresses.MoCVendors,
+        config.proxyAddresses.MoCConnector,
         config.implementationAddresses.Governor,
         config.valuesToAssign.vendorMoCDepositAddress,
         config.valuesToAssign.vendorRequiredMoCs

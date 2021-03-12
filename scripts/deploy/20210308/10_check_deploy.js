@@ -1,4 +1,5 @@
 /* eslint-disable no-console */
+const ProxyAdmin = artifacts.require('ProxyAdmin');
 const MoCInrate = artifacts.require('./MoCInrate.sol');
 
 const BigNumber = require('bignumber.js');
@@ -19,21 +20,23 @@ module.exports = async callback => {
       'MoCInrate',
       'MoCConverter',
       'MoCState',
-      'MoCVendors',
-      'MoCHelperLib'
+      'MoCVendors'
     ];
+
+    const proxyAdmin = await ProxyAdmin.at(originalConfig.implementationAddresses.ProxyAdmin);
 
     console.log('------------------------------------------------------------');
 
     // Comparing the values
-    comparisonKeys.forEach(key => {
+    comparisonKeys.forEach(async key => {
+      const newValue = await proxyAdmin.getProxyImplementation(originalConfig.proxyAddresses[key]);
       console.log(`Comparing: ${key}:`);
       console.log(`Original value: ${originalConfig.implementationAddresses[key]}`);
-      console.log(`New value: ${newConfig.implementationAddresses[key]}`);
+      console.log(`New value: ${newValue}`);
       if (newConfig.implementationAddresses[key] !== originalConfig.implementationAddresses[key]) {
-        console.log('Value updated');
+        console.log('\x1b[32m%s\x1b[0m', 'Value updated');
       } else {
-        console.log('Value did not update');
+        console.log('\x1b[31m%s\x1b[0m', 'Value did not update');
       }
       console.log('------------------------------------------------------------');
     });
@@ -53,9 +56,9 @@ module.exports = async callback => {
     console.log(`New fee: ${newFee.toString()}`);
     console.log(`Value from contract: ${valueFromContract.toString()}`);
     if (newFee.eq(valueFromContract)) {
-      console.log('Values are the same');
+      console.log('\x1b[32m%s\x1b[0m', 'Values are the same');
     } else {
-      console.log('Values are not the same');
+      console.log('\x1b[31m%s\x1b[0m', 'Values are not the same');
     }
   } catch (error) {
     callback(error);
