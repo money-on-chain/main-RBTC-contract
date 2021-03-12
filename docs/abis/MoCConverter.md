@@ -6,7 +6,7 @@ original_id: MoCConverter
 
 # MoCConverter.sol
 
-View Source: [contracts/MoCConverter.sol](../contracts/MoCConverter.sol)
+View Source: [contracts/MoCConverter.sol](../../contracts/MoCConverter.sol)
 
 **↗ Extends: [MoCBase](MoCBase.md), [MoCLibConnection](MoCLibConnection.md)**
 

@@ -6,7 +6,7 @@ original_id: MoCExchange
 
 # MoCExchange.sol
 
-View Source: [contracts/MoCExchange.sol](../contracts/MoCExchange.sol)
+View Source: [contracts/MoCExchange.sol](../../contracts/MoCExchange.sol)
 
 **↗ Extends: [MoCExchangeEvents](MoCExchangeEvents.md), [MoCBase](MoCBase.md), [MoCLibConnection](MoCLibConnection.md)**
 

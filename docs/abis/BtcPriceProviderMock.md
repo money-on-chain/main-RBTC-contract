@@ -6,7 +6,7 @@ original_id: BtcPriceProviderMock
 
 # BtcPriceProviderMock.sol
 
-View Source: [contracts/mocks/BtcPriceProviderMock.sol](../contracts/mocks/BtcPriceProviderMock.sol)
+View Source: [contracts/mocks/BtcPriceProviderMock.sol](../../contracts/mocks/BtcPriceProviderMock.sol)
 
 **↗ Extends: [PriceFeed](PriceFeed.md), [PriceProvider](PriceProvider.md)**
 

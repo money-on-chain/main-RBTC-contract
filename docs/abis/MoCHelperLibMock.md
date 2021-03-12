@@ -6,7 +6,7 @@ original_id: MoCHelperLibMock
 
 # MoCHelperLibMock.sol
 
-View Source: [contracts/mocks/MoCHelperLibMock.sol](../contracts/mocks/MoCHelperLibMock.sol)
+View Source: [contracts/mocks/MoCHelperLibMock.sol](../../contracts/mocks/MoCHelperLibMock.sol)
 
 **MoCHelperLibMock** - version: 0.1.10
 

@@ -6,7 +6,7 @@ original_id: ERC20Mintable
 
 # ERC20Mintable.sol
 
-View Source: [openzeppelin-solidity/contracts/token/ERC20/ERC20Mintable.sol](../openzeppelin-solidity/contracts/token/ERC20/ERC20Mintable.sol)
+View Source: [openzeppelin-solidity/contracts/token/ERC20/ERC20Mintable.sol](../../openzeppelin-solidity/contracts/token/ERC20/ERC20Mintable.sol)
 
 **↗ Extends: [ERC20](ERC20.md), [MinterRole](MinterRole.md)**
 **↘ Derived Contracts: [OwnerBurnableToken](OwnerBurnableToken.md)**

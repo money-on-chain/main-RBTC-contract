@@ -6,7 +6,7 @@ original_id: MoCToken
 
 # MoCToken.sol
 
-View Source: [contracts/token/MoCToken.sol](../contracts/token/MoCToken.sol)
+View Source: [contracts/token/MoCToken.sol](../../contracts/token/MoCToken.sol)
 
 **↗ Extends: [ERC20Detailed](ERC20Detailed.md), [OwnerBurnableToken](OwnerBurnableToken.md)**
 

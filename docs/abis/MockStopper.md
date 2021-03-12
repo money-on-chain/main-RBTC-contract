@@ -6,7 +6,7 @@ original_id: MockStopper
 
 # MockStopper.sol
 
-View Source: [contracts/mocks/MockStopper.sol](../contracts/mocks/MockStopper.sol)
+View Source: [contracts/mocks/MockStopper.sol](../../contracts/mocks/MockStopper.sol)
 
 **↗ Extends: [Stopper](Stopper.md)**
 

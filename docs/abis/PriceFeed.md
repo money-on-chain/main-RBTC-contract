@@ -6,9 +6,9 @@ original_id: PriceFeed
 
 # PriceFeed.sol
 
-View Source: [contracts/interface/PriceFeed.sol](../contracts/interface/PriceFeed.sol)
+View Source: [contracts/interface/PriceFeed.sol](../../contracts/interface/PriceFeed.sol)
 
-**↘ Derived Contracts: [BtcPriceProviderMock](BtcPriceProviderMock.md)**
+**↘ Derived Contracts: [BtcPriceProviderMock](BtcPriceProviderMock.md), [MoCPriceProviderMock](MoCPriceProviderMock.md)**
 
 **PriceFeed** - version: 0.1.10
 
@@ -19,7 +19,7 @@ View Source: [contracts/interface/PriceFeed.sol](../contracts/interface/PriceFee
 
 ### poke
 
-⤿ Overridden Implementation(s): [BtcPriceProviderMock.poke](BtcPriceProviderMock.md#poke)
+⤿ Overridden Implementation(s): [BtcPriceProviderMock.poke](BtcPriceProviderMock.md#poke),[MoCPriceProviderMock.poke](MoCPriceProviderMock.md#poke)
 
 ```js
 function poke(uint128 val_, uint32 zzz_) external nonpayable
@@ -34,7 +34,7 @@ function poke(uint128 val_, uint32 zzz_) external nonpayable
 
 ### post
 
-⤿ Overridden Implementation(s): [BtcPriceProviderMock.post](BtcPriceProviderMock.md#post)
+⤿ Overridden Implementation(s): [BtcPriceProviderMock.post](BtcPriceProviderMock.md#post),[MoCPriceProviderMock.post](MoCPriceProviderMock.md#post)
 
 ```js
 function post(uint128 val_, uint32 zzz_, address med_) external nonpayable

@@ -6,7 +6,7 @@ original_id: MockMakeUnstoppable
 
 # MockMakeUnstoppable.sol
 
-View Source: [contracts/mocks/MockMakeUnstoppable.sol](../contracts/mocks/MockMakeUnstoppable.sol)
+View Source: [contracts/mocks/MockMakeUnstoppable.sol](../../contracts/mocks/MockMakeUnstoppable.sol)
 
 **↗ Extends: [MakeUnstoppable](MakeUnstoppable.md)**
 

@@ -6,7 +6,7 @@ original_id: MoCState
 
 # MoCState.sol
 
-View Source: [contracts/MoCState.sol](../contracts/MoCState.sol)
+View Source: [contracts/MoCState.sol](../../contracts/MoCState.sol)
 
 **↗ Extends: [MoCLibConnection](MoCLibConnection.md), [MoCBase](MoCBase.md), [MoCEMACalculator](MoCEMACalculator.md)**
 **↘ Derived Contracts: [MoCStateMock](MoCStateMock.md)**
@@ -73,7 +73,7 @@ contract MoCConverter internal mocConverter;
 contract DocToken internal docToken;
 contract BProToken internal bproToken;
 contract MoCBProxManager internal bproxManager;
-contract TexPriceProvider internal mocPriceProvider;
+contract PriceProvider internal mocPriceProvider;
 contract MoCToken internal mocToken;
 contract MoCVendors internal mocVendors;
 
@@ -1285,7 +1285,7 @@ Gets the MoCPrice
 
 ```js
 function getMoCPrice() public view
-returns(price uint256)
+returns(uint256)
 ```
 
 **Returns**

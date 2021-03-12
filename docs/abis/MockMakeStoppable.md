@@ -6,7 +6,7 @@ original_id: MockMakeStoppable
 
 # MockMakeStoppable.sol
 
-View Source: [contracts/mocks/MockMakeStoppable.sol](../contracts/mocks/MockMakeStoppable.sol)
+View Source: [contracts/mocks/MockMakeStoppable.sol](../../contracts/mocks/MockMakeStoppable.sol)
 
 **↗ Extends: [MakeStoppable](MakeStoppable.md)**
 

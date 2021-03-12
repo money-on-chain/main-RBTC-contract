@@ -6,7 +6,7 @@ original_id: MockUpgradeDelegator
 
 # MockUpgradeDelegator.sol
 
-View Source: [contracts/mocks/MockUpgradeDelegator.sol](../contracts/mocks/MockUpgradeDelegator.sol)
+View Source: [contracts/mocks/MockUpgradeDelegator.sol](../../contracts/mocks/MockUpgradeDelegator.sol)
 
 **↗ Extends: [UpgradeDelegator](UpgradeDelegator.md)**
 

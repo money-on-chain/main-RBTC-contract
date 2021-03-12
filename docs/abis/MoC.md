@@ -6,7 +6,7 @@ original_id: MoC
 
 # MoC.sol
 
-View Source: [contracts/MoC.sol](../contracts/MoC.sol)
+View Source: [contracts/MoC.sol](../../contracts/MoC.sol)
 
 **↗ Extends: [MoCEvents](MoCEvents.md), [MoCLibConnection](MoCLibConnection.md), [MoCBase](MoCBase.md), [Stoppable](Stoppable.md)**
 

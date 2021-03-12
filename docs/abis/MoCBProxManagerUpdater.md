@@ -6,7 +6,7 @@ original_id: MoCBProxManagerUpdater
 
 # MoCBProxManagerUpdater.sol
 
-View Source: [contracts/changers/productive/MoCBProxManagerUpdater.sol](../contracts/changers/productive/MoCBProxManagerUpdater.sol)
+View Source: [contracts/changers/productive/MoCBProxManagerUpdater.sol](../../contracts/changers/productive/MoCBProxManagerUpdater.sol)
 
 **↗ Extends: [UpgraderTemplate](UpgraderTemplate.md)**
 

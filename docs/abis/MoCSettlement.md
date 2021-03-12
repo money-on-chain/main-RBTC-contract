@@ -6,7 +6,7 @@ original_id: MoCSettlement
 
 # MoCSettlement.sol
 
-View Source: [contracts/MoCSettlement.sol](../contracts/MoCSettlement.sol)
+View Source: [contracts/MoCSettlement.sol](../../contracts/MoCSettlement.sol)
 
 **↗ Extends: [MoCSettlementEvents](MoCSettlementEvents.md), [MoCBase](MoCBase.md), [PartialExecution](PartialExecution.md), [Governed](Governed.md)**
 **↘ Derived Contracts: [MoCSettlementMock](MoCSettlementMock.md)**

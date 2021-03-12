@@ -6,7 +6,7 @@ original_id: MoCStateMock
 
 # MoCStateMock.sol
 
-View Source: [contracts/mocks/MoCStateMock.sol](../contracts/mocks/MoCStateMock.sol)
+View Source: [contracts/mocks/MoCStateMock.sol](../../contracts/mocks/MoCStateMock.sol)
 
 **↗ Extends: [MoCState](MoCState.md)**
 

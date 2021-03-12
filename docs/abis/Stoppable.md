@@ -6,7 +6,7 @@ original_id: Stoppable
 
 # Stoppable (Stoppable.sol)
 
-View Source: [moc-governance/contracts/Stopper/Stoppable.sol](../moc-governance/contracts/Stopper/Stoppable.sol)
+View Source: [moc-governance/contracts/Stopper/Stoppable.sol](../../moc-governance/contracts/Stopper/Stoppable.sol)
 
 **↗ Extends: [Governed](Governed.md)**
 **↘ Derived Contracts: [MoC](MoC.md), [MoCEvents](MoCEvents.md)**

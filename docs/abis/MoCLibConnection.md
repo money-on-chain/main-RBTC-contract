@@ -6,7 +6,7 @@ original_id: MoCLibConnection
 
 # MoCLibConnection.sol
 
-View Source: [contracts/MoCLibConnection.sol](../contracts/MoCLibConnection.sol)
+View Source: [contracts/MoCLibConnection.sol](../../contracts/MoCLibConnection.sol)
 
 **↘ Derived Contracts: [MoC](MoC.md), [MoCConverter](MoCConverter.md), [MoCEvents](MoCEvents.md), [MoCExchange](MoCExchange.md), [MoCExchangeEvents](MoCExchangeEvents.md), [MoCHelperLibHarness](MoCHelperLibHarness.md), [MoCInrate](MoCInrate.md), [MoCInrateEvents](MoCInrateEvents.md), [MoCInrateStructs](MoCInrateStructs.md), [MoCState](MoCState.md), [MoCVendors](MoCVendors.md), [MoCVendorsEvents](MoCVendorsEvents.md)**
 

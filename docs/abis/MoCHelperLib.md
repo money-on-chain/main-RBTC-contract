@@ -6,7 +6,7 @@ original_id: MoCHelperLib
 
 # MoCHelperLib.sol
 
-View Source: [contracts/MoCHelperLib.sol](../contracts/MoCHelperLib.sol)
+View Source: [contracts/MoCHelperLib.sol](../../contracts/MoCHelperLib.sol)
 
 **MoCHelperLib** - version: 0.1.10
 

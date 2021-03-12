@@ -6,7 +6,7 @@ original_id: DocToken
 
 # DocToken.sol
 
-View Source: [contracts/token/DocToken.sol](../contracts/token/DocToken.sol)
+View Source: [contracts/token/DocToken.sol](../../contracts/token/DocToken.sol)
 
 **↗ Extends: [ERC20Detailed](ERC20Detailed.md), [OwnerBurnableToken](OwnerBurnableToken.md)**
 

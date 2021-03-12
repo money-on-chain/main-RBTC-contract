@@ -6,7 +6,7 @@ original_id: MoCBProxManager
 
 # MoCBProxManager.sol
 
-View Source: [contracts/MoCBProxManager.sol](../contracts/MoCBProxManager.sol)
+View Source: [contracts/MoCBProxManager.sol](../../contracts/MoCBProxManager.sol)
 
 **↗ Extends: [MoCBucketContainer](MoCBucketContainer.md)**
 

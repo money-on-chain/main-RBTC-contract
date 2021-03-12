@@ -6,7 +6,7 @@ original_id: Pausable
 
 # Pausable.sol
 
-View Source: [openzeppelin-solidity/contracts/lifecycle/Pausable.sol](../openzeppelin-solidity/contracts/lifecycle/Pausable.sol)
+View Source: [openzeppelin-solidity/contracts/lifecycle/Pausable.sol](../../openzeppelin-solidity/contracts/lifecycle/Pausable.sol)
 
 **↗ Extends: [PauserRole](PauserRole.md)**
 **↘ Derived Contracts: [ERC20Pausable](ERC20Pausable.md)**

@@ -6,7 +6,7 @@ original_id: UpgradeDelegator
 
 # UpgradeDelegator (UpgradeDelegator.sol)
 
-View Source: [moc-governance/contracts/Upgradeability/UpgradeDelegator.sol](../moc-governance/contracts/Upgradeability/UpgradeDelegator.sol)
+View Source: [moc-governance/contracts/Upgradeability/UpgradeDelegator.sol](../../moc-governance/contracts/Upgradeability/UpgradeDelegator.sol)
 
 **↗ Extends: [Governed](Governed.md)**
 **↘ Derived Contracts: [MockUpgradeDelegator](MockUpgradeDelegator.md)**

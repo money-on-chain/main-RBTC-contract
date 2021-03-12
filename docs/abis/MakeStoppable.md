@@ -6,7 +6,7 @@ original_id: MakeStoppable
 
 # MakeStoppable.sol
 
-View Source: [moc-governance/contracts/ChangersTemplates/MakeStoppable.sol](../moc-governance/contracts/ChangersTemplates/MakeStoppable.sol)
+View Source: [moc-governance/contracts/ChangersTemplates/MakeStoppable.sol](../../moc-governance/contracts/ChangersTemplates/MakeStoppable.sol)
 
 **↗ Extends: [ChangeContract](ChangeContract.md)**
 **↘ Derived Contracts: [MockMakeStoppable](MockMakeStoppable.md)**

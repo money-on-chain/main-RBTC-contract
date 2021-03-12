@@ -6,7 +6,7 @@ original_id: RevertingOnSend
 
 # RevertingOnSend.sol
 
-View Source: [contracts/test-contracts/RevertingOnSend.sol](../contracts/test-contracts/RevertingOnSend.sol)
+View Source: [contracts/test-contracts/RevertingOnSend.sol](../../contracts/test-contracts/RevertingOnSend.sol)
 
 **RevertingOnSend** - version: 0.1.10
 

@@ -6,7 +6,7 @@ original_id: MoCEMACalculator
 
 # MoCEMACalculator.sol
 
-View Source: [contracts/MoCEMACalculator.sol](../contracts/MoCEMACalculator.sol)
+View Source: [contracts/MoCEMACalculator.sol](../../contracts/MoCEMACalculator.sol)
 
 **↗ Extends: [Governed](Governed.md)**
 **↘ Derived Contracts: [MoCState](MoCState.md)**

@@ -6,7 +6,7 @@ original_id: BProToken
 
 # BProToken.sol
 
-View Source: [contracts/token/BProToken.sol](../contracts/token/BProToken.sol)
+View Source: [contracts/token/BProToken.sol](../../contracts/token/BProToken.sol)
 
 **↗ Extends: [ERC20Detailed](ERC20Detailed.md), [ERC20Pausable](ERC20Pausable.md), [OwnerBurnableToken](OwnerBurnableToken.md)**
 

@@ -6,7 +6,7 @@ original_id: MoCBucketContainer
 
 # MoCBucketContainer.sol
 
-View Source: [contracts/MoCBucketContainer.sol](../contracts/MoCBucketContainer.sol)
+View Source: [contracts/MoCBucketContainer.sol](../../contracts/MoCBucketContainer.sol)
 
 **↗ Extends: [MoCBase](MoCBase.md), [Governed](Governed.md)**
 **↘ Derived Contracts: [MoCBProxManager](MoCBProxManager.md)**

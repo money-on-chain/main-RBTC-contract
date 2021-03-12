@@ -6,7 +6,7 @@ original_id: MoCInrate
 
 # MoCInrate.sol
 
-View Source: [contracts/MoCInrate.sol](../contracts/MoCInrate.sol)
+View Source: [contracts/MoCInrate.sol](../../contracts/MoCInrate.sol)
 
 **↗ Extends: [MoCInrateEvents](MoCInrateEvents.md), [MoCInrateStructs](MoCInrateStructs.md), [MoCBase](MoCBase.md), [MoCLibConnection](MoCLibConnection.md), [Governed](Governed.md)**
 

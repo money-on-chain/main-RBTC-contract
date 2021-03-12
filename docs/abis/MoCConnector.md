@@ -6,7 +6,7 @@ original_id: MoCConnector
 
 # MoCConnector.sol
 
-View Source: [contracts/base/MoCConnector.sol](../contracts/base/MoCConnector.sol)
+View Source: [contracts/base/MoCConnector.sol](../../contracts/base/MoCConnector.sol)
 
 **↗ Extends: [MoCWhitelist](MoCWhitelist.md), [Initializable](Initializable.md)**
 

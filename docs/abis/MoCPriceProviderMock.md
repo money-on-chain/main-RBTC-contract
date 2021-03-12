@@ -6,9 +6,9 @@ original_id: MoCPriceProviderMock
 
 # MoCPriceProviderMock.sol
 
-View Source: [contracts/mocks/MoCPriceProviderMock.sol](../contracts/mocks/MoCPriceProviderMock.sol)
+View Source: [contracts/mocks/MoCPriceProviderMock.sol](../../contracts/mocks/MoCPriceProviderMock.sol)
 
-**↗ Extends: [TexPriceProvider](TexPriceProvider.md)**
+**↗ Extends: [PriceFeed](PriceFeed.md), [PriceProvider](PriceProvider.md)**
 
 **MoCPriceProviderMock** - version: 0.1.10
 
@@ -16,15 +16,17 @@ View Source: [contracts/mocks/MoCPriceProviderMock.sol](../contracts/mocks/MoCPr
 **Constants & Variables**
 
 ```js
-uint256 internal mocPrice;
+bytes32 internal mocPrice;
+bool internal has;
 
 ```
 
 ## Functions
 
 - [(uint256 price)](#)
-- [setPrice(uint256 price)](#setprice)
-- [getLastClosingPrice(address , address )](#getlastclosingprice)
+- [peek()](#peek)
+- [poke(uint128 val_, uint32 )](#poke)
+- [post(uint128 val_, uint32 , address )](#post)
 
 ### 
 
@@ -40,37 +42,48 @@ function (uint256 price) public nonpayable
 | ------------- |------------- | -----|
 | price | uint256 | MoC price for mock contract | 
 
-### setPrice
+### peek
+
+⤾ overrides [PriceProvider.peek](PriceProvider.md#peek)
 
 ```js
-function setPrice(uint256 price) public nonpayable
+function peek() external view
+returns(bytes32, bool)
 ```
 
 **Arguments**
 
 | Name        | Type           | Description  |
 | ------------- |------------- | -----|
-| price | uint256 |  | 
 
-### getLastClosingPrice
+### poke
 
-⤾ overrides [TexPriceProvider.getLastClosingPrice](TexPriceProvider.md#getlastclosingprice)
-
-Getter for every value related to a pair
+⤾ overrides [PriceFeed.poke](PriceFeed.md#poke)
 
 ```js
-function getLastClosingPrice(address , address ) public view
-returns(lastClosingPrice uint256)
+function poke(uint128 val_, uint32 ) external nonpayable
 ```
-
-**Returns**
-
-lastClosingPrice - the last price from a successful matching
 
 **Arguments**
 
 | Name        | Type           | Description  |
 | ------------- |------------- | -----|
-|  | address |  | 
+| val_ | uint128 |  | 
+|  | uint32 |  | 
+
+### post
+
+⤾ overrides [PriceFeed.post](PriceFeed.md#post)
+
+```js
+function post(uint128 val_, uint32 , address ) external nonpayable
+```
+
+**Arguments**
+
+| Name        | Type           | Description  |
+| ------------- |------------- | -----|
+| val_ | uint128 |  | 
+|  | uint32 |  | 
 |  | address |  | 
 

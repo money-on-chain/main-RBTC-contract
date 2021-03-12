@@ -6,7 +6,7 @@ original_id: MoCVendors
 
 # MoCVendors.sol
 
-View Source: [contracts/MoCVendors.sol](../contracts/MoCVendors.sol)
+View Source: [contracts/MoCVendors.sol](../../contracts/MoCVendors.sol)
 
 **↗ Extends: [MoCVendorsEvents](MoCVendorsEvents.md), [MoCBase](MoCBase.md), [MoCLibConnection](MoCLibConnection.md), [Governed](Governed.md)**
 
@@ -40,6 +40,8 @@ uint8 public constant VENDORS_LIST_ARRAY_MAX_LENGTH;
 uint256 public constant VENDOR_MAX_MARKUP;
 mapping(address => struct MoCVendors.VendorDetails) public vendors;
 address[] public vendorsList;
+address public vendorMoCDepositAddress;
+uint256 public vendorRequiredMoCs;
 
 //private members
 uint256[50] private upgradeGap;
@@ -55,6 +57,8 @@ event VendorUnregistered(address  account);
 event VendorStakeAdded(address  account, uint256  staking);
 event VendorStakeRemoved(address  account, uint256  staking);
 event TotalPaidInMoCReset(address  account);
+event VendorMoCDepositAddressChanged(address  vendorMoCDepositAddress);
+event VendorRequiredMoCsChanged(uint256  vendorRequiredMoCs);
 ```
 
 ## Modifiers
@@ -63,24 +67,23 @@ event TotalPaidInMoCReset(address  account);
 
 ### onlyActiveVendor
 
-Checks if vendor is active
+Checks if vendor (msg.sender) is active
 
 ```js
-modifier onlyActiveVendor(address account) internal
+modifier onlyActiveVendor() internal
 ```
 
 **Arguments**
 
 | Name        | Type           | Description  |
 | ------------- |------------- | -----|
-| account | address | Vendor address | 
 
 ## Functions
 
-- [initialize(address connectorAddress, address _governor)](#initialize)
+- [initialize(address connectorAddress, address _governor, address _vendorMoCDepositAddress, uint256 _vendorRequiredMoCs)](#initialize)
 - [getVendorsCount()](#getvendorscount)
-- [registerVendor(address account, uint256 markup)](#registervendor)
-- [unregisterVendor(address account)](#unregistervendor)
+- [registerVendor(uint256 markup)](#registervendor)
+- [unregisterVendor()](#unregistervendor)
 - [addStake(uint256 staking)](#addstake)
 - [removeStake(uint256 staking)](#removestake)
 - [updatePaidMarkup(address account, uint256 mocAmount, uint256 rbtcAmount, uint256 totalMoCAmount)](#updatepaidmarkup)
@@ -91,15 +94,21 @@ modifier onlyActiveVendor(address account) internal
 - [getPaidMoC(address account)](#getpaidmoc)
 - [getPaidRBTC(address account)](#getpaidrbtc)
 - [resetTotalPaidInMoC()](#resettotalpaidinmoc)
+- [getVendorMoCDepositAddress()](#getvendormocdepositaddress)
+- [setVendorMoCDepositAddress(address _vendorMoCDepositAddress)](#setvendormocdepositaddress)
+- [getVendorRequiredMoCs()](#getvendorrequiredmocs)
+- [setVendorRequiredMoCs(uint256 _vendorRequiredMoCs)](#setvendorrequiredmocs)
 - [initializeContracts()](#initializecontracts)
-- [initializeValues(address _governor)](#initializevalues)
+- [initializeValues(address _governor, address _vendorMoCDepositAddress, uint256 _vendorRequiredMoCs)](#initializevalues)
+- [setVendorMoCDepositAddressInternal(address _vendorMoCDepositAddress)](#setvendormocdepositaddressinternal)
+- [setVendorRequiredMoCsInternal(uint256 _vendorRequiredMoCs)](#setvendorrequiredmocsinternal)
 
 ### initialize
 
 Initializes the contract
 
 ```js
-function initialize(address connectorAddress, address _governor) public nonpayable initializer 
+function initialize(address connectorAddress, address _governor, address _vendorMoCDepositAddress, uint256 _vendorRequiredMoCs) public nonpayable initializer 
 ```
 
 **Arguments**
@@ -108,6 +117,8 @@ function initialize(address connectorAddress, address _governor) public nonpayab
 | ------------- |------------- | -----|
 | connectorAddress | address | MoCConnector contract address | 
 | _governor | address | Governor contract address | 
+| _vendorMoCDepositAddress | address |  | 
+| _vendorRequiredMoCs | uint256 |  | 
 
 ### getVendorsCount
 
@@ -129,10 +140,10 @@ Amount of active registered vendors
 
 ### registerVendor
 
-Allows to register a vendor
+Allows a vendor to register themselves
 
 ```js
-function registerVendor(address account, uint256 markup) public nonpayable onlyAuthorizedChanger 
+function registerVendor(uint256 markup) public nonpayable
 returns(isActive bool)
 ```
 
@@ -144,15 +155,14 @@ true if vendor was registered successfully; otherwise false
 
 | Name        | Type           | Description  |
 | ------------- |------------- | -----|
-| account | address | Vendor address | 
 | markup | uint256 | Markup which vendor will perceive from mint/redeem operations | 
 
 ### unregisterVendor
 
-Allows to unregister a vendor
+Allows a vendor to unregister themselves (msg.sender)
 
 ```js
-function unregisterVendor(address account) public nonpayable onlyAuthorizedChanger onlyActiveVendor 
+function unregisterVendor() public nonpayable onlyActiveVendor 
 returns(isActive bool)
 ```
 
@@ -164,7 +174,6 @@ false if vendor was unregistered successfully; otherwise false
 
 | Name        | Type           | Description  |
 | ------------- |------------- | -----|
-| account | address | Vendor address | 
 
 ### addStake
 
@@ -192,7 +201,7 @@ function removeStake(uint256 staking) public nonpayable onlyActiveVendor
 
 | Name        | Type           | Description  |
 | ------------- |------------- | -----|
-| staking | uint256 | Staking the vendor wants to add | 
+| staking | uint256 | Staking the vendor wants to remove | 
 
 ### updatePaidMarkup
 
@@ -338,6 +347,62 @@ function resetTotalPaidInMoC() public nonpayable onlyWhitelisted
 | Name        | Type           | Description  |
 | ------------- |------------- | -----|
 
+### getVendorMoCDepositAddress
+
+Returns the address which will receive the initial amount of MoC required for a vendor to register.
+
+```js
+function getVendorMoCDepositAddress() public view
+returns(address)
+```
+
+**Arguments**
+
+| Name        | Type           | Description  |
+| ------------- |------------- | -----|
+
+### setVendorMoCDepositAddress
+
+Sets the address which will receive the initial amount of MoC required for a vendor to register.
+
+```js
+function setVendorMoCDepositAddress(address _vendorMoCDepositAddress) public nonpayable onlyAuthorizedChanger 
+```
+
+**Arguments**
+
+| Name        | Type           | Description  |
+| ------------- |------------- | -----|
+| _vendorMoCDepositAddress | address | Address which will receive the initial MoC required for a vendor to register. | 
+
+### getVendorRequiredMoCs
+
+Returns the initial amount of MoC required for a vendor to register.
+
+```js
+function getVendorRequiredMoCs() public view
+returns(uint256)
+```
+
+**Arguments**
+
+| Name        | Type           | Description  |
+| ------------- |------------- | -----|
+
+### setVendorRequiredMoCs
+
+Sets the initial amount of MoC required for a vendor to register.
+
+```js
+function setVendorRequiredMoCs(uint256 _vendorRequiredMoCs) public nonpayable onlyAuthorizedChanger 
+```
+
+**Arguments**
+
+| Name        | Type           | Description  |
+| ------------- |------------- | -----|
+| _vendorRequiredMoCs | uint256 | Initial amount of MoC required for a vendor to register. | 
+
 ### initializeContracts
 
 ```js
@@ -352,7 +417,7 @@ function initializeContracts() internal nonpayable
 ### initializeValues
 
 ```js
-function initializeValues(address _governor) internal nonpayable
+function initializeValues(address _governor, address _vendorMoCDepositAddress, uint256 _vendorRequiredMoCs) internal nonpayable
 ```
 
 **Arguments**
@@ -360,4 +425,34 @@ function initializeValues(address _governor) internal nonpayable
 | Name        | Type           | Description  |
 | ------------- |------------- | -----|
 | _governor | address |  | 
+| _vendorMoCDepositAddress | address |  | 
+| _vendorRequiredMoCs | uint256 |  | 
+
+### setVendorMoCDepositAddressInternal
+
+Sets the address which will receive the initial amount of MoC required for a vendor to register.
+
+```js
+function setVendorMoCDepositAddressInternal(address _vendorMoCDepositAddress) internal nonpayable
+```
+
+**Arguments**
+
+| Name        | Type           | Description  |
+| ------------- |------------- | -----|
+| _vendorMoCDepositAddress | address | Address which will receive the initial MoC required for a vendor to register. | 
+
+### setVendorRequiredMoCsInternal
+
+Sets the initial amount of MoC required for a vendor to register.
+
+```js
+function setVendorRequiredMoCsInternal(uint256 _vendorRequiredMoCs) internal nonpayable
+```
+
+**Arguments**
+
+| Name        | Type           | Description  |
+| ------------- |------------- | -----|
+| _vendorRequiredMoCs | uint256 | Initial amount of MoC required for a vendor to register. | 
 

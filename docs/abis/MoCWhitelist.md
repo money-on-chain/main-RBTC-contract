@@ -6,7 +6,7 @@ original_id: MoCWhitelist
 
 # MoCWhitelist.sol
 
-View Source: [contracts/base/MoCWhitelist.sol](../contracts/base/MoCWhitelist.sol)
+View Source: [contracts/base/MoCWhitelist.sol](../../contracts/base/MoCWhitelist.sol)
 
 **↘ Derived Contracts: [MoCConnector](MoCConnector.md)**
 

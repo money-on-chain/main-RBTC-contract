@@ -6,7 +6,7 @@ original_id: MoCSettlementMock
 
 # MoCSettlementMock.sol
 
-View Source: [contracts/mocks/MoCSettlementMock.sol](../contracts/mocks/MoCSettlementMock.sol)
+View Source: [contracts/mocks/MoCSettlementMock.sol](../../contracts/mocks/MoCSettlementMock.sol)
 
 **↗ Extends: [MoCSettlement](MoCSettlement.md)**
 

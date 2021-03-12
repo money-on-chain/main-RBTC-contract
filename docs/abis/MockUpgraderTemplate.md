@@ -6,7 +6,7 @@ original_id: MockUpgraderTemplate
 
 # MockUpgraderTemplate.sol
 
-View Source: [contracts/mocks/MockUpgraderTemplate.sol](../contracts/mocks/MockUpgraderTemplate.sol)
+View Source: [contracts/mocks/MockUpgraderTemplate.sol](../../contracts/mocks/MockUpgraderTemplate.sol)
 
 **↗ Extends: [UpgraderTemplate](UpgraderTemplate.md)**
 

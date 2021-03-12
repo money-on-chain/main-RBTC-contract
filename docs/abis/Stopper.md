@@ -6,7 +6,7 @@ original_id: Stopper
 
 # Stopper (Stopper.sol)
 
-View Source: [moc-governance/contracts/Stopper/Stopper.sol](../moc-governance/contracts/Stopper/Stopper.sol)
+View Source: [moc-governance/contracts/Stopper/Stopper.sol](../../moc-governance/contracts/Stopper/Stopper.sol)
 
 **↗ Extends: [Ownable](Ownable.md)**
 **↘ Derived Contracts: [MockStopper](MockStopper.md)**

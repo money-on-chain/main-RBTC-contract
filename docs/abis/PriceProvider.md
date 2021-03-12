@@ -6,9 +6,9 @@ original_id: PriceProvider
 
 # PriceProvider.sol
 
-View Source: [contracts/interface/PriceProvider.sol](../contracts/interface/PriceProvider.sol)
+View Source: [contracts/interface/PriceProvider.sol](../../contracts/interface/PriceProvider.sol)
 
-**↘ Derived Contracts: [BtcPriceProviderMock](BtcPriceProviderMock.md)**
+**↘ Derived Contracts: [BtcPriceProviderMock](BtcPriceProviderMock.md), [MoCPriceProviderMock](MoCPriceProviderMock.md)**
 
 **PriceProvider** - version: 0.1.10
 
@@ -18,7 +18,7 @@ View Source: [contracts/interface/PriceProvider.sol](../contracts/interface/Pric
 
 ### peek
 
-⤿ Overridden Implementation(s): [BtcPriceProviderMock.peek](BtcPriceProviderMock.md#peek)
+⤿ Overridden Implementation(s): [BtcPriceProviderMock.peek](BtcPriceProviderMock.md#peek),[MoCPriceProviderMock.peek](MoCPriceProviderMock.md#peek)
 
 ```js
 function peek() external view

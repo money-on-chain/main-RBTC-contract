@@ -6,7 +6,7 @@ original_id: Governed
 
 # Governed (Governed.sol)
 
-View Source: [moc-governance/contracts/Governance/Governed.sol](../moc-governance/contracts/Governance/Governed.sol)
+View Source: [moc-governance/contracts/Governance/Governed.sol](../../moc-governance/contracts/Governance/Governed.sol)
 
 **↗ Extends: [Initializable](Initializable.md)**
 **↘ Derived Contracts: [CommissionSplitter](CommissionSplitter.md), [MoCBucketContainer](MoCBucketContainer.md), [MoCEMACalculator](MoCEMACalculator.md), [MoCInrate](MoCInrate.md), [MoCInrateEvents](MoCInrateEvents.md), [MoCInrateStructs](MoCInrateStructs.md), [MoCSettlement](MoCSettlement.md), [MoCSettlementEvents](MoCSettlementEvents.md), [MoCVendors](MoCVendors.md), [MoCVendorsEvents](MoCVendorsEvents.md), [Stoppable](Stoppable.md), [UpgradeDelegator](UpgradeDelegator.md)**

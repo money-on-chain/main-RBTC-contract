@@ -171,7 +171,7 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed {
 
   /**
     @dev Allows an active vendor (msg.sender) to remove staking
-    @param staking Staking the vendor wants to add
+    @param staking Staking the vendor wants to remove
   */
   function removeStake(uint256 staking) public onlyActiveVendor() {
     MoCToken mocToken = MoCToken(mocState.getMoCToken());

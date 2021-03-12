@@ -6,7 +6,7 @@ original_id: MakeUnstoppable
 
 # MakeUnstoppable.sol
 
-View Source: [moc-governance/contracts/ChangersTemplates/MakeUnstoppable.sol](../moc-governance/contracts/ChangersTemplates/MakeUnstoppable.sol)
+View Source: [moc-governance/contracts/ChangersTemplates/MakeUnstoppable.sol](../../moc-governance/contracts/ChangersTemplates/MakeUnstoppable.sol)
 
 **↗ Extends: [ChangeContract](ChangeContract.md)**
 **↘ Derived Contracts: [MockMakeUnstoppable](MockMakeUnstoppable.md)**

@@ -6,7 +6,7 @@ original_id: PriceFeederAdder
 
 # PriceFeederAdder.sol
 
-View Source: [contracts/changers/productive/PriceFeederAdder.sol](../contracts/changers/productive/PriceFeederAdder.sol)
+View Source: [contracts/changers/productive/PriceFeederAdder.sol](../../contracts/changers/productive/PriceFeederAdder.sol)
 
 **↗ Extends: [ChangeContract](ChangeContract.md)**
 
