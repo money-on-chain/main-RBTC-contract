@@ -54,7 +54,6 @@ library MoCHelperLib {
     @param power power to use in the formula [using NoPrecision]
     @param tMax max interest rate [using mocPrecision]
     @param abRatio bucket C0  abundance Ratio [using mocPrecision]
-
    */
   function spotInrate(
     MocLibConfig storage config, uint256 tMax, uint256 power, uint256 tMin, uint256 abRatio
@@ -93,7 +92,7 @@ library MoCHelperLib {
     @param value1 value to put in the function [using mocPrecision]
     @param value2 value to put in the function [using mocPrecision]
     @return average interest rate [using mocPrecision]
-   */
+  */
   function avgInt(MocLibConfig storage config, uint256 a, uint256 b, uint256 c, uint256 value1, uint256 value2)
   public view returns(uint256) {
     // value2 - value1
@@ -115,8 +114,7 @@ library MoCHelperLib {
     @param c minInterestRate C0 doc amount [using mocPrecision]
     @param value value to put in the function [using mocPrecision]
     @return integration result [using mocPrecision]
-
-   */
+  */
   function integral(MocLibConfig storage config, uint256 a, uint256 b, uint256 c, uint256 value)
   public view returns(uint256) {
     // b + 1
@@ -570,7 +568,7 @@ library MoCHelperLib {
     return transferAmount.div(libConfig.mocPrecision);
   }
 
-   /**
+  /**
     @dev Max amount of BTC allowed to be used to mint bprox: Maxbprox = nDOC/ (PEG*B*(lev-1))
     @param nDoc number of DOC [using mocPrecision]
     @param peg peg value

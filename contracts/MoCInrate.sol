@@ -504,7 +504,6 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
     @param bucket Bucket to use to calculate interest
     @param redeemInterest Total value from which calculate interest [using reservePrecision]
     @return InterestsInBag * (RedeemInterests / FullRedeemInterest) [using reservePrecision]
-
   */
   function calcProportionalInterestValue(bytes32 bucket, uint256 redeemInterest) internal view returns(uint256) {
     uint256 fullRedeemInterest = calcFullRedeemInterestValue(bucket);
@@ -559,7 +558,7 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
   function inrateDayCount(bool countAllDays) internal view returns(uint256) {
     uint256 daysToSettl = mocState.daysToSettlement();
 
-    if (daysToSettl < mocLibConfig.dayPrecision){
+    if (daysToSettl < mocLibConfig.dayPrecision) {
       return 0;
     }
 

@@ -6,7 +6,7 @@ import "./base/MoCBase.sol";
 import "moc-governance/contracts/Governance/Governed.sol";
 import "moc-governance/contracts/Governance/IGovernor.sol";
 
-contract MoCBucketContainer is MoCBase, Governed{
+contract MoCBucketContainer is MoCBase, Governed {
   using SafeMath for uint256;
   using Math for uint256;
 

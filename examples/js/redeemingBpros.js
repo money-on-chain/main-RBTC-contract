@@ -93,9 +93,10 @@ const execute = async () => {
   console.log('=== User BPro Balance: ', userAmount.toString());
 
   const bproAmount = '0.00001';
+  const vendorAccount = '<vendor-address>'
 
   // Call redeem
-  await redeemBpro(bproAmount);
+  await redeemBpro(bproAmount, vendorAccount);
 };
 
 execute()

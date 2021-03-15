@@ -70,7 +70,7 @@ const execute = async () => {
 
     console.log(`Calling redeem Doc request, account: ${from}, amount: ${weiAmount}.`);
     moc.methods
-      .redeemFreeDoc(weiAmount, vendorAccount)
+      .redeemFreeDocVendors(weiAmount, vendorAccount)
       .send({ from, gasPrice }, function(error, transactionHash) {
         if (error) console.log(error);
         if (transactionHash) console.log('txHash: '.concat(transactionHash));
@@ -88,11 +88,13 @@ const execute = async () => {
   const freeDoc = await mocState.methods.freeDoc().call();
   const userDocBalance = await docToken.methods.balanceOf(from).call();
   const finalDocAmount = Math.min(freeDoc, userDocBalance);
+  const vendorAccount = '<vendor-address>'
+
   console.log('User DOC balance: ', userDocBalance.toString());
   console.log('=== Max Available DOC to redeem: ', finalDocAmount);
 
   // Call redeem
-  await redeemFreeDoc(docAmount);
+  await redeemFreeDoc(docAmount, vendorAccount);
 };
 
 execute()

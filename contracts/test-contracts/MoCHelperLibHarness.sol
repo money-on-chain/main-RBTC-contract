@@ -10,8 +10,7 @@ contract MoCHelperLibHarness is MoCLibConnection, Initializable {
   }
 
   /**
-    Returns max uint256 value constant.
-
+    @dev Returns max uint256 value constant.
     @return max uint256 value constant
   */
   function getMaxInt() public view returns(uint256) {
@@ -19,9 +18,7 @@ contract MoCHelperLibHarness is MoCLibConnection, Initializable {
   }
 
   /**
-    Calculates average interest using integral function
-
-    @dev T =  Rate = a * (x ** b) + c
+    @dev Calculates average interest using integral function: T =  Rate = a * (x ** b) + c
     @param tMax maxInterestRate [using mocPrecision]
     @param power factor [using noPrecision]
     @param tMin minInterestRate C0 doc amount [using mocPrecision]
@@ -35,23 +32,18 @@ contract MoCHelperLibHarness is MoCLibConnection, Initializable {
   }
 
   /**
-    Calculates spot interest rate that BProx owners should pay to BPro owners
-
-    @dev Rate = tMax * (abRatio ** power) + tMin
+    @dev Calculates spot interest rate that BProx owners should pay to BPro owners: Rate = tMax * (abRatio ** power) + tMin
     @param tMin min interest rate [using mocPrecision]
     @param power power to use in the formula [using NoPrecision]
     @param tMax max interest rate [using mocPrecision]
     @param abRatio bucket C0  abundance Ratio [using mocPrecision]
-
    */
   function spotInrate(uint256 tMax, uint256 power, uint256 tMin, uint256 abRatio) public view returns(uint256) {
     return mocLibConfig.spotInrate(tMax, power, tMin, abRatio);
   }
 
   /**
-    Calculates potential interests function with given parameters
-
-    @dev Rate = a * (x ** b) + c
+    @dev Calculates potential interests function with given parameters: Rate = a * (x ** b) + c
     @param a maxInterestRate [using mocPrecision]
     @param b factor [using NoPrecision]
     @param c minInterestRate C0 doc amount [using mocPrecision]
@@ -63,9 +55,8 @@ contract MoCHelperLibHarness is MoCLibConnection, Initializable {
   }
 
   /**
-    Calculates average of the integral function
-
-    @dev T = (
+    @dev Calculates average of the integral function:
+     T = (
               (c * xf + ((a * (xf ** (b + 1))) / (b + 1))) -
               (c * xi + ((a * (xi ** (b + 1))) / (b + 1)))
              ) / (xf - xi)
@@ -75,23 +66,20 @@ contract MoCHelperLibHarness is MoCLibConnection, Initializable {
     @param value1 value to put in the function [using mocPrecision]
     @param value2 value to put in the function [using mocPrecision]
     @return average interest rate [using mocPrecision]
-   */
+  */
   function avgInt(uint256 a, uint256 b, uint256 c, uint256 value1, uint256 value2)
   public view returns(uint256) {
     return mocLibConfig.avgInt(a, b, c, value1, value2);
   }
 
   /**
-    Calculates integral of the exponential function
-
-    @dev T = c * (value) + (a * value ** (b + 1)) / (b + 1))
+    @dev Calculates integral of the exponential function: T = c * (value) + (a * value ** (b + 1)) / (b + 1))
     @param a maxInterestRate [using mocPrecision]
     @param b factor [using NoPrecision]
     @param c minInterestRate C0 doc amount [using mocPrecision]
     @param value value to put in the function [using mocPrecision]
     @return integration result [using mocPrecision]
-
-   */
+  */
   function integral(uint256 a, uint256 b, uint256 c, uint256 value)
   public view returns(uint256) {
     return mocLibConfig.integral(a, b, c, value);
@@ -109,23 +97,19 @@ contract MoCHelperLibHarness is MoCLibConnection, Initializable {
   }
 
   /**
-    SpotDiscountRate = TPD * (utpdu - cob) / (uptdu -liq)
-
-    @dev Returns the Ratio to apply to BPro Price in discount situations
+    @dev Returns the Ratio to apply to BPro Price in discount situations: SpotDiscountRate = TPD * (utpdu - cob) / (uptdu -liq)
     @param bproLiqDiscountRate Discount rate applied at Liquidation level coverage [using mocPrecision]
     @param liq Liquidation coverage threshold [using mocPrecision]
     @param utpdu Discount coverage threshold [using mocPrecision]
     @param cov Actual global Coverage threshold [using mocPrecision]
     @return Spot discount rate [using mocPrecision]
-  **/
+  */
   function bproSpotDiscountRate(uint256 bproLiqDiscountRate, uint256 liq, uint256 utpdu, uint256 cov) public view returns(uint256) {
     return mocLibConfig.bproSpotDiscountRate(bproLiqDiscountRate, liq, utpdu, cov);
   }
 
   /**
-    MaxBProWithDiscount = (uTPDU * nDOC * PEG - (nBTC * B)) / (TPusd * TPD)
-
-    @dev Max amount of BPro to available with discount
+    @dev Max amount of BPro to available with discount: MaxBProWithDiscount = (uTPDU * nDOC * PEG - (nBTC * B)) / (TPusd * TPD)
     @param nB Total BTC amount [using reservePrecision]
     @param nDoc DOC amount [using mocPrecision]
     @param utpdu Discount coverage threshold [using mocPrecision]
@@ -134,7 +118,7 @@ contract MoCHelperLibHarness is MoCLibConnection, Initializable {
     @param bproUsdPrice bproUsdPrice [using mocPrecision]
     @param spotDiscount spot discount [using mocPrecision]
     @return Total BPro amount [using mocPrecision]
-  **/
+  */
   function maxBProWithDiscount(
     uint256 nB, uint256 nDoc, uint256 utpdu,
     uint256 peg, uint256 btcPrice, uint256 bproUsdPrice, uint256 spotDiscount
@@ -146,13 +130,12 @@ contract MoCHelperLibHarness is MoCLibConnection, Initializable {
   }
 
   /**
-
     @dev Calculates Locked bitcoin
     @param btcPrice BTC price [using mocPrecision]
     @param nDoc Docs amount [using mocPrecision]
     @param peg peg value
     @return Locked bitcoin [using reservePrecision]
-  **/
+  */
   function lockedBitcoin(uint256 btcPrice, uint256 nDoc, uint256 peg)
   public view returns(uint256) {
     return mocLibConfig.lockedBitcoin(btcPrice, nDoc, peg);
@@ -164,98 +147,84 @@ contract MoCHelperLibHarness is MoCLibConnection, Initializable {
     @param rbtcAmount RBTC to distribute [using reservePrecision]
     @param nDoc Docs amount [using mocPrecision]
     @return Price at liquidation event [using mocPrecision]
-  **/
+  */
   function liquidationPrice(uint256 rbtcAmount, uint256 nDoc)
   public view returns(uint256) {
     return mocLibConfig.liquidationPrice(rbtcAmount, nDoc);
   }
 
   /**
-   TPbtc = (nB-LB) / nTP
-
-    @dev Calculates BPro BTC price
+    @dev Calculates BPro BTC price: TPbtc = (nB-LB) / nTP
     @param nB Total BTC amount [using reservePrecision]
     @param lb Locked bitcoins amount [using reservePrecision]
     @param nTP BPro amount [using mocPrecision]
     @return BPro BTC price [using reservePrecision]
-  **/
+  */
   function bproTecPrice(uint256 nB, uint256 lb, uint256 nTP)
   public view returns(uint256) {
     return mocLibConfig.bproTecPrice(nB, lb, nTP);
   }
 
   /**
-   BProxInBPro = bproxTecPrice / bproPrice
-
-    @dev Calculates BPro BTC price
+    @dev Calculates BPro BTC price: BProxInBPro = bproxTecPrice / bproPrice
     @param bproxTecPrice BProx BTC price [using reservePrecision]
     @param bproPrice Trog BTC price [using reservePrecision]
     @return BProx price in BPro [using mocPrecision]
-  **/
+  */
   function bproxBProPrice(uint256 bproxTecPrice, uint256 bproPrice)
   public view returns(uint256) {
     return mocLibConfig.bproxBProPrice(bproxTecPrice, bproPrice);
   }
 
   /**
-   TPbtc = (price)* (1 - discountRate)
-
-    @dev Returns a new value with the discountRate applied
+    @dev Returns a new value with the discountRate applied: TPbtc = (price)* (1 - discountRate)
     @param price Price [using SomePrecision]
     @param discountRate Discount rate to apply [using mocPrecision]
     @return Price with discount applied [using SomePrecision]
-  **/
+  */
   function applyDiscountRate(uint256 price, uint256 discountRate)
   public view returns(uint256) {
     return applyDiscountRate(price, discountRate);
   }
 
   /**
-   TPbtc = price * interestRate
-
-    @dev Returns the amount of interest to pay
+    @dev Returns the amount of interest to pay: TPbtc = price * interestRate
     @param value Cost to apply interest [using SomePrecision]
     @param interestRate Interest rate to apply [using mocPrecision]
     @return Interest cost based on the value and interestRate [using SomePrecision]
-  **/
+  */
   function getInterestCost(uint256 value, uint256 interestRate)
   public view returns(uint256) {
     return mocLibConfig.getInterestCost(value, interestRate);
   }
 
   /**
-    Coverage = nB / LB
-
-    @dev Calculates Coverage
+    @dev Calculates Coverage: Coverage = nB / LB
     @param nB Total BTC amount [using reservePrecision]
     @param lB Locked bitcoins amount [using reservePrecision]
     @return Coverage [using mocPrecision]
-  **/
+  */
   function coverage(uint256 nB, uint256 lB)
   public view returns(uint256) {
     return mocLibConfig.coverage(nB, lB);
   }
 
  /**
-  Leverage = C / (C - 1)
-
-    @dev Calculates Leverage
+    @dev Calculates Leverage from Coverage: Leverage = C / (C - 1)
     @param cov Coverage [using mocPrecision]
     @return Leverage [using mocPrecision]
-  **/
+  */
   function leverageFromCoverage(uint256 cov)
   public view returns(uint256) {
     return mocLibConfig.leverageFromCoverage(cov);
   }
 
  /**
-  Leverage = nB / (nB - lB)
-
-    @dev Calculates Leverage
+    @dev Calculates Leverage: Leverage = nB / (nB - lB)
     @param nB Total BTC amount [using reservePrecision]
     @param lB Locked bitcoins amount [using reservePrecision]
     @return Leverage [using mocPrecision]
-  **/
+  */
   function leverage(uint256 nB, uint256 lB)
   public view returns(uint256) {
     return mocLibConfig.leverage(nB, lB);
@@ -266,7 +235,7 @@ contract MoCHelperLibHarness is MoCLibConnection, Initializable {
     @param amount Total BTC amount [using reservePrecision]
     @param btcPrice BTC price [using mocPrecision]
     @return Total value [using reservePrecision]
-  **/
+  */
   function docsBtcValue(uint256 amount,uint256 peg, uint256 btcPrice)
   public view returns(uint256) {
     return docsBtcValue(amount, peg, btcPrice);
@@ -277,16 +246,14 @@ contract MoCHelperLibHarness is MoCLibConnection, Initializable {
     @param bproAmount amount of BPro [using mocPrecision]
     @param bproBtcPrice BPro price in RBTC [using reservePrecision]
     @return Total value [using reservePrecision]
-  **/
+  */
   function bproBtcValue(uint256 bproAmount, uint256 bproBtcPrice)
   public view returns(uint256) {
     return mocLibConfig.bproBtcValue(bproAmount, bproBtcPrice);
   }
 
   /**
-   MaxDoc = ((nB*B)-(Cobj*B/Bcons*nDoc*PEG))/(PEG*(Cobj*B/BCons-1))
-
-    @dev Max amount of Docs to issue
+    @dev Max amount of Docs to issue: MaxDoc = ((nB*B)-(Cobj*B/Bcons*nDoc*PEG))/(PEG*(Cobj*B/BCons-1))
     @param nB Total BTC amount [using reservePrecision]
     @param cobj Target Coverage [using mocPrecision]
     @param nDoc DOC amount [using mocPrecision]
@@ -294,16 +261,14 @@ contract MoCHelperLibHarness is MoCLibConnection, Initializable {
     @param btcPrice BTC price [using mocPrecision]
     @param bCons BTC conservative price [using mocPrecision]
     @return Total Docs amount [using mocPrecision]
-  **/
+  */
   function maxDoc(uint256 nB, uint256 cobj, uint256 nDoc, uint256 peg, uint256 btcPrice, uint256 bCons)
   public view returns(uint256) {
     return mocLibConfig.maxDoc(nB, cobj, nDoc, peg, btcPrice, bCons);
   }
 
   /**
-   MaxBPro = ((nB*B)-(Cobj*nDoc*PEG))/TPusd
-
-    @dev Max amount of BPro to redeem
+    @dev Max amount of BPro to redeem: MaxBPro = ((nB*B)-(Cobj*nDoc*PEG))/TPusd
     @param nB Total BTC amount [using reservePrecision]
     @param cobj Target Coverage [using mocPrecision]
     @param nDoc Target Coverage [using mocPrecision]
@@ -312,7 +277,7 @@ contract MoCHelperLibHarness is MoCLibConnection, Initializable {
     @param bCons BTC conservative price [using mocPrecision]
     @param bproUsdPrice bproUsdPrice [using mocPrecision]
     @return Total BPro amount [using mocPrecision]
-  **/
+  */
   function maxBPro(
     uint256 nB, uint256 cobj, uint256 nDoc, uint256 peg,
     uint256 btcPrice, uint256 bCons, uint256 bproUsdPrice
@@ -328,7 +293,7 @@ contract MoCHelperLibHarness is MoCLibConnection, Initializable {
     @param amount Amount of BPro [using mocPrecision]
     @param bproPrice BPro BTC Price [using reservePrecision]
     @return BPro total value in BTC [using reservePrecision]
-  **/
+  */
   function totalBProInBtc(uint256 amount, uint256 bproPrice)
   public view returns(uint256) {
     return mocLibConfig.totalBProInBtc(amount, bproPrice);
@@ -339,7 +304,7 @@ contract MoCHelperLibHarness is MoCLibConnection, Initializable {
     @param btcAmount BTC  amount [using reservePrecision]
     @param btcPrice BTC price [using mocPrecision]
     @return Equivalent Doc amount [using mocPrecision]
-  **/
+  */
   function maxDocsWithBtc(uint256 btcAmount, uint256 btcPrice)
   public view returns(uint256) {
     return mocLibConfig.maxDocsWithBtc(btcAmount, btcPrice);
@@ -350,36 +315,32 @@ contract MoCHelperLibHarness is MoCLibConnection, Initializable {
     @param btcAmount BTC amount [using reservePrecision]
     @param bproPrice BPro BTC price [using reservePrecision]
     @return Equivalent Bpro amount [using mocPrecision]
-  **/
+  */
   function maxBProWithBtc(uint256 btcAmount, uint256 bproPrice)
   public view returns(uint256) {
     return mocLibConfig.maxBProWithBtc(btcAmount, bproPrice);
   }
 
   /**
-    toMove = btcAmount * (lev - 1)
-
-    @dev Calculates the Btc amount to move from C0 bucket to
+    @dev Calculates the Btc amount to move from C0 bucket to: toMove = btcAmount * (lev - 1)
     an L bucket when a BProx minting occurs
     @param btcAmount Total BTC amount [using reservePrecision]
     @param lev L bucket leverage [using mocPrecision]
     @return btc to move [using reservePrecision]
-    **/
+  */
   function bucketTransferAmount(uint256 btcAmount, uint256 lev)
   public view returns(uint256) {
     return mocLibConfig.bucketTransferAmount(btcAmount, lev);
   }
 
-   /**
-    Maxbprox = nDOC/ (PEG*B*(lev-1))
-
-    @dev Max amount of BTC allowed to be used to mint bprox
+  /**
+    @dev Max amount of BTC allowed to be used to mint bprox: Maxbprox = nDOC/ (PEG*B*(lev-1))
     @param nDoc number of DOC [using mocPrecision]
     @param peg peg value
     @param btcPrice BTC price [using mocPrecision]
     @param lev leverage [using mocPrecision]
     @return Max bprox BTC value [using reservePrecision]
-  **/
+  */
   function maxBProxBtcValue(uint256 nDoc, uint256 peg, uint256 btcPrice, uint256 lev)
   public view returns(uint256)  {
     return mocLibConfig.maxBProxBtcValue(nDoc, peg, btcPrice, lev);
@@ -391,7 +352,7 @@ contract MoCHelperLibHarness is MoCLibConnection, Initializable {
     @param btcPrice BTC price
     @param mocPrice MoC price
     @return Equivalent MoC amount
-  **/
+  */
   function maxMoCWithBtc(uint256 btcAmount, uint256 btcPrice, uint256 mocPrice)
   public view returns(uint256) {
     return mocLibConfig.maxMoCWithBtc(btcAmount, btcPrice, mocPrice);
@@ -403,12 +364,17 @@ contract MoCHelperLibHarness is MoCLibConnection, Initializable {
     @param btcPrice BTC price
     @param mocPrice MoC price
     @return Equivalent MoC amount
-  **/
+  */
   function mocBtcValue(uint256 amount, uint256 btcPrice, uint256 mocPrice)
   public view returns(uint256) {
     return mocLibConfig.mocBtcValue(amount, btcPrice, mocPrice);
   }
 
+  /**
+    @dev Transform an address to payable address
+    @param account Address to transform to payable
+    @return Payable address for account
+  */
   function getPayableAddress(address account)
   public view returns (address payable) {
     return mocLibConfig.getPayableAddress(account);
