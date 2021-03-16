@@ -3,12 +3,13 @@ const AdminUpgradeabilityProxy = artifacts.require('AdminUpgradeabilityProxy');
 
 const MoCVendors = artifacts.require('./MoCVendors.sol');
 
-const { getConfig, getNetwork, saveConfig } = require('./helper');
+const { getConfig, getNetwork, saveConfig } = require('../helper');
 
 module.exports = async callback => {
   try {
     const network = getNetwork(process.argv);
-    const config = getConfig(network);
+    const configPath = `${__dirname}/deployConfig-${network}.json`;
+    const config = getConfig(network, configPath);
 
     // Deploy new MoCVendors implementation
     const mocVendors = await MoCVendors.new();

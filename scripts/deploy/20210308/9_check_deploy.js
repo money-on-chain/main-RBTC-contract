@@ -3,13 +3,15 @@ const ProxyAdmin = artifacts.require('ProxyAdmin');
 const MoCInrate = artifacts.require('./MoCInrate.sol');
 
 const BigNumber = require('bignumber.js');
-const { getConfig, getNetwork } = require('./helper');
+const { getConfig, getNetwork } = require('../helper');
 
 module.exports = async callback => {
   try {
     const network = getNetwork(process.argv);
-    const newConfig = getConfig(network);
-    const originalConfig = getConfig(network, `deployConfig-${network}-original.json`);
+    const newConfigPath = `${__dirname}/deployConfig-${network}.json`;
+    const newConfig = getConfig(network, newConfigPath);
+    const originalConfigPath = `${__dirname}/deployConfig-${network}-original.json`;
+    const originalConfig = getConfig(network, originalConfigPath);
 
     // Getting the keys we want to compare
     const comparisonKeys = [
@@ -29,7 +31,7 @@ module.exports = async callback => {
 
     // Comparing the values
     comparisonKeys.forEach(async key => {
-      const newValue = await proxyAdmin.getProxyImplementation(originalConfig.proxyAddresses[key]);
+      const newValue = await proxyAdmin.getProxyImplementation(newConfig.proxyAddresses[key]);
       console.log(`Comparing: ${key}:`);
       console.log(`Original value: ${originalConfig.implementationAddresses[key]}`);
       console.log(`New value: ${newValue}`);

@@ -13,14 +13,13 @@ echo "Using network '$NETWORK'"
 SCRIPTS="
 1_deploy_MoCLib.js
 2_deploy_MoCVendors.js
-3_deploy_MoCConnector.js
-4_deploy_MoC.js
-5_deploy_MoCExchange.js
-6_deploy_MoCSettlement.js
-7_deploy_MoCInrate.js
-8_deploy_MoCConverter.js
-9_deploy_MoCState.js
-10_check_deploy.js
+3_deploy_MoC.js
+4_deploy_MoCExchange.js
+5_deploy_MoCSettlement.js
+6_deploy_MoCInrate.js
+7_deploy_MoCConverter.js
+8_deploy_MoCState.js
+9_check_deploy.js
 "
 
 for S in $SCRIPTS; do

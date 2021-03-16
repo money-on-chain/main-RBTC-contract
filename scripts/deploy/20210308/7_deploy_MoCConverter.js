@@ -4,12 +4,13 @@ const Governor = artifacts.require('moc-governance/contracts/Governance/Governor
 
 const MoCConverter = artifacts.require('./MoCConverter.sol');
 
-const { getConfig, getNetwork, saveConfig, shouldExecuteChanges } = require('./helper');
+const { getConfig, getNetwork, saveConfig, shouldExecuteChanges } = require('../helper');
 
 module.exports = async callback => {
   try {
     const network = getNetwork(process.argv);
-    const config = getConfig(network);
+    const configPath = `${__dirname}/deployConfig-${network}.json`;
+    const config = getConfig(network, configPath);
 
     // Deploy contract implementation
     console.log('Deploy MoCConverter');
@@ -25,7 +26,7 @@ module.exports = async callback => {
 
     // Save implementation address and changer address to config file
     config.implementationAddresses.MoCConverter = mocConverter.address;
-    config.changerAddresses['8_MoCConverter'] = upgradeMocConverter.address;
+    config.changerAddresses['7_MoCConverter'] = upgradeMocConverter.address;
     saveConfig(network, config);
 
     if (shouldExecuteChanges(network)) {

@@ -3,8 +3,7 @@
 
 const fs = require('fs');
 
-const getConfig = (network, filename = `deployConfig-${network}.json`) => {
-  const path = `${__dirname}/${filename}`;
+const getConfig = (network, path) => {
   console.log('Configuration path: ', path);
   let config;
 

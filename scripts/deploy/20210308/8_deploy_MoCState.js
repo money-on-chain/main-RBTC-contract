@@ -7,12 +7,13 @@ const MoCStateMock = artifacts.require('./mocks/MoCStateMock.sol');
 const MoCStateChangerDeploy = artifacts.require('./MoCStateChangerDeploy.sol');
 
 const BigNumber = require('bignumber.js');
-const { getConfig, getNetwork, saveConfig, shouldExecuteChanges } = require('./helper');
+const { getConfig, getNetwork, saveConfig, shouldExecuteChanges } = require('../helper');
 
 module.exports = async callback => {
   try {
     const network = getNetwork(process.argv);
-    const config = getConfig(network);
+    const configPath = `${__dirname}/deployConfig-${network}.json`;
+    const config = getConfig(network, configPath);
 
     // Deploy contract implementation
     console.log('Deploy MoCState');
@@ -33,7 +34,7 @@ module.exports = async callback => {
 
     // Save implementation address and changer address to config file
     config.implementationAddresses.MoCState = mocState.address;
-    config.changerAddresses['9_MoCState'] = upgradeMocState.address;
+    config.changerAddresses['8_MoCState'] = upgradeMocState.address;
     saveConfig(network, config);
 
     let governor;

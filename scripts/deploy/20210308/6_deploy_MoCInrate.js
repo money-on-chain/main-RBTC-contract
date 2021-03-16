@@ -6,7 +6,7 @@ const MoCInrate = artifacts.require('./MoCInrate.sol');
 const MoCInrateChangerDeploy = artifacts.require('./MocInrateChangerDeploy.sol');
 
 const BigNumber = require('bignumber.js');
-const { getConfig, getNetwork, saveConfig, shouldExecuteChanges } = require('./helper');
+const { getConfig, getNetwork, saveConfig, shouldExecuteChanges } = require('../helper');
 
 const getCommissionsArray = mocInrate => async config => {
   const mocPrecision = 10 ** 18;
@@ -91,7 +91,8 @@ const getCommissionsArray = mocInrate => async config => {
 module.exports = async callback => {
   try {
     const network = getNetwork(process.argv);
-    const config = getConfig(network);
+    const configPath = `${__dirname}/deployConfig-${network}.json`;
+    const config = getConfig(network, configPath);
 
     // Deploy contract implementation
     console.log('Deploy MoCInrate');
@@ -107,7 +108,7 @@ module.exports = async callback => {
 
     // Save implementation address and changer address to config file
     config.implementationAddresses.MoCInrate = mocInrate.address;
-    config.changerAddresses['7_MoCInrate'] = upgradeMocInrate.address;
+    config.changerAddresses['6_MoCInrate'] = upgradeMocInrate.address;
     saveConfig(network, config);
 
     let governor;
@@ -128,7 +129,7 @@ module.exports = async callback => {
     );
 
     // Save changer address to config file
-    config.changerAddresses['7_MoCInrateChangerDeploy'] = mocInrateChangerDeploy.address;
+    config.changerAddresses['6_MoCInrateChangerDeploy'] = mocInrateChangerDeploy.address;
     saveConfig(network, config);
 
     if (shouldExecuteChanges(network)) {
