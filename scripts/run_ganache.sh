@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-NODO_DIRECTORY="${HOME}/nodo-dir/money-on-chain/"
 GANACHE_PORT=8545
 
 # Exit script as soon as a command fails.
@@ -21,11 +20,7 @@ ganache_running() {
 }
 
 start_ganache() {
-  if [ ! -d "$NODO_DIRECTORY" ]; then
-    mkdir -p "$NODO_DIRECTORY"
-  fi
-
-  node_modules/.bin/ganache-cli --gasLimit 0xfffffffffff -i 1564754684494 --accounts 500 --defaultBalanceEther 100000000000000000 --port $GANACHE_PORT --db "$NODO_DIRECTORY"
+  node_modules/.bin/ganache-cli --gasLimit 0xfffffffffff -i 1564754684494 --accounts 500 --defaultBalanceEther 100000000000000000 --port $GANACHE_PORT
 
   ganache_pid=$!
 }
