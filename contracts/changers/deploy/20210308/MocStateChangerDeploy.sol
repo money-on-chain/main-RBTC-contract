@@ -1,6 +1,6 @@
 pragma solidity 0.5.8;
 
-import "../MocStateChanger.sol";
+import "../../MocStateChanger.sol";
 
 /**
  * @dev This contract is used to update the configuration of MoCState v017

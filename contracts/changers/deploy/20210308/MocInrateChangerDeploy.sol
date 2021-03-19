@@ -1,7 +1,7 @@
 pragma solidity 0.5.8;
 pragma experimental ABIEncoderV2;
 
-import "../MocInrateChanger.sol";
+import "../../MocInrateChanger.sol";
 
 /**
  * @dev This contract is used to update the configuration of MocInrate
