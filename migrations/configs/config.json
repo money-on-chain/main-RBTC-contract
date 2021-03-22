@@ -26,8 +26,7 @@
     "mocProportion": 0.01,
     "liquidationEnabled": false,
     "protected": 1.5,
-    "vendorMoCDepositAddress": "",
-    "vendorRequiredMoCs": 1000
+    "vendorGuardianAddress": ""
   },
   "development": {
     "initialPrice": 7800,
@@ -56,8 +55,7 @@
     "mocProportion": 0.01,
     "liquidationEnabled": false,
     "protected": 1.5,
-    "vendorMoCDepositAddress": "",
-    "vendorRequiredMoCs": 1000
+    "vendorGuardianAddress": ""
   },
   "regtest": {
     "initialPrice": 7800,
@@ -86,8 +84,7 @@
     "mocProportion": 0.01,
     "liquidationEnabled": false,
     "protected": 1.5,
-    "vendorMoCDepositAddress": "",
-    "vendorRequiredMoCs": 1000
+    "vendorGuardianAddress": ""
   },
   "rskTestnet": {
     "oracle": "0x667bd3d048FaEBb85bAa0E9f9D87cF4c8CDFE849",
@@ -121,8 +118,7 @@
     "mocProportion": 0.01,
     "liquidationEnabled": false,
     "protected": 1.5,
-    "vendorMoCDepositAddress": "",
-    "vendorRequiredMoCs": 1000
+    "vendorGuardianAddress": ""
   },
   "rskMainnet": {
     "oracle": "0x667bd3d048FaEBb85bAa0E9f9D87cF4c8CDFE849",
@@ -156,7 +152,6 @@
     "mocProportion": 0.01,
     "liquidationEnabled": false,
     "protected": 1.5,
-    "vendorMoCDepositAddress": "",
-    "vendorRequiredMoCs": 1000
+    "vendorGuardianAddress": ""
   }
 }

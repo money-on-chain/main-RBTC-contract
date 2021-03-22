@@ -4,9 +4,7 @@ Vendors are third parties who want to integrate their platform with the MoC ecos
 
 ## Registration
 
-Vendors can register themselves using the function `function registerVendor(uint256 markup)` defined in the [MoCVendors contract ABI interface](../abis/MoCVendors.md#registervendor).
-
-In order to register successfully, they must deposit a fixed amount of MoC tokens (currently 1000). If this token transfer (which occurs during registration) fails, then the vendor will not be registered.
+Please contact the [Money on Chain team](https://moneyonchain.com/) if you wish to be registered as a vendor.
 
 ## Staking
 
@@ -16,9 +14,9 @@ A vendor can change the amount of stake in the system using the function `remove
 
 ## Unregistration
 
-Vendors can unregister themselves using the function `function unregisterVendor()` defined in the [MoCVendors contract ABI interface](../abis/MoCVendors.md#unregistervendor).
+Please contact the [Money on Chain team](https://moneyonchain.com/) if you wish to be unregistered as a vendor.
 
-Please note that once a vendor unregisters, they will not receive any more profits.
+Note that once a vendor is unregistered, they will not receive any more profits.
 
 ## Markup
 
