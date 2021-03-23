@@ -27,9 +27,8 @@ const getNetwork = processArgs => {
   return network;
 };
 
-const saveConfig = (network, config) => {
-  const path = `${__dirname}/deployConfig-${network}.json`;
-  // console.log('Configuration path: ', path);
+const saveConfig = (config, path) => {
+  // console.log('saveConfig path: ', path);
   fs.writeFileSync(path, JSON.stringify(config, null, 2));
 };
 

@@ -16,7 +16,6 @@ module.exports = async callback => {
     // Getting the keys we want to compare
     const comparisonKeys = [
       'MoC',
-      'MoCConnector',
       'MoCExchange',
       'MoCSettlement',
       'MoCInrate',
@@ -34,7 +33,14 @@ module.exports = async callback => {
       const newValue = await proxyAdmin.getProxyImplementation(newConfig.proxyAddresses[key]);
       console.log(`Comparing: ${key}:`);
       console.log(`Original value: ${originalConfig.implementationAddresses[key]}`);
-      console.log(`New value: ${newValue}`);
+      console.log(`New value from ProxyAdmin: ${newValue}`);
+      console.log(`New value from configuration: ${newConfig.implementationAddresses[key]}`);
+
+      if (newConfig.implementationAddresses[key] === newValue) {
+        console.log('\x1b[32m%s\x1b[0m', 'Implementation addresses match');
+      } else {
+        console.log('\x1b[31m%s\x1b[0m', 'Implementation addresses do not match');
+      }
       if (newConfig.implementationAddresses[key] !== originalConfig.implementationAddresses[key]) {
         console.log('\x1b[32m%s\x1b[0m', 'Value updated');
       } else {

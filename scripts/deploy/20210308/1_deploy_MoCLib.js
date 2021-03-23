@@ -23,7 +23,7 @@ module.exports = async callback => {
 
     // Save implementation address to config file
     config.implementationAddresses.MoCHelperLib = mocHelperLib.address;
-    saveConfig(network, config);
+    saveConfig(config, configPath);
 
     // Link MoCHelperLib
     console.log('Link MoCHelperLib');

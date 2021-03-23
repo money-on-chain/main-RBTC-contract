@@ -564,17 +564,16 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
       MoCHelperLib: implementationAddr.mocHelperLib
     };
 
-    let vendorMoCDepositAddress = owner;
-    if (networkConfig.vendorMoCDepositAddress !== '') {
-      ({ vendorMoCDepositAddress } = networkConfig.vendorMoCDepositAddress);
+    let vendorGuardianAddress = owner;
+    if (networkConfig.vendorGuardianAddress !== '') {
+      ({ vendorGuardianAddress } = networkConfig.vendorGuardianAddress);
     }
 
     const valuesToAssign = {
       commissionRates: networkConfig.commissionRates,
       liquidationEnabled: networkConfig.liquidationEnabled,
       protected: networkConfig.protected,
-      vendorMoCDepositAddress,
-      vendorRequiredMoCs: networkConfig.vendorRequiredMoCs
+      vendorGuardianAddress
     };
 
     const changerAddresses = {};

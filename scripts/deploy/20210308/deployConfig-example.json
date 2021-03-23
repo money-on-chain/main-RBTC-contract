@@ -42,8 +42,7 @@
     },
     "liquidationEnabled": "",
     "protected": "",
-    "vendorMoCDepositAddress": "",
-    "vendorRequiredMoCs": ""
+    "vendorGuardianAddress": ""
   },
   "changerAddresses": { }
 }

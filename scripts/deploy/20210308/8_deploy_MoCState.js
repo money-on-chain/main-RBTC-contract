@@ -35,7 +35,7 @@ module.exports = async callback => {
     // Save implementation address and changer address to config file
     config.implementationAddresses.MoCState = mocState.address;
     config.changerAddresses['8_MoCState'] = upgradeMocState.address;
-    saveConfig(network, config);
+    saveConfig(config, configPath);
 
     let governor;
     if (shouldExecuteChanges(network)) {
@@ -62,7 +62,7 @@ module.exports = async callback => {
 
     // Save changer address to config file
     config.changerAddresses['9_MoCInrateChangerDeploy'] = mocStateChangerDeploy.address;
-    saveConfig(network, config);
+    saveConfig(config, configPath);
 
     if (shouldExecuteChanges(network)) {
       // Execute changes in MoCState

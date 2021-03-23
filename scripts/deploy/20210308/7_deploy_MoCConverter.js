@@ -27,7 +27,7 @@ module.exports = async callback => {
     // Save implementation address and changer address to config file
     config.implementationAddresses.MoCConverter = mocConverter.address;
     config.changerAddresses['7_MoCConverter'] = upgradeMocConverter.address;
-    saveConfig(network, config);
+    saveConfig(config, configPath);
 
     if (shouldExecuteChanges(network)) {
       // Execute changes in contracts

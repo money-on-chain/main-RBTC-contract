@@ -27,7 +27,7 @@ module.exports = async callback => {
     // Save implementation address and changer address to config file
     config.implementationAddresses.MoCSettlement = mocSettlement.address;
     config.changerAddresses['5_MoCSettlement'] = upgradeMocSettlement.address;
-    saveConfig(network, config);
+    saveConfig(config, configPath);
 
     if (shouldExecuteChanges(network)) {
       // Execute changes in contracts

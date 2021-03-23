@@ -16,15 +16,14 @@ module.exports = async callback => {
 
     // Save implementation address to config file
     config.implementationAddresses.MoCVendors = mocVendors.address;
-    saveConfig(network, config);
+    saveConfig(config, configPath);
 
     // Initialize contract
     const initData = await mocVendors.contract.methods
       .initialize(
         config.proxyAddresses.MoCConnector,
         config.implementationAddresses.Governor,
-        config.valuesToAssign.vendorMoCDepositAddress,
-        config.valuesToAssign.vendorRequiredMoCs
+        config.valuesToAssign.vendorGuardianAddress
       )
       .encodeABI();
     console.log('MoCVendors Initialized');
@@ -37,7 +36,7 @@ module.exports = async callback => {
 
     // Save proxy address to config file
     config.proxyAddresses.MoCVendors = proxyMocVendors.address;
-    saveConfig(network, config);
+    saveConfig(config, configPath);
 
     console.log('MoCVendors proxy address: ', proxyMocVendors.address);
     console.log('MoCVendors implementation address: ', mocVendors.address);
