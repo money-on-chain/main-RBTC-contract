@@ -1,0 +1,42 @@
+[
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "val_",
+        "type": "uint128"
+      },
+      {
+        "name": "zzz_",
+        "type": "uint32"
+      }
+    ],
+    "name": "poke",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "val_",
+        "type": "uint128"
+      },
+      {
+        "name": "zzz_",
+        "type": "uint32"
+      },
+      {
+        "name": "med_",
+        "type": "address"
+      }
+    ],
+    "name": "post",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]

@@ -516,23 +516,20 @@ const getCommissionsArrayChangingTest = async () => {
   return ret;
 };
 
-const registerVendor = (moc, mocToken, mocVendors) => async (vendorAccount, markup, owner) => {
+const registerVendor = (moc, mocVendors) => async (vendorAccount, markup, from) => {
   let mocPrecision = 10 ** 18;
   if (typeof moc !== 'undefined') {
     mocPrecision = await moc.getMocPrecision();
   }
 
-  // Amount is converted to wei in mint and approve functions
-  const vendorRequiredMoCs = 1000;
-
-  // Add initial MoC token balance and allowance for vendor to register
-  await mintMoCToken(mocToken)(vendorAccount, vendorRequiredMoCs, owner);
-  await approveMoCToken(mocToken)(mocVendors.address, vendorRequiredMoCs, vendorAccount);
-
   // Register vendor
-  return mocVendors.registerVendor(toContractBNNoPrec(markup * mocPrecision).toString(), {
-    from: vendorAccount
-  });
+  return mocVendors.registerVendor(
+    vendorAccount,
+    toContractBNNoPrec(markup * mocPrecision).toString(),
+    {
+      from
+    }
+  );
 };
 
 const consolePrintTestVariables = obj => {
@@ -604,7 +601,7 @@ module.exports = async contracts => {
     BUCKET_X2,
     setMoCPrice: setMoCPrice(mocPriceProvider),
     getMoCPrice: getMoCPrice(mocPriceProvider),
-    registerVendor: registerVendor(moc, mocToken, mocVendors),
+    registerVendor: registerVendor(moc, mocVendors),
     consolePrintTestVariables
   };
 };

@@ -23,7 +23,8 @@
     "deploy-reset-regtest": "rm zos.dev-*.json; rm -r build/contracts; cat zos.json.empty > zos.json; npx truffle migrate --network regtest --reset",
     "deploy-reset-testnet": "rm zos.dev-*.json; rm -r build/contracts; cat zos.json.empty > zos.json; npx truffle migrate --network rskTestnet --reset",
     "contract-size": "npx truffle compile; node calcSize.js",
-    "docgen": "npx solidoc"
+    "docgen": "npx solidoc",
+    "copy-abis": "npx truffle compile; node copyAbis.js"
   },
   "repository": {
     "type": "git",

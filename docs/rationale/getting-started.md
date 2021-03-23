@@ -31,25 +31,13 @@ docker run -d -p 8545:8545 trufflesuite/ganache-cli:latest
 
 ## Run Tests
 
-**Node**
-
-Before running any test, run Ganache using this command:
-- run Ganache node: `npm run ganache-cli`
-
-**Tests**
-
-Once you have Ganache running
 - run: `npm run test`
-
-_NOTE:_ if you need accounts with a balance greater than 1M ether for running your tests, stop your Ganache instance and run only `npm run test`
-
-It will launch another Ganache instance with 11 accounts: the first one will have a balance of 10M ether and the remaining ones will have a balance of 1M ether each.
 
 **Tests With Coverage**
 
-Coverage test use their own node, so there is no need to run Ganache separately.
+Coverage tests use their own node, so there is no need to run Ganache separately.
 - run: `npm run coverage`
-- browse: `./coverage/index.html` inside your project folder.
+- browse: `./coverage/index.html` inside the project's folder.
 
 ## Deploy
 

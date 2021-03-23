@@ -39,3 +39,8 @@ build/contracts
 
 # mnemonic
 mnemonic.txt
+
+# deploy config files
+deployConfig-development*.json
+deployConfig-coverage*.json
+deployConfig-regtest*.json

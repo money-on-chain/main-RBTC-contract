@@ -11,45 +11,30 @@ import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
  */
 contract MoCVendorsChanger is ChangeContract, Ownable {
   MoCVendors private mocVendors;
-  address public vendorMoCDepositAddress;
-  uint256 public vendorRequiredMoCs;
+  address public vendorGuardianAddress;
 
   constructor(
     MoCVendors _mocVendors,
-    address _vendorMoCDepositAddress,
-    uint256 _vendorRequiredMoCs
+    address _vendorGuardianAddress
   ) public {
     mocVendors = _mocVendors;
-    setVendorMoCDepositAddressInternal(_vendorMoCDepositAddress);
-    setVendorRequiredMoCsInternal(_vendorRequiredMoCs);
+    setVendorGuardianAddressInternal(_vendorGuardianAddress);
   }
 
   function execute() external {
-    mocVendors.setVendorMoCDepositAddress(vendorMoCDepositAddress);
-    mocVendors.setVendorRequiredMoCs(vendorRequiredMoCs);
+    mocVendors.setVendorGuardianAddress(vendorGuardianAddress);
   }
 
   /**
-    @dev Sets the address which will receive the initial amount of MoC required for a vendor to register.
-    @param _vendorMoCDepositAddress Address which will receive the initial MoC required for a vendor to register.
+    @dev Sets the address which will be authorized to register and unregister vendors.
+    @param _vendorGuardianAddress Address which will be authorized to register and unregister vendors.
   */
-  function setVendorMoCDepositAddress(address _vendorMoCDepositAddress) public onlyOwner() {
-    setVendorMoCDepositAddressInternal(_vendorMoCDepositAddress);
+  function setVendorGuardianAddress(address _vendorGuardianAddress) public onlyOwner() {
+    setVendorGuardianAddressInternal(_vendorGuardianAddress);
   }
 
-  /**
-    @dev Sets the initial amount of MoC required for a vendor to register.
-    @param _vendorRequiredMoCs Initial amount of MoC required for a vendor to register.
-  */
-  function setVendorRequiredMoCs(uint256 _vendorRequiredMoCs) public onlyOwner() {
-    setVendorRequiredMoCsInternal(_vendorRequiredMoCs);
-  }
-
-  function setVendorMoCDepositAddressInternal(address _vendorMoCDepositAddress) internal {
-    vendorMoCDepositAddress = _vendorMoCDepositAddress;
-  }
-
-  function setVendorRequiredMoCsInternal(uint256 _vendorRequiredMoCs) internal {
-    vendorRequiredMoCs = _vendorRequiredMoCs;
+  function setVendorGuardianAddressInternal(address _vendorGuardianAddress) internal {
+    require(_vendorGuardianAddress != address(0), "vendorGuardianAddress must not be 0x0");
+    vendorGuardianAddress = _vendorGuardianAddress;
   }
 }
