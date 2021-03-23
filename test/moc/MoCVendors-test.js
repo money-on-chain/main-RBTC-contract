@@ -33,7 +33,6 @@ contract('MoC: MoCVendors', function([
     this.mockMoCVendorsChanger = mocHelper.mockMoCVendorsChanger;
     this.mockMocInrateChanger = mocHelper.mockMocInrateChanger;
     this.mocSettlement = mocHelper.mocSettlement;
-    this.mocVendorsChanger = mocHelper.mocVendorsChanger;
 
     await mocHelper.revertState();
   });
