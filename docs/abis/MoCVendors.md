@@ -359,7 +359,7 @@ function resetTotalPaidInMoC() public nonpayable onlyWhitelisted
 
 ### getVendorGuardianAddress
 
-Returns the address which will receive the initial amount of MoC required for a vendor to register.
+Returns the address is authorized to register and unregister vendors.
 
 ```js
 function getVendorGuardianAddress() public view

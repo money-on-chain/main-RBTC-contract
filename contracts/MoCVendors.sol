@@ -271,7 +271,7 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed {
   }
 
   /**
-    @dev Returns the address which will receive the initial amount of MoC required for a vendor to register.
+    @dev Returns the address is authorized to register and unregister vendors.
   */
   function getVendorGuardianAddress() public view returns(address) {
     return vendorGuardianAddress;
