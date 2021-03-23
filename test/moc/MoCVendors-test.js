@@ -407,7 +407,7 @@ contract.only('MoC: MoCVendors', function([
         /* eslint-enable no-await-in-loop */
 
         // Add a new vendor - should not be possible
-        const registerVendorTx = mocHelper.registerVendor(accounts[index++], 0.001, owner);
+        const registerVendorTx = mocHelper.registerVendor(accounts[index+1], 0.001, owner);
 
         await expectRevert(registerVendorTx, 'vendorsList length must be between 1 and 100');
       });
@@ -422,7 +422,7 @@ contract.only('MoC: MoCVendors', function([
       });
       it('WHEN an unauthorized account wants to unregister a vendor THEN an error should be raised', async function() {
         const unregisterVendorTx = this.mocVendors.unregisterVendor(vendorAccount5, {
-          from: owner
+          from: unauthorizedAccount
         });
 
         await expectRevert(unregisterVendorTx, 'Caller is not vendor guardian address');
@@ -548,14 +548,14 @@ contract.only('MoC: MoCVendors', function([
         /* eslint-enable no-await-in-loop */
 
         // The last vendor wants to change their markup
-        const newMarkup = 200 / 100000; // arbitrary number
+        const newMarkup = 0.002; // arbitrary number
         const updateVendorTx = await mocHelper.registerVendor(account, newMarkup, owner);
 
         // Find transaction event
         const [vendorUpdatedEvent] = await mocHelper.findEvents(updateVendorTx, 'VendorUpdated');
 
         mocHelper.assertBig(
-          newMarkup,
+          toContractBN(newMarkup * mocHelper.MOC_PRECISION).toString(),
           vendorUpdatedEvent.markup,
           `New vendor markup should be ${newMarkup}`
         );
@@ -582,11 +582,9 @@ contract.only('MoC: MoCVendors', function([
           );
         }
       });
-      it('THEN an authorized account tries to change vendorGuardianAddress to zero address', async function() {
-        await this.mockMoCVendorsChanger.setVendorGuardianAddress(ZERO_ADDRESS);
-        const changeAddressTx = this.governor.executeChange(this.mockMoCVendorsChanger.address);
-
-        await expectRevert(changeAddressTx, 'vendorGuardianAddress must not be 0x0');
+      it('THEN an authorized account proposes to change vendorGuardianAddress to zero address', async function() {
+        const proposeChangeAddressTx = this.mockMoCVendorsChanger.setVendorGuardianAddress(ZERO_ADDRESS);
+        await expectRevert(proposeChangeAddressTx, 'vendorGuardianAddress must not be 0x0');
       });
       it(`THEN an authorized contract tries to change vendorGuardianAddress to ${scenario.vendorGuardianAddress}`, async function() {
         await this.mockMoCVendorsChanger.setVendorGuardianAddress(scenario.vendorGuardianAddress);
