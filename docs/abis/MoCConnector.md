@@ -28,7 +28,7 @@ address public mocConverter;
 address public mocSettlement;
 address public mocExchange;
 address public mocInrate;
-address public DEPRECATED_mocBurnout;
+address public mocBurnout;
 
 //internal members
 bool internal initialized;
