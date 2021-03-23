@@ -111,25 +111,11 @@
   {
     "constant": true,
     "inputs": [],
-    "name": "vendorMoCDepositAddress",
+    "name": "vendorGuardianAddress",
     "outputs": [
       {
         "name": "",
         "type": "address"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "vendorRequiredMoCs",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256"
       }
     ],
     "payable": false,
@@ -322,24 +308,26 @@
     "inputs": [
       {
         "indexed": false,
-        "name": "vendorMoCDepositAddress",
+        "name": "vendorGuardianAddress",
         "type": "address"
       }
     ],
-    "name": "VendorMoCDepositAddressChanged",
+    "name": "VendorGuardianAddressChanged",
     "type": "event"
   },
   {
-    "anonymous": false,
+    "constant": false,
     "inputs": [
       {
-        "indexed": false,
-        "name": "vendorRequiredMoCs",
-        "type": "uint256"
+        "name": "_governor",
+        "type": "address"
       }
     ],
-    "name": "VendorRequiredMoCsChanged",
-    "type": "event"
+    "name": "initialize",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
     "constant": false,
@@ -353,25 +341,7 @@
         "type": "address"
       },
       {
-        "name": "_vendorMoCDepositAddress",
-        "type": "address"
-      },
-      {
-        "name": "_vendorRequiredMoCs",
-        "type": "uint256"
-      }
-    ],
-    "name": "initialize",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "_governor",
+        "name": "_vendorGuardianAddress",
         "type": "address"
       }
     ],
@@ -399,6 +369,10 @@
     "constant": false,
     "inputs": [
       {
+        "name": "account",
+        "type": "address"
+      },
+      {
         "name": "markup",
         "type": "uint256"
       }
@@ -416,7 +390,12 @@
   },
   {
     "constant": false,
-    "inputs": [],
+    "inputs": [
+      {
+        "name": "account",
+        "type": "address"
+      }
+    ],
     "name": "unregisterVendor",
     "outputs": [
       {
@@ -608,7 +587,7 @@
   {
     "constant": true,
     "inputs": [],
-    "name": "getVendorMoCDepositAddress",
+    "name": "getVendorGuardianAddress",
     "outputs": [
       {
         "name": "",
@@ -623,39 +602,11 @@
     "constant": false,
     "inputs": [
       {
-        "name": "_vendorMoCDepositAddress",
+        "name": "_vendorGuardianAddress",
         "type": "address"
       }
     ],
-    "name": "setVendorMoCDepositAddress",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "getVendorRequiredMoCs",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "_vendorRequiredMoCs",
-        "type": "uint256"
-      }
-    ],
-    "name": "setVendorRequiredMoCs",
+    "name": "setVendorGuardianAddress",
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",

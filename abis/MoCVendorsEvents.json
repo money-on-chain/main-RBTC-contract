@@ -96,23 +96,11 @@
     "inputs": [
       {
         "indexed": false,
-        "name": "vendorMoCDepositAddress",
+        "name": "vendorGuardianAddress",
         "type": "address"
       }
     ],
-    "name": "VendorMoCDepositAddressChanged",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "name": "vendorRequiredMoCs",
-        "type": "uint256"
-      }
-    ],
-    "name": "VendorRequiredMoCsChanged",
+    "name": "VendorGuardianAddressChanged",
     "type": "event"
   }
 ]
