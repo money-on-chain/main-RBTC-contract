@@ -9,7 +9,7 @@ let toContractBN;
 const NOT_AUTHORIZED_CHANGER = 'not_authorized_changer';
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
-contract.only('MoC: MoCVendors', function([
+contract('MoC: MoCVendors', function([
   owner,
   userAccount,
   commissionsAccount,
@@ -33,7 +33,6 @@ contract.only('MoC: MoCVendors', function([
     this.mockMoCVendorsChanger = mocHelper.mockMoCVendorsChanger;
     this.mockMocInrateChanger = mocHelper.mockMocInrateChanger;
     this.mocSettlement = mocHelper.mocSettlement;
-    this.mocVendorsChanger = mocHelper.mocVendorsChanger;
 
     await mocHelper.revertState();
   });
@@ -559,6 +558,40 @@ contract.only('MoC: MoCVendors', function([
           vendorUpdatedEvent.markup,
           `New vendor markup should be ${newMarkup}`
         );
+      });
+    });
+    describe('GIVEN there is a guardian address for certain functions that can be changed', function() {
+      let changeGuardianTx;
+      let registerVendorTx;
+
+      before(async function() {
+        // Change guardian address
+        await this.mockMoCVendorsChanger.setVendorGuardianAddress(newVendorGuardianAccount);
+        changeGuardianTx = await this.governor.executeChange(this.mockMoCVendorsChanger.address);
+        registerVendorTx = await mocHelper.registerVendor(
+          vendorAccount6,
+          0.001,
+          newVendorGuardianAccount
+        );
+      });
+      it('WHEN changing this address THEN it should be changed correctly', async function() {
+        const [vendorGuardianAddressChangedEvent] = await mocHelper.findEvents(
+          changeGuardianTx,
+          'VendorGuardianAddressChanged'
+        );
+        assert(
+          vendorGuardianAddressChangedEvent.vendorGuardianAddress === newVendorGuardianAccount,
+          'New address is different'
+        );
+      });
+      it('WHEN executing a function using this new address THEN it should execute correctly', async function() {
+        const [vendorRegisteredEvent] = await mocHelper.findEvents(
+          registerVendorTx,
+          'VendorRegistered'
+        );
+
+        assert(vendorRegisteredEvent, 'Event was not emitted');
+        assert(vendorRegisteredEvent.account === vendorAccount6, 'Vendor account is incorrect');
       });
     });
   });

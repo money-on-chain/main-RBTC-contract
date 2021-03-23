@@ -70,6 +70,7 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed {
     @dev Initializes the contract
     @param connectorAddress MoCConnector contract address
     @param _governor Governor contract address
+    @param _vendorGuardianAddress Address which will be authorized to register and unregister vendors.
   */
   function initialize(
     address connectorAddress,
