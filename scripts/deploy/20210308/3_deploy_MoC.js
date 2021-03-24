@@ -12,9 +12,13 @@ module.exports = async callback => {
     const configPath = `${__dirname}/deployConfig-${network}.json`;
     const config = getConfig(network, configPath);
 
+    // Link MoCHelperLib
+    console.log('Link MoCHelperLib');
+    MoC.link('MoCHelperLib', config.implementationAddresses.MoCHelperLib);
+
     // Deploy contract implementation
     console.log('Deploy MoC');
-    const moc = await MoC.new(MoC);
+    const moc = await MoC.new();
 
     // Upgrade contracts with proxy (using the contract address of contract just deployed)
     console.log('Upgrade MoC');

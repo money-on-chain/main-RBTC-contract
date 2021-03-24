@@ -11,6 +11,10 @@ module.exports = async callback => {
     const configPath = `${__dirname}/deployConfig-${network}.json`;
     const config = getConfig(network, configPath);
 
+    // Link MoCHelperLib
+    console.log('Link MoCHelperLib');
+    MoCVendors.link('MoCHelperLib', config.implementationAddresses.MoCHelperLib);
+
     // Deploy new MoCVendors implementation
     const mocVendors = await MoCVendors.new();
 
