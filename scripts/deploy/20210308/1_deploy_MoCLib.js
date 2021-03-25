@@ -25,15 +25,6 @@ module.exports = async callback => {
     config.implementationAddresses.MoCHelperLib = mocHelperLib.address;
     saveConfig(config, configPath);
 
-    // Link MoCHelperLib
-    console.log('Link MoCHelperLib');
-    MoC.link(MoCLib, mocHelperLib.address);
-    MoCConverter.link(MoCLib, mocHelperLib.address);
-    MoCState.link(MoCLib, mocHelperLib.address);
-    MoCExchange.link(MoCLib, mocHelperLib.address);
-    MoCInrate.link(MoCLib, mocHelperLib.address);
-    MoCVendors.link(MoCLib, mocHelperLib.address);
-
     console.log('MoCHelperLib implementation address: ', mocHelperLib.address);
   } catch (error) {
     callback(error);

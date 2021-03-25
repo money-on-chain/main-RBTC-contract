@@ -15,6 +15,10 @@ module.exports = async callback => {
     const configPath = `${__dirname}/deployConfig-${network}.json`;
     const config = getConfig(network, configPath);
 
+    // Link MoCHelperLib
+    console.log('Link MoCHelperLib');
+    MoCState.link('MoCHelperLib', config.implementationAddresses.MoCHelperLib);
+
     // Deploy contract implementation
     console.log('Deploy MoCState');
     let mocState;
