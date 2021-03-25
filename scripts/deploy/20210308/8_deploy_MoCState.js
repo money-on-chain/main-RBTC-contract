@@ -4,7 +4,7 @@ const Governor = artifacts.require('moc-governance/contracts/Governance/Governor
 
 const MoCState = artifacts.require('./MoCState.sol');
 const MoCStateMock = artifacts.require('./mocks/MoCStateMock.sol');
-const MoCStateChangerDeploy = artifacts.require('./MoCStateChangerDeploy.sol');
+const MoCStateChangerDeploy = artifacts.require('./MocStateChangerDeploy.sol');
 
 const BigNumber = require('bignumber.js');
 const { getConfig, getNetwork, saveConfig, shouldExecuteChanges } = require('../helper');
@@ -65,7 +65,7 @@ module.exports = async callback => {
     );
 
     // Save changer address to config file
-    config.changerAddresses['9_MoCInrateChangerDeploy'] = mocStateChangerDeploy.address;
+    config.changerAddresses['9_MoCStateChangerDeploy'] = mocStateChangerDeploy.address;
     saveConfig(config, configPath);
 
     if (shouldExecuteChanges(network)) {

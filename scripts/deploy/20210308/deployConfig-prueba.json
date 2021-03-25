@@ -52,6 +52,6 @@
     "6_MoCInrateChangerDeploy": "0x4309FB3A1E61C5FbC6cb7504E4a409662806023B",
     "7_MoCConverter": "0x8d7F7C16eE8c330237329fa62466A54b4C044465",
     "8_MoCState": "0x6d3663b37af655558eBfC7A7bA29E26F64b28E57",
-    "9_MoCInrateChangerDeploy": "0xBa16490cc577d527513eFC7EAaDA4e27ad4B6c7d"
+    "9_MoCStateChangerDeploy": "0xBa16490cc577d527513eFC7EAaDA4e27ad4B6c7d"
   }
 }
