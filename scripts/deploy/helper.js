@@ -37,7 +37,8 @@ const shouldExecuteChanges = currentNetwork =>
   currentNetwork === 'coverage' ||
   currentNetwork === 'regtest' ||
   currentNetwork === 'rskAlphaTestnet' ||
-  currentNetwork === 'prueba';
+  currentNetwork === 'prueba' ||
+  currentNetwork === 'rskAlphaTestnet3';
 
 module.exports = {
   getConfig,

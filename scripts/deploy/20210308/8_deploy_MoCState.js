@@ -4,7 +4,7 @@ const Governor = artifacts.require('moc-governance/contracts/Governance/Governor
 
 const MoCState = artifacts.require('./MoCState.sol');
 const MoCStateMock = artifacts.require('./mocks/MoCStateMock.sol');
-const MoCStateChangerDeploy = artifacts.require('./MoCStateChangerDeploy.sol');
+const MoCStateChangerDeploy = artifacts.require('./MocStateChangerDeploy.sol');
 
 const BigNumber = require('bignumber.js');
 const { getConfig, getNetwork, saveConfig, shouldExecuteChanges } = require('../helper');
