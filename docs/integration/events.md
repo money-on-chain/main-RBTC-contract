@@ -9,7 +9,7 @@ In the following example we will show you how to find events that are emitted by
 
 ```js
 const Web3 = require('web3');
-//You must compile the smart contracts or use the official ABIs of the //repository
+//You must compile the smart contracts or use the official ABIs of the repository
 const MocExchange = require('../../build/contracts/MoCExchange.json');
 const truffleConfig = require('../../truffle');
 

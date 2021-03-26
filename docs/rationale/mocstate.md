@@ -11,7 +11,7 @@ This contract holds the system variables to manage the state, wether it's the st
   - Global number of RBTC: Complete amount of Bitcoin in the system
     `uint256 public globalNB = 0;`
   - Configuration variables:
-    - PEG: Relation between DOC and dollar
+    - PEG: Relation between DOC and US dollar
       `uint256 public peg = 1;`
     - BPro max discount rate: Reflects the discount spot rate at Liquidation level
       `uint256 public bproMaxDiscountRate;`

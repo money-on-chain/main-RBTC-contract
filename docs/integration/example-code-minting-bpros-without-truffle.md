@@ -31,7 +31,7 @@ Now we create a new script called **mintBpro.js** with the following code:
 const HDWalletProvider = require('truffle-hdwallet-provider');
 const BigNumber = require('bignumber.js');
 const Web3 = require('web3');
-//You must compile the smart contracts or use the official ABIs of the //repository
+//You must compile the smart contracts or use the official ABIs of the repository
 const MocAbi = require('./contracts/moc/MoC.json');
 const MoCInrateAbi = require('./contracts/moc/MoCInrate.json');
 const MoCExchangeAbi = require('./contracts/moc/MoCExchange.json');
@@ -132,11 +132,8 @@ const execute = async () => {
     console.log('End Example');
   }
 
-  // Gets max BPRO available to mint
-  const maxBproAvailable = await mocState.methods.maxMintBProAvalaible().call();
-  console.log('Max Available BPRO: '.concat(maxBproAvailable.toString()));
   const btcAmount = '0.00005';
-  const vendorAccount = '<vendor-address>'
+  const vendorAccount = '<vendor-address>';
 
   // Call mint
   await mintBpro(btcAmount, vendorAccount, logEnd);

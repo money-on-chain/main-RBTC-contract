@@ -43,7 +43,7 @@ All the needed calculations for the third and fourth parts are explained in more
 
 ### Gas limit and gas price
 
-This two values are a parameter of the transaction, this is not used in the contract and it is usually managed by your wallet(you should read about them if you are developing and you don't know exactly what are they) but you should take them into account when trying to send all of your funds to mint some BTC2X.
+This two values are a parameter of the transaction, this is not used in the contract and it is usually managed by your wallet (you should read about them if you are developing and you don't know exactly what are they) but you should take them into account when trying to send all of your funds to mint some BTC2X.
 
 ## Possible failures
 
@@ -52,7 +52,7 @@ This operation may fail if one of the following scenarios occurs:
 ### The MoC contract is liquidated:
 
 In the extraneous case where a coverage that barely covers the stable tokens funds is reached, the contract will liquidate all of its assets. If this state occurs, no more BTC2X will be available for minting.
-To know if the contract is liquidated you can ask the **MocState** for the **state**, this will return a 0 if liquidated(it is actually an enum).
+To know if the contract is liquidated you can ask the **MocState** for the **state**, this will return a 0 if liquidated (it is actually an enum).
 
 ### The MoC contract is paused:
 
@@ -80,7 +80,7 @@ If this is the case the transaction will revert, all your funds will be returned
 
 ### Not enough gas:
 
-If the gas limit sent is not enough to run all the code needed to execute the transaction, the transaction will revert(again, returning all your funds except the fee paid to the network). This may return an "out of gas" error or simply a "revert" error because of the usage of the proxy pattern.
+If the gas limit sent is not enough to run all the code needed to execute the transaction, the transaction will revert (again, returning all your funds except the fee paid to the network). This may return an "out of gas" error or simply a "revert" error because of the usage of the proxy pattern.
 
 ## How-to
 
@@ -133,7 +133,7 @@ CommissionReturnStruct memory commission = mocExchange.calculateCommissionsWithP
 // If commission is paid in RBTC, subtract it from value
 uint256 fees = commission.btcCommission - commission.btcMarkup;
 // Mint some new BTCX
-moc.mintBProxVendors.value(msg.value)(msg.value - fees);
+moc.mintBProxVendors.value(msg.value)(bucket, msg.value - fees, vendorAccount);
 ```
 
 You can send it immediately to you so you can start using it right away. In order to do this you should add a few more lines similar to the ones before, only that you will have to use the BUCKET_X2 bucket.
@@ -171,7 +171,7 @@ contract YourMintingBtc2xContract {
         // You could have more variables to initialize here
     }
 ​
-    function doTask() public payable {
+    function doTask(uint256 btcAmount) public payable {
       // Calculate operation fees
       CommissionParamsStruct memory params;
       params.account = address(this); // address of minter
@@ -184,7 +184,7 @@ contract YourMintingBtc2xContract {
       // If commission is paid in RBTC, subtract it from value
       uint256 fees = commission.btcCommission - commission.btcMarkup;
       // Mint some new BTCX
-      moc.mintBProxVendors.value(msg.value)(msg.value - fees);
+      moc.mintBProxVendors.value(msg.value)(bucket, msg.value - fees, vendorAccount);
       // Rest of the function to actually perform the task
     }
     // rest of your contract

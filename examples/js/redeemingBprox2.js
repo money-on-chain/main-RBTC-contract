@@ -1,5 +1,5 @@
 const Web3 = require('web3');
-//You must compile the smart contracts or use the official ABIs of the //repository
+//You must compile the smart contracts or use the official ABIs of the repository
 const MoC = require('../../build/contracts/MoC.json');
 const MoCBProxManager = require('../../build/contracts/MoCBProxManager.json');
 const truffleConfig = require('../../truffle');
@@ -85,7 +85,7 @@ const execute = async () => {
   console.log('=== User BTC2X Balance: '.concat(userBalance.toString()));
 
   const btc2xAmount = '0.00001';
-  const vendorAccount = '<vendor-address>'
+  const vendorAccount = '<vendor-address>';
 
   // Call redeem
   await redeemBtc2x(btc2xAmount, vendorAccount);

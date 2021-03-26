@@ -1,6 +1,6 @@
 # Example code redeeming Free DOC
 
-In the following example we will show how to invoke redeemFreeDoc from Money on Chain contract.This method allows to redeem DOC outside the settlement and they are limited by user balance. Check the [DOC redeemption section](redeeming-docs.md) for more details.
+In the following example we will show how to invoke redeemFreeDocVendors from Money on Chain contract. This method allows to redeem DOC outside the settlement and they are limited by user balance. Check the [DOC redeemption section](redeeming-docs.md) for more details.
 
 We will learn how to:
 
@@ -28,7 +28,7 @@ npm install --save web3
 
 ```js
 const Web3 = require('web3');
-//You must compile the smart contracts or use the official ABIs of the //repository
+//You must compile the smart contracts or use the official ABIs of the repository
 const MoC = require('../../build/contracts/MoC.json');
 const MocState = require('../../build/contracts/MoCState.json');
 const DocToken = require('../../build/contracts/DocToken.json');
@@ -117,7 +117,7 @@ const execute = async () => {
   const freeDoc = await mocState.methods.freeDoc().call();
   const userDocBalance = await docToken.methods.balanceOf(from).call();
   const finalDocAmount = Math.min(freeDoc, userDocBalance);
-  const vendorAccount = '<vendor-address>'
+  const vendorAccount = '<vendor-address>';
 
   console.log('User DOC balance: ', userDocBalance.toString());
   console.log('=== Max Available DOC to redeem: ', finalDocAmount);

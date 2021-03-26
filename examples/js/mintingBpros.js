@@ -1,6 +1,6 @@
 const BigNumber = require('bignumber.js');
 const Web3 = require('web3');
-//You must compile the smart contracts or use the official ABIs of the //repository
+//You must compile the smart contracts or use the official ABIs of the repository
 const MocAbi = require('../../build/contracts/MoC.json');
 const MoCInrateAbi = require('../../build/contracts/MoCInrate.json');
 const MoCExchangeAbi = require('../../build/contracts/MoCExchange.json');
@@ -122,13 +122,10 @@ const execute = async () => {
       .on('error', console.error);
   };
 
-  // Gets max BPRO available to mint
-  const maxBproAvailable = await mocState.methods.maxMintBProAvalaible().call();
   const bproPriceInRBTC = await mocState.methods.bproTecPrice().call();
-  console.log('=== Max Available BPRO: '.concat(maxBproAvailable.toString()));
   console.log('=== BPRO in RBTC: '.concat(bproPriceInRBTC.toString()));
   const btcAmount = '0.00001';
-  const vendorAccount = '<vendor-address>'
+  const vendorAccount = '<vendor-address>';
 
   // Call mint
   await mintBpro(btcAmount, vendorAccount);

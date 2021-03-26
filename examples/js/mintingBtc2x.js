@@ -1,6 +1,6 @@
 const BigNumber = require('bignumber.js');
 const Web3 = require('web3');
-//You must compile the smart contracts or use the official ABIs of the //repository
+//You must compile the smart contracts or use the official ABIs of the repository
 const Moc = require('../../build/contracts/MoC.json');
 const MoCInrate = require('../../build/contracts/MoCInrate.json');
 const MoCExchangeAbi = require('../../build/contracts/MoCExchange.json');
@@ -131,7 +131,7 @@ const execute = async () => {
 
   console.log('=== Max Available BTC2X to mint: '.concat(maxBtc2x.toString()));
 
-  const vendorAccount = '<vendor-address>'
+  const vendorAccount = '<vendor-address>';
 
   // Call mint
   await mintBtc2x(btcToMint, vendorAccount);

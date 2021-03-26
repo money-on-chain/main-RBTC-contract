@@ -18,7 +18,7 @@ Currently it's a mock of the future functionality, since the price can be set by
 It's assumed that in a future production release there will be a reliable, decentralized price providing oracle.
 It's used by MocState to get the bitcoin price and moving average.
 
-## MoCPriceProvider (TexPriceProvider)
+## MoCPriceProvider (PriceProvider)
 
 - Referenced by: MocState, MoC
 - References/uses: SafeMath
