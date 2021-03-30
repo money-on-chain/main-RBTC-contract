@@ -643,7 +643,7 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
     details.bproxToRedeem = Math.min(bproxAmount, bproxManager.bproxBalanceOf(bucket, account));
     details.rbtcToRedeem = mocConverter.bproxToBtc(details.bproxToRedeem, bucket);
     // //Pay interests
-    details.rbtcInterests = recoverInterests(bucket, details.rbtcToRedeem);
+    details.rbtcInterests = 0;
 
     // Burn Bprox
     burnBProxFor(
