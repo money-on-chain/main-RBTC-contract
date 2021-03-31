@@ -441,7 +441,7 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
 
     // If Protected Mode is reached and below threshold
     if (bucket == BUCKET_C0 && cov <= getProtected() && cov < coverageThreshold) {
-      return 0; // wei
+      return 1; // wei
     }
 
     return bucketBProTecPriceHelper(bucket);

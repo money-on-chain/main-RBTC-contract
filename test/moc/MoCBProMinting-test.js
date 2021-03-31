@@ -308,18 +308,60 @@ contract('MoC: MoCExchange', function([owner, userAccount, vendorAccount]) {
 
   describe('BPro tec price', function() {
     describe('GIVEN the user have 18 BPro and 80000 DOCs and Bitcoin price falls to 2000 and liquidation is not enabled', function() {
+      const expectedBtcPrice = 2000;
+      const expectedBitcoinMovingAverage = 10000;
+      const expectedGlobalCoverage = '0.65';
+      const expectedBProDiscountRate = 70;
+      const expectedBProTecPrice = 1;
+      const expectedMaxBProWithDiscount = '54027013506753376688344172086043021510';
+
       beforeEach(async function() {
         await mocHelper.mintBProAmount(userAccount, 18, vendorAccount);
         await mocHelper.mintDocAmount(userAccount, 80000, vendorAccount);
         // Move price to change BProx price and make it different
         // from BPro price
-        const btcPrice = toContractBN(2000 * mocHelper.MOC_PRECISION);
-        await mocHelper.setBitcoinPrice(btcPrice);
+        const newBtcPrice = toContractBN(expectedBtcPrice * mocHelper.MOC_PRECISION);
+        await mocHelper.setBitcoinPrice(newBtcPrice);
       });
-      it('THEN the BProx price in RBTC should be 0 RBTC', async function() {
+      it(`THEN the Bitcoin Price in USD should be ${expectedBtcPrice}`, async function() {
+        const btcPrice = await this.mocState.getBitcoinPrice();
+
+        mocHelper.assertBigRBTC(btcPrice, expectedBtcPrice, 'Bitcoin Price in USD is incorrect');
+      });
+      it(`THEN the Bitcoin Moving Average in USD should be ${expectedBitcoinMovingAverage}`, async function() {
+        const bma = await this.mocState.getBitcoinMovingAverage();
+
+        mocHelper.assertBigDollar(
+          bma,
+          expectedBitcoinMovingAverage,
+          'Bitcoin Moving Average in USD is incorrect'
+        );
+      });
+      it(`THEN the global coverage should be ${expectedGlobalCoverage}`, async function() {
+        const coverage = await this.mocState.globalCoverage();
+
+        mocHelper.assertBigRBTC(coverage, expectedGlobalCoverage, 'Global coverage is incorrect');
+      });
+      it(`THEN the BPro spot discount rate should be ${expectedBProDiscountRate}`, async function() {
+        const bproSpotDiscount = await this.mocState.bproSpotDiscountRate();
+
+        assert(
+          bproSpotDiscount.toNumber() === expectedBProDiscountRate,
+          'BPro spot discount rate is incorrect'
+        );
+      });
+      it(`THEN the BPro tec price in RBTC should be ${expectedBProTecPrice} wei`, async function() {
         const bproTecPrice = await this.mocState.bproTecPrice();
 
-        mocHelper.assertBigRBTC(bproTecPrice, 0, 'BPro tec price price is incorrect');
+        assert(bproTecPrice.toNumber() === expectedBProTecPrice, 'BPro tec price is incorrect');
+      });
+      it(`THEN Max BPro With Discount should be ${expectedMaxBProWithDiscount}`, async function() {
+        const bprosWithDiscount = await this.mocState.maxBProWithDiscount();
+
+        assert(
+          bprosWithDiscount.toString() === expectedMaxBProWithDiscount,
+          'Max BPro With Discount is incorrect'
+        );
       });
     });
   });
