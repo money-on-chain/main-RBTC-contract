@@ -46,10 +46,10 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed {
   struct VendorDetails {
     bool isActive;
     uint256 markup;
-    uint256 totalPaidInMoC;  // TopeMoc
-    uint256 staking;  // provisorio - lo que le retienen
-    uint256 paidMoC; // MocaCobrar
-    uint256 paidRBTC; // RBTCaCobrar
+    uint256 totalPaidInMoC;
+    uint256 staking; // temporarily retained
+    uint256 paidMoC;
+    uint256 paidRBTC;
   }
 
   // Contracts
