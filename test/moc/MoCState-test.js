@@ -125,7 +125,7 @@ contract('MoC', function([owner, vendorAccount]) {
         btcPrice: { from: 10000, to: 1000 },
         nDocsBtcAmount: 1.2,
         expect: {
-          globals: { globalCoverage: 0.3, bproTecPrice: 0 },
+          globals: { globalCoverage: 0.3, bproTecPrice: '0.000000000000000001' },
           C0: { lockedBitcoin: 12, coverage: 0.3 }
         }
       }
