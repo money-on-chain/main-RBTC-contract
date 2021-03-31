@@ -48,12 +48,7 @@ To know if this is the case you can ask to **MoC** if it's **paused()**.
 
 #### The MoC contract is in protected mode:
 
-In case global coverage falls below the protected threshold, the contract will enter the protected mode. If this state occurs, no more BitPros will be available for minting.
-To know if the contract is liquidated you can ask the **MocState** for the **protected** and the **globalCoverage()** values, if coverage is less than the protected threshold, the contract is in protected mode.
-
-Note that eventually the contract can recover from this mode. In case it does not, two things can happen:
-- global coverage stabilizes indefinitely below 1: liquidation is enabled
-- global coverage stabilizes indefinitely below protected threshold but above 1: protected threshold is changed below its stabilization value
+In case global coverage falls below the protected threshold, the contract will enter the protected mode. If this state occurs, no more RDOCs will be available for minting. You can find more information about this mode [here](../rationale/system-states.md#protected-mode).
 
 #### You sent too few funds:
 
@@ -63,7 +58,7 @@ If this is the case the transaction will revert, all your funds will be returned
 
 #### Not enough gas:
 
-If the gas limit sent is not enough to run all the code needed to execute the transaction, the transaction will revert(again, returning all your funds except the fee paid to the network). This may return an "out of gas" error or simply a "revert" error because of the usage of the proxy pattern.
+If the gas limit sent is not enough to run all the code needed to execute the transaction, the transaction will revert (again, returning all your funds except the fee paid to the network). This may return an "out of gas" error or simply a "revert" error because of the usage of the proxy pattern.
 
 ## How-to
 
@@ -129,7 +124,7 @@ CommissionReturnStruct memory commission = mocExchange.calculateCommissionsWithP
 
 uint256 fees = commission.btcCommission - commission.btcMarkup;
 // If commission is paid in RBTC, subtract it from value
-moc.mintBProVendors.value(msg.value)(msg.value - fees);
+moc.mintBProVendors.value(msg.value)(msg.value - fees, vendorAccount);
 ```
 
 You can send it immediately to you so you can start using it right away. In order to do this you should add a few more lines similar to the ones before, only that you will have to use the BPro token.
@@ -171,7 +166,7 @@ contract YourMintingBproContract {
         // You could have more variables to initialize here
     }
 ​
-    function doTask() public payable {
+    function doTask(uint256 btcAmount) public payable {
       // Calculate operation fees
       CommissionParamsStruct memory params;
       params.account = address(this); // address of minter
@@ -184,7 +179,7 @@ contract YourMintingBproContract {
       // If commission is paid in RBTC, subtract it from value
       uint256 fees = commission.btcCommission - commission.btcMarkup;
       // Mint some new BitPro
-      moc.mintBProVendors.value(msg.value)(msg.value - fees);
+      moc.mintBProVendors.value(msg.value)(msg.value - fees, vendorAccount);
 ​      // Transfer it to your receiver account
       bpro.transfer(receiverAddress, bpro.balanceOf(address(this)));
       // Rest of the function to actually perform the task

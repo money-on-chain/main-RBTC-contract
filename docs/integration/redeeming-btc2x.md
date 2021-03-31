@@ -63,7 +63,7 @@ This operation may fail if one of the following scenarios occurs:
 ### The MoC contract is liquidated:
 
 In the extraneous case where a coverage that barely covers the stable tokens funds is reached, the contract will liquidate all of its assets. If this state occurs, no more BTC2X will be available for redeeming.
-To know if the contract is liquidated you can ask the **MocState** for the **state**, this will return a 0 if liquidated(it is actually an enum).
+To know if the contract is liquidated you can ask the **MocState** for the **state**, this will return a 0 if liquidated (it is actually an enum).
 
 ### The MoC contract is paused:
 
@@ -85,7 +85,7 @@ Currently, only the BTC2X bucket called 'X2' exists. If you call the function wi
 
 ### Not enough gas:
 
-If the gas limit sent is not enough to run all the code needed to execute the transaction, the transaction will revert(again, returning all your funds except the fee paid to the network). This may return an "out of gas" error or simply a "revert" error because of the usage of the proxy pattern.
+If the gas limit sent is not enough to run all the code needed to execute the transaction, the transaction will revert (again, returning all your funds except the fee paid to the network). This may return an "out of gas" error or simply a "revert" error because of the usage of the proxy pattern.
 
 ## How-to
 
@@ -127,7 +127,7 @@ constructor (MoC _mocContract, address vendorAccount, rest of your params...) {
 ```js
 uint256 bproxAmountToRedeem = 2;
 bytes32 constant public BUCKET_X2 = "X2";
-moc.redeemBProx.(BUCKET_X2, bproxAmountToRedeem, vendorAccount);
+moc.redeemBProxVendors(BUCKET_X2, bproxAmountToRedeem, vendorAccount);
 ```
 ​
 You can send it immediately to you so you can start using it right away. In order to do this you should add a few more lines similar to the ones before
@@ -160,7 +160,7 @@ contract YourRedeemingBtc2xContract {
     function doTask(uint256 _bproxAmount) public {
         uint256 prevRbtcBalance = moc.bproxBalanceOf(BUCKET_X2, msg.sender);
         // Mint some new BTC2X
-        moc.redeemBProx.(BUCKET_X2, _bproxAmount, vendorAccount);
+        moc.redeemBProxVendors(BUCKET_X2, _bproxAmount, vendorAccount);
         uint256 newRbtcBalance = moc.bproxBalanceOf(BUCKET_X2, msg.sender);
         // Rest of the function to actually perform the task
     }

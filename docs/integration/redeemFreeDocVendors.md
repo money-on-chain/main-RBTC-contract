@@ -64,18 +64,13 @@ If the system suffers some type of attack, the contract can be paused so that op
 
 ### The MoC contract is in protected mode:
 
-In case global coverage falls below the protected threshold, the contract will enter the protected mode. If this state occurs, no more BitPros will be available for minting.
-To know if the contract is liquidated you can ask the **MocState** for the **protected** and the **globalCoverage()** values, if coverage is less than the protected threshold, the contract is in protected mode.
-
-Note that eventually the contract can recover from this mode. In case it does not, two things can happen:
-- global coverage stabilizes indefinitely below 1: liquidation is enabled
-- global coverage stabilizes indefinitely below protected threshold but above 1: protected threshold is changed below its stabilization value
+In case global coverage falls below the protected threshold, the contract will enter the protected mode. If this state occurs, no more RDOCs will be available for minting. You can find more information about this mode [here](../rationale/system-states.md#protected-mode).
 
 ### The MoC contract is liquidated:
 
 In the extraneous case where a coverage that barely covers the stable tokens funds is reached, the contract will liquidate all of its assets. If this state occurs, no more DOCs will be available for minting.
-To know if the contract is liquidated you can ask the **MocState** for the **state**, this will return a 0 if liquidated(it is actually an enum).
+To know if the contract is liquidated you can ask the **MocState** for the **state**, this will return a 0 if liquidated (it is actually an enum).
 
 ### Not enough gas:
 
-If the gas limit sent is not enough to run all the code needed to execute the transaction, the transaction will revert(again, returning all your funds except the fee paid to the network). This may return an "out of gas" error or simply a "revert" error because of the usage of the proxy pattern.
+If the gas limit sent is not enough to run all the code needed to execute the transaction, the transaction will revert (again, returning all your funds except the fee paid to the network). This may return an "out of gas" error or simply a "revert" error because of the usage of the proxy pattern.

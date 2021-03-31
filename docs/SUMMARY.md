@@ -52,6 +52,7 @@
         * [On Settlement: alterRedeemRequestAmount](integration/alterRedeemRequestAmount.md)
         * [Outside Settlement: redeemFreeDocVendors](integration/redeemFreeDocVendors.md)
         * [On Liquidation State: redeemAllDoc](integration/redeemAllDoc.md)
+        * [How-to](integration/redeeming-docs-howto.md)
 * [Getting BTC2X](integration/getting-btc2x.md)
     * [Minting BTC2X](integration/minting-btc2x.md)
     * [Redeeming BTC2X](integration/redeeming-btc2x.md)
@@ -120,7 +121,6 @@
     * [RevertingOnSend](abis/RevertingOnSend.md)
     * [Stoppable](abis/Stoppable.md)
     * [Stopper](abis/Stopper.md)
-    * [TexPriceProvider](abis/TexPriceProvider.md)
     * [UpgradeDelegator](abis/UpgradeDelegator.md)
     * [UpgraderTemplate](abis/UpgraderTemplate.md)
 

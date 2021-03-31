@@ -24,3 +24,9 @@ System state is ruled by the global [Coverage](main-concepts.md#coverage) value,
 ## Protected mode
 
 Additionally, the system can enter a protected mode when coverage falls below a certain threshold (currently 1.5), in which case neither BitPros can no longer be minted nor free DoCs can be redeemed. In case the price and/or coverage recovers, the system can go back to another state.
+
+To know if the contract is in protected mode you can ask the **MocState** for the **protected** and the **globalCoverage()** values, if coverage is less than the protected threshold, the contract is in protected mode.
+
+Note that eventually the contract can recover from this mode. In case it does not, two things can happen:
+- global coverage stabilizes indefinitely below 1: liquidation is enabled
+- global coverage stabilizes indefinitely below protected threshold but above 1: protected threshold is changed below its stabilization value

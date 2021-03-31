@@ -41,7 +41,7 @@ This operation may fail if one of the following scenarios occurs:
 ### The MoC contract is liquidated:
 
 In the extraneous case where a coverage that barely covers the stable tokens funds is reached, the contract will liquidate all of its assets. If this state occurs, no more DOCs will be available for minting.
-To know if the contract is liquidated you can ask the **MocState** for the **state**, this will return a 0 if liquidated(it is actually an enum).
+To know if the contract is liquidated you can ask the **MocState** for the **state**, this will return a 0 if liquidated (it is actually an enum).
 
 ### The MoC contract is paused:
 
@@ -57,7 +57,7 @@ If this is the case the transaction will revert, all your funds will be returned
 
 ### Not enough gas:
 
-If the gas limit sent is not enough to run all the code needed to execute the transaction, the transaction will revert(again, returning all your funds except the fee paid to the network). This may return an "out of gas" error or simply a "revert" error because of the usage of the proxy pattern.
+If the gas limit sent is not enough to run all the code needed to execute the transaction, the transaction will revert (again, returning all your funds except the fee paid to the network). This may return an "out of gas" error or simply a "revert" error because of the usage of the proxy pattern.
 
 ## How-to
 
@@ -111,7 +111,7 @@ CommissionReturnStruct memory commission = mocExchange.calculateCommissionsWithP
 
 uint256 fees = commission.btcCommission - commission.btcMarkup;
 // If commission is paid in RBTC, subtract it from value
-moc.mintDocVendors.value(msg.value)(msg.value - fees);
+moc.mintDocVendors.value(msg.value)(msg.value - fees, vendorAccount);
 ```
 ​
 You can send it immediately to you so you can start using it right away. In order to do this you should add a few more lines similar to the ones before, only that you will have to use the DoC token.
@@ -154,7 +154,7 @@ contract YourMintingDocContract {
         // You could have more variables to initialize here
     }
 ​
-    function doTask() public payable {
+    function doTask(uint256 btcAmount) public payable {
       // Calculate operation fees
       CommissionParamsStruct memory params;
       params.account = address(this); // address of minter
@@ -167,10 +167,10 @@ contract YourMintingDocContract {
       // If commission is paid in RBTC, subtract it from value
       uint256 fees = commission.btcCommission - commission.btcMarkup;
       // Mint some new DoC
-      moc.mintDocVendors.value(msg.value)(msg.value - fees);
-​        // Transfer it to your receiver account
-        doc.transfer(receiverAddress, doc.balanceOf(address(this)));
-        // Rest of the function to actually perform the task
+      moc.mintDocVendors.value(msg.value)(msg.value - fees, vendorAccount);
+​      // Transfer it to your receiver account
+      doc.transfer(receiverAddress, doc.balanceOf(address(this)));
+      // Rest of the function to actually perform the task
     }
     // rest of your contract
 }

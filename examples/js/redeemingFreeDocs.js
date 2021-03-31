@@ -1,5 +1,5 @@
 const Web3 = require('web3');
-//You must compile the smart contracts or use the official ABIs of the //repository
+//You must compile the smart contracts or use the official ABIs of the repository
 const MoC = require('../../build/contracts/MoC.json');
 const MocState = require('../../build/contracts/MoCState.json');
 const DocToken = require('../../build/contracts/DocToken.json');
@@ -88,7 +88,7 @@ const execute = async () => {
   const freeDoc = await mocState.methods.freeDoc().call();
   const userDocBalance = await docToken.methods.balanceOf(from).call();
   const finalDocAmount = Math.min(freeDoc, userDocBalance);
-  const vendorAccount = '<vendor-address>'
+  const vendorAccount = '<vendor-address>';
 
   console.log('User DOC balance: ', userDocBalance.toString());
   console.log('=== Max Available DOC to redeem: ', finalDocAmount);

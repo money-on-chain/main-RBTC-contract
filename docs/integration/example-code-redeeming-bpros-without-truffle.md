@@ -26,7 +26,7 @@ npm install --save truffle-hdwallet-provider
 ```js
 const HDWalletProvider = require('truffle-hdwallet-provider');
 const Web3 = require('web3');
-//You must compile the smart contracts or use the official ABIs of the //repository
+//You must compile the smart contracts or use the official ABIs of the repository
 const MocAbi = require('../../build/contracts/MoC.json');
 const MoCInrateAbi = require('../../build/contracts/MoCInrate.json');
 const MoCStateAbi = require('../../build/contracts/MoCState.json');
@@ -105,7 +105,7 @@ const execute = async () => {
   console.log('=== Max amount of BPro to redeem ', bproFinalAmount);
 
   const bproAmount = '0.00001';
-  const vendorAccount = '<vendor-address>'
+  const vendorAccount = '<vendor-address>';
 
   // Call redeem
   await redeemBpro(bproAmount, vendorAccount);

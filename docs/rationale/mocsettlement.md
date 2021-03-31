@@ -1,7 +1,7 @@
 # MoCSettlement
 
 - Referenced by: MoC, MoCState
-- References/uses: Math, SafeMath,MoCBase, DocToken, MoCState, MoCExchange, MoCBProxManager, MoC
+- References/uses: Math, SafeMath, MoCBase, DocToken, MoCState, MoCExchange, MoCBProxManager, MoC
 - Inherits from: MoCBase
 
 This contract handles settlement logic and stores redeem request collection. It uses both `lastProcessedBlock` and `blockSpan` to periodically allow one execution.

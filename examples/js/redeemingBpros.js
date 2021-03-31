@@ -1,5 +1,5 @@
 const Web3 = require('web3');
-//You must compile the smart contracts or use the official ABIs of the //repository
+//You must compile the smart contracts or use the official ABIs of the repository
 const MocAbi = require('../../build/contracts/MoC.json');
 const MoCStateAbi = require('../../build/contracts/MoCState.json');
 const BProTokenAbi = require('../../build/contracts/BProToken.json');
@@ -93,7 +93,7 @@ const execute = async () => {
   console.log('=== User BPro Balance: ', userAmount.toString());
 
   const bproAmount = '0.00001';
-  const vendorAccount = '<vendor-address>'
+  const vendorAccount = '<vendor-address>';
 
   // Call redeem
   await redeemBpro(bproAmount, vendorAccount);

@@ -62,7 +62,7 @@ If the system suffers some type of attack, the contract can be paused so that op
 
 ### Not enough gas:
 
-If the gas limit sent is not enough to run all the code needed to execute the transaction, the transaction will revert(again, returning all your funds except the fee paid to the network). This may return an "out of gas" error or simply a "revert" error because of the usage of the proxy pattern.
+If the gas limit sent is not enough to run all the code needed to execute the transaction, the transaction will revert (again, returning all your funds except the fee paid to the network). This may return an "out of gas" error or simply a "revert" error because of the usage of the proxy pattern.
 
 ## How-to
 
@@ -112,7 +112,7 @@ And redeem some BPros:
 
 ```js
 uint256 bproAmount = 9000000;
-moc.redeemBPro(bproAmount, vendorAccount);
+moc.redeemBProVendors(bproAmount, vendorAccount);
 ```
 
 You can send it immediately to you so you can start using it right away. In order to do this you should add a few more lines similar to the ones before, only that you will have to use the bpro token.
@@ -147,7 +147,7 @@ contract YourRedeemingBproContract {
 ​
     function doTask(uint256 _bproAmount) public {
         uint256 previousBalance = bpro.balanceOf(receiverAddress);
-        moc.redeemBPro(_bproAmount, vendorAccount);
+        moc.redeemBProVendors(_bproAmount, vendorAccount);
         uint256 newBalance = bpro.balanceOf(receiverAddress);
     }
     // rest of your contract
