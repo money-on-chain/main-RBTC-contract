@@ -40,8 +40,8 @@
       "MINT_BTCX_FEES_MOC": 0.011,
       "REDEEM_BTCX_FEES_MOC": 0.012
     },
-    "liquidationEnabled": "false",
-    "protected": "1.5",
+    "liquidationEnabled": false,
+    "protected": 1.5,
     "vendorGuardianAddress": "0x9032f510a5b54a005f04e81b5c98b7f201c4dac1"
   },
   "changerAddresses": { }
