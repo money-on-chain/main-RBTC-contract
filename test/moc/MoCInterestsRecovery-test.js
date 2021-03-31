@@ -61,11 +61,7 @@ contract('MoC : MoCExchange', function([owner, userAccount, vendorAccount]) {
             [redeemEvent] = mocHelper.findEvents(redeemTx, 'RiskProxRedeem');
           });
           it('THEN user recovers 1 day less of interest', function() {
-            const expected = redeemInrate
-              .mul(toContractBN(redeemEvent.reserveTotal))
-              .mul(toContractBN(days - 1))
-              .div(mocHelper.MOC_PRECISION);
-
+            const expected = 0;
             mocHelper.assertBig(expected, redeemEvent.interests, 'Incorrect interests');
           });
         });
