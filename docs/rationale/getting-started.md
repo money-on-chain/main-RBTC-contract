@@ -96,6 +96,6 @@ For more technical information you can see our [ABI documentation](../abis/abi-d
 - _smoothFactor_: Weight coefficient for EMA calculation.
 - _maxMintBPro_: Max value posible to mint of BPro.
 - _liquidationEnabled_: If set to true, the MoC contract reached liquidation state.
-- _protected_: If global coverage reaches this value, then the MoC system will operate in - protection mode.
-- _vendorGuardianAddress_: This address will be the only one authorized to register and - unregister vendors in the platform.
+- _protected_: If global coverage reaches this value, then the MoC system will operate in protection mode.
+- _vendorGuardianAddress_: This address will be the only one authorized to register and unregister vendors in the platform.
 - _commissionRates_: Certain mint and redeem operations have different commission rates applied to them. This section defines the values for each one. The commission fees are explained [here](commission-fees-values.md).

@@ -1,6 +1,6 @@
 # Fees calculation
 
-Fees (namely, commission and vendor markup) are a percentage of the amount of the transaction that will be charged for the usage of the platform. The sum of the commission and vendor markup will be at most 0.1% of the amount.
+Fees (namely, commission and vendor markup) are a percentage of the amount of the transaction that will be charged for the usage of the platform. The sum of the commission and vendor markup will be at around 0.1% of the amount.
 
 The calculation for the fees associated with the transaction  are managed in the function **calculateCommissionsWithPrices** of the **MoCExchange** contract.
 
