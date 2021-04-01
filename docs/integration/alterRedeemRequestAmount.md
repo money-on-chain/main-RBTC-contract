@@ -48,4 +48,4 @@ If this situation occurs then you can contact the [Money on Chain team](https://
 
 ## Commissions
 
-The alterRedeemRequestAmount operation has no commissions, but when the settlement runs, the total amount of redeem requests will be used to pay the commission, this part is a percentage of the previous part. The commission fees are explained in [this](commission-fees-values.md) section.
+The alterRedeemRequestAmount operation has no commissions, but when the settlement runs, the total requested amount to redeem will pay commissions. This fee will be the same as the `REDEEM_DOC_FEES_RBTC` value. The commission fees are explained in [this](commission-fees-values.md) section.
