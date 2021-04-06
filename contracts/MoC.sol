@@ -509,11 +509,9 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable {
     uint256 mocMarkup
   )
   internal {
-    uint256 totalMoCFee;
+    uint256 totalMoCFee = mocCommission.add(mocMarkup);
 
-    if (mocCommission > 0 && mocMarkup > 0) {
-      totalMoCFee = mocCommission.add(mocMarkup);
-    } else {
+    if (totalMoCFee == 0) {
       totalBtcSpent = totalBtcSpent.add(btcCommission).add(btcMarkup);
       require(totalBtcSpent <= value, "amount is not enough");
     }
@@ -588,14 +586,11 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable {
     uint256 mocMarkup
   )
    internal {
-    uint256 totalMoCFee;
+    uint256 totalMoCFee = mocCommission.add(mocMarkup);
 
-    if (mocCommission > 0 && mocMarkup > 0) {
-      totalMoCFee = mocCommission.add(mocMarkup);
-      transferMocCommission(sender, mocCommission, vendorAccount, mocMarkup, totalMoCFee);
-    } else {
-      transferBtcCommission(mocLibConfig.getPayableAddress(vendorAccount), btcCommission, btcMarkup);
-    }
+    transferMocCommission(sender, mocCommission, vendorAccount, mocMarkup, totalMoCFee);
+
+    transferBtcCommission(mocLibConfig.getPayableAddress(vendorAccount), btcCommission, btcMarkup);
   }
 
   /**
@@ -610,18 +605,20 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable {
     uint256 totalBtcFee = btcCommission.add(btcMarkup);
     (uint256 btcMarkupInMoC, , ) = mocExchange.convertToMoCPrice(btcMarkup);
 
-    // Transfer vendor markup in MoC
-    if (mocVendors.getIsActive(vendorAccount) &&
-        mocVendors.getTotalPaidInMoC(vendorAccount).add(btcMarkupInMoC) <= mocVendors.getStaking(vendorAccount)) {
-      // Update vendor's markup
-      mocVendors.updatePaidMarkup(vendorAccount, 0, btcMarkup, btcMarkupInMoC);
-      // Transfer RBTC to vendor address
-      doTransfer(vendorAccount, btcMarkup);
-      // Transfer RBTC to commissions address
-      doTransfer(mocInrate.commissionsAddress(), btcCommission);
-    } else {
-      // Transfer MoC to commissions address
-      doTransfer(mocInrate.commissionsAddress(), totalBtcFee);
+    if (totalBtcFee > 0) {
+      // Transfer vendor markup in MoC
+      if (mocVendors.getIsActive(vendorAccount) &&
+          mocVendors.getTotalPaidInMoC(vendorAccount).add(btcMarkupInMoC) <= mocVendors.getStaking(vendorAccount)) {
+        // Update vendor's markup
+        mocVendors.updatePaidMarkup(vendorAccount, 0, btcMarkup, btcMarkupInMoC);
+        // Transfer RBTC to vendor address
+        doTransfer(vendorAccount, btcMarkup);
+        // Transfer RBTC to commissions address
+        doTransfer(mocInrate.commissionsAddress(), btcCommission);
+      } else {
+        // Transfer MoC to commissions address
+        doTransfer(mocInrate.commissionsAddress(), totalBtcFee);
+      }
     }
   }
 

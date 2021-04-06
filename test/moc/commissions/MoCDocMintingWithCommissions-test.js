@@ -6,6 +6,7 @@ let toContractBN;
 const { BN } = web3.utils;
 // eslint-disable-next-line quotes
 const NOT_ENOUGH_FUNDS_ERROR = "sender doesn't have enough funds to send tx";
+const zeroAddress = '0x0000000000000000000000000000000000000000';
 
 contract('MoC', function([owner, userAccount, commissionsAccount, vendorAccount, otherAddress]) {
   before(async function() {
@@ -319,7 +320,7 @@ contract('MoC', function([owner, userAccount, commissionsAccount, vendorAccount,
           mocHelper.assertBig(
             diff.toString(),
             expectedMoCCommission,
-            'Balance in MoC does not increase by 0.0045 RBTC'
+            'Balance in MoC does not increase by 0.0045 MoC Tokens'
           );
         });
         it('AND vendor account increase balance by 0.005 MoC', async function() {
@@ -330,7 +331,81 @@ contract('MoC', function([owner, userAccount, commissionsAccount, vendorAccount,
           mocHelper.assertBig(
             diff.toString(),
             expectedMoCMarkup,
-            'Balance in MoC does not increase by 0.0045 RBTC'
+            'Balance in MoC does not increase by 0.0045 MoC Tokens'
+          );
+        });
+      });
+      describe('WHEN a user tries to mint 10000 Docs using MoC commission with No Vendor', function() {
+        let prevBtcBalance;
+        let txCost;
+        let prevUserMoCBalance; // If user has MoC balance, then commission fees will be in MoC
+        let prevCommissionsAccountMoCBalance;
+        let prevVendorAccountMoCBalance;
+        beforeEach(async function() {
+          prevBtcBalance = toContractBN(await web3.eth.getBalance(userAccount));
+          prevUserMoCBalance = await mocHelper.getMoCBalance(userAccount);
+          prevCommissionsAccountMoCBalance = await mocHelper.getMoCBalance(commissionsAccount);
+          prevVendorAccountMoCBalance = await mocHelper.getMoCBalance(zeroAddress);
+
+          const tx = await mocHelper.mintDocAmount(
+            userAccount,
+            10000,
+            zeroAddress,
+            await mocHelper.mocInrate.MINT_DOC_FEES_MOC()
+          );
+          txCost = toContractBN(await mocHelper.getTxCost(tx));
+        });
+        it('AND only spent 0.5 BTC + 0.0045 MoC commission + 0 MoC markup', async function() {
+          // commission = 5000 * 0.009, markup = 0
+          const btcBalance = toContractBN(await web3.eth.getBalance(userAccount));
+          const diff = prevBtcBalance.sub(toContractBN(btcBalance)).sub(new BN(txCost));
+
+          mocHelper.assertBig(diff, '500000000000000000', 'Balance does not decrease by 0.5 RBTC');
+        });
+        it('AND User only spent on comissions and markup for 0.0045 MoC + 0 MoC', async function() {
+          const btcBalance = await web3.eth.getBalance(userAccount);
+          const userMoCBalance = await mocHelper.getMoCBalance(userAccount);
+          const diff = prevBtcBalance
+            .sub(toContractBN(btcBalance))
+            .sub(txCost)
+            .sub(toContractBN('500000000000000000'));
+          const expectedMoCFees = new BN('4500000000000000');
+          const diffFeesMoC = new BN(prevUserMoCBalance).sub(new BN(userMoCBalance));
+
+          mocHelper.assertBig(
+            diff,
+            0,
+            'RBTC balance should not decrease by comission cost, which is paid in MoC'
+          );
+
+          mocHelper.assertBig(
+            expectedMoCFees,
+            diffFeesMoC,
+            'Balance in MoC does not decrease by 0.045 + 0.005 MoC'
+          );
+        });
+        it('AND commissions account increase balance by 0.0045 MoC', async function() {
+          const commissionsAccountMoCBalance = await mocHelper.getMoCBalance(commissionsAccount);
+          const expectedMoCCommission = '4500000000000000';
+          const diff = new BN(commissionsAccountMoCBalance).sub(
+            new BN(prevCommissionsAccountMoCBalance)
+          );
+
+          mocHelper.assertBig(
+            diff.toString(),
+            expectedMoCCommission,
+            'Balance in MoC does not increase by 0.0045 MoC Tokens'
+          );
+        });
+        it('AND vendor account increase balance by 0 MoC', async function() {
+          const vendorAccountMoCBalance = await mocHelper.getMoCBalance(zeroAddress);
+          const expectedMoCMarkup = '0';
+          const diff = new BN(vendorAccountMoCBalance).sub(new BN(prevVendorAccountMoCBalance));
+
+          mocHelper.assertBig(
+            diff.toString(),
+            expectedMoCMarkup,
+            'Balance in MoC does not increase by 0 MoC Tokens'
           );
         });
       });
@@ -469,7 +544,6 @@ contract('MoC', function([owner, userAccount, commissionsAccount, vendorAccount,
         });
 
         // Set MoCToken address to 0
-        const zeroAddress = '0x0000000000000000000000000000000000000000';
         await this.mockMocStateChanger.setMoCToken(zeroAddress);
         await this.governor.executeChange(mocHelper.mockMocStateChanger.address);
 
