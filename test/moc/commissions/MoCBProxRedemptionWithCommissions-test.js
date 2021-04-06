@@ -9,13 +9,7 @@ const NOT_ENOUGH_FUNDS_ERROR = "sender doesn't have enough funds to send tx";
 const zeroAddress = '0x0000000000000000000000000000000000000000';
 
 // TODO: test BProx redeems with interests
-contract.only('MoC', function([
-  owner,
-  userAccount,
-  commissionsAccount,
-  vendorAccount,
-  otherAddress
-]) {
+contract('MoC', function([owner, userAccount, commissionsAccount, vendorAccount, otherAddress]) {
   before(async function() {
     mocHelper = await testHelperBuilder({ owner, useMock: true });
     ({ toContractBN } = mocHelper);

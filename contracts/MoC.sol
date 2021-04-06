@@ -586,14 +586,11 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable {
     uint256 mocMarkup
   )
    internal {
-    uint256 totalMoCFee;
+    uint256 totalMoCFee = mocCommission.add(mocMarkup);
 
-    if (mocCommission > 0 && mocMarkup > 0) {
-      totalMoCFee = mocCommission.add(mocMarkup);
-      transferMocCommission(sender, mocCommission, vendorAccount, mocMarkup, totalMoCFee);
-    } else {
-      transferBtcCommission(mocLibConfig.getPayableAddress(vendorAccount), btcCommission, btcMarkup);
-    }
+    transferMocCommission(sender, mocCommission, vendorAccount, mocMarkup, totalMoCFee);
+
+    transferBtcCommission(mocLibConfig.getPayableAddress(vendorAccount), btcCommission, btcMarkup);
   }
 
   /**

@@ -7,7 +7,7 @@ let toContractBN;
 const NOT_ENOUGH_FUNDS_ERROR = "sender doesn't have enough funds to send tx";
 const zeroAddress = '0x0000000000000000000000000000000000000000';
 
-contract.only('MoC: MoCExchange', function([
+contract('MoC: MoCExchange', function([
   owner,
   userAccount,
   commissionsAccount,
@@ -114,7 +114,7 @@ contract.only('MoC: MoCExchange', function([
           commissionAmountMoC: 0.4, // (bproToRedeem * REDEEM_BPRO_FEES_MOC = 0.008)
           vendorAmountRbtc: 0,
           vendorAmountMoC: 0.5 // (bproToRedeem * markup = 0.01)
-        },
+        }
       },
       // MoC fees NO VENDOR
       {
