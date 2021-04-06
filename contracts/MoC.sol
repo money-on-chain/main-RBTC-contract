@@ -605,18 +605,20 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable {
     uint256 totalBtcFee = btcCommission.add(btcMarkup);
     (uint256 btcMarkupInMoC, , ) = mocExchange.convertToMoCPrice(btcMarkup);
 
-    // Transfer vendor markup in MoC
-    if (mocVendors.getIsActive(vendorAccount) &&
-        mocVendors.getTotalPaidInMoC(vendorAccount).add(btcMarkupInMoC) <= mocVendors.getStaking(vendorAccount)) {
-      // Update vendor's markup
-      mocVendors.updatePaidMarkup(vendorAccount, 0, btcMarkup, btcMarkupInMoC);
-      // Transfer RBTC to vendor address
-      doTransfer(vendorAccount, btcMarkup);
-      // Transfer RBTC to commissions address
-      doTransfer(mocInrate.commissionsAddress(), btcCommission);
-    } else {
-      // Transfer MoC to commissions address
-      doTransfer(mocInrate.commissionsAddress(), totalBtcFee);
+    if (totalBtcFee > 0) {
+      // Transfer vendor markup in MoC
+      if (mocVendors.getIsActive(vendorAccount) &&
+          mocVendors.getTotalPaidInMoC(vendorAccount).add(btcMarkupInMoC) <= mocVendors.getStaking(vendorAccount)) {
+        // Update vendor's markup
+        mocVendors.updatePaidMarkup(vendorAccount, 0, btcMarkup, btcMarkupInMoC);
+        // Transfer RBTC to vendor address
+        doTransfer(vendorAccount, btcMarkup);
+        // Transfer RBTC to commissions address
+        doTransfer(mocInrate.commissionsAddress(), btcCommission);
+      } else {
+        // Transfer MoC to commissions address
+        doTransfer(mocInrate.commissionsAddress(), totalBtcFee);
+      }
     }
   }
 
