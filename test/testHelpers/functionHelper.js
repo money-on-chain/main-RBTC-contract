@@ -599,6 +599,7 @@ module.exports = async contracts => {
     getCommissionsArrayChangingTest,
     BUCKET_C0,
     BUCKET_X2,
+    zeroAddress,
     setMoCPrice: setMoCPrice(mocPriceProvider),
     getMoCPrice: getMoCPrice(mocPriceProvider),
     registerVendor: registerVendor(moc, mocVendors),

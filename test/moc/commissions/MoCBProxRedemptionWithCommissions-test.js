@@ -6,9 +6,16 @@ let BUCKET_X2;
 
 // eslint-disable-next-line quotes
 const NOT_ENOUGH_FUNDS_ERROR = "sender doesn't have enough funds to send tx";
+const zeroAddress = '0x0000000000000000000000000000000000000000';
 
 // TODO: test BProx redeems with interests
-contract('MoC', function([owner, userAccount, commissionsAccount, vendorAccount, otherAddress]) {
+contract.only('MoC', function([
+  owner,
+  userAccount,
+  commissionsAccount,
+  vendorAccount,
+  otherAddress
+]) {
   before(async function() {
     mocHelper = await testHelperBuilder({ owner, useMock: true });
     ({ toContractBN } = mocHelper);
@@ -35,7 +42,8 @@ contract('MoC', function([owner, userAccount, commissionsAccount, vendorAccount,
             bproxToMint: 1,
             bproToMint: 100,
             mocAmount: 0,
-            vendorStaking: 100
+            vendorStaking: 100,
+            vendorAccount
           },
           expect: {
             bproxsToRedeem: 1,
@@ -56,7 +64,8 @@ contract('MoC', function([owner, userAccount, commissionsAccount, vendorAccount,
             bproxToMint: 5,
             bproToMint: 100,
             mocAmount: 0,
-            vendorStaking: 100
+            vendorStaking: 100,
+            vendorAccount
           },
           expect: {
             bproxsToRedeem: 5,
@@ -78,7 +87,8 @@ contract('MoC', function([owner, userAccount, commissionsAccount, vendorAccount,
             bproxToMint: 1,
             bproToMint: 100,
             mocAmount: 1000,
-            vendorStaking: 100
+            vendorStaking: 100,
+            vendorAccount
           },
           expect: {
             bproxsToRedeem: 1,
@@ -99,7 +109,8 @@ contract('MoC', function([owner, userAccount, commissionsAccount, vendorAccount,
             bproxToMint: 5,
             bproToMint: 100,
             mocAmount: 1000,
-            vendorStaking: 100
+            vendorStaking: 100,
+            vendorAccount
           },
           expect: {
             bproxsToRedeem: 5,
@@ -109,6 +120,51 @@ contract('MoC', function([owner, userAccount, commissionsAccount, vendorAccount,
             commissionAmountMoC: 0.06, // (bproxsToRedeem * REDEEM_BTCX_FEES_MOC = 0.012)
             vendorAmountRbtc: 0,
             vendorAmountMoC: 0.05 // (bproxsToRedeem * markup = 0.01)
+          }
+        },
+        // MoC commission NO VENDOR
+        {
+          // redeem 1 BProx
+          params: {
+            docsToMint: 10000,
+            bproxsToRedeem: 1,
+            commissionRate: 0,
+            bproxToMint: 1,
+            bproToMint: 100,
+            mocAmount: 1000,
+            vendorStaking: 100,
+            vendorAccount: zeroAddress
+          },
+          expect: {
+            bproxsToRedeem: 1,
+            bproxsToRedeemOnRBTC: 1,
+            commissionAddressBalance: 0,
+            commissionsOnRBTC: 0,
+            commissionAmountMoC: 0.012, // (bproxsToRedeem * REDEEM_BTCX_FEES_MOC = 0.012)
+            vendorAmountRbtc: 0,
+            vendorAmountMoC: 0
+          }
+        },
+        {
+          // Redeeming limited by max available to redeem.
+          params: {
+            docsToMint: 50000,
+            bproxsToRedeem: 50,
+            commissionRate: 0,
+            bproxToMint: 5,
+            bproToMint: 100,
+            mocAmount: 1000,
+            vendorStaking: 100,
+            vendorAccount: zeroAddress
+          },
+          expect: {
+            bproxsToRedeem: 5,
+            bproxsToRedeemOnRBTC: 5,
+            commissionAddressBalance: 0,
+            commissionsOnRBTC: 0,
+            commissionAmountMoC: 0.06, // (bproxsToRedeem * REDEEM_BTCX_FEES_MOC = 0.012)
+            vendorAmountRbtc: 0,
+            vendorAmountMoC: 0
           }
         }
       ];
@@ -149,16 +205,22 @@ contract('MoC', function([owner, userAccount, commissionsAccount, vendorAccount,
               scenario.params.mocAmount,
               userAccount
             );
-            await mocHelper.mintMoCToken(vendorAccount, scenario.params.vendorStaking, owner);
-            await mocHelper.approveMoCToken(
-              this.mocVendors.address,
-              scenario.params.vendorStaking,
-              vendorAccount
-            );
-            await this.mocVendors.addStake(
-              toContractBN(scenario.params.vendorStaking * mocHelper.MOC_PRECISION),
-              { from: vendorAccount }
-            );
+            if (scenario.params.vendorAccount !== zeroAddress) {
+              await mocHelper.mintMoCToken(
+                scenario.params.vendorAccount,
+                scenario.params.vendorStaking,
+                owner
+              );
+              await mocHelper.approveMoCToken(
+                this.mocVendors.address,
+                scenario.params.vendorStaking,
+                scenario.params.vendorAccount
+              );
+              await this.mocVendors.addStake(
+                toContractBN(scenario.params.vendorStaking * mocHelper.MOC_PRECISION),
+                { from: scenario.params.vendorAccount }
+              );
+            }
             // Mint according to scenario
             const txTypeMintBPro =
               scenario.params.mocAmount === 0
@@ -175,20 +237,20 @@ contract('MoC', function([owner, userAccount, commissionsAccount, vendorAccount,
             await mocHelper.mintBProAmount(
               userAccount,
               scenario.params.bproToMint,
-              vendorAccount,
+              scenario.params.vendorAccount,
               txTypeMintBPro
             );
             await mocHelper.mintDocAmount(
               userAccount,
               scenario.params.docsToMint,
-              vendorAccount,
+              scenario.params.vendorAccount,
               txTypeMintDoc
             );
             await mocHelper.mintBProxAmount(
               userAccount,
               BUCKET_X2,
               scenario.params.bproxToMint,
-              vendorAccount,
+              scenario.params.vendorAccount,
               txTypeMintBtcx
             );
 
@@ -202,14 +264,18 @@ contract('MoC', function([owner, userAccount, commissionsAccount, vendorAccount,
             );
             prevUserMoCBalance = await mocHelper.getMoCBalance(userAccount);
             prevCommissionsAccountMoCBalance = await mocHelper.getMoCBalance(commissionsAccount);
-            prevVendorAccountBtcBalance = toContractBN(await web3.eth.getBalance(vendorAccount));
-            prevVendorAccountMoCBalance = await mocHelper.getMoCBalance(vendorAccount);
+            prevVendorAccountBtcBalance = toContractBN(
+              await web3.eth.getBalance(scenario.params.vendorAccount)
+            );
+            prevVendorAccountMoCBalance = await mocHelper.getMoCBalance(
+              scenario.params.vendorAccount
+            );
 
             const redeemTx = await mocHelper.redeemBProx(
               userAccount,
               BUCKET_X2,
               scenario.params.bproxsToRedeem,
-              vendorAccount
+              scenario.params.vendorAccount
             );
             usedGas = await mocHelper.getTxCost(redeemTx);
           });
@@ -245,9 +311,12 @@ contract('MoC', function([owner, userAccount, commissionsAccount, vendorAccount,
             });
             it(`THEN the vendor account rbtc balance has increase by ${scenario.expect.vendorAmountRbtc} Rbtcs`, async function() {
               const vendorAccountBtcBalance = toContractBN(
-                await web3.eth.getBalance(vendorAccount)
+                await web3.eth.getBalance(scenario.params.vendorAccount)
               );
-              const diff = vendorAccountBtcBalance.sub(prevVendorAccountBtcBalance);
+              const diff =
+                scenario.params.vendorAccount === zeroAddress
+                  ? 0 // zero address gets fees for block and transactions in ganache
+                  : vendorAccountBtcBalance.sub(prevVendorAccountBtcBalance);
 
               mocHelper.assertBigRBTC(
                 diff,
@@ -277,7 +346,9 @@ contract('MoC', function([owner, userAccount, commissionsAccount, vendorAccount,
               );
             });
             it(`THEN the vendor account MoC balance has increased by ${scenario.expect.vendorAmountMoC} MoCs`, async function() {
-              const vendorAccountMoCBalance = await mocHelper.getMoCBalance(vendorAccount);
+              const vendorAccountMoCBalance = await mocHelper.getMoCBalance(
+                scenario.params.vendorAccount
+              );
               const diff = vendorAccountMoCBalance.sub(prevVendorAccountMoCBalance);
               mocHelper.assertBigRBTC(
                 diff,
@@ -424,7 +495,6 @@ contract('MoC', function([owner, userAccount, commissionsAccount, vendorAccount,
           const mocTokenAddress = this.mocToken.address;
 
           // Set MoCToken address to 0
-          const zeroAddress = '0x0000000000000000000000000000000000000000';
           await this.mockMocStateChanger.setMoCToken(zeroAddress);
           await this.governor.executeChange(mocHelper.mockMocStateChanger.address);
 
