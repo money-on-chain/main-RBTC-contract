@@ -10,7 +10,7 @@
     "MoCVendors": "0x7F814742f1094e0A0Df0F3c7d6E0478BF04B60C3"
   },
   "implementationAddresses": {
-    "MoC": "0xF01a6ADa6eacD0D918443D4Ec43C866BcEf0Eb60",
+    "MoC": "0xB38B753e28706dff90e9F2cb99f0Fcd712cfa45a",
     "MoCConnector": "",
     "MoCExchange": "0x863F50de551a1A86DF7953e719fCa52B5C38DA24",
     "MoCSettlement": "0x973991e6F81F70E7bDBC2e1263bf09833BA98402",
@@ -45,7 +45,7 @@
     "vendorGuardianAddress": "0xab242e50e95c2f539242763a4ed5db1aee5ce461"
   },
   "changerAddresses": {
-    "3_MoC": "0x353DAD5d4eAd6BC1aB2a4B92c5B44229d8B6E046",
+    "3_MoC": "0xe3CacF8378a871cd7D0346a81C78a95C0DE700dB",
     "4_MoCExchange": "0xD38A89838607D965DAE2150065501c29bEE691c1",
     "5_MoCSettlement": "0xDf425e2f84776454A3bA4b9f0f35D26cA24DD9Dc",
     "6_MoCInrate": "0x52e915d31628FF142F936fC1dA33A5aC492E3e42",
