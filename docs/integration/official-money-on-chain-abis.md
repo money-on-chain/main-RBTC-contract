@@ -11,7 +11,7 @@ npm install
 npm run truffle-compile
 ```
 
-Then we can check the ABIs
+Then you can check the ABIs:
 
 ```
 cd build/contracts/
