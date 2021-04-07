@@ -1,9 +1,8 @@
 # Official Money on Chain ABIs
 
-In the Money on Chain repository you can find the [official ABIs of the platform](https://github.com/money-on-chain/web-billfold-app/tree/develop/contracts/moc). You can use them to build your own decentralized applications to invoke the functions of smart contracts.
+You can use the official ABIs of the Money on Chain platform to build your own decentralized applications to invoke the functions of smart contracts.
 
-We can also compile the contracts to generate the ABIS that will be saved in the _./build/contracts_
-dir. You can do this with the following commands:
+You can compile the contracts to generate the ABIs that will be saved in the _./build/contracts_ dir running the following commands:
 
 ```
 git clone https://github.com/money-on-chain/main-RBTC-contract.git
@@ -12,7 +11,7 @@ npm install
 npm run truffle-compile
 ```
 
-Then we can check the abis
+Then you can check the ABIs:
 
 ```
 cd build/contracts/

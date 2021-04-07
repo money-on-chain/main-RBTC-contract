@@ -1,6 +1,8 @@
 # Fees calculation
 
-The calculation for the fees associated with the transaction (namely, commission and vendor markup) are managed in the function **calculateCommissionsWithPrices** of the **MoCExchange** contract.
+Fees (namely, commission and vendor markup) are a percentage of the amount of the transaction that will be charged for the usage of the platform. The sum of the commission and vendor markup will be at around 0.1% of the amount.
+
+The calculation for the fees associated with the transaction is managed in the function **calculateCommissionsWithPrices** of the **MoCExchange** contract.
 
 This function deals with all the parameters needed to calculate said fees. You will need to pass these parameters in the form of the **CommissionParamsStruct** struct:
 ```
