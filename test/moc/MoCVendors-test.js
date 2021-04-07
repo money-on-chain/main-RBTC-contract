@@ -322,7 +322,7 @@ contract('MoC: MoCVendors', function([
       it('WHEN trying to register a vendor with an invalid value THEN an error should be raised', async function() {
         const registerVendorTx = mocHelper.registerVendor(vendorAccount4, 10, owner);
 
-        await expectRevert(registerVendorTx, 'Vendor markup must not be greater than 1%');
+        await expectRevert(registerVendorTx, 'Vendor markup threshold exceeded');
       });
     });
     describe('GIVEN vendors can be registered and unregistered', function() {
@@ -442,7 +442,7 @@ contract('MoC: MoCVendors', function([
         // Add a new vendor - should not be possible
         const registerVendorTx = mocHelper.registerVendor(accounts[index + 1], 0.001, owner);
 
-        await expectRevert(registerVendorTx, 'vendorsList length must be between 1 and 100');
+        await expectRevert(registerVendorTx, 'vendorsList length out of range');
       });
       it('WHEN an unauthorized account wants to register a vendor THEN an error should be raised', async function() {
         const registerVendorTx = mocHelper.registerVendor(

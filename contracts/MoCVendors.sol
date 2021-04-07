@@ -99,11 +99,11 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed {
   */
   function registerVendor(address account, uint256 markup) public onlyVendorGuardian() returns (bool isActive) {
     require(account != address(0), "Vendor account must not be 0x0");
-    require(markup <= VENDOR_MAX_MARKUP, "Vendor markup must not be greater than 1%");
+    require(markup <= VENDOR_MAX_MARKUP, "Vendor markup threshold exceeded");
 
     if (vendors[account].isActive == false) {
       // Change the error message according to the value of the VENDORS_LIST_ARRAY_MAX_LENGTH constant
-      require(vendorsList.length < VENDORS_LIST_ARRAY_MAX_LENGTH, "vendorsList length must be between 1 and 100");
+      require(vendorsList.length < VENDORS_LIST_ARRAY_MAX_LENGTH, "vendorsList length out of range");
 
       // Map vendor details to vendor address
       vendors[account].isActive = true;
