@@ -195,9 +195,9 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable {
     uint256 btcMarkup,
     uint256 mocMarkup) = mocExchange.redeemBPro(msg.sender, bproAmount, vendorAccount);
 
-    doTransfer(msg.sender, btcAmount);
-
     redeemWithMoCFees(msg.sender, btcCommission, mocCommission, vendorAccount, btcMarkup, mocMarkup);
+
+    doTransfer(msg.sender, btcAmount);
     /** END UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
   }
 
@@ -265,9 +265,9 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable {
     uint256 btcMarkup,
     uint256 mocMarkup) = mocExchange.redeemBProx(msg.sender, bucket, bproxAmount, vendorAccount);
 
-    doTransfer(msg.sender, totalBtcRedeemed);
-
     redeemWithMoCFees(msg.sender, btcCommission, mocCommission, vendorAccount, btcMarkup, mocMarkup);
+
+    doTransfer(msg.sender, totalBtcRedeemed);
     /** END UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
   }
 
@@ -335,9 +335,9 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable {
     uint256 btcMarkup,
     uint256 mocMarkup) = mocExchange.redeemFreeDoc(msg.sender, docAmount, vendorAccount);
 
-    doTransfer(msg.sender, btcAmount);
-
     redeemWithMoCFees(msg.sender, btcCommission, mocCommission, vendorAccount, btcMarkup, mocMarkup);
+
+    doTransfer(msg.sender, btcAmount);
     /** END UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
   }
 
