@@ -1,4 +1,5 @@
 pragma solidity 0.5.8;
+pragma experimental ABIEncoderV2;
 
 import "moc-governance/contracts/Governance/Governed.sol";
 import "./MoCLibConnection.sol";
@@ -25,6 +26,34 @@ contract MoCInrateStructs {
     tMin: 0,
     power: 1
   });
+
+  struct InitializeParams {
+    // MoCConnector contract address
+    address connectorAddress;
+    // Governor contract address
+    address governor;
+    // Minimum interest rate [using mocPrecision]
+    uint256 btcxTmin;
+    // Power is a parameter for interest rate calculation [using noPrecision]
+    uint256 btcxPower;
+    // Maximun interest rate [using mocPrecision]
+    uint256 btcxTmax;
+    // BitPro holder interest rate [using mocPrecision]
+    uint256 bitProRate;
+    // BitPro blockspan to configure payments periods[using mocPrecision]
+    uint256 blockSpanBitPro;
+    // Target address to transfer the weekly BitPro holders interest
+    address payable bitProInterestTargetAddress;
+    // Target address to transfer commissions of mint/redeem
+    address payable commissionsAddressTarget;
+    //uint256 commissionRateParam,
+    // Upgrade to support red doc inrate parameter
+    uint256 docTmin;
+    // Upgrade to support red doc inrate parameter
+    uint256 docPower;
+    // Upgrade to support red doc inrate parameter
+    uint256 docTmax;
+  }
 }
 
 
@@ -106,50 +135,25 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
 
   /**
     @dev Initializes the contract
-    @param connectorAddress MoCConnector contract address
-    @param _governor Governor contract address
-    @param btcxTmin  Minimum interest rate [using mocPrecision]
-    @param btcxPower Power is a parameter for interest rate calculation [using noPrecision]
-    @param btcxTmax Maximun interest rate [using mocPrecision]
-    @param _bitProRate BitPro holder interest rate [using mocPrecision]
-    @param blockSpanBitPro BitPro blockspan to configure payments periods[using mocPrecision]
-    @param bitProInterestTargetAddress Target address to transfer the weekly BitPro holders interest
-    @param commissionsAddressTarget Target addres to transfer commissions of mint/redeem
-    @param _docTmin Upgrade to support red doc inrate parameter
-    @param _docPower Upgrade to support red doc inrate parameter
-    @param _docTmax Upgrade to support red doc inrate parameter
+    @param params Params defined in InitializeParams struct
   */
-  function initialize(
-    address connectorAddress,
-    address _governor,
-    uint256 btcxTmin,
-    uint256 btcxPower,
-    uint256 btcxTmax,
-    uint256 _bitProRate,
-    uint256 blockSpanBitPro,
-    address payable bitProInterestTargetAddress,
-    address payable commissionsAddressTarget,
-    //uint256 commissionRateParam,
-    uint256 _docTmin,
-    uint256 _docPower,
-    uint256 _docTmax
-  ) public initializer {
+  function initialize(InitializeParams memory params) public initializer {
     initializePrecisions();
-    initializeBase(connectorAddress);
+    initializeBase(params.connectorAddress);
     initializeContracts();
     initializeValues(
-      _governor,
-      btcxTmin,
-      btcxPower,
-      btcxTmax,
-      _bitProRate,
-      commissionsAddressTarget,
+      params.governor,
+      params.btcxTmin,
+      params.btcxPower,
+      params.btcxTmax,
+      params.bitProRate,
+      params.commissionsAddressTarget,
       //commissionRateParam,
-      blockSpanBitPro,
-      bitProInterestTargetAddress,
-      _docTmin,
-      _docPower,
-      _docTmax
+      params.blockSpanBitPro,
+      params.bitProInterestTargetAddress,
+      params.docTmin,
+      params.docPower,
+      params.docTmax
     );
   }
 

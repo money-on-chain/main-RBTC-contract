@@ -350,6 +350,32 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
     const governorAddress = await governorContractAddress();
     const stopperAddress = await stopperContractAddress();
     const mocOracleAddress = await mocOracle();
+
+    let targetAddressBitPro = owner;
+    if (config.targetAddressBitProInterest !== '') {
+      targetAddressBitPro = config.targetAddressBitProInterest;
+    }
+
+    let targetAddressCommission = owner;
+    if (config.targetAddressCommissionPayment !== '') {
+      targetAddressCommission = config.targetAddressCommissionPayment;
+    }
+
+    const mocInrateInitializeParams = {
+      connectorAddress: mocConnector.address,
+      governor: governorAddress,
+      btcxTmin: toContract(config.btcxTmin * 10 ** 18), // btcxTmin [using mocPrecision]
+      btcxPower: toContract(config.btcxPower), // btcxPower [no precision]
+      btcxTmax: toContract(config.btcxTmax * 10 ** 18), // btcxTmax [using mocPrecision]
+      bitProRate: toContract(config.bitProHolderRate * 10 ** 18), // BitPro Holder rate .25% (annual 0.0025 / 365 * 7) with [mocPrecision]
+      blockSpanBitPro: config.dayBlockSpan * config.daysBitProHolderExecutePayment, // Blockspan to execute payment once a week
+      bitProInterestTargetAddress: targetAddressBitPro, // Target address of BitPro interest
+      commissionsAddressTarget: commissionSplitter.address, // Target address of commission payment
+      // toContract(config.commissionRate * 10 ** 18), // commissionRate [mocPrecision]
+      docTmin: toContract(config.docTmin * 10 ** 18), // docTmin [using mocPrecision]
+      docPower: toContract(config.docPower), // docPower [no precision]
+      docTmax: toContract(config.docTmax * 10 ** 18) // docTmax [using mocPrecision]
+    };
     const mocStateInitializeParams = {
       connectorAddress: mocConnector.address,
       governor: governorAddress,
@@ -398,31 +424,10 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
     await mocConverter.initialize(mocConnector.address);
     console.log('Converter Initialized');
 
-    let targetAddressBitPro = owner;
-    if (config.targetAddressBitProInterest !== '') {
-      targetAddressBitPro = config.targetAddressBitProInterest;
-    }
-
-    let targetAddressCommission = owner;
-    if (config.targetAddressCommissionPayment !== '') {
-      targetAddressCommission = config.targetAddressCommissionPayment;
-    }
-
-    await mocInrate.initialize(
-      mocConnector.address,
-      governorAddress,
-      toContract(config.btcxTmin * 10 ** 18), // btcxTmin [using mocPrecision]
-      toContract(config.btcxPower), // btcxPower [no precision]
-      toContract(config.btcxTmax * 10 ** 18), // btcxTmax [using mocPrecision]
-      toContract(config.bitProHolderRate * 10 ** 18), // BitPro Holder rate .25% (annual 0.0025 / 365 * 7) with [mocPrecision]
-      config.dayBlockSpan * config.daysBitProHolderExecutePayment, // Blockspan to execute payment once a week
-      targetAddressBitPro, // Target address of BitPro interest
-      commissionSplitter.address, // Target address of commission payment
-      // toContract(config.commissionRate * 10 ** 18), // commissionRate [mocPrecision]
-      toContract(config.docTmin * 10 ** 18), // docTmin [using mocPrecision]
-      toContract(config.docPower), // docPower [no precision]
-      toContract(config.docTmax * 10 ** 18) // docTmax [using mocPrecision]
-    );
+    // Making sure to call the correct initialize function
+    await mocInrate.methods[
+      'initialize((address,address,uint256,uint256,uint256,uint256,uint256,address,address,uint256,uint256,uint256))'
+    ](mocInrateInitializeParams);
     console.log('Inrate Initialized');
 
     // Initializing values

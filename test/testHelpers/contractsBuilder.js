@@ -288,6 +288,21 @@ const createContracts = params => async ({ owner, useMock }) => {
   const mockMocChanger = await MocChanger.new(moc.address, governor.address, stopper.address, {
     from: owner
   });
+  const mocInrateInitializeParams = {
+    connectorAddress: mocConnector.address,
+    governor: governor.address,
+    btcxTmin,
+    btcxPower,
+    btcxTmax,
+    bitProRate,
+    blockSpanBitPro: dayBlockSpan * 7,
+    bitProInterestTargetAddress: owner,
+    commissionsAddressTarget: owner,
+    // commissionRate,
+    docTmin,
+    docPower,
+    docTmax
+  };
   const mocStateInitializeParams = {
     connectorAddress: mocConnector.address,
     governor: governor.address,
@@ -328,21 +343,10 @@ const createContracts = params => async ({ owner, useMock }) => {
   await mocState.methods[
     'initialize((address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,address,address,address,bool,uint256))'
   ](mocStateInitializeParams);
-  await mocInrate.initialize(
-    mocConnector.address,
-    governor.address,
-    btcxTmin,
-    btcxPower,
-    btcxTmax,
-    bitProRate,
-    dayBlockSpan * 7,
-    owner,
-    owner,
-    // commissionRate,
-    docTmin,
-    docPower,
-    docTmax
-  );
+  // Making sure to call the correct initialize function
+  await mocInrate.methods[
+    'initialize((address,address,uint256,uint256,uint256,uint256,uint256,address,address,uint256,uint256,uint256))'
+  ](mocInrateInitializeParams);
   await bprox.initialize(mocConnector.address, governor.address, c0Cobj, x2Cobj);
   await mocSettlement.initialize(mocConnector.address, governor.address, settlementBlockSpan);
   await governor.initialize(owner);
