@@ -1,0 +1,13 @@
+{
+  "proxyAddresses": {
+    "MoCExchange": ""
+  },
+  "implementationAddresses": {
+    "MoCExchange": "",
+    "ProxyAdmin": "",
+    "UpgradeDelegator": "",
+    "Governor": "",
+    "MoCHelperLib": ""
+  },
+  "changerAddresses": { }
+}
