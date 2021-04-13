@@ -13,9 +13,7 @@ module.exports = async callback => {
     const originalConfig = getConfig(network, originalConfigPath);
 
     // Getting the keys we want to compare
-    const comparisonKeys = [
-      'MoCExchange'
-    ];
+    const comparisonKeys = ['MoCExchange'];
 
     const proxyAdmin = await ProxyAdmin.at(originalConfig.implementationAddresses.ProxyAdmin);
 
