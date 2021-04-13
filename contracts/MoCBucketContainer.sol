@@ -4,7 +4,6 @@ import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "openzeppelin-solidity/contracts/math/Math.sol";
 import "./base/MoCBase.sol";
 import "moc-governance/contracts/Governance/Governed.sol";
-import "moc-governance/contracts/Governance/IGovernor.sol";
 
 contract MoCBucketContainer is MoCBase, Governed {
   using SafeMath for uint256;

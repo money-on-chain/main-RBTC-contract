@@ -4,13 +4,13 @@ import "openzeppelin-solidity/contracts/math/Math.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "./base/MoCBase.sol";
 import "./token/DocToken.sol";
-import "./MoCState.sol";
-import "./MoCExchange.sol";
+import "./interface/IMoCState.sol";
+import "./interface/IMoCExchange.sol";
 import "./MoCBProxManager.sol";
 import "./PartialExecution.sol";
 import "moc-governance/contracts/Governance/Governed.sol";
 import "moc-governance/contracts/Governance/IGovernor.sol";
-import "./MoCVendors.sol";
+import "./interface/IMoCVendors.sol";
 
 contract MoCSettlementEvents {
   event RedeemRequestAlter(address indexed redeemer, bool isAddition, uint256 delta);
@@ -64,8 +64,8 @@ Governed
   }
 
   // Contracts
-  MoCState internal mocState;
-  MoCExchange internal mocExchange;
+  IMoCState internal mocState;
+  IMoCExchange internal mocExchange;
   DocToken internal docToken;
   MoCBProxManager internal bproxManager;
 
@@ -289,8 +289,8 @@ Governed
   function initializeContracts() internal {
     docToken = DocToken(connector.docToken());
     bproxManager = MoCBProxManager(connector.bproxManager());
-    mocState = MoCState(connector.mocState());
-    mocExchange = MoCExchange(connector.mocExchange());
+    mocState = IMoCState(connector.mocState());
+    mocExchange = IMoCExchange(connector.mocExchange());
   }
 
   function initializeValues(address _governor, uint256 _blockSpan) internal {
@@ -354,7 +354,7 @@ Governed
     settlementInfo.startBlockNumber = block.number;
 
     // Reset total paid in MoC for every vendor
-    MoCVendors mocVendors = MoCVendors(mocState.getMoCVendors());
+    IMoCVendors mocVendors = IMoCVendors(mocState.getMoCVendors());
     mocVendors.resetTotalPaidInMoC();
 
     emit SettlementStarted(

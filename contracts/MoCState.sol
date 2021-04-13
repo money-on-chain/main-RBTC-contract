@@ -13,9 +13,10 @@ import "./token/MoCToken.sol";
 import "./MoCSettlement.sol";
 import "moc-governance/contracts/Governance/Governed.sol";
 import "moc-governance/contracts/Governance/IGovernor.sol";
-import "./MoCVendors.sol";
+import "./MoCConverter.sol";
+import "./interface/IMoCState.sol";
 
-contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
+contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator, IMoCState {
   using Math for uint256;
   using SafeMath for uint256;
 
@@ -149,19 +150,6 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
   */
   function getDayBlockSpan() public view returns(uint256) {
     return dayBlockSpan;
-  }
-
-  /******STATE MACHINE*********/
-
-  enum States {
-    // State 0
-    Liquidated,
-    // State 1
-    BProDiscount,
-    // State 2
-    BelowCobj,
-    // State 3
-    AboveCobj
   }
 
   /**
@@ -814,7 +802,7 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
    @return MoCVendors contract address
   */
   function getMoCVendors() public view returns(address) {
-    return address(mocVendors);
+    return mocVendors;
   }
 
   /** END UPDATE V0110: 24/09/2020 **/
@@ -851,7 +839,7 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
    @param mocVendorsAddress MoCVendors contract address
   */
   function setMoCVendorsInternal(address mocVendorsAddress) internal {
-    mocVendors = MoCVendors(mocVendorsAddress);
+    mocVendors = mocVendorsAddress;
 
     emit MoCVendorsChanged(mocVendorsAddress);
   }
@@ -929,7 +917,7 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator {
 
   PriceProvider internal mocPriceProvider;
   MoCToken internal mocToken;
-  MoCVendors internal mocVendors;
+  address internal mocVendors;
 
   event MoCPriceProviderUpdated(
     address oldAddress,

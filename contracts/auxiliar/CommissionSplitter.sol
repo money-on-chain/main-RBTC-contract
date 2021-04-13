@@ -2,7 +2,7 @@ pragma solidity 0.5.8;
 
 import "moc-governance/contracts/Governance/Governed.sol";
 import "moc-governance/contracts/Governance/IGovernor.sol";
-import "../MoC.sol";
+import "../interface/IMoC.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/IERC20.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "openzeppelin-eth/contracts/utils/ReentrancyGuard.sol";
@@ -24,7 +24,7 @@ contract CommissionSplitter is Governed, ReentrancyGuard {
   uint256 public mocProportion;
 
   // Contracts
-  MoC public moc;
+  IMoC public moc;
 
   /**
     @dev Initialize commission splitter contract
@@ -34,7 +34,7 @@ contract CommissionSplitter is Governed, ReentrancyGuard {
     @param _governor the address of the IGovernor contract
    */
   function initialize(
-    MoC _mocAddress,
+    IMoC _mocAddress,
     address payable _commissionsAddress,
     uint256 _mocProportion,
     IGovernor _governor

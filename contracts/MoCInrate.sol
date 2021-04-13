@@ -3,11 +3,11 @@ pragma experimental ABIEncoderV2;
 
 import "moc-governance/contracts/Governance/Governed.sol";
 import "./MoCLibConnection.sol";
-import "./MoCState.sol";
+import "./interface/IMoCState.sol";
 import "./MoCBProxManager.sol";
 import "./MoCConverter.sol";
 import "./base/MoCBase.sol";
-import "./MoCVendors.sol";
+import "./interface/IMoCVendors.sol";
 
 contract MoCInrateEvents {
   event InrateDailyPay(uint256 amount, uint256 daysToSettlement, uint256 nReserveBucketC0);
@@ -80,7 +80,7 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
   uint256 public DEPRECATED_commissionRate;
 
   /**CONTRACTS**/
-  MoCState internal mocState;
+  IMoCState internal mocState;
   MoCConverter internal mocConverter;
   MoCBProxManager internal bproxManager;
 
@@ -398,7 +398,7 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
     returns (uint256 markup) {
     // Calculate according to vendor markup
     if (vendorAccount != address(0)) {
-      MoCVendors mocVendors = MoCVendors(mocState.getMoCVendors());
+      IMoCVendors mocVendors = IMoCVendors(mocState.getMoCVendors());
 
       markup = amount.mul(mocVendors.getMarkup(vendorAccount)).div(mocLibConfig.mocPrecision);
     }
@@ -588,7 +588,7 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
    */
   function initializeContracts() internal {
     bproxManager = MoCBProxManager(connector.bproxManager());
-    mocState = MoCState(connector.mocState());
+    mocState = IMoCState(connector.mocState());
     mocConverter = MoCConverter(connector.mocConverter());
   }
 

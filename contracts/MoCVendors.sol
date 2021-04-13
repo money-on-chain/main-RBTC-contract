@@ -5,10 +5,11 @@ import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "moc-governance/contracts/Governance/Governed.sol";
 import "./MoCLibConnection.sol";
 import "./base/MoCBase.sol";
-import "./MoC.sol";
+import "./interface/IMoC.sol";
 import "./token/MoCToken.sol";
-import "./MoCExchange.sol";
+import "./interface/IMoCExchange.sol";
 import "./MoCState.sol";
+import "./interface/IMoCVendors.sol";
 
 contract MoCVendorsEvents {
   event VendorRegistered(
@@ -38,7 +39,7 @@ contract MoCVendorsEvents {
   );
 }
 
-contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed {
+contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed, IMoCVendors {
   using Math for uint256;
   using SafeMath for uint256;
 
@@ -53,9 +54,9 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed {
   }
 
   // Contracts
-  MoC internal moc;
+  IMoC internal moc;
   MoCState internal mocState;
-  MoCExchange internal mocExchange;
+  IMoCExchange internal mocExchange;
 
   // Constants
   uint8 public constant VENDORS_LIST_ARRAY_MAX_LENGTH = 100;
@@ -286,9 +287,9 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed {
   }
 
   function initializeContracts() internal {
-    moc = MoC(connector.moc());
+    moc = IMoC(connector.moc());
     mocState = MoCState(connector.mocState());
-    mocExchange = MoCExchange(connector.mocExchange());
+    mocExchange = IMoCExchange(connector.mocExchange());
   }
 
   function initializeValues(address _governor, address _vendorGuardianAddress) internal {

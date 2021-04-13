@@ -5,32 +5,34 @@ import "./MoCLibConnection.sol";
 import "./token/DocToken.sol";
 import "./token/BProToken.sol";
 import "./MoCBProxManager.sol";
-import "./MoCState.sol";
+import "./interface/IMoCState.sol";
 import "./MoCConverter.sol";
 import "./MoCSettlement.sol";
-import "./MoCExchange.sol";
+import "./interface/IMoCExchange.sol";
 import "./base/MoCBase.sol";
 import "moc-governance/contracts/Stopper/Stoppable.sol";
 import "moc-governance/contracts/Governance/IGovernor.sol";
 import "./token/MoCToken.sol";
-import "./MoCVendors.sol";
+import "./interface/IMoCVendors.sol";
+import "./MoCInrate.sol";
+import "./interface/IMoC.sol";
 
 contract MoCEvents {
   event BucketLiquidation(bytes32 bucket);
   event ContractLiquidated(address mocAddress);
 }
 
-contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable {
+contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
   using SafeMath for uint256;
 
   /// @dev Contracts.
   DocToken internal docToken;
   BProToken internal bproToken;
   MoCBProxManager internal bproxManager;
-  MoCState internal mocState;
+  IMoCState internal mocState;
   MoCConverter internal mocConverter;
   MoCSettlement internal settlement;
-  MoCExchange internal mocExchange;
+  IMoCExchange internal mocExchange;
   MoCInrate internal mocInrate;
   /// @dev 'MoCBurnout' is deprecated. DO NOT use this variable.
   /** DEPRECATED **/
@@ -68,10 +70,10 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable {
     docToken = DocToken(connector.docToken());
     bproToken = BProToken(connector.bproToken());
     bproxManager = MoCBProxManager(connector.bproxManager());
-    mocState = MoCState(connector.mocState());
+    mocState = IMoCState(connector.mocState());
     settlement = MoCSettlement(connector.mocSettlement());
     mocConverter = MoCConverter(connector.mocConverter());
-    mocExchange = MoCExchange(connector.mocExchange());
+    mocExchange = IMoCExchange(connector.mocExchange());
     mocInrate = MoCInrate(connector.mocInrate());
     //initializeGovernanceContracts
     Stoppable.initialize(stopperAddress, IGovernor(governorAddress), startStoppable);
@@ -187,7 +189,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable {
   */
   function redeemBProVendors(uint256 bproAmount, address vendorAccount)
   public
-  whenNotPaused() transitionState() atLeastState(MoCState.States.AboveCobj) {
+  whenNotPaused() transitionState() atLeastState(IMoCState.States.AboveCobj) {
     /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
     (uint256 btcAmount,
     uint256 btcCommission,
@@ -218,7 +220,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable {
    */
   function mintDocVendors(uint256 btcToMint, address vendorAccount)
   public payable
-  whenNotPaused() transitionState() atLeastState(MoCState.States.AboveCobj) {
+  whenNotPaused() transitionState() atLeastState(IMoCState.States.AboveCobj) {
     /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
     (uint256 totalBtcSpent,
     uint256 btcCommission,
@@ -345,7 +347,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable {
     @dev Allow redeem on liquidation state, user DoCs get burned and he receives
     the equivalent BTCs if can be covered, or the maximum available
   */
-  function redeemAllDoc() public atState(MoCState.States.Liquidated) {
+  function redeemAllDoc() public atState(IMoCState.States.Liquidated) {
     mocExchange.redeemAllDoc(msg.sender, msg.sender);
   }
 
@@ -544,7 +546,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable {
     uint256 mocMarkup,
     uint256 totalMoCFee
   ) internal {
-    MoCVendors mocVendors = MoCVendors(mocState.getMoCVendors());
+    IMoCVendors mocVendors = IMoCVendors(mocState.getMoCVendors());
 
     // If commission and markup are paid in MoC
     if (totalMoCFee > 0) {
@@ -600,7 +602,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable {
     @param btcMarkup vendor markup in RBTC
   */
   function transferBtcCommission(address payable vendorAccount, uint256 btcCommission, uint256 btcMarkup) internal {
-    MoCVendors mocVendors = MoCVendors(mocState.getMoCVendors());
+    IMoCVendors mocVendors = IMoCVendors(mocState.getMoCVendors());
 
     uint256 totalBtcFee = btcCommission.add(btcMarkup);
     (uint256 btcMarkupInMoC, , ) = mocExchange.convertToMoCPrice(btcMarkup);
@@ -657,17 +659,17 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable {
     _;
   }
 
-  modifier atState(MoCState.States _state) {
+  modifier atState(IMoCState.States _state) {
     require(mocState.state() == _state, "Function cannot be called at this state.");
     _;
   }
 
-  modifier atLeastState(MoCState.States _state) {
+  modifier atLeastState(IMoCState.States _state) {
     require(mocState.state() >= _state, "Function cannot be called at this state.");
     _;
   }
 
-  modifier atMostState(MoCState.States _state) {
+  modifier atMostState(IMoCState.States _state) {
     require(mocState.state() <= _state, "Function cannot be called at this state.");
     _;
   }
@@ -695,7 +697,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable {
   modifier transitionState()
   {
     mocState.nextState();
-    if (mocState.state() == MoCState.States.Liquidated) {
+    if (mocState.state() == IMoCState.States.Liquidated) {
       liquidate();
     }
     else
