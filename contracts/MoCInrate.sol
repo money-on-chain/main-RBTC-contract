@@ -2,12 +2,14 @@ pragma solidity 0.5.8;
 pragma experimental ABIEncoderV2;
 
 import "moc-governance/contracts/Governance/Governed.sol";
+import "moc-governance/contracts/Governance/IGovernor.sol";
 import "./MoCLibConnection.sol";
 import "./interface/IMoCState.sol";
 import "./MoCBProxManager.sol";
 import "./MoCConverter.sol";
 import "./base/MoCBase.sol";
 import "./interface/IMoCVendors.sol";
+import "./interface/IMoCInrate.sol";
 
 contract MoCInrateEvents {
   event InrateDailyPay(uint256 amount, uint256 daysToSettlement, uint256 nReserveBucketC0);
@@ -57,7 +59,7 @@ contract MoCInrateStructs {
 }
 
 
-contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnection, Governed {
+contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnection, Governed, IMoCInrate {
   using SafeMath for uint256;
 
   // Last block when a payment was executed
@@ -217,7 +219,7 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
    @dev Gets the rate for BitPro Holders
    @return BitPro Rate
   */
-  function getBitProRate() public view returns(uint256){
+  function getBitProRate() public view returns(uint256) {
     return bitProRate;
   }
 
@@ -245,7 +247,7 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
    @dev Gets the target address to transfer BitPro Holders rate
    @return Target address to transfer BitPro Holders interest
   */
-  function getBitProInterestAddress() public view returns(address payable){
+  function getBitProInterestAddress() public view returns(address payable) {
     return bitProInterestAddress;
   }
 

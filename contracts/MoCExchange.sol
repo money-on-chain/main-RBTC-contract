@@ -4,9 +4,12 @@ pragma experimental ABIEncoderV2;
 import "./MoCLibConnection.sol";
 import "./token/BProToken.sol";
 import "./token/DocToken.sol";
-import "./MoCInrate.sol";
+import "./interface/IMoCInrate.sol";
 import "./base/MoCBase.sol";
 import "./token/MoCToken.sol";
+import "./MoCConverter.sol";
+import "./MoCBProxManager.sol";
+import "openzeppelin-solidity/contracts/math/Math.sol";
 import "./interface/IMoC.sol";
 import "./interface/IMoCExchange.sol";
 import "./interface/IMoCState.sol";
@@ -123,7 +126,7 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection, IMoCExchan
   MoCBProxManager internal bproxManager;
   BProToken internal bproToken;
   DocToken internal docToken;
-  MoCInrate internal mocInrate;
+  IMoCInrate internal mocInrate;
   IMoC internal moc;
 
   /**
@@ -959,7 +962,7 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection, IMoCExchan
     bproxManager = MoCBProxManager(connector.bproxManager());
     mocState = IMoCState(connector.mocState());
     mocConverter = MoCConverter(connector.mocConverter());
-    mocInrate = MoCInrate(connector.mocInrate());
+    mocInrate = IMoCInrate(connector.mocInrate());
   }
 
 

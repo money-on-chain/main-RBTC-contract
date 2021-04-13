@@ -1,20 +1,19 @@
 pragma solidity 0.5.8;
 
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+import "openzeppelin-solidity/contracts/lifecycle/Pausable.sol";
 import "./MoCLibConnection.sol";
-import "./token/DocToken.sol";
-import "./token/BProToken.sol";
 import "./MoCBProxManager.sol";
 import "./interface/IMoCState.sol";
 import "./MoCConverter.sol";
-import "./MoCSettlement.sol";
+import "./interface/IMoCSettlement.sol";
 import "./interface/IMoCExchange.sol";
 import "./base/MoCBase.sol";
 import "moc-governance/contracts/Stopper/Stoppable.sol";
 import "moc-governance/contracts/Governance/IGovernor.sol";
-import "./token/MoCToken.sol";
+import "openzeppelin-solidity/contracts/token/ERC20/IERC20.sol";
 import "./interface/IMoCVendors.sol";
-import "./MoCInrate.sol";
+import "./interface/IMoCInrate.sol";
 import "./interface/IMoC.sol";
 
 contract MoCEvents {
@@ -26,14 +25,14 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
   using SafeMath for uint256;
 
   /// @dev Contracts.
-  DocToken internal docToken;
-  BProToken internal bproToken;
+  address internal docToken;
+  address internal bproToken;
   MoCBProxManager internal bproxManager;
   IMoCState internal mocState;
   MoCConverter internal mocConverter;
-  MoCSettlement internal settlement;
+  IMoCSettlement internal settlement;
   IMoCExchange internal mocExchange;
-  MoCInrate internal mocInrate;
+  IMoCInrate internal mocInrate;
   /// @dev 'MoCBurnout' is deprecated. DO NOT use this variable.
   /** DEPRECATED **/
   // solium-disable-next-line mixedcase
@@ -67,14 +66,14 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
     initializePrecisions();
     initializeBase(connectorAddress);
     //initializeContracts
-    docToken = DocToken(connector.docToken());
-    bproToken = BProToken(connector.bproToken());
+    docToken = connector.docToken();
+    bproToken = connector.bproToken();
     bproxManager = MoCBProxManager(connector.bproxManager());
     mocState = IMoCState(connector.mocState());
-    settlement = MoCSettlement(connector.mocSettlement());
+    settlement = IMoCSettlement(connector.mocSettlement());
     mocConverter = MoCConverter(connector.mocConverter());
     mocExchange = IMoCExchange(connector.mocExchange());
-    mocInrate = MoCInrate(connector.mocInrate());
+    mocInrate = IMoCInrate(connector.mocInrate());
     //initializeGovernanceContracts
     Stoppable.initialize(stopperAddress, IGovernor(governorAddress), startStoppable);
   }
@@ -469,8 +468,8 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
   function liquidate() internal {
     if (!liquidationExecuted) {
       //pauseBProToken
-      if (!bproToken.paused()) {
-        bproToken.pause();
+      if (!Pausable(bproToken).paused()) {
+        Pausable(bproToken).pause();
       }
       //sendRbtcRemainder
       doTransfer(mocInrate.commissionsAddress(), mocState.getRbtcRemainder());
@@ -551,7 +550,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
     // If commission and markup are paid in MoC
     if (totalMoCFee > 0) {
       // Transfer MoC from sender to this contract
-      MoCToken mocToken = MoCToken(mocState.getMoCToken());
+      IERC20 mocToken = IERC20(mocState.getMoCToken());
       mocToken.transferFrom(sender, address(this), totalMoCFee);
 
       // Transfer vendor markup in MoC

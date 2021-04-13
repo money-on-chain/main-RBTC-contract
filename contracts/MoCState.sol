@@ -10,7 +10,7 @@ import "./MoCBProxManager.sol";
 import "./token/DocToken.sol";
 import "./token/BProToken.sol";
 import "./token/MoCToken.sol";
-import "./MoCSettlement.sol";
+import "./interface/IMoCSettlement.sol";
 import "moc-governance/contracts/Governance/Governed.sol";
 import "moc-governance/contracts/Governance/IGovernor.sol";
 import "./MoCConverter.sol";
@@ -47,7 +47,7 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator, IMoCState {
 
   // Contracts
   PriceProvider internal btcPriceProvider;
-  MoCSettlement internal mocSettlement;
+  IMoCSettlement internal mocSettlement;
   MoCConverter internal mocConverter;
   DocToken internal docToken;
   BProToken internal bproToken;
@@ -885,7 +885,7 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator, IMoCState {
   }
 
   function initializeContracts(address _mocTokenAddress, address _mocVendorsAddress) internal  {
-    mocSettlement = MoCSettlement(connector.mocSettlement());
+    mocSettlement = IMoCSettlement(connector.mocSettlement());
     docToken = DocToken(connector.docToken());
     bproToken = BProToken(connector.bproToken());
     bproxManager = MoCBProxManager(connector.bproxManager());

@@ -11,6 +11,7 @@ import "./PartialExecution.sol";
 import "moc-governance/contracts/Governance/Governed.sol";
 import "moc-governance/contracts/Governance/IGovernor.sol";
 import "./interface/IMoCVendors.sol";
+import "./interface/IMoCSettlement.sol";
 
 contract MoCSettlementEvents {
   event RedeemRequestAlter(address indexed redeemer, bool isAddition, uint256 delta);
@@ -30,7 +31,8 @@ contract MoCSettlement is
 MoCSettlementEvents,
 MoCBase,
 PartialExecution,
-Governed
+Governed,
+IMoCSettlement
 {
   using Math for uint256;
   using SafeMath for uint256;
