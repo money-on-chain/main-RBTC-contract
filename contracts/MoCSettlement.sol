@@ -464,6 +464,36 @@ IMoCSettlement
     userReedem.activeRedeemer = false;
     redeemQueue[index].amount = 0;
   }
+ /**
+    @dev Create Task structures for Settlement execution
+  */
+  function fixTasksPointer() public {
+    bytes32[] memory tasks = new bytes32[](2);
+    tasks[0] = DELEVERAGING_TASK;
+    tasks[1] = DOC_REDEMPTION_TASK;
+
+    resetTaskPointers(
+        DELEVERAGING_TASK,
+        deleveragingStepCount,
+        deleveragingStep,
+        noFunction,
+        finishDeleveraging
+    );
+    resetTaskPointers(
+        DOC_REDEMPTION_TASK,
+        docRedemptionStepCount,
+        docRedemptionStep,
+        noFunction,
+        finishDocRedemption
+    );
+    resetTaskGroupPointers(
+        SETTLEMENT_TASK,
+        tasks,
+        initializeSettlement,
+        finishSettlement,
+        true
+    );
+  }
 
   /**
   @dev Create Task structures for Settlement execution
