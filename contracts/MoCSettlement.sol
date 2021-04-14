@@ -288,6 +288,37 @@ IMoCSettlement
     return settlementInfo.finalCommissionAmount;
   }
 
+  /**
+    @dev Create Task structures for Settlement execution
+  */
+  function fixTasksPointer() public {
+    bytes32[] memory tasks = new bytes32[](2);
+    tasks[0] = DELEVERAGING_TASK;
+    tasks[1] = DOC_REDEMPTION_TASK;
+
+    resetTaskPointers(
+      DELEVERAGING_TASK,
+      deleveragingStepCount,
+      deleveragingStep,
+      noFunction,
+      finishDeleveraging
+    );
+    resetTaskPointers(
+      DOC_REDEMPTION_TASK,
+      docRedemptionStepCount,
+      docRedemptionStep,
+      noFunction,
+      finishDocRedemption
+    );
+    resetTaskGroupPointers(
+      SETTLEMENT_TASK,
+      tasks,
+      initializeSettlement,
+      finishSettlement,
+      true
+    );
+  }
+
   function initializeContracts() internal {
     docToken = DocToken(connector.docToken());
     bproxManager = MoCBProxManager(connector.bproxManager());
@@ -302,6 +333,7 @@ IMoCSettlement
     initializeTasks();
   }
 
+
   modifier isTime() {
     require(isSettlementEnabled(), "Settlement not yet enabled");
     _;
@@ -311,7 +343,7 @@ IMoCSettlement
   /******************** TASKS ***********************/
   /**************************************************/
 
-  /**
+/**
   @dev Returns the amount of steps for the Deleveraging task
   which is the amount of active BProx addresses
 */
@@ -463,36 +495,6 @@ IMoCSettlement
     UserRedeemRequest storage userReedem = redeemMapping[redeemer];
     userReedem.activeRedeemer = false;
     redeemQueue[index].amount = 0;
-  }
- /**
-    @dev Create Task structures for Settlement execution
-  */
-  function fixTasksPointer() public {
-    bytes32[] memory tasks = new bytes32[](2);
-    tasks[0] = DELEVERAGING_TASK;
-    tasks[1] = DOC_REDEMPTION_TASK;
-
-    resetTaskPointers(
-        DELEVERAGING_TASK,
-        deleveragingStepCount,
-        deleveragingStep,
-        noFunction,
-        finishDeleveraging
-    );
-    resetTaskPointers(
-        DOC_REDEMPTION_TASK,
-        docRedemptionStepCount,
-        docRedemptionStep,
-        noFunction,
-        finishDocRedemption
-    );
-    resetTaskGroupPointers(
-        SETTLEMENT_TASK,
-        tasks,
-        initializeSettlement,
-        finishSettlement,
-        true
-    );
   }
 
   /**

@@ -13,12 +13,8 @@ interface IMoCExchange {
     function mintDoc(address account, uint256 btcToMint, address vendorAccount) external
     returns (uint256, uint256, uint256, uint256, uint256);
 
-    function redeemBProx(
-        address payable account,
-        bytes32 bucket,
-        uint256 bproxAmount,
-        address vendorAccount
-    ) external returns (uint256, uint256, uint256, uint256, uint256);
+    function redeemBProx(address payable account, bytes32 bucket, uint256 bproxAmount, address vendorAccount)
+    external returns (uint256, uint256, uint256, uint256, uint256);
 
     function mintBProx(address payable account, bytes32 bucket, uint256 btcToMint, address vendorAccount) external
     returns (uint256, uint256, uint256, uint256, uint256);
@@ -31,16 +27,9 @@ interface IMoCExchange {
 
     function convertToMoCPrice(uint256 btcAmount) external view returns (uint256, uint256, uint256);
 
-    function forceRedeemBProx(
-        bytes32 bucket,
-        address payable account,
-        uint256 bproxAmount,
-        uint256 bproxPrice
-    ) external returns (bool);
+    function forceRedeemBProx(bytes32 bucket, address payable account, uint256 bproxAmount, uint256 bproxPrice)
+    external returns (bool);
 
-    function redeemDocWithPrice(
-        address payable userAddress,
-        uint256 amount,
-        uint256 btcPrice
-    ) external returns (bool, uint256);
+    function redeemDocWithPrice(address payable userAddress, uint256 amount, uint256 btcPrice) external
+    returns (bool, uint256);
 }
