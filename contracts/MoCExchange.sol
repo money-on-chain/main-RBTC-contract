@@ -4,10 +4,15 @@ pragma experimental ABIEncoderV2;
 import "./MoCLibConnection.sol";
 import "./token/BProToken.sol";
 import "./token/DocToken.sol";
-import "./MoCInrate.sol";
+import "./interface/IMoCInrate.sol";
 import "./base/MoCBase.sol";
-import "./MoC.sol";
 import "./token/MoCToken.sol";
+import "./MoCConverter.sol";
+import "./MoCBProxManager.sol";
+import "openzeppelin-solidity/contracts/math/Math.sol";
+import "./interface/IMoC.sol";
+import "./interface/IMoCExchange.sol";
+import "./interface/IMoCState.sol";
 
 contract MoCExchangeEvents {
   event RiskProMint(
@@ -111,18 +116,18 @@ contract MoCExchangeEvents {
 }
 
 
-contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
+contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection, IMoCExchange {
   using Math for uint256;
   using SafeMath for uint256;
 
   // Contracts
-  MoCState internal mocState;
+  IMoCState internal mocState;
   MoCConverter internal mocConverter;
   MoCBProxManager internal bproxManager;
   BProToken internal bproToken;
   DocToken internal docToken;
-  MoCInrate internal mocInrate;
-  MoC internal moc;
+  IMoCInrate internal mocInrate;
+  IMoC internal moc;
 
   /**
     @dev Initializes the contract
@@ -237,7 +242,7 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
     details.finalBProAmount = 0;
     details.btcValue = 0;
 
-    if (mocState.state() == MoCState.States.BProDiscount) {
+    if (mocState.state() == IMoCState.States.BProDiscount) {
       details.discountPrice = mocState.bproDiscountPrice();
       details.bproDiscountAmount = mocConverter.btcToBProDisc(btcAmount);
 
@@ -951,13 +956,13 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection {
   }
 
   function initializeContracts() internal {
-    moc = MoC(connector.moc());
+    moc = IMoC(connector.moc());
     docToken = DocToken(connector.docToken());
     bproToken = BProToken(connector.bproToken());
     bproxManager = MoCBProxManager(connector.bproxManager());
-    mocState = MoCState(connector.mocState());
+    mocState = IMoCState(connector.mocState());
     mocConverter = MoCConverter(connector.mocConverter());
-    mocInrate = MoCInrate(connector.mocInrate());
+    mocInrate = IMoCInrate(connector.mocInrate());
   }
 
 

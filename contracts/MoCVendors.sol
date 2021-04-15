@@ -5,10 +5,11 @@ import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "moc-governance/contracts/Governance/Governed.sol";
 import "./MoCLibConnection.sol";
 import "./base/MoCBase.sol";
-import "./MoC.sol";
-import "./token/MoCToken.sol";
-import "./MoCExchange.sol";
-import "./MoCState.sol";
+import "./interface/IMoC.sol";
+import "openzeppelin-solidity/contracts/token/ERC20/IERC20.sol";
+import "./interface/IMoCExchange.sol";
+import "./interface/IMoCState.sol";
+import "./interface/IMoCVendors.sol";
 
 contract MoCVendorsEvents {
   event VendorRegistered(
@@ -38,7 +39,7 @@ contract MoCVendorsEvents {
   );
 }
 
-contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed {
+contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed, IMoCVendors {
   using Math for uint256;
   using SafeMath for uint256;
 
@@ -53,9 +54,9 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed {
   }
 
   // Contracts
-  MoC internal moc;
-  MoCState internal mocState;
-  MoCExchange internal mocExchange;
+  IMoC internal moc;
+  IMoCState internal mocState;
+  IMoCExchange internal mocExchange;
 
   // Constants
   uint8 public constant VENDORS_LIST_ARRAY_MAX_LENGTH = 100;
@@ -99,11 +100,11 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed {
   */
   function registerVendor(address account, uint256 markup) public onlyVendorGuardian() returns (bool isActive) {
     require(account != address(0), "Vendor account must not be 0x0");
-    require(markup <= VENDOR_MAX_MARKUP, "Vendor markup must not be greater than 1%");
+    require(markup <= VENDOR_MAX_MARKUP, "Vendor markup threshold exceeded");
 
     if (vendors[account].isActive == false) {
       // Change the error message according to the value of the VENDORS_LIST_ARRAY_MAX_LENGTH constant
-      require(vendorsList.length < VENDORS_LIST_ARRAY_MAX_LENGTH, "vendorsList length must be between 1 and 100");
+      require(vendorsList.length < VENDORS_LIST_ARRAY_MAX_LENGTH, "vendorsList length out of range");
 
       // Map vendor details to vendor address
       vendors[account].isActive = true;
@@ -150,7 +151,7 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed {
     @param staking Staking the vendor wants to add
   */
   function addStake(uint256 staking) public onlyActiveVendor() {
-    MoCToken mocToken = MoCToken(mocState.getMoCToken());
+    IERC20 mocToken = IERC20(mocState.getMoCToken());
     (uint256 mocBalance, uint256 mocAllowance) = mocExchange.getMoCTokenBalance(msg.sender, address(this));
 
     require(staking > 0, "Staking should be greater than 0");
@@ -167,7 +168,7 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed {
     @param staking Staking the vendor wants to remove
   */
   function removeStake(uint256 staking) public onlyActiveVendor() {
-    MoCToken mocToken = MoCToken(mocState.getMoCToken());
+    IERC20 mocToken = IERC20(mocState.getMoCToken());
 
     require(staking > 0, "Staking should be greater than 0");
     require(staking <= vendors[msg.sender].totalPaidInMoC, "Vendor total paid is not enough");
@@ -286,9 +287,9 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed {
   }
 
   function initializeContracts() internal {
-    moc = MoC(connector.moc());
-    mocState = MoCState(connector.mocState());
-    mocExchange = MoCExchange(connector.mocExchange());
+    moc = IMoC(connector.moc());
+    mocState = IMoCState(connector.mocState());
+    mocExchange = IMoCExchange(connector.mocExchange());
   }
 
   function initializeValues(address _governor, address _vendorGuardianAddress) internal {

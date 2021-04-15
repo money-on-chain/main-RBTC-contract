@@ -1,16 +1,16 @@
 pragma solidity 0.5.8;
 
-import "./MoCState.sol";
+import "./interface/IMoCState.sol";
 import "./MoCLibConnection.sol";
 import "./base/MoCBase.sol";
 
 contract MoCConverter is MoCBase, MoCLibConnection {
-  MoCState internal mocState;
+  IMoCState internal mocState;
 
   function initialize(address connectorAddress) public initializer {
     initializePrecisions();
     initializeBase(connectorAddress);
-    mocState = MoCState(connector.mocState());
+    mocState = IMoCState(connector.mocState());
   }
 
   /**

@@ -1,13 +1,6 @@
 /* eslint-disable no-console */
 const MoCLib = artifacts.require('./MoCHelperLib.sol');
 
-const MoC = artifacts.require('./MoC.sol');
-const MoCConverter = artifacts.require('./MoCConverter.sol');
-const MoCState = artifacts.require('./MoCState.sol');
-const MoCExchange = artifacts.require('./MoCExchange.sol');
-const MoCInrate = artifacts.require('./MoCInrate.sol');
-const MoCVendors = artifacts.require('./MoCVendors.sol');
-
 const { getConfig, getNetwork, saveConfig } = require('../helper');
 
 module.exports = async callback => {

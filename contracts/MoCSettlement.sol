@@ -4,13 +4,14 @@ import "openzeppelin-solidity/contracts/math/Math.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "./base/MoCBase.sol";
 import "./token/DocToken.sol";
-import "./MoCState.sol";
-import "./MoCExchange.sol";
+import "./interface/IMoCState.sol";
+import "./interface/IMoCExchange.sol";
 import "./MoCBProxManager.sol";
 import "./PartialExecution.sol";
 import "moc-governance/contracts/Governance/Governed.sol";
 import "moc-governance/contracts/Governance/IGovernor.sol";
-import "./MoCVendors.sol";
+import "./interface/IMoCVendors.sol";
+import "./interface/IMoCSettlement.sol";
 
 contract MoCSettlementEvents {
   event RedeemRequestAlter(address indexed redeemer, bool isAddition, uint256 delta);
@@ -30,7 +31,8 @@ contract MoCSettlement is
 MoCSettlementEvents,
 MoCBase,
 PartialExecution,
-Governed
+Governed,
+IMoCSettlement
 {
   using Math for uint256;
   using SafeMath for uint256;
@@ -64,8 +66,8 @@ Governed
   }
 
   // Contracts
-  MoCState internal mocState;
-  MoCExchange internal mocExchange;
+  IMoCState internal mocState;
+  IMoCExchange internal mocExchange;
   DocToken internal docToken;
   MoCBProxManager internal bproxManager;
 
@@ -286,11 +288,42 @@ Governed
     return settlementInfo.finalCommissionAmount;
   }
 
+  /**
+    @dev Create Task structures for Settlement execution
+  */
+  function fixTasksPointer() public {
+    bytes32[] memory tasks = new bytes32[](2);
+    tasks[0] = DELEVERAGING_TASK;
+    tasks[1] = DOC_REDEMPTION_TASK;
+
+    resetTaskPointers(
+      DELEVERAGING_TASK,
+      deleveragingStepCount,
+      deleveragingStep,
+      noFunction,
+      finishDeleveraging
+    );
+    resetTaskPointers(
+      DOC_REDEMPTION_TASK,
+      docRedemptionStepCount,
+      docRedemptionStep,
+      noFunction,
+      finishDocRedemption
+    );
+    resetTaskGroupPointers(
+      SETTLEMENT_TASK,
+      tasks,
+      initializeSettlement,
+      finishSettlement,
+      true
+    );
+  }
+
   function initializeContracts() internal {
     docToken = DocToken(connector.docToken());
     bproxManager = MoCBProxManager(connector.bproxManager());
-    mocState = MoCState(connector.mocState());
-    mocExchange = MoCExchange(connector.mocExchange());
+    mocState = IMoCState(connector.mocState());
+    mocExchange = IMoCExchange(connector.mocExchange());
   }
 
   function initializeValues(address _governor, uint256 _blockSpan) internal {
@@ -299,6 +332,7 @@ Governed
     lastProcessedBlock = block.number;
     initializeTasks();
   }
+
 
   modifier isTime() {
     require(isSettlementEnabled(), "Settlement not yet enabled");
@@ -309,7 +343,7 @@ Governed
   /******************** TASKS ***********************/
   /**************************************************/
 
-  /**
+/**
   @dev Returns the amount of steps for the Deleveraging task
   which is the amount of active BProx addresses
 */
@@ -354,7 +388,7 @@ Governed
     settlementInfo.startBlockNumber = block.number;
 
     // Reset total paid in MoC for every vendor
-    MoCVendors mocVendors = MoCVendors(mocState.getMoCVendors());
+    IMoCVendors mocVendors = IMoCVendors(mocState.getMoCVendors());
     mocVendors.resetTotalPaidInMoC();
 
     emit SettlementStarted(

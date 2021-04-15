@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 const UpgraderChanger = artifacts.require('./changers/UpgraderChanger.sol');
 const Governor = artifacts.require('moc-governance/contracts/Governance/Governor.sol');
+const MoCSettlementChangerDeploy = artifacts.require('./MoCSettlementChangerDeploy.sol');
 
 const MoCSettlement = artifacts.require('./MoCSettlement.sol');
 
@@ -34,6 +35,21 @@ module.exports = async callback => {
       console.log('Execute change - MoCSettlement');
       const governor = await Governor.at(config.implementationAddresses.Governor);
       await governor.executeChange(upgradeMocSettlement.address);
+    }
+
+    console.log('MoCSettlementChangerDeploy');
+    const settlementChanger = await MoCSettlementChangerDeploy.new(
+      config.proxyAddresses.MoCSettlement
+    );
+    // Save changer address to config file
+    config.changerAddresses['5_MoCSettlementChangerDeploy'] = settlementChanger.address;
+    saveConfig(config, configPath);
+
+    if (shouldExecuteChanges(network)) {
+      // Execute changes in contracts
+      console.log('Execute change - MoCSettlementChangerDeploy');
+      const governor = await Governor.at(config.implementationAddresses.Governor);
+      await governor.executeChange(settlementChanger.address);
     }
 
     console.log('MoCSettlement implementation address: ', mocSettlement.address);
