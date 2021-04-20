@@ -7,7 +7,7 @@ const ProxyAdmin = artifacts.require(
     'zos-lib/contracts/upgradeability/ProxyAdmin.sol'
   );
 
-contract.only('Test solidity function pointers', function([owner]) {
+contract('Test solidity function pointers', function([owner]) {
   it('Remains pointer after upgrade', async function() {
     const newTask = await NewTask.new();
     const oldTask = await OldTask.new();

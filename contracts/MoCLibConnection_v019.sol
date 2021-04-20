@@ -1,13 +1,13 @@
 pragma solidity 0.5.8;
 
-import "./MoCHelperLib.sol";
+import "./MoCHelperLib_v019.sol";
 
 /**
   @dev Interface with MocHelperLib
  */
-contract MoCLibConnection {
-  using MoCHelperLib for MoCHelperLib.MocLibConfig;
-  MoCHelperLib.MocLibConfig internal mocLibConfig;
+contract MoCLibConnection_v019 {
+  using MoCHelperLib_v019 for MoCHelperLib_v019.MocLibConfig;
+  MoCHelperLib_v019.MocLibConfig internal mocLibConfig;
 
   /*
   * Precision getters
@@ -24,8 +24,8 @@ contract MoCLibConnection {
     return mocLibConfig.dayPrecision;
   }
 
-  function initializePrecisions() public {
-    mocLibConfig = MoCHelperLib.MocLibConfig({
+  function initializePrecisions() internal {
+    mocLibConfig = MoCHelperLib_v019.MocLibConfig({
       reservePrecision: 10 ** 18,
       mocPrecision: 10 ** 18,
       dayPrecision: 1
