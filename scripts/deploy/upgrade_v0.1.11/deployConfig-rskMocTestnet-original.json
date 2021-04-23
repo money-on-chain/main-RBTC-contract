@@ -1,0 +1,13 @@
+{
+  "proxyAddresses": {
+    "MoCExchange": "0xc03Ac60eBbc01A1f4e9b5bb989F359e5D8348919"
+  },
+  "implementationAddresses": {
+    "MoCExchange": "",
+    "ProxyAdmin": "0xffb65F6E24806B7e1A988EeD1Ad07BB2654fF695",
+    "UpgradeDelegator": "0xCDAbFbF334A5F6BCe900D2f73470D1e6722365d8",
+    "Governor": "0x4eAC4518e81B3A5198aADAb998D2610B46aAA609",
+    "MoCHelperLib": "0xB842F6E4795F0DCE9e05729981B4B1D908dE552c"
+  },
+  "changerAddresses": { }
+}

@@ -52,7 +52,7 @@ contract('MoC : MoCExchange', function([owner, userAccount]) {
             nB: '5.37037037037037037'
           },
           interest: {
-            nB: '0.002418128482109259258930393785692400'
+            nB: '0.0'
           }
         }
       },
@@ -71,7 +71,7 @@ contract('MoC : MoCExchange', function([owner, userAccount]) {
             nB: '4.897959183673465'
           },
           interest: {
-            nB: '0.0026648762864061224488516777749872000'
+            nB: '0.0'
           }
         }
       },
@@ -90,7 +90,7 @@ contract('MoC : MoCExchange', function([owner, userAccount]) {
             nB: '3'
           },
           interest: {
-            nB: '0.00219372615896952'
+            nB: '0.0'
           }
         }
       },
@@ -109,7 +109,7 @@ contract('MoC : MoCExchange', function([owner, userAccount]) {
             nB: '2.25'
           },
           interest: {
-            nB: '0.00274215769871189999853751589402032'
+            nB: '0.0'
           }
         }
       },
@@ -131,7 +131,7 @@ contract('MoC : MoCExchange', function([owner, userAccount]) {
             nB: '3.6'
           },
           interest: {
-            nB: '0.00175498092717561599780627384103048'
+            nB: '0.0'
           }
         }
       }

@@ -6,15 +6,15 @@ jobs:
       steps:
         - checkout
         - node/install:
-            install-yarn: true
-            node-version: 8.12.0
+            node-version: 8.17.0
+            npm-version: 6.13.4
         - run: node --version
         - run: sudo apt-get update
         - run: sudo apt-get install make gcc g++ python git bash
         - node/install-packages
         - run: npm run solium
-        - run: npm run test
         - run: npm run eslint
+        - run: npm run test
 
 orbs:
   node: circleci/node@2.0.0
