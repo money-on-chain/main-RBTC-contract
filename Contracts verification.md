@@ -42,7 +42,7 @@
 |  MoCSettlement  | [0xe3abce2b0ee0d7ea48a5bcd0442d5505ae5b6334](https://explorer.rsk.co/address/0xe3abce2b0ee0d7ea48a5bcd0442d5505ae5b6334?__ctab=general) |
 |  MoCConverter  | [0x0CFc08501780bc02Ca4c16324D22F32511B309a9](https://blockscout.com/rsk/mainnet/address/0x0CFc08501780bc02Ca4c16324D22F32511B309a9/contracts) |
 |  MocState  | [0x08817f585A9F2601fB7bFFfE913Dac305Aaf2dDd](https://blockscout.com/rsk/mainnet/address/0x08817f585a9f2601fb7bfffe913dac305aaf2ddd/transactions) |
-|  MocExchange  | [0x785814724324C63ec52e6675C899508E74850046](https://blockscout.com/rsk/mainnet/address/0x785814724324C63ec52e6675C899508E74850046/contracts) |
+|  MocExchange  | [0x2F74988cBcA494C6107D258DEC432b264f942F22](https://explorer.rsk.co/address/0x2f74988cbca494c6107d258dec432b264f942f22?__ctab=Code) |
 |  MocInrate  | [0x56e327FA971572828f846BE9E37FB850e5852822](https://blockscout.com/rsk/mainnet/address/0x56e327fa971572828f846be9e37fb850e5852822/contracts) |
 
 
