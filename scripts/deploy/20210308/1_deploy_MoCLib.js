@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 /* eslint-disable no-console */
 const MoCLib = artifacts.require('./MoCHelperLib.sol');
 
@@ -8,10 +9,11 @@ module.exports = async callback => {
     const network = getNetwork(process.argv);
     const configPath = `${__dirname}/deployConfig-${network}.json`;
     const config = getConfig(network, configPath);
-    // const [owner] = await web3.eth.getAccounts();
+    const [owner] = await web3.eth.getAccounts();
 
     // Deploy new MoCHelperLib implementation
     console.log('Deploy MoCHelperLib');
+    console.log('Account address', owner);
     const mocHelperLib = await MoCLib.new();
 
     // Save implementation address to config file

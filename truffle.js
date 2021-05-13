@@ -1,7 +1,7 @@
 const HDWalletProvider = require('truffle-hdwallet-provider');
 const fs = require('fs');
 
-const mnemonicFile = './mnemonic.txt';
+const mnemonicFile = `${__dirname}/mnemonic.txt`;
 let mnemonic;
 
 // Change mnemonic according to who is deploying
