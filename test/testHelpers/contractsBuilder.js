@@ -350,7 +350,14 @@ const createContracts = params => async ({ owner, useMock }) => {
   await bprox.initialize(mocConnector.address, governor.address, c0Cobj, x2Cobj);
   await mocSettlement.initialize(mocConnector.address, governor.address, settlementBlockSpan);
   await governor.initialize(owner);
-  await commissionSplitter.initialize(moc.address, owner, mocProportion, governor.address);
+  await commissionSplitter.initialize(
+    moc.address,
+    owner,
+    mocProportion,
+    governor.address,
+    mocToken.address,
+    owner
+  );
   await upgradeDelegator.initialize(governor.address, proxyAdmin.address);
   await mocVendors.initialize(
     mocConnector.address,

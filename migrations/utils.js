@@ -361,6 +361,11 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
       targetAddressCommission = config.targetAddressCommissionPayment;
     }
 
+    let mocTokenCommissionsAddress = owner;
+    if (config.mocTokenCommissionsAddress !== '') {
+      ({ mocTokenCommissionsAddress } = config.mocTokenCommissionsAddress);
+    }
+
     const mocInrateInitializeParams = {
       connectorAddress: mocConnector.address,
       governor: governorAddress,
@@ -464,7 +469,9 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
       moc.address,
       targetAddressCommission,
       toContract(config.mocProportion),
-      governorAddress
+      governorAddress,
+      mocToken.address,
+      mocTokenCommissionsAddress
     );
     console.log('CommissionSplitter Initialized');
   };
@@ -549,7 +556,8 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
       MoCInrate: contractAddresses.mocInrate,
       MoCConverter: contractAddresses.mocConverter,
       MoCState: contractAddresses.mocState,
-      MoCVendors: contractAddresses.mocVendors
+      MoCVendors: contractAddresses.mocVendors,
+      CommissionSplitter: contractAddresses.commissionSplitter
     };
 
     const implementationAddresses = {
@@ -566,7 +574,8 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
       MoCToken: implementationAddr.mocToken,
       MoCPriceProvider: implementationAddr.mocOracle,
       MoCVendors: implementationAddr.mocVendors,
-      MoCHelperLib: implementationAddr.mocHelperLib
+      MoCHelperLib: implementationAddr.mocHelperLib,
+      CommissionSplitter: implementationAddr.commissionSplitter
     };
 
     let vendorGuardianAddress = owner;
@@ -574,11 +583,17 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
       ({ vendorGuardianAddress } = networkConfig.vendorGuardianAddress);
     }
 
+    let mocTokenCommissionsAddress = owner;
+    if (config.mocTokenCommissionsAddress !== '') {
+      ({ mocTokenCommissionsAddress } = config.mocTokenCommissionsAddress);
+    }
+
     const valuesToAssign = {
       commissionRates: networkConfig.commissionRates,
       liquidationEnabled: networkConfig.liquidationEnabled,
       protected: networkConfig.protected,
-      vendorGuardianAddress
+      vendorGuardianAddress,
+      mocTokenCommissionsAddress
     };
 
     const changerAddresses = {};

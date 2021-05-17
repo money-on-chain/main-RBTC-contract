@@ -7,7 +7,8 @@
     "MoCInrate": "",
     "MoCConverter": "",
     "MoCState": "",
-    "MoCVendors": ""
+    "MoCVendors": "",
+    "CommissionSplitter": ""
   },
   "implementationAddresses": {
     "MoC": "",
@@ -23,7 +24,8 @@
     "MoCToken": "",
     "MoCPriceProvider": "",
     "MoCVendors": "",
-    "MoCHelperLib": ""
+    "MoCHelperLib": "",
+    "CommissionSplitter": ""
   },
   "valuesToAssign": {
     "commissionRates": {
@@ -42,7 +44,8 @@
     },
     "liquidationEnabled": "",
     "protected": "",
-    "vendorGuardianAddress": ""
+    "vendorGuardianAddress": "",
+    "mocTokenCommissionsAddress": ""
   },
   "changerAddresses": { }
 }

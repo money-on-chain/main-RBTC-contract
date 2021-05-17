@@ -16,10 +16,11 @@ SCRIPTS="
 3_deploy_MoC.js
 4_deploy_MoCExchange.js
 5_deploy_MoCSettlement.js
-6_deploy_MoCInrate.js
-7_deploy_MoCConverter.js
-8_deploy_MoCState.js
-9_check_deploy.js
+6_deploy_CommissionSplitter.js
+7_deploy_MoCInrate.js
+8_deploy_MoCConverter.js
+9_deploy_MoCState.js
+10_check_deploy.js
 "
 
 for S in $SCRIPTS; do

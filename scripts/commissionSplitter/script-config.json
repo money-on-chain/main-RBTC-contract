@@ -11,7 +11,9 @@
     "mocRiskProxManager": "",
     "commissionSplitter": "",
     "mocState": "",
-    "moc": "0x9A9ad90344B854b03E82c0bdddf6BF1aB4BF37A1"
+    "moc": "0x9A9ad90344B854b03E82c0bdddf6BF1aB4BF37A1",
+    "mocToken": "",
+    "mocTokenCommissionAddress": ""
   },
   "uatTestnet": {
     "oracle": "0xF027e67fDDc8f589dc4419f0aF20747A1d670E1E",
@@ -24,7 +26,9 @@
     "mocInrate": "",
     "mocRiskProxManager": "",
     "mocState": "",
-    "moc": "0x1CacFFb40036E5940d6F9F80af8054756704409f"
+    "moc": "0x1CacFFb40036E5940d6F9F80af8054756704409f",
+    "mocToken": "",
+    "mocTokenCommissionAddress": ""
   },
   "rskAlphaTestnet": {
     "governor": "0x9258531274B945eB628656F4b30e8216938A619C",
@@ -34,7 +38,9 @@
     "commissionSplitter": "",
     "moc": "0x01AD6f8E884ed4DDC089fA3efC075E9ba45C9039",
     "commissionAddress": "0xf69287F5Ca3cC3C6d3981f2412109110cB8af076",
-    "mocProportion": "200000000000000000"
+    "mocProportion": "200000000000000000",
+    "mocToken": "0x0399c7F7B37E21cB9dAE04Fb57E24c68ed0B4635",
+    "mocTokenCommissionAddress": "0xf69287F5Ca3cC3C6d3981f2412109110cB8af076"
   },
   "rskMocTestnet": {
     "governor": "0x4eAC4518e81B3A5198aADAb998D2610B46aAA609",
@@ -44,7 +50,9 @@
     "commissionSplitter": "",
     "moc": "0x2820f6d4D199B8D8838A4B26F9917754B86a0c1F",
     "commissionAddress": "0xf69287F5Ca3cC3C6d3981f2412109110cB8af076",
-    "mocProportion": "200000000000000000"
+    "mocProportion": "200000000000000000",
+    "mocToken": "0x45a97b54021a3f99827641afe1bfae574431e6ab",
+    "mocTokenCommissionAddress": "0xf69287F5Ca3cC3C6d3981f2412109110cB8af076"
   },
   "rskMocMainnet2": {
     "governor": "0xC61F0392d5170214b5D93C0BC4c4354163aBC1f7",
@@ -54,6 +62,8 @@
     "commissionSplitter": "",
     "moc": "0xf773B590aF754D597770937Fa8ea7AbDf2668370",
     "commissionAddress": "0xC61820bFB8F87391d62Cd3976dDc1d35e0cf7128",
-    "mocProportion": "200000000000000000"
+    "mocProportion": "200000000000000000",
+    "mocToken": "0x9ac7fe28967b30e3a4e6e03286d715b42b453d10",
+    "mocTokenCommissionAddress": "0xC61820bFB8F87391d62Cd3976dDc1d35e0cf7128"
   }
 }

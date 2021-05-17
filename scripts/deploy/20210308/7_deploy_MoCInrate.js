@@ -112,7 +112,7 @@ module.exports = async callback => {
 
     // Save implementation address and changer address to config file
     config.implementationAddresses.MoCInrate = mocInrate.address;
-    config.changerAddresses['6_MoCInrate'] = upgradeMocInrate.address;
+    config.changerAddresses['7_MoCInrate'] = upgradeMocInrate.address;
     saveConfig(config, configPath);
 
     let governor;
@@ -133,7 +133,7 @@ module.exports = async callback => {
     );
 
     // Save changer address to config file
-    config.changerAddresses['6_MoCInrateChangerDeploy'] = mocInrateChangerDeploy.address;
+    config.changerAddresses['7_MoCInrateChangerDeploy'] = mocInrateChangerDeploy.address;
     saveConfig(config, configPath);
 
     if (shouldExecuteChanges(network)) {

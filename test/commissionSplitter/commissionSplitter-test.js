@@ -1,9 +1,12 @@
 const testHelperBuilder = require('../mocHelper.js');
 
+const CommissionSplitterChangerDeploy = artifacts.require('CommissionSplitterChangerDeploy.sol');
+
 let mocHelper;
 let commissionSplitter;
 let splitterPrecision;
 let toContractBN;
+let mocToken;
 
 const executeOperations = (user, operations, vendorAccount) => {
   const promises = operations.map(async op =>
@@ -20,11 +23,17 @@ const executeOperations = (user, operations, vendorAccount) => {
 
 const operationsTotal = operations => operations.reduce((last, op) => op.reserve + last, 0);
 
-contract('CommissionSplitter', function([owner, userAccount, commissionsAccount, vendorAccount]) {
+contract('CommissionSplitter', function([
+  owner,
+  userAccount,
+  commissionsAccount,
+  vendorAccount,
+  mocCommissionsAccount
+]) {
   before(async function() {
-    const accounts = [owner, userAccount];
+    const accounts = [owner, userAccount, mocCommissionsAccount];
     mocHelper = await testHelperBuilder({ owner, accounts });
-    ({ toContractBN, commissionSplitter } = mocHelper);
+    ({ toContractBN, commissionSplitter, mocToken } = mocHelper);
     await mocHelper.saveState();
   });
 
@@ -160,6 +169,64 @@ contract('CommissionSplitter', function([owner, userAccount, commissionsAccount,
           });
         });
       });
+    });
+  });
+
+  describe('WHEN split is made with MocTokens', function() {
+    before(async function() {
+      await mocHelper.revertState();
+
+      const commissionSplitterChangerDeploy = await CommissionSplitterChangerDeploy.new(
+        commissionSplitter.address,
+        mocToken.address,
+        mocCommissionsAccount,
+        {
+          from: owner
+        }
+      );
+
+      // update params
+      await mocHelper.governor.executeChange(commissionSplitterChangerDeploy.address);
+
+      // Set Final commissionAddress Proportion from scenario
+      await mocHelper.setFinalCommissionAddress(commissionsAccount);
+    });
+
+    it('THEN should receive 100% of the MocTokens on the mocTokenCommissionAddress', async function() {
+      const mocTokenAmount = '510000003';
+      await mocHelper.mintMoCToken(commissionSplitter.address, mocTokenAmount, owner);
+
+      let commissionSpliterMocTokenBalance = await mocHelper.getMoCBalance(
+        commissionSplitter.address
+      );
+      mocHelper.assertBigReserve(
+        commissionSpliterMocTokenBalance,
+        mocTokenAmount,
+        'Commission Splitter initial MoC Token balance is incorrect'
+      );
+      let mocCommissionsAccountBalance = await mocHelper.getMoCBalance(mocCommissionsAccount);
+      mocHelper.assertBigReserve(
+        mocCommissionsAccountBalance,
+        '0',
+        'Initial MoC Token Commission balance is incorrect'
+      );
+
+      // Send the funds to the comission address
+      await commissionSplitter.split();
+
+      commissionSpliterMocTokenBalance = await mocHelper.getMoCBalance(commissionSplitter.address);
+      mocHelper.assertBigReserve(
+        commissionSpliterMocTokenBalance,
+        '0',
+        'Commission Splitter end MoC Token balance is incorrect'
+      );
+
+      mocCommissionsAccountBalance = await mocHelper.getMoCBalance(mocCommissionsAccount);
+      mocHelper.assertBigReserve(
+        mocCommissionsAccountBalance,
+        mocTokenAmount,
+        'End MoC Token Commission account balance is incorrect'
+      );
     });
   });
 });

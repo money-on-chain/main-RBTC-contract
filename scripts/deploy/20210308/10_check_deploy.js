@@ -18,6 +18,7 @@ module.exports = async callback => {
       'MoC',
       'MoCExchange',
       'MoCSettlement',
+      'CommissionSplitter',
       'MoCInrate',
       'MoCConverter',
       'MoCState',

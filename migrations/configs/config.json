@@ -27,6 +27,7 @@
     "liquidationEnabled": false,
     "protected": 1.5,
     "vendorGuardianAddress": "",
+    "mocTokenCommissionsAddress": "",
     "commissionRates": {
       "MINT_BPRO_FEES_RBTC": 0.001,
       "REDEEM_BPRO_FEES_RBTC": 0.001,
@@ -70,6 +71,7 @@
     "liquidationEnabled": false,
     "protected": 1.5,
     "vendorGuardianAddress": "",
+    "mocTokenCommissionsAddress": "",
     "commissionRates": {
       "MINT_BPRO_FEES_RBTC": 0.001,
       "REDEEM_BPRO_FEES_RBTC": 0.001,
@@ -113,6 +115,7 @@
     "liquidationEnabled": false,
     "protected": 1.5,
     "vendorGuardianAddress": "",
+    "mocTokenCommissionsAddress": "",
     "commissionRates": {
       "MINT_BPRO_FEES_RBTC": 0.001,
       "REDEEM_BPRO_FEES_RBTC": 0.001,
@@ -161,6 +164,7 @@
     "liquidationEnabled": false,
     "protected": 1.5,
     "vendorGuardianAddress": "",
+    "mocTokenCommissionsAddress": "0xf69287F5Ca3cC3C6d3981f2412109110cB8af076",
     "commissionRates": {
       "MINT_BPRO_FEES_RBTC": 0.001,
       "REDEEM_BPRO_FEES_RBTC": 0.001,
@@ -194,6 +198,7 @@
     "daysBitProHolderExecutePayment": 7,
     "targetAddressBitProInterest": "0xf69287F5Ca3cC3C6d3981f2412109110cB8af076",
     "targetAddressCommissionPayment": "0xf69287F5Ca3cC3C6d3981f2412109110cB8af076",
+    "mocTokenCommissionsAddress": "0xf69287F5Ca3cC3C6d3981f2412109110cB8af076",
     "commissionRate": 0.002,
     "docTmin": 0.000133681,
     "docPower": 4,

@@ -38,7 +38,7 @@ module.exports = async callback => {
 
     // Save implementation address and changer address to config file
     config.implementationAddresses.MoCState = mocState.address;
-    config.changerAddresses['8_MoCState'] = upgradeMocState.address;
+    config.changerAddresses['9_MoCState'] = upgradeMocState.address;
     saveConfig(config, configPath);
 
     let governor;
