@@ -8,7 +8,7 @@
     "MoCConverter": "0x0fC4b4eac059933755323bC5c44A06e2Fcccd425",
     "MoCState": "0xfb526c0Ace90f52049691389B040a33D03343eb7",
     "MoCVendors": "0x314E114Fd9a3Ec60b1c02c492Ac3Ba1ec4378864",
-    "CommissionSplitter": "0x97Dff2039A3b0ab6AD6a315507f8CABd83a9Cb05"
+    "CommissionSplitter": "0x9c1e20A0Ea6c71B0AEA47fd8B1E29de208ab7A82"
   },
   "implementationAddresses": {
     "MoC": "0xCeBF8D78683744E24B5A695c8298C4409274BF51",
@@ -25,7 +25,7 @@
     "MoCPriceProvider": "0xE972c8E83A5b97bB4FC867855A0aA13EF96f228D",
     "MoCVendors": "0x01Ccb60900004aaaF35B06a0a2a7Fe3112C28673",
     "MoCHelperLib": "0x63A4f955674542F74188b96E91c4Aaf546BF9462",
-    "CommissionSplitter": "0x99e6E6e1148380264D6C9A1CAE60Ba07788a6050"
+    "CommissionSplitter": "0x545b9C1D09c331a441F94af6830d52EB060ED400"
   },
   "valuesToAssign": {
     "commissionRates": {
@@ -52,8 +52,8 @@
     "4_MoCExchange": "0x17C37778769049Ba1c63b6802469148F4c348bF5",
     "5_MoCSettlement": "0x6196C8787C005A8Cf37A18EC8f704702c49242D4",
     "5_MoCSettlementChangerDeploy": "0x59F7B8FC2347E3A341010e792F3E6211688bf116",
-    "6_CommissionSplitter": "0xC6e0A87dbd9f83944A9667bdA41Afc95eDC8257a",
-    "6_commissionSplitterChangerDeploy": "0xEFa41246458567a2AE2dda4dC742E2E6ecB142E2",
+    "6_CommissionSplitter": "0x44A437F180Ca14536985cC135db120e499bF6EE7",
+    "6_commissionSplitterChangerDeploy": "0x333F37bE2D212A05Bc6f5489783b0E8A180b767b",
     "7_MoCInrate": "0x87d9443478868D2B635A7d4fC42BFf92a72Ac099",
     "7_MoCInrateChangerDeploy": "0x73b9fF171Fe4F0034CF647E48e5637d8c874e44c",
     "8_MoCConverter": "0xf6D3a11cC04c8d2e2f14f875bd449Bdc6cAC8CE3",
