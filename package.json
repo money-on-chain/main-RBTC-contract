@@ -24,7 +24,8 @@
     "deploy-reset-testnet": "rm zos.dev-*.json; rm -r build/contracts; cat zos.json.empty > zos.json; npx truffle migrate --network rskTestnet --reset",
     "contract-size": "npx truffle compile; node calcSize.js",
     "docgen": "npx solidoc",
-    "copy-abis": "npx truffle compile; node copyAbis.js"
+    "copy-abis": "npx truffle compile; node copyAbis.js",
+    "flatten-contracts": "bash scripts/contract_flattener.sh"
   },
   "repository": {
     "type": "git",
@@ -65,7 +66,8 @@
     "standard-version": "7.1.0",
     "truffle": "5.0.26",
     "truffle-hdwallet-provider": "1.0.13",
-    "web3": "1.0.0-beta.55"
+    "web3": "1.0.0-beta.55",
+    "@zemse/solidity-flattener": "1.5.1"
   },
   "engines": {
     "node": "=8.17.0"
