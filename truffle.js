@@ -92,7 +92,7 @@ module.exports = {
     }
   },
   mocha: {
-    reporter: 'eth-gas-reporter',
+    // reporter: 'eth-gas-reporter',
     useColors: true,
     bail: false,
     enableTimeouts: false
