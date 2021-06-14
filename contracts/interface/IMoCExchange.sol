@@ -1,4 +1,4 @@
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 interface IMoCExchange {
     function getMoCTokenBalance(address owner, address spender) external view
