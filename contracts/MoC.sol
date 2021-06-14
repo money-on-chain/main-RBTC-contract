@@ -545,18 +545,14 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
     uint256 mocMarkup,
     uint256 totalMoCFee
   ) internal {
-    IMoCVendors mocVendors = IMoCVendors(mocState.getMoCVendors());
-
     // If commission and markup are paid in MoC
     if (totalMoCFee > 0) {
+      IMoCVendors mocVendors = IMoCVendors(mocState.getMoCVendors());
       // Transfer MoC from sender to this contract
       IERC20 mocToken = IERC20(mocState.getMoCToken());
 
       // Transfer vendor markup in MoC
-      if (mocVendors.getIsActive(vendorAccount) &&
-          mocVendors.getTotalPaidInMoC(vendorAccount).add(mocMarkup) <= mocVendors.getStaking(vendorAccount)) {
-        // Update vendor's markup
-        mocVendors.updatePaidMarkup(vendorAccount, mocMarkup, 0, mocMarkup);
+      if (mocVendors.updatePaidMarkup(vendorAccount, mocMarkup, 0)) {
         // Transfer MoC to vendor address
         mocToken.transferFrom(sender, vendorAccount, mocMarkup);
         // Transfer MoC to commissions address
@@ -600,17 +596,13 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
     @param btcMarkup vendor markup in RBTC
   */
   function transferBtcCommission(address payable vendorAccount, uint256 btcCommission, uint256 btcMarkup) internal {
-    IMoCVendors mocVendors = IMoCVendors(mocState.getMoCVendors());
 
     uint256 totalBtcFee = btcCommission.add(btcMarkup);
-    (uint256 btcMarkupInMoC, , ) = mocExchange.convertToMoCPrice(btcMarkup);
 
     if (totalBtcFee > 0) {
+      IMoCVendors mocVendors = IMoCVendors(mocState.getMoCVendors());
       // Transfer vendor markup in MoC
-      if (mocVendors.getIsActive(vendorAccount) &&
-          mocVendors.getTotalPaidInMoC(vendorAccount).add(btcMarkupInMoC) <= mocVendors.getStaking(vendorAccount)) {
-        // Update vendor's markup
-        mocVendors.updatePaidMarkup(vendorAccount, 0, btcMarkup, btcMarkupInMoC);
+      if (mocVendors.updatePaidMarkup(vendorAccount, 0, btcMarkup)) {
         // Transfer RBTC to vendor address
         doTransfer(vendorAccount, btcMarkup);
         // Transfer RBTC to commissions address
