@@ -156,7 +156,6 @@ event RiskProxRedeem(bytes32  bucket, address indexed account, uint256  commissi
 ## Functions
 
 - [initialize(address connectorAddress)](#initialize)
-- [convertToMoCPrice(uint256 btcAmount)](#converttomocprice)
 - [getMoCTokenBalance(address owner, address spender)](#getmoctokenbalance)
 - [calculateCommissionsWithPrices(struct MoCExchange.CommissionParamsStruct params)](#calculatecommissionswithprices)
 - [mintBPro(address account, uint256 btcAmount, address vendorAccount)](#mintbpro)
@@ -196,24 +195,6 @@ function initialize(address connectorAddress) public nonpayable initializer
 | ------------- |------------- | -----|
 | connectorAddress | address | MoCConnector contract address | 
 
-### convertToMoCPrice
-
-Converts MoC commission from RBTC to MoC price
-
-```js
-function convertToMoCPrice(uint256 btcAmount) public view
-returns(uint256, uint256, uint256)
-```
-
-**Returns**
-
-Amount converted to MoC Price, Bitcoin price and MoC price
-
-**Arguments**
-
-| Name        | Type           | Description  |
-| ------------- |------------- | -----|
-| btcAmount | uint256 | Amount to be converted to MoC price | 
 
 ### getMoCTokenBalance
 

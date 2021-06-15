@@ -25,8 +25,6 @@ interface IMoCExchange {
     function redeemAllDoc(address origin, address payable destination) external
     returns (uint256);
 
-    function convertToMoCPrice(uint256 btcAmount) external view returns (uint256, uint256, uint256);
-
     function forceRedeemBProx(bytes32 bucket, address payable account, uint256 bproxAmount, uint256 bproxPrice)
     external returns (bool);
 

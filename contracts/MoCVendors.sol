@@ -193,12 +193,13 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed, IM
   onlyWhitelisted(msg.sender)
   returns(bool) {
     VendorDetails memory vendorDetails = vendors[account];
-    if( vendorDetails.isActive &&
+    if (vendorDetails.isActive &&
           vendorDetails.totalPaidInMoC.add(mocAmount) <= vendorDetails.staking) {
       uint256 totalMoCAmount = mocAmount;
-      if(rbtcAmount > 0){
-        (uint256 rbtcAmountInMoC, , ) = mocExchange.convertToMoCPrice(rbtcAmount);
-        totalMoCAmount = totalMoCAmount.add(rbtcAmountInMoC);
+      if (rbtcAmount > 0) {
+        uint256 btcPrice = mocState.getBitcoinPrice();
+        uint256 mocPrice = mocState.getMoCPrice();
+        totalMoCAmount = btcPrice.mul(rbtcAmount).div(mocPrice);
       }
       vendors[account].totalPaidInMoC = vendorDetails.totalPaidInMoC.add(totalMoCAmount);
       emit VendorReceivedMarkup(account, mocAmount, rbtcAmount);
