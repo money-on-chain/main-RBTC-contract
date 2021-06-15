@@ -522,41 +522,6 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection, IMoCExchan
   }
 
   /**
-    @dev  Mint the amount of BPros
-    @param account Address that will owned the BPros
-    @param bproAmount Amount of BPros to mint [using mocPrecision]
-    @param rbtcValue RBTC cost of the minting [using reservePrecision]
-  */
-  function mintBPro(
-    address account,
-    uint256 btcCommission,
-    uint256 bproAmount,
-    uint256 rbtcValue,
-    uint256 mocCommission,
-    uint256 btcPrice,
-    uint256 mocPrice,
-    uint256 btcMarkup,
-    uint256 mocMarkup,
-    address vendorAccount
-  ) public onlyWhitelisted(msg.sender) {
-    bproToken.mint(account, bproAmount);
-    bproxManager.addValuesToBucket(BUCKET_C0, rbtcValue, 0, bproAmount);
-
-    emit RiskProMint(
-      account,
-      bproAmount,
-      rbtcValue,
-      btcCommission,
-      btcPrice,
-      mocCommission,
-      mocPrice,
-      btcMarkup,
-      mocMarkup,
-      vendorAccount
-    );
-  }
-
-  /**
    @dev BUCKET Bprox minting. Mints Bprox for the specified bucket
    @param account owner of the new minted Bprox
    @param bucket bucket name
@@ -780,13 +745,16 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection, IMoCExchan
    @dev Internal function to avoid stack too deep errors
   */
   function mintBProInternal(address account, uint256 btcAmount, RiskProMintStruct memory details, address vendorAccount) internal {
-    mintBPro(
+    bproToken.mint(account, details.finalBProAmount);
+    bproxManager.addValuesToBucket(BUCKET_C0, btcAmount, 0, details.finalBProAmount);
+
+    emit RiskProMint(
       account,
-      details.commission.btcCommission,
       details.finalBProAmount,
       btcAmount,
-      details.commission.mocCommission,
+      details.commission.btcCommission,
       details.commission.btcPrice,
+      details.commission.mocCommission,
       details.commission.mocPrice,
       details.commission.btcMarkup,
       details.commission.mocMarkup,
