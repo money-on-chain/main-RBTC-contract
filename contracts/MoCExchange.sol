@@ -1,4 +1,4 @@
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 pragma experimental ABIEncoderV2;
 
 import "./MoCLibConnection.sol";
@@ -149,21 +149,6 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection, IMoCExchan
 
   /**
    @dev Converts MoC commission from RBTC to MoC price
-   @param btcAmount Amount to be converted to MoC price
-   @return Amount converted to MoC Price, Bitcoin price and MoC price
-  */
-  function convertToMoCPrice(uint256 btcAmount) public view returns (uint256, uint256, uint256) {
-    uint256 btcPrice = mocState.getBitcoinPrice();
-    uint256 mocPrice = mocState.getMoCPrice();
-
-    // Calculate amount in MoC
-    uint256 amountInMoC = mocConverter.btcToMoCWithPrice(btcAmount, btcPrice, mocPrice);
-
-    return (amountInMoC, btcPrice, mocPrice);
-  }
-
-  /**
-   @dev Converts MoC commission from RBTC to MoC price
    @param owner address of token owner
    @param spender address of token spender
    @return MoC balance of owner and MoC allowance of spender
@@ -192,20 +177,29 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection, IMoCExchan
   function calculateCommissionsWithPrices(CommissionParamsStruct memory params)
   public view
   returns (CommissionReturnStruct memory ret) {
+    ret.btcPrice = mocState.getBitcoinPrice();
+    ret.mocPrice = mocState.getMoCPrice();
+    require(ret.btcPrice > 0, "BTC price zero");
+    require(ret.mocPrice > 0, "MoC price zero");
+    // Calculate vendor markup
+    uint256 btcMarkup = mocInrate.calculateVendorMarkup(params.vendorAccount, params.amount);
+
     // Get balance and allowance from sender
     (uint256 mocBalance, uint256 mocAllowance) = getMoCTokenBalance(params.account, address(moc));
+    if(mocAllowance == 0 || mocBalance == 0) {
+      // Check commission rate in RBTC according to transaction type
+      ret.btcCommission = mocInrate.calcCommissionValue(params.amount, params.txTypeFeesRBTC);
+      ret.btcMarkup = btcMarkup;
+      return ret;
+    }
 
     // Check commission rate in MoC according to transaction type
     uint256 mocCommissionInBtc = mocInrate.calcCommissionValue(params.amount, params.txTypeFeesMOC);
 
     // Calculate amount in MoC
-    (ret.mocCommission, ret.btcPrice, ret.mocPrice) = convertToMoCPrice(mocCommissionInBtc);
-    ret.btcCommission = 0;
+    ret.mocCommission = ret.btcPrice.mul(mocCommissionInBtc).div(ret.mocPrice);
+    ret.mocMarkup = ret.btcPrice.mul(btcMarkup).div(ret.mocPrice);
 
-    // Calculate vendor markup
-    uint256 btcMarkup = mocInrate.calculateVendorMarkup(params.vendorAccount, params.amount);
-    (ret.mocMarkup, , ) = convertToMoCPrice(btcMarkup);
-    ret.btcMarkup = 0;
     uint256 totalMoCFee = ret.mocCommission.add(ret.mocMarkup);
 
     // Check if there is enough balance of MoC
@@ -528,41 +522,6 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection, IMoCExchan
   }
 
   /**
-    @dev  Mint the amount of BPros
-    @param account Address that will owned the BPros
-    @param bproAmount Amount of BPros to mint [using mocPrecision]
-    @param rbtcValue RBTC cost of the minting [using reservePrecision]
-  */
-  function mintBPro(
-    address account,
-    uint256 btcCommission,
-    uint256 bproAmount,
-    uint256 rbtcValue,
-    uint256 mocCommission,
-    uint256 btcPrice,
-    uint256 mocPrice,
-    uint256 btcMarkup,
-    uint256 mocMarkup,
-    address vendorAccount
-  ) public onlyWhitelisted(msg.sender) {
-    bproToken.mint(account, bproAmount);
-    bproxManager.addValuesToBucket(BUCKET_C0, rbtcValue, 0, bproAmount);
-
-    emit RiskProMint(
-      account,
-      bproAmount,
-      rbtcValue,
-      btcCommission,
-      btcPrice,
-      mocCommission,
-      mocPrice,
-      btcMarkup,
-      mocMarkup,
-      vendorAccount
-    );
-  }
-
-  /**
    @dev BUCKET Bprox minting. Mints Bprox for the specified bucket
    @param account owner of the new minted Bprox
    @param bucket bucket name
@@ -786,13 +745,16 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection, IMoCExchan
    @dev Internal function to avoid stack too deep errors
   */
   function mintBProInternal(address account, uint256 btcAmount, RiskProMintStruct memory details, address vendorAccount) internal {
-    mintBPro(
+    bproToken.mint(account, details.finalBProAmount);
+    bproxManager.addValuesToBucket(BUCKET_C0, btcAmount, 0, details.finalBProAmount);
+
+    emit RiskProMint(
       account,
-      details.commission.btcCommission,
       details.finalBProAmount,
       btcAmount,
-      details.commission.mocCommission,
+      details.commission.btcCommission,
       details.commission.btcPrice,
+      details.commission.mocCommission,
       details.commission.mocPrice,
       details.commission.btcMarkup,
       details.commission.mocMarkup,

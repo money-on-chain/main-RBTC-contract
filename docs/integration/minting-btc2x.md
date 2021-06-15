@@ -143,7 +143,7 @@ This will leave you with a contract similar to the following
 ​
 
 ```js
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 ​
 import "money-on-chain/contracts/MoC.sol";
 import 'money-on-chain/contracts/MoCInrate.sol';

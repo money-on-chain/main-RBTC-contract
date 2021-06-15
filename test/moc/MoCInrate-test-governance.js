@@ -6,7 +6,7 @@ let toContractBN;
 
 const NOT_AUTHORIZED_CHANGER = 'not_authorized_changer';
 // eslint-disable-next-line quotes
-const INVALID_TXTYPE_ERROR = "Invalid transaction type 'txType'";
+const INVALID_TXTYPE_ERROR = 'Invalid txType';
 
 const scenario = {
   btcxTmin: 4,

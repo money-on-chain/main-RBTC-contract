@@ -1,4 +1,4 @@
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 import "./interface/IMoCState.sol";
 import "./MoCLibConnection.sol";
@@ -89,13 +89,6 @@ contract MoCConverter is MoCBase, MoCLibConnection {
     return mocLibConfig.maxMoCWithBtc(btcAmount, mocState.getBitcoinPrice(), mocState.getMoCPrice());
   }
 
-  function mocToBtcWithPrice(uint256 mocAmount, uint256 btcPrice, uint256 mocPrice) public view returns(uint256) {
-    return mocLibConfig.mocBtcValue(mocAmount, btcPrice, mocPrice);
-  }
-
-  function btcToMoCWithPrice(uint256 btcAmount, uint256 btcPrice, uint256 mocPrice) public view returns(uint256) {
-    return mocLibConfig.maxMoCWithBtc(btcAmount, btcPrice, mocPrice);
-  }
 
   // Leave a gap betweeen inherited contracts variables in order to be
   // able to add more variables in them later

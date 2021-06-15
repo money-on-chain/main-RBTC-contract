@@ -1,4 +1,4 @@
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 /**
   @dev Provides access control between all MoC Contracts

@@ -41,9 +41,6 @@ uint256[50] private upgradeGap;
 - [bproToBtcWithPrice(uint256 bproAmount, uint256 bproPrice)](#bprotobtcwithprice)
 - [mocToBtc(uint256 mocAmount)](#moctobtc)
 - [btcToMoC(uint256 btcAmount)](#btctomoc)
-- [mocToBtcWithPrice(uint256 mocAmount, uint256 btcPrice, uint256 mocPrice)](#moctobtcwithprice)
-- [btcToMoCWithPrice(uint256 btcAmount, uint256 btcPrice, uint256 mocPrice)](#btctomocwithprice)
-
 ### initialize
 
 ```js
@@ -262,33 +259,6 @@ returns(uint256)
 | ------------- |------------- | -----|
 | btcAmount | uint256 |  | 
 
-### mocToBtcWithPrice
 
-```js
-function mocToBtcWithPrice(uint256 mocAmount, uint256 btcPrice, uint256 mocPrice) public view
-returns(uint256)
-```
 
-**Arguments**
-
-| Name        | Type           | Description  |
-| ------------- |------------- | -----|
-| mocAmount | uint256 |  | 
-| btcPrice | uint256 |  | 
-| mocPrice | uint256 |  | 
-
-### btcToMoCWithPrice
-
-```js
-function btcToMoCWithPrice(uint256 btcAmount, uint256 btcPrice, uint256 mocPrice) public view
-returns(uint256)
-```
-
-**Arguments**
-
-| Name        | Type           | Description  |
-| ------------- |------------- | -----|
-| btcAmount | uint256 |  | 
-| btcPrice | uint256 |  | 
-| mocPrice | uint256 |  | 
 
