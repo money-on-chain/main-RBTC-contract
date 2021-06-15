@@ -10,7 +10,7 @@ const { BN } = web3.utils;
 const NOT_ENOUGH_FUNDS_ERROR = "sender doesn't have enough funds to send tx";
 const zeroAddress = '0x0000000000000000000000000000000000000000';
 
-contract.only('MoC: MoCExchange', function([
+contract('MoC: MoCExchange', function([
   owner,
   userAccount,
   commissionsAccount,
