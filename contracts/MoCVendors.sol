@@ -171,11 +171,10 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed, IM
     @param staking Staking the vendor wants to remove
   */
   function removeStake(uint256 staking) public onlyActiveVendor() {
-    IERC20 mocToken = IERC20(mocState.getMoCToken());
-
     require(staking > 0, "Staking should be greater than 0");
     require(staking <= vendors[msg.sender].totalPaidInMoC, "Vendor total paid is not enough");
 
+    IERC20 mocToken = IERC20(mocState.getMoCToken());
     mocToken.transfer(msg.sender, staking);
     vendors[msg.sender].staking = vendors[msg.sender].staking.sub(staking);
 

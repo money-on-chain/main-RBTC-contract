@@ -9,7 +9,7 @@ let toContractBN;
 const NOT_AUTHORIZED_CHANGER = 'not_authorized_changer';
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
-contract('MoC: MoCVendors', function([
+contract.only('MoC: MoCVendors', function([
   owner,
   userAccount,
   commissionsAccount,
@@ -96,23 +96,24 @@ contract('MoC: MoCVendors', function([
         }
       },
       // Vendor 4
-      // {
-      //   params: {
-      //     account: vendorAccount4,
-      //     markup: 0.01,
-      //     staking: 1,
-      //     mocAmount: 10000,
-      //     mintAmount: 10,
-      //     addStakeMessage: 'WHEN a vendor adds staking of $STAKING$ THEN revert is expected',
-      //     removeStakeMessage: 'WHEN a vendor removes staking of $STAKING$ THEN revert is expected'
-      //   },
-      //   expect: {
-      //     totalPaidInMoC: 0.1,
-      //     paidMoC: 0.1,
-      //     paidRBTC: 0,
-      //     staking: 1
-      //   }
-      // }
+      {
+        params: {
+          account: vendorAccount4,
+          markup: 0.01,
+          staking: 1,
+          mocAmount: 10000,
+          mintAmount: 10,
+          addStakeMessage: 'WHEN a vendor adds staking of $STAKING$ THEN revert is expected',
+          removeStakeMessage: 'WHEN a vendor removes staking of $STAKING$ THEN revert is expected',
+          userAccountMocAmount: 10000
+        },
+        expect: {
+          totalPaidInMoC: 0.1,
+          paidMoC: 0.1,
+          paidRBTC: 0,
+          staking: 1
+        }
+      }
     ];
 
     scenarios.forEach(async scenario => {
@@ -137,6 +138,14 @@ contract('MoC: MoCVendors', function([
           scenario.params.mocAmount,
           scenario.params.account
         );
+        if(scenario.params.userAccountMocAmount && new BigNumber(scenario.params.userAccountMocAmount).gt(0)) {
+          await mocHelper.mintMoCToken(userAccount, scenario.params.userAccountMocAmount, owner);
+          await mocHelper.approveMoCToken(
+            this.mocVendors.address,
+            scenario.params.mocAmount,
+            userAccount
+          );
+        }
 
         // Commission rates for test are set in functionHelper.js
         await mocHelper.mockMocInrateChanger.setCommissionRates(
@@ -199,7 +208,7 @@ contract('MoC: MoCVendors', function([
           }
         }
       );
-      it(`WHEN a user mints ${scenario.params.mintAmount} BPRO THEN the vendor receives his corresponding fee`, async function() {
+      it(`WHEN a user mints ${scenario.params.mintAmount} BPRO THEN the vendor receives his corresponding fee and VendorReceivedMarkup event is emitted`, async function() {
         // Make a transaction so that the vendor has something to remove from staking
         const tx = await mocHelper.mintBProAmount(
           userAccount,
@@ -210,9 +219,7 @@ contract('MoC: MoCVendors', function([
         const totalPaidInMoC = await this.mocVendors.getTotalPaidInMoC(scenario.params.account);
         if(scenario.params.mintAmount > 0) {
           const [vendorReceivedMarkupEvent] = await mocHelper.findEvents(tx, 'VendorReceivedMarkup');
-          console.log("MoCVendors - vendorReceivedMarkupEvent: ", vendorReceivedMarkupEvent);
           const {paidRBTC, paidMoC} = vendorReceivedMarkupEvent;
-          console.log("MoCVendors - paidMoC: ", paidMoC, ", paidRBTC: ", paidRBTC);
           mocHelper.assertBigRBTC(paidMoC, scenario.expect.paidMoC, 'paidMoC is incorrect');
           mocHelper.assertBigRBTC(paidRBTC, scenario.expect.paidRBTC, 'paidRBTC is incorrect');
         }
