@@ -187,7 +187,7 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection, IMoCExchan
 
     // Get balance and allowance from sender
     (uint256 mocBalance, uint256 mocAllowance) = getMoCTokenBalance(params.account, address(moc));
-    if(mocAllowance == 0 || mocBalance == 0) {
+    if (mocAllowance == 0 || mocBalance == 0) {
       // Check commission rate in RBTC according to transaction type
       ret.btcCommission = mocInrate.calcCommissionValue(params.amount, params.txTypeFeesRBTC);
       ret.btcMarkup = btcMarkup;
@@ -260,10 +260,10 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection, IMoCExchan
         ? btcAmount
         // Converts BTC to BPro with discount up to the discount limit
         : bproDiscToBtc(
-            details.finalBProAmount,
-            details.bproRegularPrice,
-            mocState.bproSpotDiscountRate()
-          );
+          details.finalBProAmount,
+          details.bproRegularPrice,
+          mocState.bproSpotDiscountRate()
+        );
 
       emit RiskProWithDiscountMint(
         details.bproRegularPrice,

@@ -196,7 +196,15 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
     uint256 btcMarkup,
     uint256 mocMarkup) = mocExchange.redeemBPro(msg.sender, bproAmount, vendorAccount);
 
-    redeemWithMoCFees(msg.sender, btcAmount, btcCommission, mocCommission, vendorAccount, btcMarkup, mocMarkup);
+    redeemWithCommission(
+      msg.sender,
+      btcAmount,
+      btcCommission,
+      mocCommission,
+      vendorAccount,
+      btcMarkup,
+      mocMarkup
+    );
     /** END UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
   }
 
@@ -264,7 +272,15 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
     uint256 btcMarkup,
     uint256 mocMarkup) = mocExchange.redeemBProx(msg.sender, bucket, bproxAmount, vendorAccount);
 
-    redeemWithMoCFees(msg.sender, totalBtcRedeemed, btcCommission, mocCommission, vendorAccount, btcMarkup, mocMarkup);
+    redeemWithCommission(
+      msg.sender,
+      totalBtcRedeemed,
+      btcCommission,
+      mocCommission,
+      vendorAccount,
+      btcMarkup,
+      mocMarkup
+    );
     /** END UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
   }
 
@@ -332,7 +348,15 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
     uint256 btcMarkup,
     uint256 mocMarkup) = mocExchange.redeemFreeDoc(msg.sender, docAmount, vendorAccount);
 
-    redeemWithMoCFees(msg.sender, btcAmount, btcCommission, mocCommission, vendorAccount, btcMarkup, mocMarkup);
+    redeemWithCommission(
+      msg.sender,
+      btcAmount,
+      btcCommission,
+      mocCommission,
+      vendorAccount,
+      btcMarkup,
+      mocMarkup
+    );
     /** END UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
   }
 
@@ -564,7 +588,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
     @param btcMarkup vendor markup in RBTC
     @param mocMarkup vendor markup in MoC
   */
-  function redeemWithMoCFees(
+  function redeemWithCommission(
     address payable sender,
     uint256 btcAmount,
     uint256 btcCommission,
