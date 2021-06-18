@@ -27,10 +27,18 @@ because this is not dealt with automatically as with constructors.
 
 ```js
 bool private initialized;
-bool private initializing;
-uint256[50] private ______gap;
-
 ```
+---
+
+```js
+bool private initializing;
+```
+---
+
+```js
+uint256[50] private ______gap;
+```
+---
 
 ## Modifiers
 

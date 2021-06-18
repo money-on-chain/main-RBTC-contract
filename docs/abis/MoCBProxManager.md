@@ -16,13 +16,14 @@ View Source: [contracts/MoCBProxManager.sol](../../contracts/MoCBProxManager.sol
 **Constants & Variables**
 
 ```js
-//internal members
 uint256 internal constant MIN_ALLOWED_BALANCE;
-
-//private members
-uint256[50] private upgradeGap;
-
 ```
+---
+
+```js
+uint256[50] private upgradeGap;
+```
+---
 
 ## Functions
 

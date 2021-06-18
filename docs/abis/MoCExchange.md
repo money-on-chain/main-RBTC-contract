@@ -8,7 +8,7 @@ original_id: MoCExchange
 
 View Source: [contracts/MoCExchange.sol](../../contracts/MoCExchange.sol)
 
-**↗ Extends: [MoCExchangeEvents](MoCExchangeEvents.md), [MoCBase](MoCBase.md), [MoCLibConnection](MoCLibConnection.md)**
+**↗ Extends: [MoCExchangeEvents](MoCExchangeEvents.md), [MoCBase](MoCBase.md), [MoCLibConnection](MoCLibConnection.md), [IMoCExchange](IMoCExchange.md)**
 
 **MoCExchange** - version: 0.1.10
 
@@ -23,6 +23,7 @@ struct RiskProxRedeemStruct {
  uint256 bucketLev,
  uint256 bproxToRedeem,
  uint256 rbtcToRedeem,
+ uint256 bproxPrice,
  struct MoCExchange.CommissionReturnStruct commission
 }
 ```
@@ -126,45 +127,193 @@ struct StableTokenRedeemStruct {
 **Constants & Variables**
 
 ```js
-//internal members
-contract MoCState internal mocState;
-contract MoCConverter internal mocConverter;
-contract MoCBProxManager internal bproxManager;
-contract BProToken internal bproToken;
-contract DocToken internal docToken;
-contract MoCInrate internal mocInrate;
-contract MoC internal moc;
-
-//private members
-uint256[50] private upgradeGap;
-
+contract IMoCState internal mocState;
 ```
-
-**Events**
+---
 
 ```js
-event RiskProMint(address indexed account, uint256  amount, uint256  reserveTotal, uint256  commission, uint256  reservePrice, uint256  mocCommissionValue, uint256  mocPrice, uint256  btcMarkup, uint256  mocMarkup, address  vendorAccount);
-event RiskProWithDiscountMint(uint256  riskProTecPrice, uint256  riskProDiscountPrice, uint256  amount);
-event RiskProRedeem(address indexed account, uint256  amount, uint256  reserveTotal, uint256  commission, uint256  reservePrice, uint256  mocCommissionValue, uint256  mocPrice, uint256  btcMarkup, uint256  mocMarkup, address  vendorAccount);
-event StableTokenMint(address indexed account, uint256  amount, uint256  reserveTotal, uint256  commission, uint256  reservePrice, uint256  mocCommissionValue, uint256  mocPrice, uint256  btcMarkup, uint256  mocMarkup, address  vendorAccount);
-event StableTokenRedeem(address indexed account, uint256  amount, uint256  reserveTotal, uint256  commission, uint256  reservePrice, uint256  mocCommissionValue, uint256  mocPrice, uint256  btcMarkup, uint256  mocMarkup, address  vendorAccount);
-event FreeStableTokenRedeem(address indexed account, uint256  amount, uint256  reserveTotal, uint256  commission, uint256  interests, uint256  reservePrice, uint256  mocCommissionValue, uint256  mocPrice, uint256  btcMarkup, uint256  mocMarkup, address  vendorAccount);
-event RiskProxMint(bytes32  bucket, address indexed account, uint256  amount, uint256  reserveTotal, uint256  interests, uint256  leverage, uint256  commission, uint256  reservePrice, uint256  mocCommissionValue, uint256  mocPrice, uint256  btcMarkup, uint256  mocMarkup, address  vendorAccount);
-event RiskProxRedeem(bytes32  bucket, address indexed account, uint256  commission, uint256  amount, uint256  reserveTotal, uint256  interests, uint256  leverage, uint256  reservePrice, uint256  mocCommissionValue, uint256  mocPrice, uint256  btcMarkup, uint256  mocMarkup, address  vendorAccount);
+address internal DEPRECATED_mocConverter;
 ```
+---
+
+```js
+contract MoCBProxManager internal bproxManager;
+```
+---
+
+```js
+contract BProToken internal bproToken;
+```
+---
+
+```js
+contract DocToken internal docToken;
+```
+---
+
+```js
+contract IMoCInrate internal mocInrate;
+```
+---
+
+```js
+contract IMoC internal moc;
+```
+---
+
+```js
+uint256[50] private upgradeGap;
+```
+---
+
+## RiskProMint
+
+**Parameters**
+
+| Name        | Type           | Description  |
+| ------------- |------------- | -----|
+| account | address |  | 
+| amount | uint256 |  | 
+| reserveTotal | uint256 |  | 
+| commission | uint256 |  | 
+| reservePrice | uint256 |  | 
+| mocCommissionValue | uint256 |  | 
+| mocPrice | uint256 |  | 
+| btcMarkup | uint256 |  | 
+| mocMarkup | uint256 |  | 
+| vendorAccount | address |  | 
+
+## RiskProWithDiscountMint
+
+**Parameters**
+
+| Name        | Type           | Description  |
+| ------------- |------------- | -----|
+| riskProTecPrice | uint256 |  | 
+| riskProDiscountPrice | uint256 |  | 
+| amount | uint256 |  | 
+
+## RiskProRedeem
+
+**Parameters**
+
+| Name        | Type           | Description  |
+| ------------- |------------- | -----|
+| account | address |  | 
+| amount | uint256 |  | 
+| reserveTotal | uint256 |  | 
+| commission | uint256 |  | 
+| reservePrice | uint256 |  | 
+| mocCommissionValue | uint256 |  | 
+| mocPrice | uint256 |  | 
+| btcMarkup | uint256 |  | 
+| mocMarkup | uint256 |  | 
+| vendorAccount | address |  | 
+
+## StableTokenMint
+
+**Parameters**
+
+| Name        | Type           | Description  |
+| ------------- |------------- | -----|
+| account | address |  | 
+| amount | uint256 |  | 
+| reserveTotal | uint256 |  | 
+| commission | uint256 |  | 
+| reservePrice | uint256 |  | 
+| mocCommissionValue | uint256 |  | 
+| mocPrice | uint256 |  | 
+| btcMarkup | uint256 |  | 
+| mocMarkup | uint256 |  | 
+| vendorAccount | address |  | 
+
+## StableTokenRedeem
+
+**Parameters**
+
+| Name        | Type           | Description  |
+| ------------- |------------- | -----|
+| account | address |  | 
+| amount | uint256 |  | 
+| reserveTotal | uint256 |  | 
+| commission | uint256 |  | 
+| reservePrice | uint256 |  | 
+| mocCommissionValue | uint256 |  | 
+| mocPrice | uint256 |  | 
+| btcMarkup | uint256 |  | 
+| mocMarkup | uint256 |  | 
+| vendorAccount | address |  | 
+
+## FreeStableTokenRedeem
+
+**Parameters**
+
+| Name        | Type           | Description  |
+| ------------- |------------- | -----|
+| account | address |  | 
+| amount | uint256 |  | 
+| reserveTotal | uint256 |  | 
+| commission | uint256 |  | 
+| interests | uint256 |  | 
+| reservePrice | uint256 |  | 
+| mocCommissionValue | uint256 |  | 
+| mocPrice | uint256 |  | 
+| btcMarkup | uint256 |  | 
+| mocMarkup | uint256 |  | 
+| vendorAccount | address |  | 
+
+## RiskProxMint
+
+**Parameters**
+
+| Name        | Type           | Description  |
+| ------------- |------------- | -----|
+| bucket | bytes32 |  | 
+| account | address |  | 
+| amount | uint256 |  | 
+| reserveTotal | uint256 |  | 
+| interests | uint256 |  | 
+| leverage | uint256 |  | 
+| commission | uint256 |  | 
+| reservePrice | uint256 |  | 
+| mocCommissionValue | uint256 |  | 
+| mocPrice | uint256 |  | 
+| btcMarkup | uint256 |  | 
+| mocMarkup | uint256 |  | 
+| vendorAccount | address |  | 
+
+## RiskProxRedeem
+
+**Parameters**
+
+| Name        | Type           | Description  |
+| ------------- |------------- | -----|
+| bucket | bytes32 |  | 
+| account | address |  | 
+| commission | uint256 |  | 
+| amount | uint256 |  | 
+| reserveTotal | uint256 |  | 
+| interests | uint256 |  | 
+| leverage | uint256 |  | 
+| reservePrice | uint256 |  | 
+| mocCommissionValue | uint256 |  | 
+| mocPrice | uint256 |  | 
+| btcMarkup | uint256 |  | 
+| mocMarkup | uint256 |  | 
+| vendorAccount | address |  | 
 
 ## Functions
 
 - [initialize(address connectorAddress)](#initialize)
 - [getMoCTokenBalance(address owner, address spender)](#getmoctokenbalance)
 - [calculateCommissionsWithPrices(struct MoCExchange.CommissionParamsStruct params)](#calculatecommissionswithprices)
+- [bproDiscToBtc(uint256 bproAmount, uint256 bproTecPrice, uint256 bproDiscountRate)](#bprodisctobtc)
 - [mintBPro(address account, uint256 btcAmount, address vendorAccount)](#mintbpro)
 - [redeemBPro(address account, uint256 bproAmount, address vendorAccount)](#redeembpro)
 - [redeemFreeDoc(address account, uint256 docAmount, address vendorAccount)](#redeemfreedoc)
 - [mintDoc(address account, uint256 btcToMint, address vendorAccount)](#mintdoc)
 - [redeemDocWithPrice(address payable userAddress, uint256 amount, uint256 btcPrice)](#redeemdocwithprice)
 - [redeemAllDoc(address origin, address payable destination)](#redeemalldoc)
-- [mintBPro(address account, uint256 btcCommission, uint256 bproAmount, uint256 rbtcValue, uint256 mocCommission, uint256 btcPrice, uint256 mocPrice, uint256 btcMarkup, uint256 mocMarkup, address vendorAccount)](#mintbpro)
 - [mintBProx(address payable account, bytes32 bucket, uint256 btcToMint, address vendorAccount)](#mintbprox)
 - [redeemBProx(address payable account, bytes32 bucket, uint256 bproxAmount, address vendorAccount)](#redeembprox)
 - [forceRedeemBProx(bytes32 bucket, address payable account, uint256 bproxAmount, uint256 bproxPrice)](#forceredeembprox)
@@ -195,8 +344,9 @@ function initialize(address connectorAddress) public nonpayable initializer
 | ------------- |------------- | -----|
 | connectorAddress | address | MoCConnector contract address | 
 
-
 ### getMoCTokenBalance
+
+⤾ overrides [IMoCExchange.getMoCTokenBalance](IMoCExchange.md#getmoctokenbalance)
 
 Converts MoC commission from RBTC to MoC price
 
@@ -235,12 +385,35 @@ Commissions calculated in MoC price and bitcoin price; and Bitcoin and MoC price
 | ------------- |------------- | -----|
 | params | struct MoCExchange.CommissionParamsStruct | Params defined in CommissionParamsStruct | 
 
+### bproDiscToBtc
+
+BTC equivalent for the amount of bpro given applying the spotDiscountRate
+
+```js
+function bproDiscToBtc(uint256 bproAmount, uint256 bproTecPrice, uint256 bproDiscountRate) internal view
+returns(uint256)
+```
+
+**Returns**
+
+BTC amount
+
+**Arguments**
+
+| Name        | Type           | Description  |
+| ------------- |------------- | -----|
+| bproAmount | uint256 | amount of BPro [using mocPrecision] | 
+| bproTecPrice | uint256 | price of BPro without discounts [using mocPrecision] | 
+| bproDiscountRate | uint256 | BPro discounts [using mocPrecision] | 
+
 ### mintBPro
+
+⤾ overrides [IMoCExchange.mintBPro](IMoCExchange.md#mintbpro)
 
 Mint BPros and give it to the msg.sender
 
 ```js
-function mintBPro(address account, uint256 btcAmount, address vendorAccount) public nonpayable onlyWhitelisted 
+function mintBPro(address account, uint256 btcAmount, address vendorAccount) external nonpayable onlyWhitelisted 
 returns(uint256, uint256, uint256, uint256, uint256)
 ```
 
@@ -253,6 +426,8 @@ returns(uint256, uint256, uint256, uint256, uint256)
 | vendorAccount | address | Vendor address | 
 
 ### redeemBPro
+
+⤾ overrides [IMoCExchange.redeemBPro](IMoCExchange.md#redeembpro)
 
 Sender burns his BProS and redeems the equivalent BTCs
 
@@ -275,6 +450,8 @@ bitcoins to transfer to the redeemer and commission spent (in BTC and MoC), usin
 
 ### redeemFreeDoc
 
+⤾ overrides [IMoCExchange.redeemFreeDoc](IMoCExchange.md#redeemfreedoc)
+
 Redeems the requested amount for the account, or the max amount of free docs possible.
 
 ```js
@@ -295,6 +472,8 @@ bitcoins to transfer to the redeemer and commission spent (in BTC and MoC), usin
 | vendorAccount | address | Vendor address | 
 
 ### mintDoc
+
+⤾ overrides [IMoCExchange.mintDoc](IMoCExchange.md#mintdoc)
 
 Mint Max amount of Docs and give it to the msg.sender
 
@@ -317,6 +496,8 @@ the actual amount of btc used and the btc commission (in BTC and MoC) for them [
 
 ### redeemDocWithPrice
 
+⤾ overrides [IMoCExchange.redeemDocWithPrice](IMoCExchange.md#redeemdocwithprice)
+
 User DoCs get burned and he receives the equivalent BTCs in return
 
 ```js
@@ -338,6 +519,8 @@ true and commission spent (in BTC and MoC) if btc send was completed, false if f
 
 ### redeemAllDoc
 
+⤾ overrides [IMoCExchange.redeemAllDoc](IMoCExchange.md#redeemalldoc)
+
 Allow redeem on liquidation state, user DoCs get burned and he receives
 the equivalent RBTCs according to liquidationPrice
 
@@ -357,30 +540,9 @@ The amount of RBTC in sent for the redemption or 0 if send does not succed
 | origin | address | address owner of the DoCs | 
 | destination | address payable | address to send the RBTC | 
 
-### mintBPro
-
-Mint the amount of BPros
-
-```js
-function mintBPro(address account, uint256 btcCommission, uint256 bproAmount, uint256 rbtcValue, uint256 mocCommission, uint256 btcPrice, uint256 mocPrice, uint256 btcMarkup, uint256 mocMarkup, address vendorAccount) public nonpayable onlyWhitelisted 
-```
-
-**Arguments**
-
-| Name        | Type           | Description  |
-| ------------- |------------- | -----|
-| account | address | Address that will owned the BPros | 
-| btcCommission | uint256 |  | 
-| bproAmount | uint256 | Amount of BPros to mint [using mocPrecision] | 
-| rbtcValue | uint256 | RBTC cost of the minting [using reservePrecision] | 
-| mocCommission | uint256 |  | 
-| btcPrice | uint256 |  | 
-| mocPrice | uint256 |  | 
-| btcMarkup | uint256 |  | 
-| mocMarkup | uint256 |  | 
-| vendorAccount | address |  | 
-
 ### mintBProx
+
+⤾ overrides [IMoCExchange.mintBProx](IMoCExchange.md#mintbprox)
 
 BUCKET Bprox minting. Mints Bprox for the specified bucket
 
@@ -404,6 +566,8 @@ total RBTC Spent (btcToMint more interest) and commission spent (in BTC and MoC)
 
 ### redeemBProx
 
+⤾ overrides [IMoCExchange.redeemBProx](IMoCExchange.md#redeembprox)
+
 Sender burns his BProx, redeems the equivalent amount of BPros, return
 the "borrowed" DOCs and recover pending interests
 
@@ -426,6 +590,8 @@ the actual amount of btc to redeem and the btc commission (in BTC and MoC) for t
 | vendorAccount | address | Vendor address | 
 
 ### forceRedeemBProx
+
+⤾ overrides [IMoCExchange.forceRedeemBProx](IMoCExchange.md#forceredeembprox)
 
 Burns user BProx and sends the equivalent amount of RBTC
 to the account without caring if transaction succeeds

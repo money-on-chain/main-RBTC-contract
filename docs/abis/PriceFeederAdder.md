@@ -17,10 +17,18 @@ View Source: [contracts/changers/productive/PriceFeederAdder.sol](../../contract
 
 ```js
 contract PriceFactory public priceFactory;
-contract Medianizer public medianizer;
-address public priceFeedOwner;
-
 ```
+---
+
+```js
+contract Medianizer public medianizer;
+```
+---
+
+```js
+address public priceFeedOwner;
+```
+---
 
 ## Functions
 

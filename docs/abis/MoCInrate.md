@@ -8,7 +8,7 @@ original_id: MoCInrate
 
 View Source: [contracts/MoCInrate.sol](../../contracts/MoCInrate.sol)
 
-**↗ Extends: [MoCInrateEvents](MoCInrateEvents.md), [MoCInrateStructs](MoCInrateStructs.md), [MoCBase](MoCBase.md), [MoCLibConnection](MoCLibConnection.md), [Governed](Governed.md)**
+**↗ Extends: [MoCInrateEvents](MoCInrateEvents.md), [MoCInrateStructs](MoCInrateStructs.md), [MoCBase](MoCBase.md), [MoCLibConnection](MoCLibConnection.md), [Governed](Governed.md), [IMoCInrate](IMoCInrate.md)**
 
 **MoCInrate** - version: 0.1.10
 
@@ -23,52 +23,186 @@ struct InrateParams {
 }
 ```
 
+### InitializeParams
+
+```js
+struct InitializeParams {
+ address connectorAddress,
+ address governor,
+ uint256 btcxTmin,
+ uint256 btcxPower,
+ uint256 btcxTmax,
+ uint256 bitProRate,
+ uint256 blockSpanBitPro,
+ address payable bitProInterestTargetAddress,
+ address payable commissionsAddressTarget,
+ uint256 docTmin,
+ uint256 docPower,
+ uint256 docTmax
+}
+```
+
 ## Contract Members
 **Constants & Variables**
 
 ```js
-//internal members
 struct MoCInrateStructs.InrateParams internal btcxParams;
-contract MoCState internal mocState;
-contract MoCConverter internal mocConverter;
-contract MoCBProxManager internal bproxManager;
-
-//public members
-uint256 public lastDailyPayBlock;
-uint256 public bitProRate;
-address payable public bitProInterestAddress;
-uint256 public lastBitProInterestBlock;
-uint256 public bitProInterestBlockSpan;
-address payable public commissionsAddress;
-uint256 public DEPRECATED_commissionRate;
-uint256 public docTmin;
-uint256 public docPower;
-uint256 public docTmax;
-uint8 public constant MINT_BPRO_FEES_RBTC;
-uint8 public constant REDEEM_BPRO_FEES_RBTC;
-uint8 public constant MINT_DOC_FEES_RBTC;
-uint8 public constant REDEEM_DOC_FEES_RBTC;
-uint8 public constant MINT_BTCX_FEES_RBTC;
-uint8 public constant REDEEM_BTCX_FEES_RBTC;
-uint8 public constant MINT_BPRO_FEES_MOC;
-uint8 public constant REDEEM_BPRO_FEES_MOC;
-uint8 public constant MINT_DOC_FEES_MOC;
-uint8 public constant REDEEM_DOC_FEES_MOC;
-uint8 public constant MINT_BTCX_FEES_MOC;
-uint8 public constant REDEEM_BTCX_FEES_MOC;
-mapping(uint8 => uint256) public commissionRatesByTxType;
-
-//private members
-uint256[50] private upgradeGap;
-
 ```
-
-**Events**
+---
 
 ```js
-event InrateDailyPay(uint256  amount, uint256  daysToSettlement, uint256  nReserveBucketC0);
-event RiskProHoldersInterestPay(uint256  amount, uint256  nReserveBucketC0BeforePay);
+contract IMoCState internal mocState;
 ```
+---
+
+```js
+address internal DEPRECATED_mocConverter;
+```
+---
+
+```js
+contract MoCBProxManager internal bproxManager;
+```
+---
+
+```js
+uint256 public lastDailyPayBlock;
+```
+---
+
+```js
+uint256 public bitProRate;
+```
+---
+
+```js
+address payable public bitProInterestAddress;
+```
+---
+
+```js
+uint256 public lastBitProInterestBlock;
+```
+---
+
+```js
+uint256 public bitProInterestBlockSpan;
+```
+---
+
+```js
+address payable public commissionsAddress;
+```
+---
+
+```js
+uint256 public DEPRECATED_commissionRate;
+```
+---
+
+```js
+uint256 public docTmin;
+```
+---
+
+```js
+uint256 public docPower;
+```
+---
+
+```js
+uint256 public docTmax;
+```
+---
+
+```js
+uint8 public constant MINT_BPRO_FEES_RBTC;
+```
+---
+
+```js
+uint8 public constant REDEEM_BPRO_FEES_RBTC;
+```
+---
+
+```js
+uint8 public constant MINT_DOC_FEES_RBTC;
+```
+---
+
+```js
+uint8 public constant REDEEM_DOC_FEES_RBTC;
+```
+---
+
+```js
+uint8 public constant MINT_BTCX_FEES_RBTC;
+```
+---
+
+```js
+uint8 public constant REDEEM_BTCX_FEES_RBTC;
+```
+---
+
+```js
+uint8 public constant MINT_BPRO_FEES_MOC;
+```
+---
+
+```js
+uint8 public constant REDEEM_BPRO_FEES_MOC;
+```
+---
+
+```js
+uint8 public constant MINT_DOC_FEES_MOC;
+```
+---
+
+```js
+uint8 public constant REDEEM_DOC_FEES_MOC;
+```
+---
+
+```js
+uint8 public constant MINT_BTCX_FEES_MOC;
+```
+---
+
+```js
+uint8 public constant REDEEM_BTCX_FEES_MOC;
+```
+---
+
+```js
+mapping(uint8 => uint256) public commissionRatesByTxType;
+```
+---
+
+```js
+uint256[50] private upgradeGap;
+```
+---
+
+## InrateDailyPay
+
+**Parameters**
+
+| Name        | Type           | Description  |
+| ------------- |------------- | -----|
+| amount | uint256 |  | 
+| daysToSettlement | uint256 |  | 
+| nReserveBucketC0 | uint256 |  | 
+
+## RiskProHoldersInterestPay
+
+**Parameters**
+
+| Name        | Type           | Description  |
+| ------------- |------------- | -----|
+| amount | uint256 |  | 
+| nReserveBucketC0BeforePay | uint256 |  | 
 
 ## Modifiers
 
@@ -106,7 +240,7 @@ modifier onlyWhenBitProInterestsIsEnabled() internal
 - [getDoCTmax()](#getdoctmax)
 - [getDoCPower()](#getdocpower)
 - [docInrateAvg(uint256 docRedeem)](#docinrateavg)
-- [initialize(address connectorAddress, address _governor, uint256 btcxTmin, uint256 btcxPower, uint256 btcxTmax, uint256 _bitProRate, uint256 blockSpanBitPro, address payable bitProInterestTargetAddress, address payable commissionsAddressTarget, uint256 _docTmin, uint256 _docPower, uint256 _docTmax)](#initialize)
+- [initialize(struct MoCInrateStructs.InitializeParams params)](#initialize)
 - [getBtcxTmin()](#getbtcxtmin)
 - [getBtcxTmax()](#getbtcxtmax)
 - [getBtcxPower()](#getbtcxpower)
@@ -239,25 +373,14 @@ Interest rate value [using mocPrecision]
 Initializes the contract
 
 ```js
-function initialize(address connectorAddress, address _governor, uint256 btcxTmin, uint256 btcxPower, uint256 btcxTmax, uint256 _bitProRate, uint256 blockSpanBitPro, address payable bitProInterestTargetAddress, address payable commissionsAddressTarget, uint256 _docTmin, uint256 _docPower, uint256 _docTmax) public nonpayable initializer 
+function initialize(struct MoCInrateStructs.InitializeParams params) public nonpayable initializer 
 ```
 
 **Arguments**
 
 | Name        | Type           | Description  |
 | ------------- |------------- | -----|
-| connectorAddress | address | MoCConnector contract address | 
-| _governor | address | Governor contract address | 
-| btcxTmin | uint256 | Minimum interest rate [using mocPrecision] | 
-| btcxPower | uint256 | Power is a parameter for interest rate calculation [using noPrecision] | 
-| btcxTmax | uint256 | Maximun interest rate [using mocPrecision] | 
-| _bitProRate | uint256 | BitPro holder interest rate [using mocPrecision] | 
-| blockSpanBitPro | uint256 | BitPro blockspan to configure payments periods[using mocPrecision] | 
-| bitProInterestTargetAddress | address payable | Target address to transfer the weekly BitPro holders interest | 
-| commissionsAddressTarget | address payable | Target addres to transfer commissions of mint/redeem | 
-| _docTmin | uint256 | Upgrade to support red doc inrate parameter | 
-| _docPower | uint256 | Upgrade to support red doc inrate parameter | 
-| _docTmax | uint256 | Upgrade to support red doc inrate parameter | 
+| params | struct MoCInrateStructs.InitializeParams | Params defined in InitializeParams struct | 
 
 ### getBtcxTmin
 
@@ -314,6 +437,8 @@ returns power of BTCX
 | ------------- |------------- | -----|
 
 ### getBitProInterestBlockSpan
+
+⤾ overrides [IMoCInrate.getBitProInterestBlockSpan](IMoCInrate.md#getbitprointerestblockspan)
 
 Gets the blockspan of BPRO that represents the frecuency of BitPro holders intereset payment
 
@@ -375,6 +500,8 @@ function setBtcxPower(uint256 _btxcPower) public nonpayable onlyAuthorizedChange
 
 ### getBitProRate
 
+⤾ overrides [IMoCInrate.getBitProRate](IMoCInrate.md#getbitprorate)
+
 Gets the rate for BitPro Holders
 
 ```js
@@ -407,6 +534,8 @@ function setBitProRate(uint256 newBitProRate) public nonpayable onlyAuthorizedCh
 
 ### setBitProInterestBlockSpan
 
+⤾ overrides [IMoCInrate.setBitProInterestBlockSpan](IMoCInrate.md#setbitprointerestblockspan)
+
 Sets the blockspan BitPro Intereset rate payment is enable to be executed
 
 ```js
@@ -420,6 +549,8 @@ function setBitProInterestBlockSpan(uint256 newBitProBlockSpan) public nonpayabl
 | newBitProBlockSpan | uint256 | New BitPro Block span | 
 
 ### getBitProInterestAddress
+
+⤾ overrides [IMoCInrate.getBitProInterestAddress](IMoCInrate.md#getbitprointerestaddress)
 
 Gets the target address to transfer BitPro Holders rate
 
@@ -520,6 +651,8 @@ returns(uint256)
 
 ### calcMintInterestValues
 
+⤾ overrides [IMoCInrate.calcMintInterestValues](IMoCInrate.md#calcmintinterestvalues)
+
 Extract the inrate from the passed RBTC value for Bprox minting operation
 
 ```js
@@ -540,6 +673,8 @@ RBTC to pay in concept of interests [using reservePrecision]
 
 ### calcDocRedInterestValues
 
+⤾ overrides [IMoCInrate.calcDocRedInterestValues](IMoCInrate.md#calcdocredinterestvalues)
+
 Extract the inrate from the passed RBTC value for the Doc Redeem operation
 
 ```js
@@ -559,6 +694,8 @@ RBTC to pay in concept of interests [using reservePrecision]
 | rbtcAmount | uint256 | Total value from which extract the interest rate [using reservePrecision] | 
 
 ### calcFinalRedeemInterestValue
+
+⤾ overrides [IMoCInrate.calcFinalRedeemInterestValue](IMoCInrate.md#calcfinalredeeminterestvalue)
 
 This function calculates the interest to return to the user
 in a BPRox redemption. It uses a mechanism to counteract the effect
@@ -583,6 +720,8 @@ RBTC to recover in concept of interests [using reservePrecision]
 
 ### calcCommissionValue
 
+⤾ overrides [IMoCInrate.calcCommissionValue](IMoCInrate.md#calccommissionvalue)
+
 calculates the Commission rate from the passed RBTC amount and the transaction type for mint/redeem operations
 
 ```js
@@ -602,6 +741,8 @@ finalCommissionAmount [using reservePrecision]
 | txType | uint8 | Transaction type according to constant values defined in this contract | 
 
 ### calculateVendorMarkup
+
+⤾ overrides [IMoCInrate.calculateVendorMarkup](IMoCInrate.md#calculatevendormarkup)
 
 calculates the vendor markup rate from the passed vendor account and amount
 
@@ -643,6 +784,8 @@ RBTC to recover in concept of interests [using reservePrecision]
 
 ### dailyInratePayment
 
+⤾ overrides [IMoCInrate.dailyInratePayment](IMoCInrate.md#dailyinratepayment)
+
 Moves the daily amount of interest rate to C0 bucket
 
 ```js
@@ -657,6 +800,8 @@ returns(uint256)
 
 ### isDailyEnabled
 
+⤾ overrides [IMoCInrate.isDailyEnabled](IMoCInrate.md#isdailyenabled)
+
 ```js
 function isDailyEnabled() public view
 returns(bool)
@@ -669,6 +814,8 @@ returns(bool)
 
 ### isBitProInterestEnabled
 
+⤾ overrides [IMoCInrate.isBitProInterestEnabled](IMoCInrate.md#isbitprointerestenabled)
+
 ```js
 function isBitProInterestEnabled() public view
 returns(bool)
@@ -680,6 +827,8 @@ returns(bool)
 | ------------- |------------- | -----|
 
 ### calculateBitProHoldersInterest
+
+⤾ overrides [IMoCInrate.calculateBitProHoldersInterest](IMoCInrate.md#calculatebitproholdersinterest)
 
 Calculates BitPro Holders interest rates
 
@@ -698,6 +847,8 @@ toPay interest in RBTC [using RBTCPrecsion]
 | ------------- |------------- | -----|
 
 ### payBitProHoldersInterestPayment
+
+⤾ overrides [IMoCInrate.payBitProHoldersInterestPayment](IMoCInrate.md#paybitproholdersinterestpayment)
 
 Pays the BitPro Holders interest rates
 

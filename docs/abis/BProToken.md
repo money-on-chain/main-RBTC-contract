@@ -17,10 +17,18 @@ View Source: [contracts/token/BProToken.sol](../../contracts/token/BProToken.sol
 
 ```js
 string private _name;
-string private _symbol;
-uint8 private _decimals;
-
 ```
+---
+
+```js
+string private _symbol;
+```
+---
+
+```js
+uint8 private _decimals;
+```
+---
 
 ## Functions
 

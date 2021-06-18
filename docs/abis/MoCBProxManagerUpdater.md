@@ -19,10 +19,18 @@ This contract is used to update the MoCBProxManager to fix the governor variable
 
 ```js
 contract AdminUpgradeabilityProxy public proxy;
-contract UpgradeDelegator public upgradeDelegator;
-address public newImplementation;
-
 ```
+---
+
+```js
+contract UpgradeDelegator public upgradeDelegator;
+```
+---
+
+```js
+address public newImplementation;
+```
+---
 
 ## Functions
 

@@ -8,7 +8,7 @@ original_id: MoCSettlement
 
 View Source: [contracts/MoCSettlement.sol](../../contracts/MoCSettlement.sol)
 
-**↗ Extends: [MoCSettlementEvents](MoCSettlementEvents.md), [MoCBase](MoCBase.md), [PartialExecution](PartialExecution.md), [Governed](Governed.md)**
+**↗ Extends: [MoCSettlementEvents](MoCSettlementEvents.md), [MoCBase](MoCBase.md), [PartialExecution](PartialExecution.md), [Governed](Governed.md), [IMoCSettlement](IMoCSettlement.md)**
 **↘ Derived Contracts: [MoCSettlementMock](MoCSettlementMock.md)**
 
 **MoCSettlement** - version: 0.1.10
@@ -53,38 +53,134 @@ struct SettlementInfo {
 **Constants & Variables**
 
 ```js
-//public members
 bytes32 public constant DOC_REDEMPTION_TASK;
-bytes32 public constant DELEVERAGING_TASK;
-bytes32 public constant SETTLEMENT_TASK;
-
-//internal members
-contract MoCState internal mocState;
-contract MoCExchange internal mocExchange;
-contract DocToken internal docToken;
-contract MoCBProxManager internal bproxManager;
-uint256 internal lastProcessedBlock;
-uint256 internal blockSpan;
-struct MoCSettlement.SettlementInfo internal settlementInfo;
-
-//private members
-struct MoCSettlement.RedeemRequest[] private redeemQueue;
-uint256 private redeemQueueLength;
-mapping(address => struct MoCSettlement.UserRedeemRequest) private redeemMapping;
-uint256[50] private upgradeGap;
-
 ```
-
-**Events**
+---
 
 ```js
-event RedeemRequestAlter(address indexed redeemer, bool  isAddition, uint256  delta);
-event RedeemRequestProcessed(address indexed redeemer, uint256  commission, uint256  amount);
-event SettlementRedeemStableToken(uint256  queueSize, uint256  accumCommissions, uint256  reservePrice);
-event SettlementDeleveraging(uint256  leverage, uint256  riskProxPrice, uint256  reservePrice, uint256  startBlockNumber);
-event SettlementStarted(uint256  stableTokenRedeemCount, uint256  deleveragingCount, uint256  riskProxPrice, uint256  reservePrice);
-event SettlementCompleted(uint256  commissionsPayed);
+bytes32 public constant DELEVERAGING_TASK;
 ```
+---
+
+```js
+bytes32 public constant SETTLEMENT_TASK;
+```
+---
+
+```js
+contract IMoCState internal mocState;
+```
+---
+
+```js
+contract IMoCExchange internal mocExchange;
+```
+---
+
+```js
+contract DocToken internal docToken;
+```
+---
+
+```js
+contract MoCBProxManager internal bproxManager;
+```
+---
+
+```js
+uint256 internal lastProcessedBlock;
+```
+---
+
+```js
+uint256 internal blockSpan;
+```
+---
+
+```js
+struct MoCSettlement.SettlementInfo internal settlementInfo;
+```
+---
+
+```js
+struct MoCSettlement.RedeemRequest[] private redeemQueue;
+```
+---
+
+```js
+uint256 private redeemQueueLength;
+```
+---
+
+```js
+mapping(address => struct MoCSettlement.UserRedeemRequest) private redeemMapping;
+```
+---
+
+```js
+uint256[50] private upgradeGap;
+```
+---
+
+## RedeemRequestAlter
+
+**Parameters**
+
+| Name        | Type           | Description  |
+| ------------- |------------- | -----|
+| redeemer | address |  | 
+| isAddition | bool |  | 
+| delta | uint256 |  | 
+
+## RedeemRequestProcessed
+
+**Parameters**
+
+| Name        | Type           | Description  |
+| ------------- |------------- | -----|
+| redeemer | address |  | 
+| commission | uint256 |  | 
+| amount | uint256 |  | 
+
+## SettlementRedeemStableToken
+
+**Parameters**
+
+| Name        | Type           | Description  |
+| ------------- |------------- | -----|
+| queueSize | uint256 |  | 
+| accumCommissions | uint256 |  | 
+| reservePrice | uint256 |  | 
+
+## SettlementDeleveraging
+
+**Parameters**
+
+| Name        | Type           | Description  |
+| ------------- |------------- | -----|
+| leverage | uint256 |  | 
+| riskProxPrice | uint256 |  | 
+| reservePrice | uint256 |  | 
+| startBlockNumber | uint256 |  | 
+
+## SettlementStarted
+
+**Parameters**
+
+| Name        | Type           | Description  |
+| ------------- |------------- | -----|
+| stableTokenRedeemCount | uint256 |  | 
+| deleveragingCount | uint256 |  | 
+| riskProxPrice | uint256 |  | 
+| reservePrice | uint256 |  | 
+
+## SettlementCompleted
+
+**Parameters**
+
+| Name        | Type           | Description  |
+| ------------- |------------- | -----|
+| commissionsPayed | uint256 |  | 
 
 ## Modifiers
 
@@ -134,6 +230,7 @@ modifier isTime() internal
 - [clear()](#clear)
 - [alterRedeemRequestAmount(bool isAddition, uint256 delta, address redeemer)](#alterredeemrequestamount)
 - [runSettlement(uint256 steps)](#runsettlement)
+- [fixTasksPointer()](#fixtaskspointer)
 - [initializeContracts()](#initializecontracts)
 - [initializeValues(address _governor, uint256 _blockSpan)](#initializevalues)
 - [deleveragingStepCount()](#deleveragingstepcount)
@@ -207,6 +304,8 @@ function restartSettlementState() public nonpayable onlyAuthorizedChanger
 
 ### getRedeemRequestAt
 
+⤾ overrides [IMoCSettlement.getRedeemRequestAt](IMoCSettlement.md#getredeemrequestat)
+
 Gets the RedeemRequest at the queue index position
 
 ```js
@@ -240,6 +339,8 @@ returns(uint256)
 
 ### redeemQueueSize
 
+⤾ overrides [IMoCSettlement.redeemQueueSize](IMoCSettlement.md#redeemqueuesize)
+
 Returns the current redeem request queue's length
 
 ```js
@@ -253,6 +354,8 @@ returns(uint256)
 | ------------- |------------- | -----|
 
 ### isSettlementEnabled
+
+⤾ overrides [IMoCSettlement.isSettlementEnabled](IMoCSettlement.md#issettlementenabled)
 
 Returns true if blockSpan number of blocks has pass since last execution
 
@@ -282,6 +385,8 @@ returns(bool)
 
 ### isSettlementReady
 
+⤾ overrides [IMoCSettlement.isSettlementReady](IMoCSettlement.md#issettlementready)
+
 Returns true if the settlment is ready
 
 ```js
@@ -296,6 +401,8 @@ returns(bool)
 
 ### nextSettlementBlock
 
+⤾ overrides [IMoCSettlement.nextSettlementBlock](IMoCSettlement.md#nextsettlementblock)
+
 Returns the next block from which settlement is possible
 
 ```js
@@ -309,6 +416,8 @@ returns(uint256)
 | ------------- |------------- | -----|
 
 ### docAmountToRedeem
+
+⤾ overrides [IMoCSettlement.docAmountToRedeem](IMoCSettlement.md#docamounttoredeem)
 
 returns the total amount of Docs in the redeem queue for _who
 
@@ -328,6 +437,8 @@ total amount of Docs in the redeem queue for _who [using mocPrecision]
 | _who | address | address for which ^ is computed | 
 
 ### addRedeemRequest
+
+⤾ overrides [IMoCSettlement.addRedeemRequest](IMoCSettlement.md#addredeemrequest)
 
 push a new redeem request to the queue for the sender or updates the amount if the user has a redeem request
 
@@ -357,6 +468,8 @@ function clear() public nonpayable onlyWhitelisted
 
 ### alterRedeemRequestAmount
 
+⤾ overrides [IMoCSettlement.alterRedeemRequestAmount](IMoCSettlement.md#alterredeemrequestamount)
+
 Alters the redeem amount position for the redeemer
 
 ```js
@@ -377,6 +490,8 @@ the filled amount [using mocPrecision]
 
 ### runSettlement
 
+⤾ overrides [IMoCSettlement.runSettlement](IMoCSettlement.md#runsettlement)
+
 Runs settlement process in steps
 
 ```js
@@ -393,6 +508,19 @@ The commissions collected in the executed steps
 | Name        | Type           | Description  |
 | ------------- |------------- | -----|
 | steps | uint256 | Amount of steps to run | 
+
+### fixTasksPointer
+
+Create Task structures for Settlement execution
+
+```js
+function fixTasksPointer() public nonpayable
+```
+
+**Arguments**
+
+| Name        | Type           | Description  |
+| ------------- |------------- | -----|
 
 ### initializeContracts
 

@@ -18,13 +18,14 @@ Provides access control between all MoC Contracts
 **Constants & Variables**
 
 ```js
-//internal members
 mapping(address => bool) internal whitelist;
-
-//private members
-uint256[50] private upgradeGap;
-
 ```
+---
+
+```js
+uint256[50] private upgradeGap;
+```
+---
 
 ## Functions
 
