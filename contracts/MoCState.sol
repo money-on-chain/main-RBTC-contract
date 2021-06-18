@@ -13,7 +13,6 @@ import "./token/MoCToken.sol";
 import "./interface/IMoCSettlement.sol";
 import "moc-governance/contracts/Governance/Governed.sol";
 import "moc-governance/contracts/Governance/IGovernor.sol";
-import "./MoCConverter.sol";
 import "./interface/IMoCState.sol";
 
 contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator, IMoCState {
@@ -48,7 +47,9 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator, IMoCState {
   // Contracts
   PriceProvider internal btcPriceProvider;
   IMoCSettlement internal mocSettlement;
-  MoCConverter internal mocConverter;
+  /** DEPRECATED **/
+  // solium-disable-next-line mixedcase
+  address internal DEPRECATED_mocConverter;
   DocToken internal docToken;
   BProToken internal bproToken;
   MoCBProxManager internal bproxManager;
@@ -193,7 +194,7 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator, IMoCState {
     @dev Amount of Bitcoins in the system excluding BTCx values and interests holdings
   */
   function collateralRbtcInSystem() public view returns(uint256) {
-    uint256 rbtcInBtcx = mocConverter.bproxToBtcHelper(bproxManager.getBucketNBPro(BUCKET_X2),BUCKET_X2);
+    uint256 rbtcInBtcx = bproxToBtcHelper(bproxManager.getBucketNBPro(BUCKET_X2),BUCKET_X2);
     uint256 rbtcInBag = bproxManager.getInrateBag(BUCKET_C0);
 
     return rbtcInSystem.sub(rbtcInBtcx).sub(rbtcInBag);
@@ -764,6 +765,51 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator, IMoCState {
   }
 
   /**********************
+    Ex MoCConverter
+   *********************/
+
+   /**
+  * @dev BTC equivalent for the amount of bpros given
+  * @param amount Amount of BPro to calculate the total price
+  * @return total BTC Price of the amount BPros [using reservePrecision]
+  */
+  function bproToBtc(uint256 amount) public view returns(uint256) {
+    uint256 tecPrice = bproTecPrice();
+
+    return mocLibConfig.totalBProInBtc(amount, tecPrice);
+  }
+
+  /**
+  * @dev Converts BTC to BPro
+  * @param btcAmount BTC amount
+  * @return BPro amount
+  */
+  function btcToBPro(uint256 btcAmount) public view returns(uint256) {
+    return mocLibConfig.maxBProWithBtc(btcAmount, bproTecPrice());
+  }
+
+  function docsToBtc(uint256 docAmount) public view returns(uint256) {
+    return mocLibConfig.docsBtcValue(docAmount, peg, getBitcoinPrice());
+  }
+
+  function btcToDoc(uint256 btcAmount) public view returns(uint256) {
+    return mocLibConfig.maxDocsWithBtc(btcAmount, getBitcoinPrice());
+  }
+
+  function bproxToBtc(uint256 bproxAmount, bytes32 bucket) public view returns(uint256) {
+    return mocLibConfig.bproBtcValue(bproxAmount, bucketBProTecPrice(bucket));
+  }
+
+  function bproxToBtcHelper(uint256 bproxAmount, bytes32 bucket) internal view returns(uint256) {
+    return mocLibConfig.bproBtcValue(bproxAmount, bucketBProTecPriceHelper(bucket));
+  }
+
+  function btcToBProx(uint256 btcAmount, bytes32 bucket) public view returns(uint256) {
+    return mocLibConfig.maxBProWithBtc(btcAmount, bucketBProTecPrice(bucket));
+  }
+
+
+  /**********************
     MoC TOKEN
    *********************/
 
@@ -889,7 +935,6 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator, IMoCState {
     docToken = DocToken(connector.docToken());
     bproToken = BProToken(connector.bproToken());
     bproxManager = MoCBProxManager(connector.bproxManager());
-    mocConverter = MoCConverter(connector.mocConverter());
     setMoCTokenInternal(_mocTokenAddress);
     setMoCVendorsInternal(_mocVendorsAddress);
   }

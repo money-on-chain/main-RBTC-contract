@@ -5,7 +5,6 @@
     "MoCExchange": "",
     "MoCSettlement": "",
     "MoCInrate": "",
-    "MoCConverter": "",
     "MoCState": "",
     "MoCVendors": "",
     "CommissionSplitter": ""
@@ -16,7 +15,6 @@
     "MoCExchange": "",
     "MoCSettlement": "",
     "MoCInrate": "",
-    "MoCConverter": "",
     "MoCState": "",
     "ProxyAdmin": "",
     "UpgradeDelegator": "",

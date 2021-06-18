@@ -76,4 +76,12 @@ interface IMoCState {
     function maxBProxBtcValue(bytes32 bucket) external view returns(uint256);
 
     function bucketBProTecPriceHelper(bytes32 bucket) external view returns(uint256);
+
+    // Ex Mocconverter
+    function docsToBtc(uint256 docAmount) external view returns(uint256);
+    function btcToDoc(uint256 btcAmount) external view returns(uint256);
+    function bproxToBtc(uint256 bproxAmount, bytes32 bucket) external view returns(uint256);
+    function btcToBProx(uint256 btcAmount, bytes32 bucket) external view returns(uint256);
+
+
 }

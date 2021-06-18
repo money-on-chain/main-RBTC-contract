@@ -7,7 +7,6 @@ import "./token/DocToken.sol";
 import "./interface/IMoCInrate.sol";
 import "./base/MoCBase.sol";
 import "./token/MoCToken.sol";
-import "./MoCConverter.sol";
 import "./MoCBProxManager.sol";
 import "openzeppelin-solidity/contracts/math/Math.sol";
 import "./interface/IMoC.sol";
@@ -122,7 +121,9 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection, IMoCExchan
 
   // Contracts
   IMoCState internal mocState;
-  MoCConverter internal mocConverter;
+  /** DEPRECATED **/
+  // solium-disable-next-line mixedcase
+  address internal DEPRECATED_mocConverter;
   MoCBProxManager internal bproxManager;
   BProToken internal bproToken;
   DocToken internal docToken;
@@ -216,6 +217,18 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection, IMoCExchan
     return ret;
   }
 
+  /**
+  * @dev BTC equivalent for the amount of bpro given applying the spotDiscountRate
+  * @param bproAmount amount of BPro [using mocPrecision]
+  * @param bproTecPrice price of BPro without discounts [using mocPrecision]
+  * @param bproDiscountRate BPro discounts [using mocPrecision]
+  * @return BTC amount
+  */
+  function bproDiscToBtc(uint256 bproAmount, uint256 bproTecPrice, uint256 bproDiscountRate) internal view returns(uint256) {
+    uint256 totalBtcValue = mocLibConfig.totalBProInBtc(bproAmount, bproTecPrice);
+    return mocLibConfig.applyDiscountRate(totalBtcValue, bproDiscountRate);
+  }
+
   /** END UPDATE V0110: 24/09/2020 **/
 
   /**
@@ -224,9 +237,8 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection, IMoCExchan
    @param btcAmount Amount in BTC to mint
    @param vendorAccount Vendor address
   */
-// solium-disable-next-line security/no-assign-params
   function mintBPro(address account, uint256 btcAmount, address vendorAccount)
-    public
+    external
     onlyWhitelisted(msg.sender)
     returns (uint256, uint256, uint256, uint256, uint256)
   {
@@ -238,7 +250,7 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection, IMoCExchan
 
     if (mocState.state() == IMoCState.States.BProDiscount) {
       details.discountPrice = mocState.bproDiscountPrice();
-      details.bproDiscountAmount = mocConverter.btcToBProDisc(btcAmount);
+      details.bproDiscountAmount = mocLibConfig.maxBProWithBtc(btcAmount, details.discountPrice);
 
       details.finalBProAmount = Math.min(
         details.bproDiscountAmount,
@@ -246,7 +258,12 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection, IMoCExchan
       );
       details.btcValue = details.finalBProAmount == details.bproDiscountAmount
         ? btcAmount
-        : mocConverter.bproDiscToBtc(details.finalBProAmount);
+        // Converts BTC to BPro with discount up to the discount limit
+        : bproDiscToBtc(
+            details.finalBProAmount,
+            details.bproRegularPrice,
+            mocState.bproSpotDiscountRate()
+          );
 
       emit RiskProWithDiscountMint(
         details.bproRegularPrice,
@@ -256,8 +273,10 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection, IMoCExchan
     }
 
     if (btcAmount != details.btcValue) {
-      details.regularBProAmount = mocConverter.btcToBPro(
-        btcAmount.sub(details.btcValue)
+      // Converts BTC to BPro
+      details.regularBProAmount = mocLibConfig.maxBProWithBtc(
+        btcAmount.sub(details.btcValue),
+        details.bproRegularPrice
       );
       details.finalBProAmount = details.finalBProAmount.add(details.regularBProAmount);
     }
@@ -302,7 +321,7 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection, IMoCExchan
     uint256 userAmount = Math.min(bproAmount, userBalance);
 
     details.bproFinalAmount = Math.min(userAmount, mocState.absoluteMaxBPro());
-    uint256 totalBtc = mocConverter.bproToBtc(details.bproFinalAmount);
+    uint256 totalBtc = mocLibConfig.totalBProInBtc(details.bproFinalAmount, mocState.bproTecPrice());
 
     /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
     CommissionParamsStruct memory params;
@@ -359,7 +378,7 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection, IMoCExchan
         docAmount,
         Math.min(mocState.freeDoc(), docToken.balanceOf(account))
       );
-      uint256 docsBtcValue = mocConverter.docsToBtc(details.finalDocAmount);
+      uint256 docsBtcValue = mocState.docsToBtc(details.finalDocAmount);
 
       details.btcInterestAmount = mocInrate.calcDocRedInterestValues(
         details.finalDocAmount,
@@ -404,11 +423,12 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection, IMoCExchan
 
     // Docs to issue with tx value amount
     if (btcToMint > 0) {
-      details.docs = mocConverter.btcToDoc(btcToMint);
+      uint256 btcPrice = mocState.getBitcoinPrice();
+      details.docs = mocLibConfig.maxDocsWithBtc(btcToMint, btcPrice); //btc to doc
       details.docAmount = Math.min(details.docs, mocState.absoluteMaxDoc());
       details.totalCost = details.docAmount == details.docs
         ? btcToMint
-        : mocConverter.docsToBtc(details.docAmount);
+        : mocLibConfig.docsBtcValue(details.docAmount, mocState.peg(), btcPrice); //docs to btc
 
       // Mint Token
       docToken.mint(account, details.docAmount);
@@ -450,7 +470,7 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection, IMoCExchan
   ) public onlyWhitelisted(msg.sender) returns (bool, uint256) {
     StableTokenRedeemStruct memory details;
 
-    details.totalBtc = mocConverter.docsToBtcWithPrice(amount, btcPrice);
+    details.totalBtc = mocLibConfig.docsBtcValue(amount, mocState.peg(), btcPrice); //doc to btc
 
     /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
     // Check commission rate in RBTC according to transaction type
@@ -494,10 +514,7 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection, IMoCExchan
 
     uint256 liqPrice = mocState.getLiquidationPrice();
     // [USD * RBTC / USD]
-    uint256 totalRbtc = mocConverter.docsToBtcWithPrice(
-      userDocBalance,
-      liqPrice
-    );
+    uint256 totalRbtc = mocLibConfig.docsBtcValue(userDocBalance, mocState.peg(), liqPrice); //docs to btc
 
     // If send fails we don't burn the tokens
     if (moc.sendToAddress(destination, totalRbtc)) {
@@ -553,7 +570,7 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection, IMoCExchan
       // pay interest
       bproxManager.payInrate(BUCKET_C0, details.btcInterestAmount);
 
-      details.bproxToMint = mocConverter.btcToBProx(details.finalBtcToMint, bucket);
+      details.bproxToMint = mocState.btcToBProx(details.finalBtcToMint, bucket);
 
       bproxManager.assignBProx(bucket, account, details.bproxToMint, details.finalBtcToMint);
       moveExtraFundsToBucket(BUCKET_C0, bucket, details.finalBtcToMint, details.lev);
@@ -599,13 +616,13 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection, IMoCExchan
     if (bproxManager.bproxBalanceOf(bucket, account) == 0) {
       return (0, 0, 0, 0, 0);
     }
-
     RiskProxRedeemStruct memory details;
+    details.bproxPrice = mocState.bucketBProTecPrice(bucket);
     // Calculate leverage before the redeem
     details.bucketLev = mocState.leverage(bucket);
     // Get redeemable value
     details.bproxToRedeem = Math.min(bproxAmount, bproxManager.bproxBalanceOf(bucket, account));
-    details.rbtcToRedeem = mocConverter.bproxToBtc(details.bproxToRedeem, bucket);
+    details.rbtcToRedeem = mocLibConfig.bproBtcValue(details.bproxToRedeem, details.bproxPrice);
     // Pay interests
     // Update 2020-03-31
     // No recover interest in BTCX Redemption
@@ -617,7 +634,7 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection, IMoCExchan
       bucket,
       account,
       details.bproxToRedeem,
-      mocState.bucketBProTecPrice(bucket)
+      details.bproxPrice
     );
 
     if (bproxManager.getBucketNBPro(bucket) == 0) {
@@ -697,7 +714,7 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection, IMoCExchan
     uint256 bproxPrice
   ) public onlyWhitelisted(msg.sender) returns (uint256) {
     // Calculate total RBTC
-    uint256 btcTotalAmount = mocConverter.bproToBtcWithPrice(
+    uint256 btcTotalAmount = mocLibConfig.bproBtcValue(
       bproxAmount,
       bproxPrice
     );
@@ -873,7 +890,7 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection, IMoCExchan
     uint256 lev
   ) internal {
     uint256 btcToMove = mocLibConfig.bucketTransferAmount(totalBtc, lev);
-    uint256 docsToMove = mocConverter.btcToDoc(btcToMove);
+    uint256 docsToMove = mocState.btcToDoc(btcToMove);
 
     uint256 btcToMoveFinal = Math.min(
       btcToMove,
@@ -923,7 +940,6 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection, IMoCExchan
     bproToken = BProToken(connector.bproToken());
     bproxManager = MoCBProxManager(connector.bproxManager());
     mocState = IMoCState(connector.mocState());
-    mocConverter = MoCConverter(connector.mocConverter());
     mocInrate = IMoCInrate(connector.mocInrate());
   }
 
@@ -943,6 +959,7 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection, IMoCExchan
     uint256 bucketLev;
     uint256 bproxToRedeem;
     uint256 rbtcToRedeem;
+    uint256 bproxPrice;
     CommissionReturnStruct commission;
   }
 

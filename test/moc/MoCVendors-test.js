@@ -9,7 +9,7 @@ let toContractBN;
 const NOT_AUTHORIZED_CHANGER = 'not_authorized_changer';
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
-contract.only('MoC: MoCVendors', function([
+contract('MoC: MoCVendors', function([
   owner,
   userAccount,
   commissionsAccount,
@@ -191,9 +191,12 @@ contract.only('MoC: MoCVendors', function([
         );
 
         const totalPaidInMoC = await this.mocVendors.getTotalPaidInMoC(scenario.params.account);
-        if(scenario.params.mintAmount > 0) {
-          const [vendorReceivedMarkupEvent] = await mocHelper.findEvents(tx, 'VendorReceivedMarkup');
-          const {paidRBTC, paidMoC} = vendorReceivedMarkupEvent;
+        if (scenario.params.mintAmount > 0) {
+          const [vendorReceivedMarkupEvent] = await mocHelper.findEvents(
+            tx,
+            'VendorReceivedMarkup'
+          );
+          const { paidRBTC, paidMoC } = vendorReceivedMarkupEvent;
           mocHelper.assertBigRBTC(paidMoC, scenario.expect.paidMoC, 'paidMoC is incorrect');
           mocHelper.assertBigRBTC(paidRBTC, scenario.expect.paidRBTC, 'paidRBTC is incorrect');
         }

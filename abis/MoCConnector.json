@@ -119,20 +119,6 @@
   {
     "constant": true,
     "inputs": [],
-    "name": "mocConverter",
-    "outputs": [
-      {
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
     "name": "bproToken",
     "outputs": [
       {
@@ -183,10 +169,6 @@
       },
       {
         "name": "settlementAddress",
-        "type": "address"
-      },
-      {
-        "name": "converterAddress",
         "type": "address"
       },
       {

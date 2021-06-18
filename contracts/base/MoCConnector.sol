@@ -14,7 +14,9 @@ contract MoCConnector is MoCWhitelist, Initializable {
   address public bproToken;
   address public bproxManager;
   address public mocState;
-  address public mocConverter;
+  /** DEPRECATED **/
+  // solium-disable-next-line mixedcase
+  address public DEPRECATED_mocConverter;
   address public mocSettlement;
   address public mocExchange;
   address public mocInrate;
@@ -31,7 +33,6 @@ contract MoCConnector is MoCWhitelist, Initializable {
     @param bproxAddress BProxManager contract address
     @param stateAddress MoCState contract address
     @param settlementAddress MoCSettlement contract address
-    @param converterAddress MoCConverter contract address
     @param exchangeAddress MoCExchange contract address
     @param inrateAddress MoCInrate contract address
     @param burnoutBookAddress (DEPRECATED) MoCBurnout contract address. DO NOT USE.
@@ -43,7 +44,6 @@ contract MoCConnector is MoCWhitelist, Initializable {
     address bproxAddress,
     address stateAddress,
     address settlementAddress,
-    address converterAddress,
     address exchangeAddress,
     address inrateAddress,
     address burnoutBookAddress
@@ -54,7 +54,6 @@ contract MoCConnector is MoCWhitelist, Initializable {
     bproxManager = bproxAddress;
     mocState = stateAddress;
     mocSettlement = settlementAddress;
-    mocConverter = converterAddress;
     mocExchange = exchangeAddress;
     mocInrate = inrateAddress;
     mocBurnout = burnoutBookAddress;
@@ -66,7 +65,6 @@ contract MoCConnector is MoCWhitelist, Initializable {
     add(bproxAddress);
     add(stateAddress);
     add(settlementAddress);
-    add(converterAddress);
     add(exchangeAddress);
     add(inrateAddress);
     add(burnoutBookAddress);

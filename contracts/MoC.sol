@@ -4,7 +4,7 @@ import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "openzeppelin-solidity/contracts/lifecycle/Pausable.sol";
 import "./MoCBProxManager.sol";
 import "./interface/IMoCState.sol";
-import "./MoCConverter.sol";
+import "./MoCLibConnection.sol";
 import "./interface/IMoCSettlement.sol";
 import "./interface/IMoCExchange.sol";
 import "./base/MoCBase.sol";
@@ -30,7 +30,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
   IMoCState internal mocState;
   /** DEPRECATED **/
   // solium-disable-next-line mixedcase
-  MoCConverter internal DEPRECATED_mocConverter;
+  address internal DEPRECATED_mocConverter;
   IMoCSettlement internal settlement;
   IMoCExchange internal mocExchange;
   IMoCInrate internal mocInrate;
@@ -72,7 +72,6 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
     bproxManager = MoCBProxManager(connector.bproxManager());
     mocState = IMoCState(connector.mocState());
     settlement = IMoCSettlement(connector.mocSettlement());
-    //mocConverter = MoCConverter(connector.mocConverter());
     mocExchange = IMoCExchange(connector.mocExchange());
     mocInrate = IMoCInrate(connector.mocInrate());
     //initializeGovernanceContracts

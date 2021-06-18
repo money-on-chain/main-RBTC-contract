@@ -18,7 +18,6 @@ SCRIPTS="
 5_deploy_MoCSettlement.js
 6_deploy_CommissionSplitter.js
 7_deploy_MoCInrate.js
-8_deploy_MoCConverter.js
 9_deploy_MoCState.js
 10_check_deploy.js
 "

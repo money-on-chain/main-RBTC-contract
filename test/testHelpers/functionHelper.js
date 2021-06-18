@@ -132,7 +132,13 @@ const mintDoc = (moc, precisions) => async (from, reserveAmount, vendorAccount =
       });
 };
 
-const mintBProx = (moc, precisions) => async (from, bucket, btcToMint, vendorAccount = zeroAddress, btcValue) => {
+const mintBProx = (moc, precisions) => async (
+  from,
+  bucket,
+  btcToMint,
+  vendorAccount = zeroAddress,
+  btcValue
+) => {
   // With this we make sure the amount sent is enough to pay the interests
   // and comissions for regular situations
   // TODO: Replace this with something more fancy
@@ -149,7 +155,12 @@ const mintBProx = (moc, precisions) => async (from, bucket, btcToMint, vendorAcc
       });
 };
 
-const redeemBProx = (moc, precisions) => async (from, bucket, amount, vendorAccount = zeroAddress) => {
+const redeemBProx = (moc, precisions) => async (
+  from,
+  bucket,
+  amount,
+  vendorAccount = zeroAddress
+) => {
   const reservePrecision = precisions.RESERVE_PRECISION;
   const amountWithPrecision = new BN(amount).mul(reservePrecision);
   return vendorAccount !== zeroAddress

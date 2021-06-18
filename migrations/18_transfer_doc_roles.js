@@ -8,6 +8,7 @@ const MoCSettlement = artifacts.require('./MoCSettlement.sol');
 const MoCState = artifacts.require('./MoCState.sol');
 
 module.exports = async (deployer, currentNetwork, [owner]) => {
+  console.log('doc roles')
   const { transferDocRoles, createInstances } = await utils.makeUtils(
     artifacts,
     currentNetwork,

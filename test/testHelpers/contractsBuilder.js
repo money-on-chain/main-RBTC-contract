@@ -8,7 +8,6 @@ const DoC = artifacts.require('./contracts/DocToken.sol');
 const MoC = artifacts.require('./contracts/MoC.sol');
 const MoCState = artifacts.require('./contracts/MoCState.sol');
 const MoCStateMock = artifacts.require('./contracts/mocks/MoCStateMock.sol');
-const MoCConverter = artifacts.require('./contracts/MoCConverter.sol');
 const MoCExchange = artifacts.require('./contracts/MoCExchange.sol');
 const MoCInrate = artifacts.require('./contracts/MoCInrate.sol');
 const MoCSettlementMock = artifacts.require('./contracts/mocks/MoCSettlementMock.sol');
@@ -37,7 +36,6 @@ const CommissionSplitter = artifacts.require('CommissionSplitter.sol');
 const MoCProxy = Contracts.getFromLocal('MoC');
 const MoCStateProxy = Contracts.getFromLocal('MoCState');
 const MoCStateMockProxy = Contracts.getFromLocal('MoCStateMock');
-const MoCConverterProxy = Contracts.getFromLocal('MoCConverter');
 const MoCExchangeProxy = Contracts.getFromLocal('MoCExchange');
 const MoCInrateProxy = Contracts.getFromLocal('MoCInrate');
 const MoCSettlementMockProxy = Contracts.getFromLocal('MoCSettlementMock');
@@ -202,7 +200,6 @@ const createContracts = params => async ({ owner, useMock }) => {
   const mocStateProxy = await project.createProxy(stateContractProxy);
   const mocConnectorProxy = await project.createProxy(MoCConnectorProxy);
   const bproxProxy = await project.createProxy(BProxManagerProxy);
-  const mocConverterProxy = await project.createProxy(MoCConverterProxy);
   const mocExchangeProxy = await project.createProxy(MoCExchangeProxy);
   const mocInrateProxy = await project.createProxy(MoCInrateProxy);
   const mocProxy = await project.createProxy(MoCProxy);
@@ -218,7 +215,6 @@ const createContracts = params => async ({ owner, useMock }) => {
   const mocState = await stateContract.at(mocStateProxy.address);
   const mocConnector = await MoCConnector.at(mocConnectorProxy.address);
   const bprox = await BProxManager.at(bproxProxy.address);
-  const mocConverter = await MoCConverter.at(mocConverterProxy.address);
   const mocExchange = await MoCExchange.at(mocExchangeProxy.address);
   const mocInrate = await MoCInrate.at(mocInrateProxy.address);
   const moc = await MoC.at(mocProxy.address);
@@ -330,12 +326,10 @@ const createContracts = params => async ({ owner, useMock }) => {
     bprox.address,
     mocState.address,
     mocSettlement.address,
-    mocConverter.address,
     mocExchange.address,
     mocInrate.address,
     mocVendors.address // pass other address as parameter because MoCBurnout is deprecated
   );
-  await mocConverter.initialize(mocConnector.address);
   await moc.initialize(mocConnector.address, governor.address, stopper.address, startStoppable);
   await stopper.initialize(owner);
   await mocExchange.initialize(mocConnector.address);
@@ -381,7 +375,6 @@ const createContracts = params => async ({ owner, useMock }) => {
   await project.changeProxyAdmin(mocStateProxy.address, proxyAdmin.address);
   await project.changeProxyAdmin(mocConnectorProxy.address, proxyAdmin.address);
   await project.changeProxyAdmin(bproxProxy.address, proxyAdmin.address);
-  await project.changeProxyAdmin(mocConverterProxy.address, proxyAdmin.address);
   await project.changeProxyAdmin(mocExchangeProxy.address, proxyAdmin.address);
   await project.changeProxyAdmin(mocInrateProxy.address, proxyAdmin.address);
   await project.changeProxyAdmin(mocProxy.address, proxyAdmin.address);
@@ -420,8 +413,7 @@ const createContracts = params => async ({ owner, useMock }) => {
     mocPriceProvider,
     mocExchange,
     mocVendors,
-    mockMoCVendorsChanger,
-    mocConverter
+    mockMoCVendorsChanger
   };
 };
 
