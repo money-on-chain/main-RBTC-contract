@@ -243,7 +243,7 @@ modifier transitionState() internal
 - [liquidate()](#liquidate)
 - [transferCommissions(address payable sender, uint256 value, uint256 totalBtcSpent, uint256 btcCommission, uint256 mocCommission, address payable vendorAccount, uint256 btcMarkup, uint256 mocMarkup)](#transfercommissions)
 - [transferMocCommission(address sender, uint256 mocCommission, address vendorAccount, uint256 mocMarkup)](#transfermoccommission)
-- [redeemWithMoCFees(address payable sender, uint256 btcAmount, uint256 btcCommission, uint256 mocCommission, address payable vendorAccount, uint256 btcMarkup, uint256 mocMarkup)](#redeemwithmocfees)
+- [redeemWithCommission(address payable sender, uint256 btcAmount, uint256 btcCommission, uint256 mocCommission, address payable vendorAccount, uint256 btcMarkup, uint256 mocMarkup)](#redeemWithCommission)
 - [transferBtcCommission(address payable vendorAccount, uint256 btcCommission, uint256 btcMarkup)](#transferbtccommission)
 - [doTransfer(address payable receiver, uint256 btcAmount)](#dotransfer)
 - [doSend(address payable receiver, uint256 btcAmount)](#dosend)
@@ -844,12 +844,12 @@ function transferMocCommission(address sender, uint256 mocCommission, address ve
 | vendorAccount | address | address of vendor | 
 | mocMarkup | uint256 | vendor markup in MoC | 
 
-### redeemWithMoCFees
+### redeemWithCommission
 
 Transfer redeem operation fees (commissions + vendor markup)
 
 ```js
-function redeemWithMoCFees(address payable sender, uint256 btcAmount, uint256 btcCommission, uint256 mocCommission, address payable vendorAccount, uint256 btcMarkup, uint256 mocMarkup) internal nonpayable
+function redeemWithCommission(address payable sender, uint256 btcAmount, uint256 btcCommission, uint256 mocCommission, address payable vendorAccount, uint256 btcMarkup, uint256 mocMarkup) internal nonpayable
 ```
 
 **Arguments**

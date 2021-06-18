@@ -118,12 +118,12 @@ contract('MoC', function([owner, userAccount, commissionsAccount, vendorAccount,
       let payComissionAmount;
       let payMarkupAmount;
       const btcPrice = 10000;
-      [0, 10000].forEach(nDocs => {
+      [0, 10000].forEach(async nDocs => {
         describe(`AND There are ${nDocs} Docs and 6 BTC`, function() {
           [
             { docAmount: 1300, commissionAmount: 3.9, markupAmount: 13 }, // commission = 1300 * 0.003, markup = 1300 * 0.01
             { docAmount: 1200, commissionAmount: 3.6, markupAmount: 12 } // commission = 1200 * 0.003 = 30, markup = 1200 * 0.01
-          ].forEach(({ docAmount, commissionAmount, markupAmount }) => {
+          ].forEach(async ({ docAmount, commissionAmount, markupAmount }) => {
             describe(`WHEN he tries to mint ${docAmount} RBTC`, function() {
               const prev = {};
               let txCost;
