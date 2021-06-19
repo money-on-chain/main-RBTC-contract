@@ -62,7 +62,7 @@ contract('MoCHelperLib: MaxBProxCalculation', function([owner]) {
         }
       }
     ];
-    states.forEach(state => {
+    states.forEach(function(state) {
       describe(`GIVEN nDoc is ${state.nDoCs}, peg is ${state.peg},
       btcPrice is ${state.btcPrice} and leverage is ${state.leverage}`, function() {
         it(`THEN maxBProx should be ${state.expect.maxBPro}`, async function() {

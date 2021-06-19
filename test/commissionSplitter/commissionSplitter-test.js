@@ -38,49 +38,7 @@ contract('CommissionSplitter', function([
   });
 
   describe('GIVEN commissions are being sent to a CommissionSplitter contract AND MOC Proportion is 0', function() {
-    const scenarios = [
-      {
-        mintOperations: [
-          {
-            reserve: 1000
-          }
-        ],
-        proportion: 0,
-        commissionAmount: 1,
-        mocAmount: 0
-      },
-      {
-        mintOperations: [
-          {
-            reserve: 1111
-          },
-          {
-            reserve: 2222
-          }
-        ],
-        proportion: 1,
-        commissionAmount: 0,
-        mocAmount: 3.333
-      },
-      {
-        mintOperations: [
-          {
-            reserve: 300
-          },
-          {
-            reserve: 300
-          },
-          {
-            reserve: 900
-          }
-        ],
-        proportion: 0.5,
-        commissionAmount: 0.75,
-        mocAmount: 0.75
-      }
-    ];
-
-    scenarios.forEach(s => {
+    function runSecenario(s) {
       describe(`WHEN proportion is set to ${s.proportion}`, function() {
         before(async function() {
           await mocHelper.revertState();
@@ -169,6 +127,45 @@ contract('CommissionSplitter', function([
           });
         });
       });
+    }
+    runSecenario({
+      mintOperations: [
+        {
+          reserve: 1000
+        }
+      ],
+      proportion: 0,
+      commissionAmount: 1,
+      mocAmount: 0
+    });
+    runSecenario({
+      mintOperations: [
+        {
+          reserve: 1111
+        },
+        {
+          reserve: 2222
+        }
+      ],
+      proportion: 1,
+      commissionAmount: 0,
+      mocAmount: 3.333
+    });
+    runSecenario({
+      mintOperations: [
+        {
+          reserve: 300
+        },
+        {
+          reserve: 300
+        },
+        {
+          reserve: 900
+        }
+      ],
+      proportion: 0.5,
+      commissionAmount: 0.75,
+      mocAmount: 0.75
     });
   });
 

@@ -65,7 +65,7 @@ contract('MoC: Liquidation', function([
       { name: 'redeemBProxVendors', args: [BUCKET_X2, 1, vendorAccount], event: 'RiskProxRedeem' },
       { name: 'evalLiquidation', args: [] },
       { name: 'runSettlement', args: [100] }
-    ].forEach(fn => {
+    ].forEach(function(fn) {
       describe(`WHEN someone executes ${fn.name}`, function() {
         let tx;
         beforeEach(async function() {
@@ -153,7 +153,7 @@ contract('MoC: Liquidation', function([
         assert.isTrue(await bpro.paused(), 'BPro should be paused');
       });
 
-      [10000, 2000, 100].forEach(btcPrice => {
+      [10000, 2000, 100].forEach(function(btcPrice) {
         describe(`WHEN price goes to ${btcPrice}`, function() {
           it('THEN the user can redeem his Docs, receiving 1.5 RBTC in return', async function() {
             await mocHelper.setBitcoinPrice(btcPrice * mocHelper.MOC_PRECISION);

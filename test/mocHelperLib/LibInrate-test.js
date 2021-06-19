@@ -362,7 +362,7 @@ contract('MoCHelperLib: Inrate', function([owner]) {
           expect: 0.000029017541785311
         }
       ];
-      scenarios.forEach(scenario => {
+      scenarios.forEach(function(scenario) {
         beforeEach(function() {
           baseParams = getContractReadyState({
             tMin: 0,
@@ -434,7 +434,7 @@ contract('MoCHelperLib: Inrate', function([owner]) {
           }
         }
       ];
-      scenarios.forEach(s => {
+      scenarios.forEach(function(s) {
         it(`WHEN power is ${s.power} THEN AvgInt should be ${s.expect.inrate}`, async function() {
           const scenario = getContractReadyState(s);
           const inrate = await mocHelperLib.avgInt(

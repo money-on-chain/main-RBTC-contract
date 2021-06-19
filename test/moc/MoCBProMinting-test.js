@@ -21,61 +21,60 @@ contract('MoC: MoCExchange', function([owner, userAccount, vendorAccount]) {
     await mocHelper.registerVendor(vendorAccount, 0, owner);
   });
 
+  function runScenario(nBPros) {
+    describe(`AND there are ${nBPros} nBPros`, function() {
+      let userPrevBalance;
+      let txCost;
+      let c0bproPrevBalance;
+      beforeEach(async function() {
+        if (nBPros) {
+          await mocHelper.mintBProAmount(owner, nBPros, vendorAccount);
+        }
+
+        userPrevBalance = toContractBN(await web3.eth.getBalance(userAccount));
+        c0bproPrevBalance = await this.mocState.getBucketNBPro(BUCKET_C0);
+        const tx = await mocHelper.mintBPro(userAccount, 100, vendorAccount);
+        txCost = await mocHelper.getTxCost(tx);
+      });
+      it('THEN he receives 100 BPro on his account', async function() {
+        const balance = await mocHelper.getBProBalance(userAccount);
+        mocHelper.assertBigRBTC(balance, 100, 'userAccount BPro balance was not 10000');
+      });
+      it('AND GLOBAL balance increases by 100 RBTC', async function() {
+        const mocEthBalance = await web3.eth.getBalance(this.moc.address);
+        mocHelper.assertBigRBTC(
+          mocEthBalance,
+          100 + nBPros,
+          'Should only increase the total amount of the sale'
+        );
+      });
+      it('AND C0 Bucket balance increases by 100 RBTC', async function() {
+        const c0BTCBalance = await this.mocState.getBucketNBTC(BUCKET_C0);
+        mocHelper.assertBigRBTC(c0BTCBalance, 100 + nBPros, 'C0 BTC amount should rise 10000 wei');
+      });
+      it('AND C0 Bucket BPro balance increases by 100 BPro', async function() {
+        const c0BProBalance = await this.mocState.getBucketNBPro(BUCKET_C0);
+        const diff = c0BProBalance.sub(c0bproPrevBalance);
+        mocHelper.assertBigRBTC(diff, 100, 'C0 BTC amount should rise 10000 wei');
+      });
+      it('AND User Balance decreases by 100 + fee', async function() {
+        const userBalance = await web3.eth.getBalance(userAccount);
+        const diff = toContractBN(userPrevBalance)
+          .sub(toContractBN(userBalance))
+          .sub(toContractBN(txCost));
+        mocHelper.assertBigRBTC(
+          diff,
+          100,
+          'Should decrease by the cost of the Token and the gas used'
+        );
+      });
+    });
+  }
+
   describe('BPro minting', function() {
     describe('GIVEN sends 100 RBTC to mint BPro', function() {
-      [(0, 100)].forEach(nBPros => {
-        describe(`AND there are ${nBPros} nBPros`, function() {
-          let userPrevBalance;
-          let txCost;
-          let c0bproPrevBalance;
-          beforeEach(async function() {
-            if (nBPros) {
-              await mocHelper.mintBProAmount(owner, nBPros, vendorAccount);
-            }
-
-            userPrevBalance = toContractBN(await web3.eth.getBalance(userAccount));
-            c0bproPrevBalance = await this.mocState.getBucketNBPro(BUCKET_C0);
-            const tx = await mocHelper.mintBPro(userAccount, 100, vendorAccount);
-            txCost = await mocHelper.getTxCost(tx);
-          });
-          it('THEN he receives 100 BPro on his account', async function() {
-            const balance = await mocHelper.getBProBalance(userAccount);
-            mocHelper.assertBigRBTC(balance, 100, 'userAccount BPro balance was not 10000');
-          });
-          it('AND GLOBAL balance increases by 100 RBTC', async function() {
-            const mocEthBalance = await web3.eth.getBalance(this.moc.address);
-            mocHelper.assertBigRBTC(
-              mocEthBalance,
-              100 + nBPros,
-              'Should only increase the total amount of the sale'
-            );
-          });
-          it('AND C0 Bucket balance increases by 100 RBTC', async function() {
-            const c0BTCBalance = await this.mocState.getBucketNBTC(BUCKET_C0);
-            mocHelper.assertBigRBTC(
-              c0BTCBalance,
-              100 + nBPros,
-              'C0 BTC amount should rise 10000 wei'
-            );
-          });
-          it('AND C0 Bucket BPro balance increases by 100 BPro', async function() {
-            const c0BProBalance = await this.mocState.getBucketNBPro(BUCKET_C0);
-            const diff = c0BProBalance.sub(c0bproPrevBalance);
-            mocHelper.assertBigRBTC(diff, 100, 'C0 BTC amount should rise 10000 wei');
-          });
-          it('AND User Balance decreases by 100 + fee', async function() {
-            const userBalance = await web3.eth.getBalance(userAccount);
-            const diff = toContractBN(userPrevBalance)
-              .sub(toContractBN(userBalance))
-              .sub(toContractBN(txCost));
-            mocHelper.assertBigRBTC(
-              diff,
-              100,
-              'Should decrease by the cost of the Token and the gas used'
-            );
-          });
-        });
-      });
+      runScenario(0);
+      runScenario(100);
     });
 
     describe('GIVEN a user owns 10 BPros', function() {

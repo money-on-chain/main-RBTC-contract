@@ -25,145 +25,7 @@ contract('MoC', function([owner, userAccount, commissionsAccount, vendorAccount,
 
   describe('BProx redeem with commissions and without interests', function() {
     describe('Redeem BProxs', function() {
-      const scenarios = [
-        // RBTC commission
-        {
-          // redeem 1 BProx
-          params: {
-            docsToMint: 10000,
-            bproxsToRedeem: 1,
-            commissionRate: 0.006,
-            bproxToMint: 1,
-            bproToMint: 100,
-            mocAmount: 0,
-            vendorStaking: 100,
-            vendorAccount
-          },
-          expect: {
-            bproxsToRedeem: 1,
-            bproxsToRedeemOnRBTC: 0.984,
-            commissionAddressBalance: 0.006,
-            commissionsOnRBTC: 0.006, // (REDEEM_BTCX_FEES_RBTC = 0.006)
-            commissionAmountMoC: 0,
-            vendorAmountRbtc: 0.01, // (bproxsToRedeem * markup = 0.01)
-            vendorAmountMoC: 0
-          }
-        },
-        {
-          // Redeeming limited by max available to redeem.
-          params: {
-            docsToMint: 50000,
-            bproxsToRedeem: 50,
-            commissionRate: 0.006,
-            bproxToMint: 5,
-            bproToMint: 100,
-            mocAmount: 0,
-            vendorStaking: 100,
-            vendorAccount
-          },
-          expect: {
-            bproxsToRedeem: 5,
-            bproxsToRedeemOnRBTC: 4.92,
-            commissionAddressBalance: 0.03,
-            commissionsOnRBTC: 0.03, // (REDEEM_BTCX_FEES_RBTC = 0.006)
-            commissionAmountMoC: 0,
-            vendorAmountRbtc: 0.05, // (bproxsToRedeem * markup = 0.01)
-            vendorAmountMoC: 0
-          }
-        },
-        // MoC commission
-        {
-          // redeem 1 BProx
-          params: {
-            docsToMint: 10000,
-            bproxsToRedeem: 1,
-            commissionRate: 0,
-            bproxToMint: 1,
-            bproToMint: 100,
-            mocAmount: 1000,
-            vendorStaking: 100,
-            vendorAccount
-          },
-          expect: {
-            bproxsToRedeem: 1,
-            bproxsToRedeemOnRBTC: 1,
-            commissionAddressBalance: 0,
-            commissionsOnRBTC: 0,
-            commissionAmountMoC: 0.012, // (bproxsToRedeem * REDEEM_BTCX_FEES_MOC = 0.012)
-            vendorAmountRbtc: 0,
-            vendorAmountMoC: 0.01 // (bproxsToRedeem * markup = 0.01)
-          }
-        },
-        {
-          // Redeeming limited by max available to redeem.
-          params: {
-            docsToMint: 50000,
-            bproxsToRedeem: 50,
-            commissionRate: 0,
-            bproxToMint: 5,
-            bproToMint: 100,
-            mocAmount: 1000,
-            vendorStaking: 100,
-            vendorAccount
-          },
-          expect: {
-            bproxsToRedeem: 5,
-            bproxsToRedeemOnRBTC: 5,
-            commissionAddressBalance: 0,
-            commissionsOnRBTC: 0,
-            commissionAmountMoC: 0.06, // (bproxsToRedeem * REDEEM_BTCX_FEES_MOC = 0.012)
-            vendorAmountRbtc: 0,
-            vendorAmountMoC: 0.05 // (bproxsToRedeem * markup = 0.01)
-          }
-        },
-        // MoC commission NO VENDOR
-        {
-          // redeem 1 BProx
-          params: {
-            docsToMint: 10000,
-            bproxsToRedeem: 1,
-            commissionRate: 0,
-            bproxToMint: 1,
-            bproToMint: 100,
-            mocAmount: 1000,
-            vendorStaking: 100,
-            vendorAccount: zeroAddress
-          },
-          expect: {
-            bproxsToRedeem: 1,
-            bproxsToRedeemOnRBTC: 1,
-            commissionAddressBalance: 0,
-            commissionsOnRBTC: 0,
-            commissionAmountMoC: 0.012, // (bproxsToRedeem * REDEEM_BTCX_FEES_MOC = 0.012)
-            vendorAmountRbtc: 0,
-            vendorAmountMoC: 0
-          }
-        },
-        {
-          // Redeeming limited by max available to redeem.
-          params: {
-            docsToMint: 50000,
-            bproxsToRedeem: 50,
-            commissionRate: 0,
-            bproxToMint: 5,
-            bproToMint: 100,
-            mocAmount: 1000,
-            vendorStaking: 100,
-            vendorAccount: zeroAddress
-          },
-          expect: {
-            bproxsToRedeem: 5,
-            bproxsToRedeemOnRBTC: 5,
-            commissionAddressBalance: 0,
-            commissionsOnRBTC: 0,
-            commissionAmountMoC: 0.06, // (bproxsToRedeem * REDEEM_BTCX_FEES_MOC = 0.012)
-            vendorAmountRbtc: 0,
-            vendorAmountMoC: 0
-          }
-        }
-      ];
-
-      scenarios.forEach(async scenario => {
+      function runScenario(scenario) {
         describe(`GIVEN ${scenario.params.bproToMint} BitPro and DOC is minted`, function() {
           let prevUserBtcBalance;
           let prevUserBproxBalance;
@@ -352,6 +214,141 @@ contract('MoC', function([owner, userAccount, commissionsAccount, vendorAccount,
             });
           });
         });
+      }
+      // RBTC commission
+      runScenario({
+        // redeem 1 BProx
+        params: {
+          docsToMint: 10000,
+          bproxsToRedeem: 1,
+          commissionRate: 0.006,
+          bproxToMint: 1,
+          bproToMint: 100,
+          mocAmount: 0,
+          vendorStaking: 100,
+          vendorAccount
+        },
+        expect: {
+          bproxsToRedeem: 1,
+          bproxsToRedeemOnRBTC: 0.984,
+          commissionAddressBalance: 0.006,
+          commissionsOnRBTC: 0.006, // (REDEEM_BTCX_FEES_RBTC = 0.006)
+          commissionAmountMoC: 0,
+          vendorAmountRbtc: 0.01, // (bproxsToRedeem * markup = 0.01)
+          vendorAmountMoC: 0
+        }
+      });
+      runScenario({
+        // Redeeming limited by max available to redeem.
+        params: {
+          docsToMint: 50000,
+          bproxsToRedeem: 50,
+          commissionRate: 0.006,
+          bproxToMint: 5,
+          bproToMint: 100,
+          mocAmount: 0,
+          vendorStaking: 100,
+          vendorAccount
+        },
+        expect: {
+          bproxsToRedeem: 5,
+          bproxsToRedeemOnRBTC: 4.92,
+          commissionAddressBalance: 0.03,
+          commissionsOnRBTC: 0.03, // (REDEEM_BTCX_FEES_RBTC = 0.006)
+          commissionAmountMoC: 0,
+          vendorAmountRbtc: 0.05, // (bproxsToRedeem * markup = 0.01)
+          vendorAmountMoC: 0
+        }
+      });
+      // MoC commission
+      runScenario({
+        // redeem 1 BProx
+        params: {
+          docsToMint: 10000,
+          bproxsToRedeem: 1,
+          commissionRate: 0,
+          bproxToMint: 1,
+          bproToMint: 100,
+          mocAmount: 1000,
+          vendorStaking: 100,
+          vendorAccount
+        },
+        expect: {
+          bproxsToRedeem: 1,
+          bproxsToRedeemOnRBTC: 1,
+          commissionAddressBalance: 0,
+          commissionsOnRBTC: 0,
+          commissionAmountMoC: 0.012, // (bproxsToRedeem * REDEEM_BTCX_FEES_MOC = 0.012)
+          vendorAmountRbtc: 0,
+          vendorAmountMoC: 0.01 // (bproxsToRedeem * markup = 0.01)
+        }
+      });
+      runScenario({
+        // Redeeming limited by max available to redeem.
+        params: {
+          docsToMint: 50000,
+          bproxsToRedeem: 50,
+          commissionRate: 0,
+          bproxToMint: 5,
+          bproToMint: 100,
+          mocAmount: 1000,
+          vendorStaking: 100,
+          vendorAccount
+        },
+        expect: {
+          bproxsToRedeem: 5,
+          bproxsToRedeemOnRBTC: 5,
+          commissionAddressBalance: 0,
+          commissionsOnRBTC: 0,
+          commissionAmountMoC: 0.06, // (bproxsToRedeem * REDEEM_BTCX_FEES_MOC = 0.012)
+          vendorAmountRbtc: 0,
+          vendorAmountMoC: 0.05 // (bproxsToRedeem * markup = 0.01)
+        }
+      });
+      // MoC commission NO VENDOR
+      runScenario({
+        // redeem 1 BProx
+        params: {
+          docsToMint: 10000,
+          bproxsToRedeem: 1,
+          commissionRate: 0,
+          bproxToMint: 1,
+          bproToMint: 100,
+          mocAmount: 1000,
+          vendorStaking: 100,
+          vendorAccount: zeroAddress
+        },
+        expect: {
+          bproxsToRedeem: 1,
+          bproxsToRedeemOnRBTC: 1,
+          commissionAddressBalance: 0,
+          commissionsOnRBTC: 0,
+          commissionAmountMoC: 0.012, // (bproxsToRedeem * REDEEM_BTCX_FEES_MOC = 0.012)
+          vendorAmountRbtc: 0,
+          vendorAmountMoC: 0
+        }
+      });
+      runScenario({
+        // Redeeming limited by max available to redeem.
+        params: {
+          docsToMint: 50000,
+          bproxsToRedeem: 50,
+          commissionRate: 0,
+          bproxToMint: 5,
+          bproToMint: 100,
+          mocAmount: 1000,
+          vendorStaking: 100,
+          vendorAccount: zeroAddress
+        },
+        expect: {
+          bproxsToRedeem: 5,
+          bproxsToRedeemOnRBTC: 5,
+          commissionAddressBalance: 0,
+          commissionsOnRBTC: 0,
+          commissionAmountMoC: 0.06, // (bproxsToRedeem * REDEEM_BTCX_FEES_MOC = 0.012)
+          vendorAmountRbtc: 0,
+          vendorAmountMoC: 0
+        }
       });
     });
 

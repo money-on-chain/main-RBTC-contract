@@ -65,7 +65,7 @@ contract('MoCHelperLib:  Coverage-Leverage', function([owner]) {
         }
       }
     ];
-    states.forEach(state => {
+    states.forEach(function(state) {
       describe(`GIVEN nB is ${state.nB} and lB is ${state.lB}`, function() {
         let contractReadyState;
         before(function() {

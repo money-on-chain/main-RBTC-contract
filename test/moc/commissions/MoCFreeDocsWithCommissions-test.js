@@ -23,145 +23,7 @@ contract('MoC', function([owner, userAccount, commissionsAccount, vendorAccount,
 
   describe('Free Doc redeem with commissions and without interests', function() {
     describe('Redeem free docs', function() {
-      const scenarios = [
-        // RBTC commission
-        {
-          // redeem 100 Docs when has 1000 free Docs
-          params: {
-            docsToMint: 1000,
-            docsToRedeem: 100,
-            // commissionsRate: 4, // REDEEM_DOC_FEES_RBTC = 0.004
-            bproToMint: 1,
-            initialBtcPrice: 10000,
-            mocAmount: 0,
-            vendorStaking: 100,
-            vendorAccount
-          },
-          expect: {
-            docsToRedeem: 100,
-            // eslint-disable-next-line max-len
-            docsToRedeemOnRBTC: 0.00986, // (docsToRedeem / btcPrice) - ((docsToRedeem / btcPrice) * commissionRate) - vendorAmountRbtc
-            commissionAddressBalance: 0.00004,
-            commissionAmountMoC: 0,
-            vendorAmountRbtc: 0.0001, // ((docsToRedeem / btcPrice) * markup = 0.01)
-            vendorAmountMoC: 0
-          }
-        },
-        {
-          // Redeeming limited by free doc amount and user doc balance.
-          params: {
-            docsToMint: 500,
-            docsToRedeem: 600,
-            // commissionsRate: 0.2,
-            bproToMint: 1,
-            initialBtcPrice: 10000,
-            mocAmount: 0,
-            vendorStaking: 100,
-            vendorAccount
-          },
-          expect: {
-            docsToRedeem: 500,
-            // eslint-disable-next-line max-len
-            docsToRedeemOnRBTC: 0.0493, // (docsToRedeem / btcPrice) - ((docsToRedeem / btcPrice) * commissionRate) - vendorAmountRbtc
-            commissionAddressBalance: 0.0002,
-            commissionAmountMoC: 0,
-            vendorAmountRbtc: 0.0005, // ((docsToRedeem / btcPrice) * markup = 0.01)
-            vendorAmountMoC: 0
-          }
-        },
-        // MoC commission
-        {
-          // redeem 100 Docs when has 1000 free Docs
-          params: {
-            docsToMint: 1000,
-            docsToRedeem: 100,
-            // commissionsRate: 0,
-            bproToMint: 1,
-            initialBtcPrice: 10000,
-            mocAmount: 1000,
-            vendorStaking: 100,
-            vendorAccount
-          },
-          expect: {
-            docsToRedeem: 100,
-            docsToRedeemOnRBTC: 0.01,
-            commissionAddressBalance: 0,
-            // eslint-disable-next-line max-len
-            commissionAmountMoC: 0.0001, // (btcPrice * docsToRedeemOnRBTC / mocPrice) * REDEEM_DOC_FEES_MOC = 0.01
-            vendorAmountRbtc: 0,
-            vendorAmountMoC: 0.0001 // (btcPrice * docsToRedeemOnRBTC / mocPrice) * markup = 0.01
-          }
-        },
-        {
-          // Redeeming limited by free doc amount and user doc balance.
-          params: {
-            docsToMint: 500,
-            docsToRedeem: 600,
-            // commissionsRate: 0,
-            bproToMint: 1,
-            initialBtcPrice: 10000,
-            mocAmount: 1000,
-            vendorStaking: 100,
-            vendorAccount
-          },
-          expect: {
-            docsToRedeem: 500,
-            docsToRedeemOnRBTC: 0.05,
-            commissionAddressBalance: 0,
-            // eslint-disable-next-line max-len
-            commissionAmountMoC: 0.0005, // (btcPrice * docsToRedeemOnRBTC / mocPrice) * REDEEM_DOC_FEES_MOC = 0.01
-            vendorAmountRbtc: 0,
-            vendorAmountMoC: 0.0005 // (btcPrice * docsToRedeemOnRBTC / mocPrice) * markup = 0.01
-          }
-        },
-        // MoC commission NO VENDOR
-        {
-          // redeem 100 Docs when has 1000 free Docs
-          params: {
-            docsToMint: 1000,
-            docsToRedeem: 100,
-            // commissionsRate: 0,
-            bproToMint: 1,
-            initialBtcPrice: 10000,
-            mocAmount: 1000,
-            vendorStaking: 100,
-            vendorAccount: zeroAddress
-          },
-          expect: {
-            docsToRedeem: 100,
-            docsToRedeemOnRBTC: 0.01,
-            commissionAddressBalance: 0,
-            // eslint-disable-next-line max-len
-            commissionAmountMoC: 0.0001, // (btcPrice * docsToRedeemOnRBTC / mocPrice) * REDEEM_DOC_FEES_MOC = 0.01
-            vendorAmountRbtc: 0,
-            vendorAmountMoC: 0
-          }
-        },
-        {
-          // Redeeming limited by free doc amount and user doc balance.
-          params: {
-            docsToMint: 500,
-            docsToRedeem: 600,
-            // commissionsRate: 0,
-            bproToMint: 1,
-            initialBtcPrice: 10000,
-            mocAmount: 1000,
-            vendorStaking: 100,
-            vendorAccount: zeroAddress
-          },
-          expect: {
-            docsToRedeem: 500,
-            docsToRedeemOnRBTC: 0.05,
-            commissionAddressBalance: 0,
-            // eslint-disable-next-line max-len
-            commissionAmountMoC: 0.0005, // (btcPrice * docsToRedeemOnRBTC / mocPrice) * REDEEM_DOC_FEES_MOC = 0.01
-            vendorAmountRbtc: 0,
-            vendorAmountMoC: 0
-          }
-        }
-      ];
-
-      scenarios.forEach(async scenario => {
+      function runScenario(scenario) {
         describe(`GIVEN ${scenario.params.bproToMint} BitPro is minted and btc price is ${scenario.params.initialBtcPrice} usd`, function() {
           let prevUserBtcBalance;
           let prevUserDocBalance;
@@ -334,6 +196,141 @@ contract('MoC', function([owner, userAccount, commissionsAccount, vendorAccount,
             });
           });
         });
+      }
+      // RBTC commission
+      runScenario({
+        // redeem 100 Docs when has 1000 free Docs
+        params: {
+          docsToMint: 1000,
+          docsToRedeem: 100,
+          // commissionsRate: 4, // REDEEM_DOC_FEES_RBTC = 0.004
+          bproToMint: 1,
+          initialBtcPrice: 10000,
+          mocAmount: 0,
+          vendorStaking: 100,
+          vendorAccount
+        },
+        expect: {
+          docsToRedeem: 100,
+          // eslint-disable-next-line max-len
+          docsToRedeemOnRBTC: 0.00986, // (docsToRedeem / btcPrice) - ((docsToRedeem / btcPrice) * commissionRate) - vendorAmountRbtc
+          commissionAddressBalance: 0.00004,
+          commissionAmountMoC: 0,
+          vendorAmountRbtc: 0.0001, // ((docsToRedeem / btcPrice) * markup = 0.01)
+          vendorAmountMoC: 0
+        }
+      });
+      runScenario({
+        // Redeeming limited by free doc amount and user doc balance.
+        params: {
+          docsToMint: 500,
+          docsToRedeem: 600,
+          // commissionsRate: 0.2,
+          bproToMint: 1,
+          initialBtcPrice: 10000,
+          mocAmount: 0,
+          vendorStaking: 100,
+          vendorAccount
+        },
+        expect: {
+          docsToRedeem: 500,
+          // eslint-disable-next-line max-len
+          docsToRedeemOnRBTC: 0.0493, // (docsToRedeem / btcPrice) - ((docsToRedeem / btcPrice) * commissionRate) - vendorAmountRbtc
+          commissionAddressBalance: 0.0002,
+          commissionAmountMoC: 0,
+          vendorAmountRbtc: 0.0005, // ((docsToRedeem / btcPrice) * markup = 0.01)
+          vendorAmountMoC: 0
+        }
+      });
+      // MoC commission
+      runScenario({
+        // redeem 100 Docs when has 1000 free Docs
+        params: {
+          docsToMint: 1000,
+          docsToRedeem: 100,
+          // commissionsRate: 0,
+          bproToMint: 1,
+          initialBtcPrice: 10000,
+          mocAmount: 1000,
+          vendorStaking: 100,
+          vendorAccount
+        },
+        expect: {
+          docsToRedeem: 100,
+          docsToRedeemOnRBTC: 0.01,
+          commissionAddressBalance: 0,
+          // eslint-disable-next-line max-len
+          commissionAmountMoC: 0.0001, // (btcPrice * docsToRedeemOnRBTC / mocPrice) * REDEEM_DOC_FEES_MOC = 0.01
+          vendorAmountRbtc: 0,
+          vendorAmountMoC: 0.0001 // (btcPrice * docsToRedeemOnRBTC / mocPrice) * markup = 0.01
+        }
+      });
+      runScenario({
+        // Redeeming limited by free doc amount and user doc balance.
+        params: {
+          docsToMint: 500,
+          docsToRedeem: 600,
+          // commissionsRate: 0,
+          bproToMint: 1,
+          initialBtcPrice: 10000,
+          mocAmount: 1000,
+          vendorStaking: 100,
+          vendorAccount
+        },
+        expect: {
+          docsToRedeem: 500,
+          docsToRedeemOnRBTC: 0.05,
+          commissionAddressBalance: 0,
+          // eslint-disable-next-line max-len
+          commissionAmountMoC: 0.0005, // (btcPrice * docsToRedeemOnRBTC / mocPrice) * REDEEM_DOC_FEES_MOC = 0.01
+          vendorAmountRbtc: 0,
+          vendorAmountMoC: 0.0005 // (btcPrice * docsToRedeemOnRBTC / mocPrice) * markup = 0.01
+        }
+      });
+      // MoC commission NO VENDOR
+      runScenario({
+        // redeem 100 Docs when has 1000 free Docs
+        params: {
+          docsToMint: 1000,
+          docsToRedeem: 100,
+          // commissionsRate: 0,
+          bproToMint: 1,
+          initialBtcPrice: 10000,
+          mocAmount: 1000,
+          vendorStaking: 100,
+          vendorAccount: zeroAddress
+        },
+        expect: {
+          docsToRedeem: 100,
+          docsToRedeemOnRBTC: 0.01,
+          commissionAddressBalance: 0,
+          // eslint-disable-next-line max-len
+          commissionAmountMoC: 0.0001, // (btcPrice * docsToRedeemOnRBTC / mocPrice) * REDEEM_DOC_FEES_MOC = 0.01
+          vendorAmountRbtc: 0,
+          vendorAmountMoC: 0
+        }
+      });
+      runScenario({
+        // Redeeming limited by free doc amount and user doc balance.
+        params: {
+          docsToMint: 500,
+          docsToRedeem: 600,
+          // commissionsRate: 0,
+          bproToMint: 1,
+          initialBtcPrice: 10000,
+          mocAmount: 1000,
+          vendorStaking: 100,
+          vendorAccount: zeroAddress
+        },
+        expect: {
+          docsToRedeem: 500,
+          docsToRedeemOnRBTC: 0.05,
+          commissionAddressBalance: 0,
+          // eslint-disable-next-line max-len
+          commissionAmountMoC: 0.0005, // (btcPrice * docsToRedeemOnRBTC / mocPrice) * REDEEM_DOC_FEES_MOC = 0.01
+          vendorAmountRbtc: 0,
+          vendorAmountMoC: 0
+        }
       });
     });
 

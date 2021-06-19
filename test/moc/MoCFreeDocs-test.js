@@ -96,7 +96,7 @@ contract.skip('MoC', function([owner, userAccount, otherAccount, vendorAccount])
         }
       ];
 
-      scenarios.forEach(async scenario => {
+      scenarios.forEach(function(scenario) {
         describe(`GIVEN ${scenario.params.bproToMint} BitPro is minted and btc price is ${scenario.params.initialBtcPrice} usd`, function() {
           beforeEach(async function() {
             await mocHelper.revertState();
@@ -364,7 +364,7 @@ contract.skip('MoC', function([owner, userAccount, otherAccount, vendorAccount])
         }
       ];
 
-      scenarios.forEach(async scenario => {
+      scenarios.forEach(function(scenario) {
         describe(scenario.description, function() {
           let userBtcBalance;
           let redeemTx;

@@ -46,63 +46,7 @@ contract('MoC: MoCExchange', function([
   });
 
   describe('BPro minting with commissions', function() {
-    const scenarios = [
-      // RBTC fees
-      {
-        params: {
-          bproToMint: 1000,
-          mocAmount: 0,
-          vendorStaking: 100,
-          vendorAccount
-        },
-        expect: {
-          bproToMint: 1000,
-          bproToMintOnRbtc: 1000,
-          commissionAmountRbtc: 1, // (bproToMint * MINT_BPRO_FEES_RBTC = 0.001)
-          totalCostOnBtc: 1011,
-          commissionAmountMoC: 0,
-          vendorAmountRbtc: 10, // (bproToMint * markup = 0.01)
-          vendorAmountMoC: 0
-        }
-      },
-      // MoC fees
-      {
-        params: {
-          bproToMint: 1000,
-          mocAmount: 1000,
-          vendorStaking: 100,
-          vendorAccount
-        },
-        expect: {
-          bproToMint: 1000,
-          bproToMintOnRbtc: 1000,
-          commissionAmountRbtc: 0,
-          totalCostOnBtc: 1000,
-          commissionAmountMoC: 7, // (bproToMint * MINT_BPRO_FEES_MOC = 0.007)
-          vendorAmountRbtc: 0,
-          vendorAmountMoC: 10 // (bproToMint * markup = 0.01)
-        }
-      },
-      // MoC fees NO VENDOR
-      {
-        params: {
-          bproToMint: 1000,
-          mocAmount: 1000,
-          vendorStaking: 100,
-          vendorAccount: zeroAddress
-        },
-        expect: {
-          bproToMint: 1000,
-          bproToMintOnRbtc: 1000,
-          commissionAmountRbtc: 0,
-          totalCostOnBtc: 1000,
-          commissionAmountMoC: 7, // (bproToMint * MINT_BPRO_FEES_MOC = 0.007)
-          vendorAmountRbtc: 0,
-          vendorAmountMoC: 0
-        }
-      }
-    ];
-    scenarios.forEach(async scenario => {
+    function runScenario(scenario) {
       describe(`GIVEN ${scenario.params.bproToMint} BitPro are minted and ${scenario.params.mocAmount} MoC are available in user account`, function() {
         let prevUserBtcBalance;
         let prevUserBproBalance;
@@ -249,6 +193,60 @@ contract('MoC: MoCExchange', function([
           );
         });
       });
+    }
+    // RBTC fees
+    runScenario({
+      params: {
+        bproToMint: 1000,
+        mocAmount: 0,
+        vendorStaking: 100,
+        vendorAccount
+      },
+      expect: {
+        bproToMint: 1000,
+        bproToMintOnRbtc: 1000,
+        commissionAmountRbtc: 1, // (bproToMint * MINT_BPRO_FEES_RBTC = 0.001)
+        totalCostOnBtc: 1011,
+        commissionAmountMoC: 0,
+        vendorAmountRbtc: 10, // (bproToMint * markup = 0.01)
+        vendorAmountMoC: 0
+      }
+    });
+    // MoC fees
+    runScenario({
+      params: {
+        bproToMint: 1000,
+        mocAmount: 1000,
+        vendorStaking: 100,
+        vendorAccount
+      },
+      expect: {
+        bproToMint: 1000,
+        bproToMintOnRbtc: 1000,
+        commissionAmountRbtc: 0,
+        totalCostOnBtc: 1000,
+        commissionAmountMoC: 7, // (bproToMint * MINT_BPRO_FEES_MOC = 0.007)
+        vendorAmountRbtc: 0,
+        vendorAmountMoC: 10 // (bproToMint * markup = 0.01)
+      }
+    });
+    // MoC fees NO VENDOR
+    runScenario({
+      params: {
+        bproToMint: 1000,
+        mocAmount: 1000,
+        vendorStaking: 100,
+        vendorAccount: zeroAddress
+      },
+      expect: {
+        bproToMint: 1000,
+        bproToMintOnRbtc: 1000,
+        commissionAmountRbtc: 0,
+        totalCostOnBtc: 1000,
+        commissionAmountMoC: 7, // (bproToMint * MINT_BPRO_FEES_MOC = 0.007)
+        vendorAmountRbtc: 0,
+        vendorAmountMoC: 0
+      }
     });
 
     describe('Non-scenario tests', function() {

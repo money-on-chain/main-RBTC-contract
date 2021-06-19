@@ -111,7 +111,7 @@ contract('MoC: Partial Settlement execution', function([owner, vendorAccount, ..
 
   describe('Step execution consistency', function() {
     describe('GIVEN there are 5 redeemRequests of 10 docs and 3 BTCx positions of 1 BTCx', function() {
-      scenarios.forEach(async scenario => {
+      scenarios.forEach(function(scenario) {
         let txs = [];
         describe(scenario.description, function() {
           before(async function() {

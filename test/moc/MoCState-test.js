@@ -131,7 +131,7 @@ contract('MoC', function([owner, vendorAccount]) {
       }
     ];
 
-    states.forEach(state => {
+    states.forEach(function(state) {
       describe(`GIVEN there are ${state.nDoCs} Docs`, function() {
         const totalBalance = state.initialnB + state.nDocsBtcAmount + state.bproBtcAmount;
         describe(`AND total balance is ${Math.round(totalBalance)} RBTC`, function() {
@@ -160,8 +160,8 @@ contract('MoC', function([owner, vendorAccount]) {
               await mocHelper.setBitcoinPrice(contractReadyState.btcPrice.to);
             });
 
-            Object.keys(state.expect).forEach(async function(scope) {
-              Object.keys(state.expect[scope]).forEach(async function(key) {
+            Object.keys(state.expect).forEach(function(scope) {
+              Object.keys(state.expect[scope]).forEach(function(key) {
                 const friendlyExpected =
                   state.expect[scope][key] === '∞' ? '∞' : Math.round(state.expect[scope][key]);
                 it(`THEN ${key} should be ${friendlyExpected}`, async function() {

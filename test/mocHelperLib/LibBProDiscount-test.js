@@ -59,7 +59,7 @@ contract('MoCHelperLib: BProDiscount', function([owner]) {
         }
       }
     ];
-    states.forEach(state => {
+    states.forEach(function(state) {
       describe(`GIVEN the liquidationDiscountRate is ${state.discount}, liq is ${state.liq},
       utpdu is ${state.utpdu} and cov is ${state.coverage}`, function() {
         it(`THEN spot discount rate should be ${state.expect.discount}`, async function() {
@@ -123,7 +123,7 @@ contract('MoCHelperLib: BProDiscount', function([owner]) {
         }
       }
     ];
-    states.forEach(state => {
+    states.forEach(function(state) {
       let { params, expect } = state;
       describe(`GIVEN the parameters are nB:${params.nB},nDoc: ${params.nDoCs},utpdu: ${params.utpdu},discount: ${params.discount},peg: ${params.peg},btcPrice: ${params.btcPrice}`, function() {
         it(`THEN max BProWithDiscount should be ${expect.nBPro}`, async function() {

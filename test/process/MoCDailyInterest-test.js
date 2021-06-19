@@ -51,7 +51,7 @@ contract('MoC: Daily interests payment', function([owner, account, vendorAccount
       }
     }
   ];
-  scenarios.forEach(s => {
+  scenarios.forEach(function(s) {
     let prevBucketC0State;
     let readyState;
     describe('GIVEN there are minted 0.000652468418693048 RBTCs in the C0 interest bag', function() {

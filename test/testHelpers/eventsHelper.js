@@ -40,7 +40,7 @@ const decodeLogs = txReceipt => abiDecoder.decodeLogs(txReceipt.rawLogs);
 
 const transformEvent = event => {
   const obj = {};
-  event.forEach(arg => {
+  event.forEach(function(arg) {
     switch (arg.type) {
       case 'address':
         obj[arg.name] = web3.utils.toChecksumAddress(arg.value);
@@ -80,7 +80,7 @@ const findEventsInTxs = (txs, eventName, eventArgs) => {
 const logDebugEvents = async tx => {
   const events = await findEvents(tx, 'DEBUG');
 
-  events.forEach(ev => {
+  events.forEach(function(ev) {
     console.log(objectToString(ev));
   });
 };

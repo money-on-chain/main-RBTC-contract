@@ -34,7 +34,7 @@ contract('MoC: Protection mode', function([owner, userAccount, otherAccount, ven
     [
       { name: 'mintBProVendors', args: [1, vendorAccount], value: 1, event: 'RiskProMint' },
       { name: 'redeemFreeDocVendors', args: [1, vendorAccount], event: 'FreeStableTokenRedeem' }
-    ].forEach(fn => {
+    ].forEach(function(fn) {
       describe(`WHEN someone executes ${fn.name}`, function() {
         let tx;
         it('THEN Moc enters protected mode', async function() {

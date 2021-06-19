@@ -53,7 +53,7 @@ contract('MoC: BitPro holder interests payment', function([
       }
     }
   ];
-  scenarios.forEach(s => {
+  scenarios.forEach(function(s) {
     let beforeTargetAddressBalance = 0;
     describe('GIVEN there are 2 RBTCs in the C0 nBTC Bucket', function() {
       beforeEach(async function() {

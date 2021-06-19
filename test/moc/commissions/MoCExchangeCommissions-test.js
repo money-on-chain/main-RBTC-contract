@@ -38,80 +38,7 @@ contract('MoC: MoCExchange', function([
   });
 
   describe('Calculate commissions with prices', function() {
-    const scenarios = [
-      {
-        params: {
-          btcPrice: 10000,
-          mocPrice: 10000,
-          mocAmount: 1000,
-          btcAmount: 1000
-        },
-        expect: {
-          commissionAmountRbtc: 0, // rate: 0.001
-          commissionAmountMoC: 7, // rate: 0.007
-          markupAmountRbtc: 0,
-          markupAmountMoC: 10
-        }
-      },
-      {
-        params: {
-          btcPrice: 10000,
-          mocPrice: 10000,
-          mocAmount: 0,
-          btcAmount: 1000
-        },
-        expect: {
-          commissionAmountRbtc: 1, // rate: 0.001
-          commissionAmountMoC: 0, // rate: 0.007
-          markupAmountRbtc: 10,
-          markupAmountMoC: 0
-        }
-      },
-      {
-        params: {
-          btcPrice: 10000,
-          mocPrice: 5000,
-          mocAmount: 1000,
-          btcAmount: 1000
-        },
-        expect: {
-          commissionAmountRbtc: 0, // rate: 0.001
-          commissionAmountMoC: 14, // rate: 0.007
-          markupAmountRbtc: 0,
-          markupAmountMoC: 20
-        }
-      },
-      {
-        params: {
-          btcPrice: 5000,
-          mocPrice: 10000,
-          mocAmount: 1000,
-          btcAmount: 1000
-        },
-        expect: {
-          commissionAmountRbtc: 0, // rate: 0.001
-          commissionAmountMoC: 3.5, // rate: 0.007
-          markupAmountRbtc: 0,
-          markupAmountMoC: 5
-        }
-      },
-      {
-        params: {
-          btcPrice: 5000,
-          mocPrice: 10000,
-          mocAmount: 0,
-          btcAmount: 1000
-        },
-        expect: {
-          commissionAmountRbtc: 1, // rate: 0.001
-          commissionAmountMoC: 0, // rate: 0.007
-          markupAmountRbtc: 10,
-          markupAmountMoC: 0
-        }
-      }
-    ];
-
-    scenarios.forEach(async scenario => {
+    function runScenario(scenario) {
       describe(`GIVEN BTC price is ${scenario.params.btcPrice}, MoC price is ${scenario.params.mocPrice} and MoC allowance is ${scenario.params.mocAmount}`, function() {
         let btcCommission;
         let mocCommission;
@@ -179,6 +106,77 @@ contract('MoC: MoCExchange', function([
           );
         });
       });
+    }
+
+    runScenario({
+      params: {
+        btcPrice: 10000,
+        mocPrice: 10000,
+        mocAmount: 1000,
+        btcAmount: 1000
+      },
+      expect: {
+        commissionAmountRbtc: 0, // rate: 0.001
+        commissionAmountMoC: 7, // rate: 0.007
+        markupAmountRbtc: 0,
+        markupAmountMoC: 10
+      }
+    });
+    runScenario({
+      params: {
+        btcPrice: 10000,
+        mocPrice: 10000,
+        mocAmount: 0,
+        btcAmount: 1000
+      },
+      expect: {
+        commissionAmountRbtc: 1, // rate: 0.001
+        commissionAmountMoC: 0, // rate: 0.007
+        markupAmountRbtc: 10,
+        markupAmountMoC: 0
+      }
+    });
+    runScenario({
+      params: {
+        btcPrice: 10000,
+        mocPrice: 5000,
+        mocAmount: 1000,
+        btcAmount: 1000
+      },
+      expect: {
+        commissionAmountRbtc: 0, // rate: 0.001
+        commissionAmountMoC: 14, // rate: 0.007
+        markupAmountRbtc: 0,
+        markupAmountMoC: 20
+      }
+    });
+    runScenario({
+      params: {
+        btcPrice: 5000,
+        mocPrice: 10000,
+        mocAmount: 1000,
+        btcAmount: 1000
+      },
+      expect: {
+        commissionAmountRbtc: 0, // rate: 0.001
+        commissionAmountMoC: 3.5, // rate: 0.007
+        markupAmountRbtc: 0,
+        markupAmountMoC: 5
+      }
+    });
+    runScenario({
+      params: {
+        btcPrice: 5000,
+        mocPrice: 10000,
+        mocAmount: 0,
+        btcAmount: 1000
+      },
+      expect: {
+        commissionAmountRbtc: 1, // rate: 0.001
+        commissionAmountMoC: 0, // rate: 0.007
+        markupAmountRbtc: 10,
+        markupAmountMoC: 0
+      }
     });
   });
 });

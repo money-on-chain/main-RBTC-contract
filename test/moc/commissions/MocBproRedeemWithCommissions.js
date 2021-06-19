@@ -43,117 +43,7 @@ contract('MoC: MoCExchange', function([
   });
 
   describe('BPro redeeming with commissions', function() {
-    const scenarios = [
-      // RBTC fees
-      {
-        params: {
-          bproToMint: 100,
-          bproToRedeem: 100,
-          mocAmount: 0,
-          vendorStaking: 100,
-          vendorAccount
-        },
-        expect: {
-          bproRedeemed: 100,
-          // eslint-disable-next-line max-len
-          bproToRedeemOnRBTC: 98.8, // (bproToRedeem) - (bproToRedeem * commissionRate) - (bproToRedeem * markup)
-          commissionAmountRbtc: 0.2, // (bproToRedeem * REDEEM_BPRO_FEES_RBTC = 0.002)
-          commissionAmountMoC: 0,
-          vendorAmountRbtc: 1, // (bproToMint * markup = 0.01)
-          vendorAmountMoC: 0
-        }
-      },
-      {
-        params: {
-          bproToMint: 100,
-          bproToRedeem: 50,
-          mocAmount: 0,
-          vendorStaking: 100,
-          vendorAccount
-        },
-        expect: {
-          bproRedeemed: 50,
-          commissionAmountRbtc: 0.1, // (bproToRedeem * REDEEM_BPRO_FEES_RBTC = 0.002)
-          // eslint-disable-next-line max-len
-          bproToRedeemOnRBTC: 49.4, // (bproToRedeem) - (bproToRedeem * commissionRate) - (bproToRedeem * markup)
-          commissionAmountMoC: 0,
-          vendorAmountRbtc: 0.5, // (bproToRedeem * markup = 0.01)
-          vendorAmountMoC: 0
-        }
-      },
-      // MoC fees
-      {
-        params: {
-          bproToMint: 100,
-          bproToRedeem: 100,
-          mocAmount: 1000,
-          vendorStaking: 100,
-          vendorAccount
-        },
-        expect: {
-          bproRedeemed: 100,
-          bproToRedeemOnRBTC: 100,
-          commissionAmountRbtc: 0,
-          commissionAmountMoC: 0.8, // (bproToRedeem * REDEEM_BPRO_FEES_MOC = 0.008)
-          vendorAmountRbtc: 0,
-          vendorAmountMoC: 1 // (bproToRedeem * markup = 0.01)
-        }
-      },
-      {
-        params: {
-          bproToMint: 100,
-          bproToRedeem: 50,
-          mocAmount: 1000,
-          vendorStaking: 100,
-          vendorAccount
-        },
-        expect: {
-          bproRedeemed: 50,
-          commissionAmountRbtc: 0,
-          bproToRedeemOnRBTC: 50,
-          commissionAmountMoC: 0.4, // (bproToRedeem * REDEEM_BPRO_FEES_MOC = 0.008)
-          vendorAmountRbtc: 0,
-          vendorAmountMoC: 0.5 // (bproToRedeem * markup = 0.01)
-        }
-      },
-      // MoC fees NO VENDOR
-      {
-        params: {
-          bproToMint: 100,
-          bproToRedeem: 100,
-          mocAmount: 1000,
-          vendorStaking: 100,
-          vendorAccount: zeroAddress
-        },
-        expect: {
-          bproRedeemed: 100,
-          bproToRedeemOnRBTC: 100,
-          commissionAmountRbtc: 0,
-          commissionAmountMoC: 0.8, // (bproToRedeem * REDEEM_BPRO_FEES_MOC = 0.008)
-          vendorAmountRbtc: 0,
-          vendorAmountMoC: 0
-        }
-      },
-      {
-        params: {
-          bproToMint: 100,
-          bproToRedeem: 50,
-          mocAmount: 1000,
-          vendorStaking: 100,
-          vendorAccount: zeroAddress
-        },
-        expect: {
-          bproRedeemed: 50,
-          commissionAmountRbtc: 0,
-          bproToRedeemOnRBTC: 50,
-          commissionAmountMoC: 0.4, // (bproToRedeem * REDEEM_BPRO_FEES_MOC = 0.008)
-          vendorAmountRbtc: 0,
-          vendorAmountMoC: 0
-        }
-      }
-    ];
-
-    scenarios.forEach(async scenario => {
+    function runScenario(scenario) {
       describe(`WHEN he tries to redeem ${scenario.params.bproToRedeem} BPros`, function() {
         let initialBProBalance;
         let prevCommissionAccountBalance;
@@ -298,6 +188,113 @@ contract('MoC: MoCExchange', function([
           );
         });
       });
+    }
+    // RBTC fees
+    runScenario({
+      params: {
+        bproToMint: 100,
+        bproToRedeem: 100,
+        mocAmount: 0,
+        vendorStaking: 100,
+        vendorAccount
+      },
+      expect: {
+        bproRedeemed: 100,
+        // eslint-disable-next-line max-len
+        bproToRedeemOnRBTC: 98.8, // (bproToRedeem) - (bproToRedeem * commissionRate) - (bproToRedeem * markup)
+        commissionAmountRbtc: 0.2, // (bproToRedeem * REDEEM_BPRO_FEES_RBTC = 0.002)
+        commissionAmountMoC: 0,
+        vendorAmountRbtc: 1, // (bproToMint * markup = 0.01)
+        vendorAmountMoC: 0
+      }
+    });
+    runScenario({
+      params: {
+        bproToMint: 100,
+        bproToRedeem: 50,
+        mocAmount: 0,
+        vendorStaking: 100,
+        vendorAccount
+      },
+      expect: {
+        bproRedeemed: 50,
+        commissionAmountRbtc: 0.1, // (bproToRedeem * REDEEM_BPRO_FEES_RBTC = 0.002)
+        // eslint-disable-next-line max-len
+        bproToRedeemOnRBTC: 49.4, // (bproToRedeem) - (bproToRedeem * commissionRate) - (bproToRedeem * markup)
+        commissionAmountMoC: 0,
+        vendorAmountRbtc: 0.5, // (bproToRedeem * markup = 0.01)
+        vendorAmountMoC: 0
+      }
+    });
+    // MoC fees
+    runScenario({
+      params: {
+        bproToMint: 100,
+        bproToRedeem: 100,
+        mocAmount: 1000,
+        vendorStaking: 100,
+        vendorAccount
+      },
+      expect: {
+        bproRedeemed: 100,
+        bproToRedeemOnRBTC: 100,
+        commissionAmountRbtc: 0,
+        commissionAmountMoC: 0.8, // (bproToRedeem * REDEEM_BPRO_FEES_MOC = 0.008)
+        vendorAmountRbtc: 0,
+        vendorAmountMoC: 1 // (bproToRedeem * markup = 0.01)
+      }
+    });
+    runScenario({
+      params: {
+        bproToMint: 100,
+        bproToRedeem: 50,
+        mocAmount: 1000,
+        vendorStaking: 100,
+        vendorAccount
+      },
+      expect: {
+        bproRedeemed: 50,
+        commissionAmountRbtc: 0,
+        bproToRedeemOnRBTC: 50,
+        commissionAmountMoC: 0.4, // (bproToRedeem * REDEEM_BPRO_FEES_MOC = 0.008)
+        vendorAmountRbtc: 0,
+        vendorAmountMoC: 0.5 // (bproToRedeem * markup = 0.01)
+      }
+    });
+    // MoC fees NO VENDOR
+    runScenario({
+      params: {
+        bproToMint: 100,
+        bproToRedeem: 100,
+        mocAmount: 1000,
+        vendorStaking: 100,
+        vendorAccount: zeroAddress
+      },
+      expect: {
+        bproRedeemed: 100,
+        bproToRedeemOnRBTC: 100,
+        commissionAmountRbtc: 0,
+        commissionAmountMoC: 0.8, // (bproToRedeem * REDEEM_BPRO_FEES_MOC = 0.008)
+        vendorAmountRbtc: 0,
+        vendorAmountMoC: 0
+      }
+    });
+    runScenario({
+      params: {
+        bproToMint: 100,
+        bproToRedeem: 50,
+        mocAmount: 1000,
+        vendorStaking: 100,
+        vendorAccount: zeroAddress
+      },
+      expect: {
+        bproRedeemed: 50,
+        commissionAmountRbtc: 0,
+        bproToRedeemOnRBTC: 50,
+        commissionAmountMoC: 0.4, // (bproToRedeem * REDEEM_BPRO_FEES_MOC = 0.008)
+        vendorAmountRbtc: 0,
+        vendorAmountMoC: 0
+      }
     });
 
     describe('Non-scenario tests', function() {

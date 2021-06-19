@@ -4,7 +4,7 @@ let mocHelper;
 let toContractBN;
 let BUCKET_X2;
 
-contract('MoC : MoCExchange', function([owner, userAccount, vendorAccount]) {
+contract('MoC : InterestsRecovery', function([owner, userAccount, vendorAccount]) {
   before(async function() {
     mocHelper = await testHelperBuilder({ owner, useMock: true });
     ({ toContractBN } = mocHelper);
@@ -15,7 +15,7 @@ contract('MoC : MoCExchange', function([owner, userAccount, vendorAccount]) {
   });
 
   describe('BProx interest recovery', function() {
-    [1, 4, 7].forEach(days => {
+    [1, 4, 7].forEach(function(days) {
       let mintEvent;
       let originalInrate;
 

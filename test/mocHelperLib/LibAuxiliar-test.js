@@ -31,7 +31,7 @@ contract('MoCHelperLib: Auxiliar functions', function([owner]) {
         }
       }
     ];
-    states.forEach(state => {
+    states.forEach(function(state) {
       describe(`GIVEN nB is ${state.nB} and leverage is ${state.leverage}`, function() {
         beforeEach(function() {
           contractReadyState = mocHelper.getContractReadyState(state);

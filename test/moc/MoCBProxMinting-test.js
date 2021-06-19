@@ -6,7 +6,7 @@ let toContractBN;
 let BUCKET_X2;
 let BUCKET_C0;
 
-contract('MoC : MoCExchange', function([owner, userAccount, vendorAccount]) {
+contract('MoC : BProxMinting', function([owner, userAccount, vendorAccount]) {
   before(async function() {
     mocHelper = await testHelperBuilder({ owner, useMock: true });
     ({ toContractBN } = mocHelper);
@@ -104,7 +104,7 @@ contract('MoC : MoCExchange', function([owner, userAccount, vendorAccount]) {
         });
       });
 
-      scenarios.forEach(async s => {
+      scenarios.forEach(function(s) {
         describe(`WHEN a user sends BTC to mint ${s.params.nBProx} Bprox`, function() {
           let txCost;
           let initialBalance;

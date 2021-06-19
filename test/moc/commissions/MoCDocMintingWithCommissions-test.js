@@ -113,121 +113,124 @@ contract('MoC', function([owner, userAccount, commissionsAccount, vendorAccount,
       });
     });
 
-    describe('(RBTC fees) GIVEN BTC price is 10000', function() {
+    function tryToMinDoc({ nDocs, docAmount, commissionAmount, markupAmount }) {
       let payAmount;
       let payComissionAmount;
       let payMarkupAmount;
       const btcPrice = 10000;
-      [0, 10000].forEach(async nDocs => {
-        describe(`AND There are ${nDocs} Docs and 6 BTC`, function() {
-          [
-            { docAmount: 1300, commissionAmount: 3.9, markupAmount: 13 }, // commission = 1300 * 0.003, markup = 1300 * 0.01
-            { docAmount: 1200, commissionAmount: 3.6, markupAmount: 12 } // commission = 1200 * 0.003 = 30, markup = 1200 * 0.01
-          ].forEach(async ({ docAmount, commissionAmount, markupAmount }) => {
-            describe(`WHEN he tries to mint ${docAmount} RBTC`, function() {
-              const prev = {};
-              let txCost;
-              beforeEach(async function() {
-                // Load Btc on the contract to increase coverage
-                await this.moc.sendTransaction({
-                  value: 6 * mocHelper.RESERVE_PRECISION
-                });
 
-                // Add vendor stake
-                await mocHelper.mintMoCToken(vendorAccount, 100, owner);
-                await mocHelper.approveMoCToken(this.mocVendors.address, 100, vendorAccount);
-                await this.mocVendors.addStake(toContractBN(100 * mocHelper.MOC_PRECISION), {
-                  from: vendorAccount
-                });
-
-                if (nDocs) {
-                  await mocHelper.mintDocAmount(
-                    owner,
-                    nDocs,
-                    vendorAccount,
-                    await mocHelper.mocInrate.MINT_DOC_FEES_RBTC()
-                  );
-                }
-                [
-                  prev.userBalance,
-                  prev.commissionsAccountBalance,
-                  prev.mocBalance,
-                  prev.vendorAccountBalance
-                ] = await Promise.all([
-                  web3.eth.getBalance(userAccount),
-                  web3.eth.getBalance(commissionsAccount),
-                  web3.eth.getBalance(this.moc.address),
-                  web3.eth.getBalance(vendorAccount)
-                ]);
-
-                const tx = await mocHelper.mintDocAmount(
-                  userAccount,
-                  docAmount,
-                  vendorAccount,
-                  await mocHelper.mocInrate.MINT_DOC_FEES_RBTC()
-                );
-                const _payAmount = (docAmount * mocHelper.MOC_PRECISION) / btcPrice;
-                payAmount = toContractBN(_payAmount);
-                const _payComissionAmount = (commissionAmount * mocHelper.MOC_PRECISION) / btcPrice;
-                payComissionAmount = toContractBN(_payComissionAmount);
-                const _payMarkupAmount = (markupAmount * mocHelper.MOC_PRECISION) / btcPrice;
-                payMarkupAmount = toContractBN(_payMarkupAmount);
-
-                txCost = await mocHelper.getTxCost(tx);
-              });
-
-              // Docs received should be the dollar value of the total BTC sent
-              it(`THEN he receives ${docAmount} Docs on his account`, async function() {
-                const balance = await mocHelper.getDoCBalance(userAccount);
-
-                mocHelper.assertBigDollar(
-                  balance,
-                  docAmount,
-                  `${docAmount} was not in the first account`
-                );
-              });
-
-              it('THEN global balance increases by the correct amount of BTCs', async function() {
-                const mocBtcBalance = await web3.eth.getBalance(this.moc.address);
-                const diff = new BN(mocBtcBalance).sub(new BN(prev.mocBalance));
-
-                mocHelper.assertBig(diff, payAmount, 'Should increase sale total amount');
-              });
-
-              it('AND User Balance decreases by the correct amount of BTCs, commission and markup', async function() {
-                const userBalance = await web3.eth.getBalance(userAccount);
-                const diff = new BN(prev.userBalance).sub(new BN(userBalance)).sub(new BN(txCost));
-                const totalSpent = payAmount.add(payComissionAmount).add(payMarkupAmount);
-
-                mocHelper.assertBig(
-                  diff,
-                  totalSpent,
-                  `Should decrease by Tokens cost, ${totalSpent} BTC`
-                );
-              });
-              it('AND Commissions Account Balance increase by the correct amount of commissions', async function() {
-                const commissionsAccountBalance = await web3.eth.getBalance(commissionsAccount);
-                const diff = new BN(commissionsAccountBalance).sub(
-                  new BN(prev.commissionsAccountBalance)
-                );
-                mocHelper.assertBig(
-                  diff,
-                  payComissionAmount,
-                  `Should increase by Tokens commission, ${payComissionAmount} BTC`
-                );
-              });
-              it('AND Vendor Account Balance increase by the correct amount of markup', async function() {
-                const vendorAccountBalance = await web3.eth.getBalance(vendorAccount);
-                const diff = new BN(vendorAccountBalance).sub(new BN(prev.vendorAccountBalance));
-                mocHelper.assertBig(
-                  diff,
-                  payMarkupAmount,
-                  `Should increase by Tokens commission, ${payMarkupAmount} BTC`
-                );
-              });
-            });
+      describe(`WHEN he tries to mint ${docAmount} RBTC`, function() {
+        const prev = {};
+        let txCost;
+        beforeEach(async function() {
+          // Load Btc on the contract to increase coverage
+          await this.moc.sendTransaction({
+            value: 6 * mocHelper.RESERVE_PRECISION
           });
+
+          // Add vendor stake
+          await mocHelper.mintMoCToken(vendorAccount, 100, owner);
+          await mocHelper.approveMoCToken(this.mocVendors.address, 100, vendorAccount);
+          await this.mocVendors.addStake(toContractBN(100 * mocHelper.MOC_PRECISION), {
+            from: vendorAccount
+          });
+
+          if (nDocs) {
+            await mocHelper.mintDocAmount(
+              owner,
+              nDocs,
+              vendorAccount,
+              await mocHelper.mocInrate.MINT_DOC_FEES_RBTC()
+            );
+          }
+          [
+            prev.userBalance,
+            prev.commissionsAccountBalance,
+            prev.mocBalance,
+            prev.vendorAccountBalance
+          ] = await Promise.all([
+            web3.eth.getBalance(userAccount),
+            web3.eth.getBalance(commissionsAccount),
+            web3.eth.getBalance(this.moc.address),
+            web3.eth.getBalance(vendorAccount)
+          ]);
+
+          const tx = await mocHelper.mintDocAmount(
+            userAccount,
+            docAmount,
+            vendorAccount,
+            await mocHelper.mocInrate.MINT_DOC_FEES_RBTC()
+          );
+          const _payAmount = (docAmount * mocHelper.MOC_PRECISION) / btcPrice;
+          payAmount = toContractBN(_payAmount);
+          const _payComissionAmount = (commissionAmount * mocHelper.MOC_PRECISION) / btcPrice;
+          payComissionAmount = toContractBN(_payComissionAmount);
+          const _payMarkupAmount = (markupAmount * mocHelper.MOC_PRECISION) / btcPrice;
+          payMarkupAmount = toContractBN(_payMarkupAmount);
+
+          txCost = await mocHelper.getTxCost(tx);
         });
+
+        // Docs received should be the dollar value of the total BTC sent
+        it(`THEN he receives ${docAmount} Docs on his account`, async function() {
+          const balance = await mocHelper.getDoCBalance(userAccount);
+
+          mocHelper.assertBigDollar(
+            balance,
+            docAmount,
+            `${docAmount} was not in the first account`
+          );
+        });
+
+        it('THEN global balance increases by the correct amount of BTCs', async function() {
+          const mocBtcBalance = await web3.eth.getBalance(this.moc.address);
+          const diff = new BN(mocBtcBalance).sub(new BN(prev.mocBalance));
+
+          mocHelper.assertBig(diff, payAmount, 'Should increase sale total amount');
+        });
+
+        it('AND User Balance decreases by the correct amount of BTCs, commission and markup', async function() {
+          const userBalance = await web3.eth.getBalance(userAccount);
+          const diff = new BN(prev.userBalance).sub(new BN(userBalance)).sub(new BN(txCost));
+          const totalSpent = payAmount.add(payComissionAmount).add(payMarkupAmount);
+
+          mocHelper.assertBig(
+            diff,
+            totalSpent,
+            `Should decrease by Tokens cost, ${totalSpent} BTC`
+          );
+        });
+        it('AND Commissions Account Balance increase by the correct amount of commissions', async function() {
+          const commissionsAccountBalance = await web3.eth.getBalance(commissionsAccount);
+          const diff = new BN(commissionsAccountBalance).sub(
+            new BN(prev.commissionsAccountBalance)
+          );
+          mocHelper.assertBig(
+            diff,
+            payComissionAmount,
+            `Should increase by Tokens commission, ${payComissionAmount} BTC`
+          );
+        });
+        it('AND Vendor Account Balance increase by the correct amount of markup', async function() {
+          const vendorAccountBalance = await web3.eth.getBalance(vendorAccount);
+          const diff = new BN(vendorAccountBalance).sub(new BN(prev.vendorAccountBalance));
+          mocHelper.assertBig(
+            diff,
+            payMarkupAmount,
+            `Should increase by Tokens commission, ${payMarkupAmount} BTC`
+          );
+        });
+      });
+    }
+
+    describe('(RBTC fees) GIVEN BTC price is 10000', function() {
+      describe('AND There are 0 Docs and 6 BTC', function() {
+        tryToMinDoc({ nDocs: 0, docAmount: 1300, commissionAmount: 3.9, markupAmount: 13 });
+        tryToMinDoc({ nDocs: 0, docAmount: 1200, commissionAmount: 3.6, markupAmount: 12 });
+      });
+      describe('AND There are 10000 Docs and 6 BTC', function() {
+        tryToMinDoc({ nDocs: 10000, docAmount: 1300, commissionAmount: 3.9, markupAmount: 13 });
+        tryToMinDoc({ nDocs: 10000, docAmount: 1200, commissionAmount: 3.6, markupAmount: 12 });
       });
     });
 
@@ -602,309 +605,342 @@ contract('MoC', function([owner, userAccount, commissionsAccount, vendorAccount,
       });
     });
 
-    describe('(MoC fees) GIVEN BTC price is 10000', function() {
+    function runScenario({ nDocs, docAmount, commissionAmount, markupAmount }) {
       let payAmount;
       let payComissionAmount;
       let payMarkupAmount;
       const btcPrice = 10000;
       const mocPrice = 10000;
-      [0, 10000].forEach(nDocs => {
-        describe(`AND There are ${nDocs} Docs and 6 BTC`, function() {
-          [
-            { docAmount: 1300, commissionAmount: 11.7, markupAmount: 13 }, // commission = 1300 * 0.009, markup = 1300 * 0.01
-            { docAmount: 1200, commissionAmount: 10.8, markupAmount: 12 } // commission = 1200 * 0.009, markup = 1200 * 0.01
-          ].forEach(({ docAmount, commissionAmount, markupAmount }) => {
-            describe(`WHEN he tries to mint ${docAmount} RBTC`, function() {
-              const prev = {};
-              let txCost;
-              beforeEach(async function() {
-                // Load Btc on the contract to increase coverage
-                await this.moc.sendTransaction({
-                  value: 6 * mocHelper.RESERVE_PRECISION
-                });
-                // Load MoC on the user account
-                await mocHelper.mintMoCToken(userAccount, 100, owner);
-                await mocHelper.approveMoCToken(mocHelper.moc.address, 100, userAccount);
 
-                // Add vendor stake
-                await mocHelper.mintMoCToken(vendorAccount, 100, owner);
-                await mocHelper.approveMoCToken(this.mocVendors.address, 100, vendorAccount);
-                await this.mocVendors.addStake(toContractBN(100 * mocHelper.MOC_PRECISION), {
-                  from: vendorAccount
-                });
-
-                if (nDocs) {
-                  // owner mints
-                  await mocHelper.mintDocAmount(
-                    owner,
-                    nDocs,
-                    vendorAccount,
-                    await mocHelper.mocInrate.MINT_DOC_FEES_RBTC()
-                  );
-                }
-                [
-                  prev.userBalance,
-                  prev.commissionsAccountBalance,
-                  prev.mocBalance,
-                  prev.userMoCBalance,
-                  prev.commissionsAccountMoCBalance,
-                  prev.vendorAccountBalance
-                ] = await Promise.all([
-                  web3.eth.getBalance(userAccount),
-                  web3.eth.getBalance(commissionsAccount),
-                  web3.eth.getBalance(this.moc.address),
-                  mocHelper.getMoCBalance(userAccount),
-                  mocHelper.getMoCBalance(commissionsAccount),
-                  mocHelper.getMoCBalance(vendorAccount)
-                ]);
-
-                // userAccount mints
-                const tx = await mocHelper.mintDocAmount(
-                  userAccount,
-                  docAmount,
-                  vendorAccount,
-                  await mocHelper.mocInrate.MINT_DOC_FEES_MOC()
-                );
-                const _payAmount = (docAmount * mocHelper.MOC_PRECISION) / btcPrice;
-                payAmount = toContractBN(_payAmount);
-                const _payComissionAmount = (commissionAmount * mocHelper.MOC_PRECISION) / mocPrice;
-                payComissionAmount = toContractBN(_payComissionAmount);
-                const _payMarkupAmount = (markupAmount * mocHelper.MOC_PRECISION) / btcPrice;
-                payMarkupAmount = toContractBN(_payMarkupAmount);
-
-                txCost = await mocHelper.getTxCost(tx);
-              });
-
-              // Docs received should be the dollar value of the total BTC sent
-              it(`THEN he receives ${docAmount} Docs on his account`, async function() {
-                const balance = await mocHelper.getDoCBalance(userAccount);
-
-                mocHelper.assertBigDollar(
-                  balance,
-                  docAmount,
-                  `${docAmount} was not in the first account`
-                );
-              });
-
-              it('THEN global balance increases by the correct amount of BTCs', async function() {
-                const mocBtcBalance = await web3.eth.getBalance(this.moc.address);
-                const diff = new BN(mocBtcBalance).sub(new BN(prev.mocBalance));
-
-                mocHelper.assertBig(diff, payAmount, 'Should increase sale total amount');
-              });
-
-              it('AND User Balance decreases by the correct amount of BTCs', async function() {
-                const userBalance = await web3.eth.getBalance(userAccount);
-                const diff = new BN(prev.userBalance).sub(new BN(userBalance)).sub(new BN(txCost));
-                const totalSpent = payAmount;
-
-                mocHelper.assertBig(
-                  diff,
-                  totalSpent,
-                  `Should decrease by Tokens cost, ${totalSpent} BTC`
-                );
-              });
-
-              it('AND Commissions Account Balance does not change because fees are paid in MoC', async function() {
-                const commissionsAccountBalance = await web3.eth.getBalance(commissionsAccount);
-                const diff = new BN(commissionsAccountBalance).sub(
-                  new BN(prev.commissionsAccountBalance)
-                );
-                mocHelper.assertBig(diff, 0, 'Should not change');
-              });
-
-              it('AND User MoC Balance decreases by the correct amount of MoCs', async function() {
-                const userMoCBalance = await mocHelper.getMoCBalance(userAccount);
-                const diff = new BN(prev.userMoCBalance).sub(new BN(userMoCBalance));
-                const totalSpent = payComissionAmount.add(payMarkupAmount);
-
-                mocHelper.assertBig(
-                  diff,
-                  totalSpent,
-                  `Should decrease by Tokens cost, ${totalSpent} MoC`
-                );
-              });
-
-              it('AND Commissions Account MoC Balance increase by the correct amount of commissions', async function() {
-                const commissionsAccountBalance = await mocHelper.getMoCBalance(commissionsAccount);
-                const diff = new BN(commissionsAccountBalance).sub(
-                  new BN(prev.commissionsAccountMoCBalance)
-                );
-                mocHelper.assertBig(
-                  diff,
-                  payComissionAmount,
-                  `Should increase by Tokens commission, ${payComissionAmount} MoC`
-                );
-              });
-
-              it('AND Vendor Account Balance increase by the correct amount of markup', async function() {
-                const vendorAccountBalance = await mocHelper.getMoCBalance(vendorAccount);
-                const diff = new BN(vendorAccountBalance).sub(new BN(prev.vendorAccountBalance));
-                mocHelper.assertBig(
-                  diff,
-                  payMarkupAmount,
-                  `Should increase by Tokens commission, ${payMarkupAmount} BTC`
-                );
-              });
-            });
+      describe(`WHEN he tries to mint ${docAmount} RBTC`, function() {
+        const prev = {};
+        let txCost;
+        beforeEach(async function() {
+          // Load Btc on the contract to increase coverage
+          await this.moc.sendTransaction({
+            value: 6 * mocHelper.RESERVE_PRECISION
           });
+          // Load MoC on the user account
+          await mocHelper.mintMoCToken(userAccount, 100, owner);
+          await mocHelper.approveMoCToken(mocHelper.moc.address, 100, userAccount);
+
+          // Add vendor stake
+          await mocHelper.mintMoCToken(vendorAccount, 100, owner);
+          await mocHelper.approveMoCToken(this.mocVendors.address, 100, vendorAccount);
+          await this.mocVendors.addStake(toContractBN(100 * mocHelper.MOC_PRECISION), {
+            from: vendorAccount
+          });
+
+          if (nDocs) {
+            // owner mints
+            await mocHelper.mintDocAmount(
+              owner,
+              nDocs,
+              vendorAccount,
+              await mocHelper.mocInrate.MINT_DOC_FEES_RBTC()
+            );
+          }
+          [
+            prev.userBalance,
+            prev.commissionsAccountBalance,
+            prev.mocBalance,
+            prev.userMoCBalance,
+            prev.commissionsAccountMoCBalance,
+            prev.vendorAccountBalance
+          ] = await Promise.all([
+            web3.eth.getBalance(userAccount),
+            web3.eth.getBalance(commissionsAccount),
+            web3.eth.getBalance(this.moc.address),
+            mocHelper.getMoCBalance(userAccount),
+            mocHelper.getMoCBalance(commissionsAccount),
+            mocHelper.getMoCBalance(vendorAccount)
+          ]);
+
+          // userAccount mints
+          const tx = await mocHelper.mintDocAmount(
+            userAccount,
+            docAmount,
+            vendorAccount,
+            await mocHelper.mocInrate.MINT_DOC_FEES_MOC()
+          );
+          const _payAmount = (docAmount * mocHelper.MOC_PRECISION) / btcPrice;
+          payAmount = toContractBN(_payAmount);
+          const _payComissionAmount = (commissionAmount * mocHelper.MOC_PRECISION) / mocPrice;
+          payComissionAmount = toContractBN(_payComissionAmount);
+          const _payMarkupAmount = (markupAmount * mocHelper.MOC_PRECISION) / btcPrice;
+          payMarkupAmount = toContractBN(_payMarkupAmount);
+
+          txCost = await mocHelper.getTxCost(tx);
         });
+
+        // Docs received should be the dollar value of the total BTC sent
+        it(`THEN he receives ${docAmount} Docs on his account`, async function() {
+          const balance = await mocHelper.getDoCBalance(userAccount);
+
+          mocHelper.assertBigDollar(
+            balance,
+            docAmount,
+            `${docAmount} was not in the first account`
+          );
+        });
+
+        it('THEN global balance increases by the correct amount of BTCs', async function() {
+          const mocBtcBalance = await web3.eth.getBalance(this.moc.address);
+          const diff = new BN(mocBtcBalance).sub(new BN(prev.mocBalance));
+
+          mocHelper.assertBig(diff, payAmount, 'Should increase sale total amount');
+        });
+
+        it('AND User Balance decreases by the correct amount of BTCs', async function() {
+          const userBalance = await web3.eth.getBalance(userAccount);
+          const diff = new BN(prev.userBalance).sub(new BN(userBalance)).sub(new BN(txCost));
+          const totalSpent = payAmount;
+
+          mocHelper.assertBig(
+            diff,
+            totalSpent,
+            `Should decrease by Tokens cost, ${totalSpent} BTC`
+          );
+        });
+
+        it('AND Commissions Account Balance does not change because fees are paid in MoC', async function() {
+          const commissionsAccountBalance = await web3.eth.getBalance(commissionsAccount);
+          const diff = new BN(commissionsAccountBalance).sub(
+            new BN(prev.commissionsAccountBalance)
+          );
+          mocHelper.assertBig(diff, 0, 'Should not change');
+        });
+
+        it('AND User MoC Balance decreases by the correct amount of MoCs', async function() {
+          const userMoCBalance = await mocHelper.getMoCBalance(userAccount);
+          const diff = new BN(prev.userMoCBalance).sub(new BN(userMoCBalance));
+          const totalSpent = payComissionAmount.add(payMarkupAmount);
+
+          mocHelper.assertBig(
+            diff,
+            totalSpent,
+            `Should decrease by Tokens cost, ${totalSpent} MoC`
+          );
+        });
+
+        it('AND Commissions Account MoC Balance increase by the correct amount of commissions', async function() {
+          const commissionsAccountBalance = await mocHelper.getMoCBalance(commissionsAccount);
+          const diff = new BN(commissionsAccountBalance).sub(
+            new BN(prev.commissionsAccountMoCBalance)
+          );
+          mocHelper.assertBig(
+            diff,
+            payComissionAmount,
+            `Should increase by Tokens commission, ${payComissionAmount} MoC`
+          );
+        });
+
+        it('AND Vendor Account Balance increase by the correct amount of markup', async function() {
+          const vendorAccountBalance = await mocHelper.getMoCBalance(vendorAccount);
+          const diff = new BN(vendorAccountBalance).sub(new BN(prev.vendorAccountBalance));
+          mocHelper.assertBig(
+            diff,
+            payMarkupAmount,
+            `Should increase by Tokens commission, ${payMarkupAmount} BTC`
+          );
+        });
+      });
+    }
+
+    describe('(MoC fees) GIVEN BTC price is 10000', function() {
+      describe('AND There are 0 Docs and 6 BTC', function() {
+        // commission = 1300 * 0.009, markup = 1300 * 0.01
+        runScenario({ nDocs: 0, docAmount: 1300, commissionAmount: 11.7, markupAmount: 13 });
+        // commission = 1200 * 0.009, markup = 1200 * 0.01
+        runScenario({ nDocs: 0, docAmount: 1200, commissionAmount: 10.8, markupAmount: 12 });
+      });
+      describe('AND There are 10000 Docs and 6 BTC', function() {
+        // commission = 1300 * 0.009, markup = 1300 * 0.01
+        runScenario({ nDocs: 10000, docAmount: 1300, commissionAmount: 11.7, markupAmount: 13 });
+        // commission = 1200 * 0.009, markup = 1200 * 0.01
+        runScenario({ nDocs: 10000, docAmount: 1200, commissionAmount: 10.8, markupAmount: 12 });
       });
     });
 
-    describe('(MoC fees) GIVEN BTC price is 10000 and MoC price drops to 5000', function() {
+    function runScenarioDropPrice({ nDocs, docAmount, commissionAmount, markupAmount }) {
       let payAmount;
       let payComissionAmount;
       let payMarkupAmount;
       const btcPrice = 10000;
       const mocPrice = 5000;
 
-      [0, 10000].forEach(nDocs => {
-        describe(`AND There are ${nDocs} Docs and 6 BTC`, function() {
-          [
-            { docAmount: 1300, commissionAmount: 11.7, markupAmount: 13 }, // commission = 1300 * 0.009, markup = 1300 * 0.01
-            { docAmount: 1200, commissionAmount: 10.8, markupAmount: 12 } // commission = 1200 * 0.009, markup = 1200 * 0.01
-          ].forEach(({ docAmount, commissionAmount, markupAmount }) => {
-            describe(`WHEN he tries to mint ${docAmount} RBTC`, function() {
-              const prev = {};
-              let txCost;
-              beforeEach(async function() {
-                // Load Btc on the contract to increase coverage
-                await this.moc.sendTransaction({
-                  value: 6 * mocHelper.RESERVE_PRECISION
-                });
-
-                // Set MoC price
-                await mocHelper.setMoCPrice(mocPrice * mocHelper.MOC_PRECISION);
-
-                // Load MoC on the user account
-                await mocHelper.mintMoCToken(userAccount, 100, owner);
-                await mocHelper.approveMoCToken(mocHelper.moc.address, 100, userAccount);
-
-                // Add vendor stake
-                await mocHelper.mintMoCToken(vendorAccount, 100, owner);
-                await mocHelper.approveMoCToken(this.mocVendors.address, 100, vendorAccount);
-                await this.mocVendors.addStake(toContractBN(100 * mocHelper.MOC_PRECISION), {
-                  from: vendorAccount
-                });
-
-                if (nDocs) {
-                  // owner mints
-                  await mocHelper.mintDocAmount(
-                    owner,
-                    nDocs,
-                    vendorAccount,
-                    await mocHelper.mocInrate.MINT_DOC_FEES_RBTC()
-                  );
-                }
-                [
-                  prev.userBalance,
-                  prev.commissionsAccountBalance,
-                  prev.mocBalance,
-                  prev.userMoCBalance,
-                  prev.commissionsAccountMoCBalance,
-                  prev.vendorAccountBalance
-                ] = await Promise.all([
-                  web3.eth.getBalance(userAccount),
-                  web3.eth.getBalance(commissionsAccount),
-                  web3.eth.getBalance(this.moc.address),
-                  mocHelper.getMoCBalance(userAccount),
-                  mocHelper.getMoCBalance(commissionsAccount),
-                  mocHelper.getMoCBalance(vendorAccount)
-                ]);
-
-                // userAccount mints
-                const tx = await mocHelper.mintDocAmount(
-                  userAccount,
-                  docAmount,
-                  vendorAccount,
-                  await mocHelper.mocInrate.MINT_DOC_FEES_MOC()
-                );
-                const _payAmount = (docAmount * mocHelper.MOC_PRECISION) / btcPrice;
-                payAmount = toContractBN(_payAmount);
-                const _payComissionAmount = (commissionAmount * mocHelper.MOC_PRECISION) / mocPrice;
-                payComissionAmount = toContractBN(_payComissionAmount);
-                const _payMarkupAmount = (markupAmount * mocHelper.MOC_PRECISION) / mocPrice;
-                payMarkupAmount = toContractBN(_payMarkupAmount);
-
-                txCost = await mocHelper.getTxCost(tx);
-              });
-
-              // Docs received should be the dollar value of the total BTC sent
-              it(`THEN he receives ${docAmount} Docs on his account`, async function() {
-                const balance = await mocHelper.getDoCBalance(userAccount);
-
-                mocHelper.assertBigDollar(
-                  balance,
-                  docAmount,
-                  `${docAmount} was not in the first account`
-                );
-              });
-
-              it('THEN global balance increases by the correct amount of BTCs', async function() {
-                const mocBtcBalance = await web3.eth.getBalance(this.moc.address);
-                const diff = new BN(mocBtcBalance).sub(new BN(prev.mocBalance));
-
-                mocHelper.assertBig(diff, payAmount, 'Should increase sale total amount');
-              });
-
-              it('AND User Balance decreases by the correct amount of BTCs', async function() {
-                const userBalance = await web3.eth.getBalance(userAccount);
-                const diff = new BN(prev.userBalance).sub(new BN(userBalance)).sub(new BN(txCost));
-                const totalSpent = payAmount;
-
-                mocHelper.assertBig(
-                  diff,
-                  totalSpent,
-                  `Should decrease by Tokens cost, ${totalSpent} BTC`
-                );
-              });
-
-              it('AND Commissions Account Balance does not change because fees are paid in MoC', async function() {
-                const commissionsAccountBalance = await web3.eth.getBalance(commissionsAccount);
-                const diff = new BN(commissionsAccountBalance).sub(
-                  new BN(prev.commissionsAccountBalance)
-                );
-
-                mocHelper.assertBig(diff, 0, 'Should not change');
-              });
-
-              it('AND User MoC Balance decreases by the correct amount of MoCs', async function() {
-                const userMoCBalance = await mocHelper.getMoCBalance(userAccount);
-                const diff = new BN(prev.userMoCBalance).sub(new BN(userMoCBalance));
-                const totalSpent = payComissionAmount.add(payMarkupAmount);
-
-                mocHelper.assertBig(
-                  diff,
-                  totalSpent,
-                  `Should decrease by Tokens cost, ${totalSpent} MoC`
-                );
-              });
-
-              it('AND Commissions Account MoC Balance increase by the correct amount of commissions', async function() {
-                const commissionsAccountBalance = await mocHelper.getMoCBalance(commissionsAccount);
-                const diff = new BN(commissionsAccountBalance).sub(
-                  new BN(prev.commissionsAccountMoCBalance)
-                );
-
-                mocHelper.assertBig(
-                  diff,
-                  payComissionAmount,
-                  `Should increase by Tokens commission, ${payComissionAmount} MoC`
-                );
-              });
-
-              it('AND Vendor Account Balance increase by the correct amount of markup', async function() {
-                const vendorAccountBalance = await mocHelper.getMoCBalance(vendorAccount);
-                const diff = new BN(vendorAccountBalance).sub(new BN(prev.vendorAccountBalance));
-                mocHelper.assertBig(
-                  diff,
-                  payMarkupAmount,
-                  `Should increase by Tokens commission, ${payMarkupAmount} BTC`
-                );
-              });
-            });
+      describe(`WHEN he tries to mint ${docAmount} RBTC`, function() {
+        const prev = {};
+        let txCost;
+        beforeEach(async function() {
+          // Load Btc on the contract to increase coverage
+          await this.moc.sendTransaction({
+            value: 6 * mocHelper.RESERVE_PRECISION
           });
+
+          // Set MoC price
+          await mocHelper.setMoCPrice(mocPrice * mocHelper.MOC_PRECISION);
+
+          // Load MoC on the user account
+          await mocHelper.mintMoCToken(userAccount, 100, owner);
+          await mocHelper.approveMoCToken(mocHelper.moc.address, 100, userAccount);
+
+          // Add vendor stake
+          await mocHelper.mintMoCToken(vendorAccount, 100, owner);
+          await mocHelper.approveMoCToken(this.mocVendors.address, 100, vendorAccount);
+          await this.mocVendors.addStake(toContractBN(100 * mocHelper.MOC_PRECISION), {
+            from: vendorAccount
+          });
+
+          if (nDocs) {
+            // owner mints
+            await mocHelper.mintDocAmount(
+              owner,
+              nDocs,
+              vendorAccount,
+              await mocHelper.mocInrate.MINT_DOC_FEES_RBTC()
+            );
+          }
+          [
+            prev.userBalance,
+            prev.commissionsAccountBalance,
+            prev.mocBalance,
+            prev.userMoCBalance,
+            prev.commissionsAccountMoCBalance,
+            prev.vendorAccountBalance
+          ] = await Promise.all([
+            web3.eth.getBalance(userAccount),
+            web3.eth.getBalance(commissionsAccount),
+            web3.eth.getBalance(this.moc.address),
+            mocHelper.getMoCBalance(userAccount),
+            mocHelper.getMoCBalance(commissionsAccount),
+            mocHelper.getMoCBalance(vendorAccount)
+          ]);
+
+          // userAccount mints
+          const tx = await mocHelper.mintDocAmount(
+            userAccount,
+            docAmount,
+            vendorAccount,
+            await mocHelper.mocInrate.MINT_DOC_FEES_MOC()
+          );
+          const _payAmount = (docAmount * mocHelper.MOC_PRECISION) / btcPrice;
+          payAmount = toContractBN(_payAmount);
+          const _payComissionAmount = (commissionAmount * mocHelper.MOC_PRECISION) / mocPrice;
+          payComissionAmount = toContractBN(_payComissionAmount);
+          const _payMarkupAmount = (markupAmount * mocHelper.MOC_PRECISION) / mocPrice;
+          payMarkupAmount = toContractBN(_payMarkupAmount);
+
+          txCost = await mocHelper.getTxCost(tx);
+        });
+
+        // Docs received should be the dollar value of the total BTC sent
+        it(`THEN he receives ${docAmount} Docs on his account`, async function() {
+          const balance = await mocHelper.getDoCBalance(userAccount);
+
+          mocHelper.assertBigDollar(
+            balance,
+            docAmount,
+            `${docAmount} was not in the first account`
+          );
+        });
+
+        it('THEN global balance increases by the correct amount of BTCs', async function() {
+          const mocBtcBalance = await web3.eth.getBalance(this.moc.address);
+          const diff = new BN(mocBtcBalance).sub(new BN(prev.mocBalance));
+
+          mocHelper.assertBig(diff, payAmount, 'Should increase sale total amount');
+        });
+
+        it('AND User Balance decreases by the correct amount of BTCs', async function() {
+          const userBalance = await web3.eth.getBalance(userAccount);
+          const diff = new BN(prev.userBalance).sub(new BN(userBalance)).sub(new BN(txCost));
+          const totalSpent = payAmount;
+
+          mocHelper.assertBig(
+            diff,
+            totalSpent,
+            `Should decrease by Tokens cost, ${totalSpent} BTC`
+          );
+        });
+
+        it('AND Commissions Account Balance does not change because fees are paid in MoC', async function() {
+          const commissionsAccountBalance = await web3.eth.getBalance(commissionsAccount);
+          const diff = new BN(commissionsAccountBalance).sub(
+            new BN(prev.commissionsAccountBalance)
+          );
+
+          mocHelper.assertBig(diff, 0, 'Should not change');
+        });
+
+        it('AND User MoC Balance decreases by the correct amount of MoCs', async function() {
+          const userMoCBalance = await mocHelper.getMoCBalance(userAccount);
+          const diff = new BN(prev.userMoCBalance).sub(new BN(userMoCBalance));
+          const totalSpent = payComissionAmount.add(payMarkupAmount);
+
+          mocHelper.assertBig(
+            diff,
+            totalSpent,
+            `Should decrease by Tokens cost, ${totalSpent} MoC`
+          );
+        });
+
+        it('AND Commissions Account MoC Balance increase by the correct amount of commissions', async function() {
+          const commissionsAccountBalance = await mocHelper.getMoCBalance(commissionsAccount);
+          const diff = new BN(commissionsAccountBalance).sub(
+            new BN(prev.commissionsAccountMoCBalance)
+          );
+
+          mocHelper.assertBig(
+            diff,
+            payComissionAmount,
+            `Should increase by Tokens commission, ${payComissionAmount} MoC`
+          );
+        });
+
+        it('AND Vendor Account Balance increase by the correct amount of markup', async function() {
+          const vendorAccountBalance = await mocHelper.getMoCBalance(vendorAccount);
+          const diff = new BN(vendorAccountBalance).sub(new BN(prev.vendorAccountBalance));
+          mocHelper.assertBig(
+            diff,
+            payMarkupAmount,
+            `Should increase by Tokens commission, ${payMarkupAmount} BTC`
+          );
+        });
+      });
+    }
+
+    describe('(MoC fees) GIVEN BTC price is 10000 and MoC price drops to 5000', function() {
+      describe('AND There are 0 Docs and 6 BTC', function() {
+        // commission = 1300 * 0.009, markup = 1300 * 0.01
+        runScenarioDropPrice({
+          nDocs: 0,
+          docAmount: 1300,
+          commissionAmount: 11.7,
+          markupAmount: 13
+        });
+        // commission = 1200 * 0.009, markup = 1200 * 0.01
+        runScenarioDropPrice({
+          nDocs: 0,
+          docAmount: 1200,
+          commissionAmount: 10.8,
+          markupAmount: 12
+        });
+      });
+      describe('AND There are 10000 Docs and 6 BTC', function() {
+        // commission = 1300 * 0.009, markup = 1300 * 0.01
+        runScenarioDropPrice({
+          nDocs: 10000,
+          docAmount: 1300,
+          commissionAmount: 11.7,
+          markupAmount: 13
+        });
+        // commission = 1200 * 0.009, markup = 1200 * 0.01
+        runScenarioDropPrice({
+          nDocs: 10000,
+          docAmount: 1200,
+          commissionAmount: 10.8,
+          markupAmount: 12
         });
       });
     });

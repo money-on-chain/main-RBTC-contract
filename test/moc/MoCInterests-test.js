@@ -3,7 +3,7 @@ const testHelperBuilder = require('../mocHelper.js');
 let mocHelper;
 let toContractBN;
 let BUCKET_X2;
-contract('MoC : MoCExchange', function([owner, userAccount, vendorAccount]) {
+contract('MoC : MocInterests', function([owner, userAccount, vendorAccount]) {
   before(async function() {
     mocHelper = await testHelperBuilder({ owner, useMock: true });
     ({ toContractBN } = mocHelper);
@@ -67,7 +67,7 @@ contract('MoC : MoCExchange', function([owner, userAccount, vendorAccount]) {
         }
       }
     ];
-    scenarios.forEach(s => {
+    scenarios.forEach(function(s) {
       describe(`WHEN a user wants to send ${s.params.nBProx} to mint BProx`, function() {
         let params;
         beforeEach(async function() {
@@ -144,7 +144,7 @@ contract('MoC : MoCExchange', function([owner, userAccount, vendorAccount]) {
       }
     ];
 
-    redeemScenarios.forEach(s => {
+    redeemScenarios.forEach(function(s) {
       const onMinting = false;
       let params;
       describe(`WHEN the user have 4.99959195 BProx AND ${s.params.freeDocRedeem.nDoCs} FreeDoCs are redeemed AND a user wants to redeem ${s.params.nB} BTC value in BProx`, function() {

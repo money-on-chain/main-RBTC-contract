@@ -47,7 +47,7 @@ contract('MoC : BTCx operations does not modify global indicators', function([
         mocHelper.assertBig(initialValues.maxDoc, finalMaxDoc, 'MaxDoc changed');
         mocHelper.assertBig(initialValues.maxBitPro, finalMaxBitPro, 'MaxBitPro changed');
       });
-      [1, 3, 5].forEach(redValue => {
+      [1, 3, 5].forEach(function(redValue) {
         describe(`AND user redeems ${redValue}`, function() {
           beforeEach(async function() {
             await mocHelper.redeemBProx(userAccount, BUCKET_X2, redValue, vendorAccount);

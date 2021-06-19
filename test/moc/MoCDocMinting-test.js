@@ -69,9 +69,9 @@ contract('MoC', function([owner, userAccount, vendorAccount]) {
     describe('GIVEN BTC price is 10000', function() {
       let payAmount;
       const btcPrice = 10000;
-      [0, 10000].forEach(nDocs => {
+      [0, 10000].forEach(function(nDocs) {
         describe(`AND There are ${nDocs} Docs and 6 BTC`, function() {
-          [1300, 1200].forEach(docAmount => {
+          [1300, 1200].forEach(function(docAmount) {
             describe(`WHEN he tries to mint ${docAmount} RBTC`, function() {
               const prev = {};
               let txCost;

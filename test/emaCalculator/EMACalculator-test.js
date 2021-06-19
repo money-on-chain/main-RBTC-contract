@@ -85,7 +85,7 @@ contract('MoC: MoCState', function([owner]) {
         { btcPrice: 121.17883, movingAverage: '122.800738548309029252' }
       ];
 
-      states.forEach(async state => {
+      states.forEach(function(state) {
         describe(`WHEN the user set a price of ${state.btcPrice}`, function() {
           before(async function() {
             await mocHelper.setBitcoinPrice(toContractBN(state.btcPrice * mocHelper.MOC_PRECISION));
@@ -119,7 +119,7 @@ contract('MoC: MoCState', function([owner]) {
       }
     ];
 
-    states.forEach(state => {
+    states.forEach(function(state) {
       describe('GIVEN the initial price is 10000 and the bma calculation period is 1 block', function() {
         describe(`AND the weighting decrease coefficient value is ${state.smoothingFactor}`, function() {
           describe(`WHEN the user set a price of ${state.btcPrice}`, function() {

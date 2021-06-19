@@ -295,7 +295,7 @@ contract('MoC: Delever X', function([owner, vendorAccount, ...allAccounts]) {
       }
     }
   ];
-  scenarios.forEach(s => {
+  scenarios.forEach(function(s) {
     const userPrevBalances = [];
     describe('GIVEN there is 1 BProx in Bucket BUCKET_X2', function() {
       beforeEach(async function() {
@@ -321,7 +321,7 @@ contract('MoC: Delever X', function([owner, vendorAccount, ...allAccounts]) {
         beforeEach(async function() {
           await this.mocSettlement.pubRunDeleveraging();
         });
-        s.users.forEach(async (u, index) => {
+        s.users.forEach(function(u, index) {
           const { nB } = u.expect.returned;
           const { nBProx } = u.expect.burn;
           it(`THEN ${nB} RBTC are returned to the user ${index}`, async function() {
