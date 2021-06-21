@@ -20,7 +20,7 @@ ganache_running() {
 }
 
 start_ganache() {
-  node_modules/.bin/ganache-cli --gasLimit 0xfffffffffff -i 1564754684494 --accounts 500 --defaultBalanceEther 100000000000000000 --port $GANACHE_PORT
+  node_modules/.bin/ganache-cli --gasLimit 0xfffffffffff -i 1564754684494 --accounts 500 --defaultBalanceEther 100000000000000000000 --port $GANACHE_PORT
 
   ganache_pid=$!
 }
