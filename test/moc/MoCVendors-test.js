@@ -112,7 +112,7 @@ contract('MoC: MoCVendors', function([
       }
     ];
 
-    scenarios.forEach(async scenario => {
+    scenarios.forEach(function(scenario) {
       let registerVendorTx;
       let addStakeTx;
       let removeStakeTx;
