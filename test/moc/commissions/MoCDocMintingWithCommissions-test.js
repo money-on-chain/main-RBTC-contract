@@ -615,6 +615,9 @@ contract('MoC', function([owner, userAccount, commissionsAccount, vendorAccount,
       describe(`WHEN he tries to mint ${docAmount} RBTC`, function() {
         const prev = {};
         let txCost;
+        before(async function(){
+          await mocHelper.revertState();
+        });
         beforeEach(async function() {
           // Load Btc on the contract to increase coverage
           await this.moc.sendTransaction({
