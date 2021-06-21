@@ -27,9 +27,9 @@ start_ganache() {
   # Gas Limit on RSK TestNet 03 July 2019: 6800000 - 0x67C280
   if [ "$SOLIDITY_COVERAGE" = true ]; then
     touch allFiredEvents
-    node_modules/.bin/testrpc-sc --gasLimit 0xfffffffffff --port "$ganache_port" -i 1564754684494 --accounts 500 --defaultBalanceEther 100000000000000000 > /dev/null &
+    node_modules/.bin/testrpc-sc --gasLimit 0xfffffffffff --port "$ganache_port" -i 1564754684494 --accounts 500 --defaultBalanceEther 100000000000000000000 > /dev/null &
   else
-    node_modules/.bin/ganache-cli --gasLimit 0xfffffffffff -i 1564754684494 --accounts 500 --defaultBalanceEther 100000000000000000 > /dev/null &
+    node_modules/.bin/ganache-cli --gasLimit 0xfffffffffff -i 1564754684494 --accounts 500 --defaultBalanceEther 100000000000000000000 > /dev/null &
   fi
 
   ganache_pid=$!
