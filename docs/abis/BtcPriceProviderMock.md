@@ -17,9 +17,13 @@ View Source: [contracts/mocks/BtcPriceProviderMock.sol](../../contracts/mocks/Bt
 
 ```js
 bytes32 internal btcPrice;
-bool internal has;
-
 ```
+---
+
+```js
+bool internal has;
+```
+---
 
 ## Functions
 

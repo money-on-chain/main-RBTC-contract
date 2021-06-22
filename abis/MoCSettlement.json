@@ -1,38 +1,161 @@
 [
   {
-    "constant": true,
-    "inputs": [],
-    "name": "governor",
-    "outputs": [
+    "anonymous": false,
+    "inputs": [
       {
-        "name": "",
+        "indexed": true,
+        "internalType": "address",
+        "name": "redeemer",
         "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "isAddition",
+        "type": "bool"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "delta",
+        "type": "uint256"
       }
     ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
+    "name": "RedeemRequestAlter",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "redeemer",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "commission",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "RedeemRequestProcessed",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "commissionsPayed",
+        "type": "uint256"
+      }
+    ],
+    "name": "SettlementCompleted",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "leverage",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "riskProxPrice",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "reservePrice",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "startBlockNumber",
+        "type": "uint256"
+      }
+    ],
+    "name": "SettlementDeleveraging",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "queueSize",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "accumCommissions",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "reservePrice",
+        "type": "uint256"
+      }
+    ],
+    "name": "SettlementRedeemStableToken",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "stableTokenRedeemCount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "deleveragingCount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "riskProxPrice",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "reservePrice",
+        "type": "uint256"
+      }
+    ],
+    "name": "SettlementStarted",
+    "type": "event"
   },
   {
     "constant": true,
     "inputs": [],
-    "name": "DOC_REDEMPTION_TASK",
+    "name": "BUCKET_C0",
     "outputs": [
       {
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "SETTLEMENT_TASK",
-    "outputs": [
-      {
+        "internalType": "bytes32",
         "name": "",
         "type": "bytes32"
       }
@@ -47,48 +170,7 @@
     "name": "BUCKET_X2",
     "outputs": [
       {
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "connector",
-    "outputs": [
-      {
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "newIGovernor",
-        "type": "address"
-      }
-    ],
-    "name": "changeIGovernor",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "BUCKET_C0",
-    "outputs": [
-      {
+        "internalType": "bytes32",
         "name": "",
         "type": "bytes32"
       }
@@ -103,6 +185,7 @@
     "name": "DELEVERAGING_TASK",
     "outputs": [
       {
+        "internalType": "bytes32",
         "name": "",
         "type": "bytes32"
       }
@@ -112,149 +195,95 @@
     "type": "function"
   },
   {
-    "anonymous": false,
-    "inputs": [
+    "constant": true,
+    "inputs": [],
+    "name": "DOC_REDEMPTION_TASK",
+    "outputs": [
       {
-        "indexed": true,
-        "name": "redeemer",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "name": "isAddition",
-        "type": "bool"
-      },
-      {
-        "indexed": false,
-        "name": "delta",
-        "type": "uint256"
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
       }
     ],
-    "name": "RedeemRequestAlter",
-    "type": "event"
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    "anonymous": false,
-    "inputs": [
+    "constant": true,
+    "inputs": [],
+    "name": "SETTLEMENT_TASK",
+    "outputs": [
       {
-        "indexed": true,
-        "name": "redeemer",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "name": "commission",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "name": "amount",
-        "type": "uint256"
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
       }
     ],
-    "name": "RedeemRequestProcessed",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "name": "queueSize",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "name": "accumCommissions",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "name": "reservePrice",
-        "type": "uint256"
-      }
-    ],
-    "name": "SettlementRedeemStableToken",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "name": "leverage",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "name": "riskProxPrice",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "name": "reservePrice",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "name": "startBlockNumber",
-        "type": "uint256"
-      }
-    ],
-    "name": "SettlementDeleveraging",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "name": "stableTokenRedeemCount",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "name": "deleveragingCount",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "name": "riskProxPrice",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "name": "reservePrice",
-        "type": "uint256"
-      }
-    ],
-    "name": "SettlementStarted",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "name": "commissionsPayed",
-        "type": "uint256"
-      }
-    ],
-    "name": "SettlementCompleted",
-    "type": "event"
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
   },
   {
     "constant": false,
     "inputs": [
       {
+        "internalType": "contract IGovernor",
+        "name": "newIGovernor",
+        "type": "address"
+      }
+    ],
+    "name": "changeIGovernor",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "connector",
+    "outputs": [
+      {
+        "internalType": "contract MoCConnector",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "governor",
+    "outputs": [
+      {
+        "internalType": "contract IGovernor",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "internalType": "address",
         "name": "connectorAddress",
         "type": "address"
       },
       {
+        "internalType": "address",
         "name": "_governor",
         "type": "address"
       },
       {
+        "internalType": "uint256",
         "name": "_blockSpan",
         "type": "uint256"
       }
@@ -269,6 +298,7 @@
     "constant": false,
     "inputs": [
       {
+        "internalType": "contract IGovernor",
         "name": "_governor",
         "type": "address"
       }
@@ -283,6 +313,7 @@
     "constant": false,
     "inputs": [
       {
+        "internalType": "uint256",
         "name": "bSpan",
         "type": "uint256"
       }
@@ -315,6 +346,7 @@
     "constant": true,
     "inputs": [
       {
+        "internalType": "uint256",
         "name": "_index",
         "type": "uint256"
       }
@@ -322,10 +354,12 @@
     "name": "getRedeemRequestAt",
     "outputs": [
       {
+        "internalType": "address payable",
         "name": "",
         "type": "address"
       },
       {
+        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -340,6 +374,7 @@
     "name": "getBlockSpan",
     "outputs": [
       {
+        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -354,6 +389,7 @@
     "name": "redeemQueueSize",
     "outputs": [
       {
+        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -368,6 +404,7 @@
     "name": "isSettlementEnabled",
     "outputs": [
       {
+        "internalType": "bool",
         "name": "",
         "type": "bool"
       }
@@ -382,6 +419,7 @@
     "name": "isSettlementRunning",
     "outputs": [
       {
+        "internalType": "bool",
         "name": "",
         "type": "bool"
       }
@@ -396,6 +434,7 @@
     "name": "isSettlementReady",
     "outputs": [
       {
+        "internalType": "bool",
         "name": "",
         "type": "bool"
       }
@@ -410,6 +449,7 @@
     "name": "nextSettlementBlock",
     "outputs": [
       {
+        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -422,6 +462,7 @@
     "constant": true,
     "inputs": [
       {
+        "internalType": "address",
         "name": "_who",
         "type": "address"
       }
@@ -429,6 +470,7 @@
     "name": "docAmountToRedeem",
     "outputs": [
       {
+        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -441,10 +483,12 @@
     "constant": false,
     "inputs": [
       {
+        "internalType": "uint256",
         "name": "amount",
         "type": "uint256"
       },
       {
+        "internalType": "address payable",
         "name": "redeemer",
         "type": "address"
       }
@@ -468,14 +512,17 @@
     "constant": false,
     "inputs": [
       {
+        "internalType": "bool",
         "name": "isAddition",
         "type": "bool"
       },
       {
+        "internalType": "uint256",
         "name": "delta",
         "type": "uint256"
       },
       {
+        "internalType": "address",
         "name": "redeemer",
         "type": "address"
       }
@@ -490,6 +537,7 @@
     "constant": false,
     "inputs": [
       {
+        "internalType": "uint256",
         "name": "steps",
         "type": "uint256"
       }
@@ -497,10 +545,20 @@
     "name": "runSettlement",
     "outputs": [
       {
+        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
     ],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [],
+    "name": "fixTasksPointer",
+    "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
     "type": "function"

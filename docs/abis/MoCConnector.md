@@ -18,36 +18,75 @@ Provides access control between all MoC Contracts
 **Constants & Variables**
 
 ```js
-//public members
 address payable public moc;
-address public docToken;
-address public bproToken;
-address public bproxManager;
-address public mocState;
-address public mocConverter;
-address public mocSettlement;
-address public mocExchange;
-address public mocInrate;
-address public mocBurnout;
-
-//internal members
-bool internal initialized;
-
-//private members
-uint256[50] private upgradeGap;
-
 ```
+---
+
+```js
+address public docToken;
+```
+---
+
+```js
+address public bproToken;
+```
+---
+
+```js
+address public bproxManager;
+```
+---
+
+```js
+address public mocState;
+```
+---
+
+```js
+address public DEPRECATED_mocConverter;
+```
+---
+
+```js
+address public mocSettlement;
+```
+---
+
+```js
+address public mocExchange;
+```
+---
+
+```js
+address public mocInrate;
+```
+---
+
+```js
+address public mocBurnout;
+```
+---
+
+```js
+bool internal initialized;
+```
+---
+
+```js
+uint256[50] private upgradeGap;
+```
+---
 
 ## Functions
 
-- [initialize(address payable mocAddress, address docAddress, address bproAddress, address bproxAddress, address stateAddress, address settlementAddress, address converterAddress, address exchangeAddress, address inrateAddress, address burnoutBookAddress)](#initialize)
+- [initialize(address payable mocAddress, address docAddress, address bproAddress, address bproxAddress, address stateAddress, address settlementAddress, address exchangeAddress, address inrateAddress, address burnoutBookAddress)](#initialize)
 
 ### initialize
 
 Initializes the contract
 
 ```js
-function initialize(address payable mocAddress, address docAddress, address bproAddress, address bproxAddress, address stateAddress, address settlementAddress, address converterAddress, address exchangeAddress, address inrateAddress, address burnoutBookAddress) public nonpayable initializer 
+function initialize(address payable mocAddress, address docAddress, address bproAddress, address bproxAddress, address stateAddress, address settlementAddress, address exchangeAddress, address inrateAddress, address burnoutBookAddress) public nonpayable initializer 
 ```
 
 **Arguments**
@@ -60,7 +99,6 @@ function initialize(address payable mocAddress, address docAddress, address bpro
 | bproxAddress | address | BProxManager contract address | 
 | stateAddress | address | MoCState contract address | 
 | settlementAddress | address | MoCSettlement contract address | 
-| converterAddress | address | MoCConverter contract address | 
 | exchangeAddress | address | MoCExchange contract address | 
 | inrateAddress | address | MoCInrate contract address | 
 | burnoutBookAddress | address | (DEPRECATED) MoCBurnout contract address. DO NOT USE. | 

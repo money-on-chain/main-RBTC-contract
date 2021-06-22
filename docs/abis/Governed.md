@@ -13,20 +13,27 @@ View Source: [moc-governance/contracts/Governance/Governed.sol](../../moc-govern
 
 **Governed** - version: 0.1.10
 
-Base contract to be inherited by governed contracts
+Base contract to be inherited by governed contractsThis contract is not usable on its own since it does not have any _productive useful_ behaviour
+The only purpose of this contract is to define some useful modifiers and functions to be used on the
+governance aspect of the child contract
 
 ## Contract Members
 **Constants & Variables**
 
 ```js
-//public members
 contract IGovernor public governor;
-
-//private members
-string private constant NOT_AUTHORIZED_CHANGER;
-uint256[50] private upgradeGap;
-
 ```
+---
+
+```js
+string private constant NOT_AUTHORIZED_CHANGER;
+```
+---
+
+```js
+uint256[50] private upgradeGap;
+```
+---
 
 ## Modifiers
 
@@ -34,7 +41,8 @@ uint256[50] private upgradeGap;
 
 ### onlyAuthorizedChanger
 
-Modifier that protects the function
+Modifier that protects the functionYou should use this modifier in any function that should be called through
+the governance system
 
 ```js
 modifier onlyAuthorizedChanger() internal
@@ -52,7 +60,8 @@ modifier onlyAuthorizedChanger() internal
 
 ### initialize
 
-Initialize the contract with the basic settings
+Initialize the contract with the basic settingsThis initialize replaces the constructor but it is not called automatically.
+It is necessary because of the upgradeability of the contracts
 
 ```js
 function initialize(IGovernor _governor) public nonpayable initializer 

@@ -17,9 +17,13 @@ View Source: [contracts/changers/productive/PriceFeederRemover.sol](../../contra
 
 ```js
 contract Medianizer public medianizer;
-address public priceFeed;
-
 ```
+---
+
+```js
+address public priceFeed;
+```
+---
 
 ## Functions
 

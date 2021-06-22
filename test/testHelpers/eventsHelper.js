@@ -5,7 +5,6 @@ const BtcPriceProviderMock = artifacts.require('./contracts/mocks/BtcPriceProvid
 const DoC = artifacts.require('./contracts/DocToken.sol');
 const MoC = artifacts.require('./contracts/MoC.sol');
 const MoCState = artifacts.require('./contracts/MoCState.sol');
-const MoCConverter = artifacts.require('./contracts/MoCConverter.sol');
 const MoCExchange = artifacts.require('./contracts/MoCExchange.sol');
 const MoCInrate = artifacts.require('./contracts/MoCInrate.sol');
 const BPro = artifacts.require('./contracts/BProToken.sol');
@@ -24,7 +23,6 @@ abiDecoder.addABI(MoCSettlement.abi);
 abiDecoder.addABI(MoCState.abi);
 abiDecoder.addABI(MoCInrate.abi);
 abiDecoder.addABI(MoCExchange.abi);
-abiDecoder.addABI(MoCConverter.abi);
 abiDecoder.addABI(BtcPriceProviderMock.abi);
 abiDecoder.addABI(Governor.abi);
 abiDecoder.addABI(Stopper.abi);

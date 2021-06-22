@@ -41,26 +41,31 @@ contract('MoC: MoCVendors', function([
       // Vendor 1
       {
         params: {
+          description: 'Staking is bigger than totalPaidInMoc',
           account: vendorAccount1,
           markup: 0.01,
-          staking: 1, // (btcPrice * (mintAmount * markup) / mocPrice)
+          staking: 1,
           mocAmount: 10000,
           mintAmount: 10,
           addStakeMessage:
             'WHEN a vendor adds staking of $STAKING$ THEN VendorStakeAdded event is emitted',
           removeStakeMessage:
-            'WHEN a vendor removes staking of $STAKING$ THEN VendorStakeRemoved event is emitted'
+            'WHEN a vendor removes staking equal to totalPaidInMoc THEN VendorStakeRemoved event is emitted',
+          userAccountMocAmount: 0
         },
         expect: {
           totalPaidInMoC: 0.1,
           paidMoC: 0,
           paidRBTC: 0.1,
-          staking: 1
+          stakingAfterAddStake: 1,
+          stakingAfterRemoveStake: 0,
+          stakingRemoved: 1
         }
       },
       // Vendor 2
       {
         params: {
+          description: 'totalPaidInMoc is 0',
           account: vendorAccount2,
           markup: 0.005,
           staking: 0.5,
@@ -68,36 +73,46 @@ contract('MoC: MoCVendors', function([
           mintAmount: 0,
           addStakeMessage:
             'WHEN a vendor adds staking of $STAKING$ THEN VendorStakeAdded event is emitted',
-          removeStakeMessage: 'WHEN a vendor cannot remove staking THEN revert is expected'
+          removeStakeMessage:
+            'WHEN a vendor removes staking and totalPaidInMoc is 0 THEN VendorStakeRemoved event is emitted',
+          userAccountMocAmount: 0
         },
         expect: {
           totalPaidInMoC: 0,
           paidMoC: 0,
           paidRBTC: 0,
-          staking: 0.5
+          stakingAfterAddStake: 0.5,
+          stakingAfterRemoveStake: 0,
+          stakingRemoved: 0.5
         }
       },
       // Vendor 3
       {
         params: {
+          description: 'Vendor received commissions in MoC token',
           account: vendorAccount3,
-          markup: 0,
-          staking: 0,
+          markup: 0.01,
+          staking: 1,
           mocAmount: 10000,
-          mintAmount: 0,
-          addStakeMessage: 'WHEN a vendor adds staking of $STAKING$ THEN revert is expected',
-          removeStakeMessage: 'WHEN a vendor removes staking of $STAKING$ THEN revert is expected'
+          mintAmount: 10,
+          addStakeMessage:
+            'WHEN a vendor adds staking and user paid in MoC THEN VendorStakeAdded event is emitted',
+          removeStakeMessage:
+            'WHEN a vendor removes staking of $STAKING$ THEN VendorStakeRemoved event is emitted',
+          userAccountMocAmount: 10000
         },
         expect: {
-          totalPaidInMoC: 0,
-          paidMoC: 0,
+          totalPaidInMoC: 0.1,
+          paidMoC: 0.1,
           paidRBTC: 0,
-          staking: 0
+          stakingAfterAddStake: 1,
+          stakingAfterRemoveStake: 0,
+          stakingRemoved: 1
         }
       }
     ];
 
-    scenarios.forEach(async scenario => {
+    scenarios.forEach(function(scenario) {
       let registerVendorTx;
       let addStakeTx;
       let removeStakeTx;
@@ -119,7 +134,6 @@ contract('MoC: MoCVendors', function([
           scenario.params.mocAmount,
           scenario.params.account
         );
-
         // Commission rates for test are set in functionHelper.js
         await mocHelper.mockMocInrateChanger.setCommissionRates(
           await mocHelper.getCommissionsArrayNonZero()
@@ -145,61 +159,57 @@ contract('MoC: MoCVendors', function([
       it(
         scenario.params.addStakeMessage.replace('$STAKING$', scenario.params.staking),
         async function() {
-          try {
-            addStakeTx = await this.mocVendors.addStake(
-              toContractBN(scenario.params.staking * mocHelper.MOC_PRECISION),
-              { from: scenario.params.account }
-            );
-
-            const [vendorStakeAddedEvent] = await mocHelper.findEvents(
-              addStakeTx,
-              'VendorStakeAdded'
-            );
-
-            assert(vendorStakeAddedEvent, 'Event was not emitted');
-            assert(
-              vendorStakeAddedEvent.account === scenario.params.account,
-              'Vendor account is incorrect'
-            );
-            mocHelper.assertBigRBTC(
-              vendorStakeAddedEvent.staking,
-              scenario.expect.staking,
-              'Should increase by staking'
-            );
-          } catch (err) {
-            if (new BigNumber(scenario.expect.staking).gt(new BigNumber(0))) {
-              assert(
-                err.reason === 'Vendor total paid is not enough',
-                `Vendor ${scenario.params.account} should not be able to add staking`
-              );
-            } else {
-              assert(
-                err.reason === 'Staking should be greater than 0',
-                `Vendor ${scenario.params.account} should not be able to add staking of 0`
-              );
-            }
-          }
+          addStakeTx = await this.mocVendors.addStake(
+            toContractBN(scenario.params.staking, 'MOC'),
+            { from: scenario.params.account }
+          );
+          const [vendorStakeAddedEvent] = await mocHelper.findEvents(
+            addStakeTx,
+            'VendorStakeAdded'
+          );
+          assert(vendorStakeAddedEvent, 'Event was not emitted');
+          assert(
+            vendorStakeAddedEvent.account === scenario.params.account,
+            'Vendor account is incorrect'
+          );
+          mocHelper.assertBigRBTC(
+            vendorStakeAddedEvent.staking,
+            scenario.expect.stakingAfterAddStake,
+            'Should increase by staking'
+          );
         }
       );
-      it(`WHEN a user mints ${scenario.params.mintAmount} BPRO THEN the vendor receives his corresponding fee`, async function() {
+      it(`${scenario.params.description} WHEN a user mints ${scenario.params.mintAmount} BPRO THEN the vendor receives his corresponding fee and VendorReceivedMarkup event is emitted`, async function() {
+        await mocHelper.mintMoCToken(userAccount, scenario.params.userAccountMocAmount, owner);
+        await mocHelper.approveMoCToken(
+          this.moc.address,
+          scenario.params.userAccountMocAmount,
+          userAccount
+        );
+
         // Make a transaction so that the vendor has something to remove from staking
-        await mocHelper.mintBProAmount(
+        const tx = await mocHelper.mintBProAmount(
           userAccount,
           scenario.params.mintAmount,
           scenario.params.account
         );
 
         const totalPaidInMoC = await this.mocVendors.getTotalPaidInMoC(scenario.params.account);
-        const paidMoC = await this.mocVendors.getPaidMoC(scenario.params.account);
-        const paidRBTC = await this.mocVendors.getPaidRBTC(scenario.params.account);
+        if (scenario.params.mintAmount > 0) {
+          const [vendorReceivedMarkupEvent] = await mocHelper.findEvents(
+            tx,
+            'VendorReceivedMarkup'
+          );
+          const { paidRBTC, paidMoC } = vendorReceivedMarkupEvent;
+          mocHelper.assertBigRBTC(paidMoC, scenario.expect.paidMoC, 'paidMoC is incorrect');
+          mocHelper.assertBigRBTC(paidRBTC, scenario.expect.paidRBTC, 'paidRBTC is incorrect');
+        }
 
         mocHelper.assertBigRBTC(
           totalPaidInMoC,
           scenario.expect.totalPaidInMoC,
           'totalPaidInMoC is incorrect'
         );
-        mocHelper.assertBigRBTC(paidMoC, scenario.expect.paidMoC, 'paidMoC is incorrect');
-        mocHelper.assertBigRBTC(paidRBTC, scenario.expect.paidRBTC, 'paidRBTC is incorrect');
       });
       it('WHEN retrieving vendor from getters, THEN it matches the information from mapping', async function() {
         vendorInMapping = await this.mocVendors.vendors(scenario.params.account);
@@ -208,8 +218,6 @@ contract('MoC: MoCVendors', function([
         const markup = await this.mocVendors.getMarkup(scenario.params.account);
         const totalPaidInMoC = await this.mocVendors.getTotalPaidInMoC(scenario.params.account);
         const staking = await this.mocVendors.getStaking(scenario.params.account);
-        const paidMoC = await this.mocVendors.getPaidMoC(scenario.params.account);
-        const paidRBTC = await this.mocVendors.getPaidRBTC(scenario.params.account);
 
         assert(vendorInMapping.isActive === isActive, 'isActive is incorrect');
         mocHelper.assertBig(vendorInMapping.markup, markup, 'markup is incorrect');
@@ -219,46 +227,36 @@ contract('MoC: MoCVendors', function([
           'totalPaidInMoC is incorrect'
         );
         mocHelper.assertBig(vendorInMapping.staking, staking, 'staking is incorrect');
-        mocHelper.assertBig(vendorInMapping.paidMoC, paidMoC, 'paidMoC is incorrect');
-        mocHelper.assertBig(vendorInMapping.paidRBTC, paidRBTC, 'paidRBTC is incorrect');
       });
       it(
         scenario.params.removeStakeMessage.replace('$STAKING$', scenario.params.staking),
         async function() {
-          try {
-            removeStakeTx = await this.mocVendors.removeStake(
-              toContractBN(scenario.params.staking * mocHelper.MOC_PRECISION),
-              { from: scenario.params.account }
-            );
+          removeStakeTx = await this.mocVendors.removeStake(
+            toContractBN(scenario.params.staking, 'MOC'),
+            { from: scenario.params.account }
+          );
 
-            const [vendorStakeRemovedEvent] = await mocHelper.findEvents(
-              removeStakeTx,
-              'VendorStakeRemoved'
-            );
+          const [vendorStakeRemovedEvent] = await mocHelper.findEvents(
+            removeStakeTx,
+            'VendorStakeRemoved'
+          );
 
-            assert(vendorStakeRemovedEvent, 'Event was not emitted');
-            assert(
-              vendorStakeRemovedEvent.account === scenario.params.account,
-              'Vendor account is incorrect'
-            );
-            mocHelper.assertBigRBTC(
-              vendorStakeRemovedEvent.staking,
-              scenario.expect.staking,
-              'Should decrease by staking'
-            );
-          } catch (err) {
-            if (new BigNumber(scenario.expect.staking).gt(new BigNumber(0))) {
-              assert(
-                err.reason === 'Vendor total paid is not enough',
-                `Vendor ${scenario.params.account} should not be able to remove staking`
-              );
-            } else {
-              assert(
-                err.reason === 'Staking should be greater than 0',
-                `Vendor ${scenario.params.account} should not be able to remove staking of 0`
-              );
-            }
-          }
+          assert(vendorStakeRemovedEvent, 'Event was not emitted');
+          assert(
+            vendorStakeRemovedEvent.account === scenario.params.account,
+            'Vendor account is incorrect'
+          );
+          mocHelper.assertBigRBTC(
+            vendorStakeRemovedEvent.staking,
+            scenario.expect.stakingRemoved,
+            'VendorStakeRemoved event emitted an invalid value'
+          );
+          const staking = await this.mocVendors.getStaking(scenario.params.account);
+          mocHelper.assertBigRBTC(
+            staking,
+            scenario.expect.stakingAfterRemoveStake,
+            'Staking in storage is invalid'
+          );
         }
       );
       it('WHEN a vendor is unregistered THEN VendorUnregistered event is emitted', async function() {
@@ -279,16 +277,15 @@ contract('MoC: MoCVendors', function([
       });
       describe('GIVEN an inactive vendor tries to make changes', function() {
         it('WHEN an inactive vendor tries to add staking THEN an error should be raised', async function() {
-          addStakeTx = this.mocVendors.addStake(
-            toContractBN(scenario.params.staking * mocHelper.MOC_PRECISION),
-            { from: scenario.params.account }
-          );
+          addStakeTx = this.mocVendors.addStake(toContractBN(scenario.params.staking, 'MOC'), {
+            from: scenario.params.account
+          });
 
           await expectRevert(addStakeTx, 'Vendor is inexistent or inactive');
         });
         it('WHEN an inactive vendor tries to remove staking THEN an error should be raised', async function() {
           removeStakeTx = this.mocVendors.removeStake(
-            toContractBN(scenario.params.staking * mocHelper.MOC_PRECISION),
+            toContractBN(scenario.params.staking, 'MOC'),
             { from: scenario.params.account }
           );
 
@@ -297,23 +294,57 @@ contract('MoC: MoCVendors', function([
       });
     });
   });
+
+  describe('GIVEN a registered vendor with enough MoC tokens', function() {
+    before(async function() {
+      // Register vendor for test
+      await mocHelper.registerVendor(vendorAccount1, 0.001, owner);
+      count = await this.mocVendors.getVendorsCount();
+
+      // Mint and approve MoC token to use in the rest of the functions
+      await mocHelper.mintMoCToken(vendorAccount1, 100, owner);
+      await mocHelper.approveMoCToken(this.mocVendors.address, 10, vendorAccount1);
+    });
+    it('WHEN vendor tries to add staking 0 THEN an error should be raised', async function() {
+      const addStakeTx = this.mocVendors.addStake(toContractBN(0, 'MOC'), {
+        from: vendorAccount1
+      });
+      await expectRevert(addStakeTx, 'Staking should be greater than 0');
+    });
+    it('WHEN vendor tries to add more staking than what is approved THEN an error should be raised', async function() {
+      const addStakeTx = this.mocVendors.addStake(toContractBN(20, 'MOC'), {
+        from: vendorAccount1
+      });
+
+      await expectRevert(addStakeTx, 'MoC balance or MoC allowance are not enough to add staking');
+    });
+    it('WHEN vendor tries to remove 0 stake THEN an error should be raised', async function() {
+      await this.mocVendors.addStake(toContractBN(10, 'MOC'), {
+        from: vendorAccount1
+      });
+      const removeStakeTx = this.mocVendors.addStake(toContractBN(0, 'MOC'), {
+        from: vendorAccount1
+      });
+      await expectRevert(removeStakeTx, 'Staking should be greater than 0');
+    });
+  });
+
   describe('Non-scenario tests', function() {
     beforeEach(async function() {
       await mocHelper.revertState();
     });
     describe('GIVEN an inexistent vendor tries to makes changes', function() {
       it('WHEN an inexistent vendor tries to add staking THEN an error should be raised', async function() {
-        const addStakeTx = this.mocVendors.addStake(toContractBN(10 * mocHelper.MOC_PRECISION), {
+        const addStakeTx = this.mocVendors.addStake(toContractBN(10, 'MOC'), {
           from: inexistentVendorAccount
         });
 
         await expectRevert(addStakeTx, 'Vendor is inexistent or inactive');
       });
       it('WHEN an inexistent vendor tries to remove staking THEN an error should be raised', async function() {
-        const removeStakeTx = this.mocVendors.removeStake(
-          toContractBN(10 * mocHelper.MOC_PRECISION),
-          { from: inexistentVendorAccount }
-        );
+        const removeStakeTx = this.mocVendors.removeStake(toContractBN(10, 'MOC'), {
+          from: inexistentVendorAccount
+        });
 
         await expectRevert(removeStakeTx, 'Vendor is inexistent or inactive');
       });
@@ -471,7 +502,7 @@ contract('MoC: MoCVendors', function([
         await mocHelper.approveMoCToken(this.mocVendors.address, mocAmount, vendorAccount5);
 
         // Add staking
-        await this.mocVendors.addStake(toContractBN(mocAmount * mocHelper.MOC_PRECISION), {
+        await this.mocVendors.addStake(toContractBN(mocAmount, 'MOC'), {
           from: vendorAccount5
         });
 
@@ -503,7 +534,7 @@ contract('MoC: MoCVendors', function([
         // Update vendor markup
         const updateVendorTx = await this.mocVendors.registerVendor(
           vendorAccount1,
-          toContractBN(newMarkup * mocHelper.MOC_PRECISION),
+          toContractBN(newMarkup, 'MOC'),
           { from: owner }
         );
 
@@ -538,7 +569,7 @@ contract('MoC: MoCVendors', function([
             await mocHelper.approveMoCToken(this.mocVendors.address, mocAmount, account);
 
             // Add staking
-            await this.mocVendors.addStake(toContractBN(mocAmount * mocHelper.MOC_PRECISION), {
+            await this.mocVendors.addStake(toContractBN(mocAmount, 'MOC'), {
               from: account
             });
 
@@ -588,7 +619,7 @@ contract('MoC: MoCVendors', function([
         const [vendorUpdatedEvent] = await mocHelper.findEvents(updateVendorTx, 'VendorUpdated');
 
         mocHelper.assertBig(
-          toContractBN(newMarkup * mocHelper.MOC_PRECISION).toString(),
+          toContractBN(newMarkup, 'MOC').toString(),
           vendorUpdatedEvent.markup,
           `New vendor markup should be ${newMarkup}`
         );

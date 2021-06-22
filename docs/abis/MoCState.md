@@ -8,22 +8,10 @@ original_id: MoCState
 
 View Source: [contracts/MoCState.sol](../../contracts/MoCState.sol)
 
-**↗ Extends: [MoCLibConnection](MoCLibConnection.md), [MoCBase](MoCBase.md), [MoCEMACalculator](MoCEMACalculator.md)**
+**↗ Extends: [MoCLibConnection](MoCLibConnection.md), [MoCBase](MoCBase.md), [MoCEMACalculator](MoCEMACalculator.md), [IMoCState](IMoCState.md)**
 **↘ Derived Contracts: [MoCStateMock](MoCStateMock.md)**
 
 **MoCState** - version: 0.1.10
-
-**Enums**
-### States
-
-```js
-enum States {
- Liquidated,
- BProDiscount,
- BelowCobj,
- AboveCobj
-}
-```
 
 ## Structs
 ### InitializeParams
@@ -53,44 +41,151 @@ struct InitializeParams {
 **Constants & Variables**
 
 ```js
-//public members
-enum MoCState.States public state;
-uint256 public dayBlockSpan;
-uint256 public peg;
-uint256 public bproMaxDiscountRate;
-uint256 public liq;
-uint256 public utpdu;
-uint256 public rbtcInSystem;
-uint256 public liquidationPrice;
-bool public liquidationEnabled;
-uint256 public protected;
-uint256 public maxMintBPro;
-
-//internal members
-contract PriceProvider internal btcPriceProvider;
-contract MoCSettlement internal mocSettlement;
-contract MoCConverter internal mocConverter;
-contract DocToken internal docToken;
-contract BProToken internal bproToken;
-contract MoCBProxManager internal bproxManager;
-contract PriceProvider internal mocPriceProvider;
-contract MoCToken internal mocToken;
-contract MoCVendors internal mocVendors;
-
-//private members
-uint256[50] private upgradeGap;
-
+enum IMoCState.States public state;
 ```
-
-**Events**
+---
 
 ```js
-event StateTransition(enum MoCState.States  newState);
-event BtcPriceProviderUpdated(address  oldAddress, address  newAddress);
-event MoCPriceProviderUpdated(address  oldAddress, address  newAddress);
-event MoCTokenChanged(address  mocTokenAddress);
-event MoCVendorsChanged(address  mocVendorsAddress);
+uint256 public dayBlockSpan;
 ```
+---
+
+```js
+uint256 public peg;
+```
+---
+
+```js
+uint256 public bproMaxDiscountRate;
+```
+---
+
+```js
+uint256 public liq;
+```
+---
+
+```js
+uint256 public utpdu;
+```
+---
+
+```js
+uint256 public rbtcInSystem;
+```
+---
+
+```js
+uint256 public liquidationPrice;
+```
+---
+
+```js
+bool public liquidationEnabled;
+```
+---
+
+```js
+uint256 public protected;
+```
+---
+
+```js
+uint256 public maxMintBPro;
+```
+---
+
+```js
+contract PriceProvider internal btcPriceProvider;
+```
+---
+
+```js
+contract IMoCSettlement internal mocSettlement;
+```
+---
+
+```js
+address internal DEPRECATED_mocConverter;
+```
+---
+
+```js
+contract DocToken internal docToken;
+```
+---
+
+```js
+contract BProToken internal bproToken;
+```
+---
+
+```js
+contract MoCBProxManager internal bproxManager;
+```
+---
+
+```js
+contract PriceProvider internal mocPriceProvider;
+```
+---
+
+```js
+contract MoCToken internal mocToken;
+```
+---
+
+```js
+address internal mocVendors;
+```
+---
+
+```js
+uint256[50] private upgradeGap;
+```
+---
+
+## StateTransition
+
+**Parameters**
+
+| Name        | Type           | Description  |
+| ------------- |------------- | -----|
+| newState | enum IMoCState.States |  | 
+
+## BtcPriceProviderUpdated
+
+**Parameters**
+
+| Name        | Type           | Description  |
+| ------------- |------------- | -----|
+| oldAddress | address |  | 
+| newAddress | address |  | 
+
+## MoCPriceProviderUpdated
+
+**Parameters**
+
+| Name        | Type           | Description  |
+| ------------- |------------- | -----|
+| oldAddress | address |  | 
+| newAddress | address |  | 
+
+## MoCTokenChanged
+
+**Parameters**
+
+| Name        | Type           | Description  |
+| ------------- |------------- | -----|
+| mocTokenAddress | address |  | 
+
+## MoCVendorsChanged
+
+**Parameters**
+
+| Name        | Type           | Description  |
+| ------------- |------------- | -----|
+| mocVendorsAddress | address |  | 
 
 ## Functions
 
@@ -162,6 +257,13 @@ event MoCVendorsChanged(address  mocVendorsAddress);
 - [setMoCPriceProvider(address mocProviderAddress)](#setmocpriceprovider)
 - [getMoCPriceProvider()](#getmocpriceprovider)
 - [getMoCPrice()](#getmocprice)
+- [bproToBtc(uint256 amount)](#bprotobtc)
+- [btcToBPro(uint256 btcAmount)](#btctobpro)
+- [docsToBtc(uint256 docAmount)](#docstobtc)
+- [btcToDoc(uint256 btcAmount)](#btctodoc)
+- [bproxToBtc(uint256 bproxAmount, bytes32 bucket)](#bproxtobtc)
+- [bproxToBtcHelper(uint256 bproxAmount, bytes32 bucket)](#bproxtobtchelper)
+- [btcToBProx(uint256 btcAmount, bytes32 bucket)](#btctobprox)
 - [setMoCToken(address mocTokenAddress)](#setmoctoken)
 - [getMoCToken()](#getmoctoken)
 - [setMoCVendors(address mocVendorsAddress)](#setmocvendors)
@@ -286,6 +388,8 @@ blocks there are in a day
 
 ### subtractRbtcFromSystem
 
+⤾ overrides [IMoCState.subtractRbtcFromSystem](IMoCState.md#subtractrbtcfromsystem)
+
 Subtract the btc amount passed by parameter to the total Bitcoin Amount
 
 ```js
@@ -299,6 +403,8 @@ function subtractRbtcFromSystem(uint256 btcAmount) public nonpayable onlyWhiteli
 | btcAmount | uint256 | Amount that will be subtract to rbtcInSystem | 
 
 ### addToRbtcInSystem
+
+⤾ overrides [IMoCState.addToRbtcInSystem](IMoCState.md#addtorbtcinsystem)
 
 btcAmount Add the btc amount passed by parameter to the total Bitcoin Amount
 
@@ -370,6 +476,8 @@ returns(uint256)
 
 ### globalCoverage
 
+⤾ overrides [IMoCState.globalCoverage](IMoCState.md#globalcoverage)
+
 GLOBAL Coverage
 
 ```js
@@ -426,6 +534,8 @@ Bitcoin amount of BitPro in Bucket [using reservePrecision]
 
 ### getRbtcRemainder
 
+⤾ overrides [IMoCState.getRbtcRemainder](IMoCState.md#getrbtcremainder)
+
 Gets the RBTC in the contract that not corresponds to Doc collateral
 
 ```js
@@ -443,6 +553,8 @@ RBTC remainder [using reservePrecision]
 | ------------- |------------- | -----|
 
 ### coverage
+
+⤾ overrides [IMoCState.coverage](IMoCState.md#coverage)
 
 BUCKET Coverage
 
@@ -463,6 +575,8 @@ coverage [using coveragePrecision]
 
 ### abundanceRatio
 
+⤾ overrides [IMoCState.abundanceRatio](IMoCState.md#abundanceratio)
+
 Abundance ratio, receives tha amount of doc to use the value of doc0 and Doc total supply
 
 ```js
@@ -482,6 +596,8 @@ abundance ratio [using mocPrecision]
 
 ### currentAbundanceRatio
 
+⤾ overrides [IMoCState.currentAbundanceRatio](IMoCState.md#currentabundanceratio)
+
 Relation between docs in bucket 0 and Doc total supply
 
 ```js
@@ -499,6 +615,8 @@ abundance ratio [using mocPrecision]
 | ------------- |------------- | -----|
 
 ### leverage
+
+⤾ overrides [IMoCState.leverage](IMoCState.md#leverage)
 
 BUCKET Leverage
 
@@ -536,6 +654,8 @@ abundance ratio [using mocPrecision]
 | ------------- |------------- | -----|
 
 ### freeDoc
+
+⤾ overrides [IMoCState.freeDoc](IMoCState.md#freedoc)
 
 Returns the amount of DoCs in bucket 0, that can be redeemed outside of settlement
 
@@ -591,6 +711,8 @@ maxBPro for redeem [using reservePrecision]
 | ------------- |------------- | -----|
 
 ### absoluteMaxDoc
+
+⤾ overrides [IMoCState.absoluteMaxDoc](IMoCState.md#absolutemaxdoc)
 
 ABSOLUTE maxDoc
 
@@ -648,6 +770,8 @@ maxBProx [using reservePrecision]
 
 ### maxBProxBtcValue
 
+⤾ overrides [IMoCState.maxBProxBtcValue](IMoCState.md#maxbproxbtcvalue)
+
 GLOBAL max bprox to mint
 
 ```js
@@ -667,6 +791,8 @@ maxBProx BTC value to mint [using reservePrecision]
 
 ### absoluteMaxBPro
 
+⤾ overrides [IMoCState.absoluteMaxBPro](IMoCState.md#absolutemaxbpro)
+
 ABSOLUTE maxBPro
 
 ```js
@@ -684,6 +810,8 @@ maxDoc to issue [using mocPrecision]
 | ------------- |------------- | -----|
 
 ### maxBProWithDiscount
+
+⤾ overrides [IMoCState.maxBProWithDiscount](IMoCState.md#maxbprowithdiscount)
 
 DISCOUNT maxBPro
 
@@ -721,6 +849,8 @@ lockedBitcoin amount [using reservePrecision]
 
 ### bproTecPrice
 
+⤾ overrides [IMoCState.bproTecPrice](IMoCState.md#bprotecprice)
+
 BTC price of BPro
 
 ```js
@@ -738,6 +868,8 @@ the BPro Tec Price [using reservePrecision]
 | ------------- |------------- | -----|
 
 ### bucketBProTecPrice
+
+⤾ overrides [IMoCState.bucketBProTecPrice](IMoCState.md#bucketbprotecprice)
 
 BUCKET BTC price of BPro
 
@@ -758,6 +890,8 @@ the BPro Tec Price [using reservePrecision]
 
 ### bucketBProTecPriceHelper
 
+⤾ overrides [IMoCState.bucketBProTecPriceHelper](IMoCState.md#bucketbprotecpricehelper)
+
 BUCKET BTC price of BPro (helper)
 
 ```js
@@ -776,6 +910,8 @@ the BPro Tec Price [using reservePrecision]
 | bucket | bytes32 | Name of the bucket used | 
 
 ### bproDiscountPrice
+
+⤾ overrides [IMoCState.bproDiscountPrice](IMoCState.md#bprodiscountprice)
 
 BTC price of BPro with spot discount applied
 
@@ -851,6 +987,8 @@ BProx BPro Price [using mocPrecision]
 
 ### bproSpotDiscountRate
 
+⤾ overrides [IMoCState.bproSpotDiscountRate](IMoCState.md#bprospotdiscountrate)
+
 GLOBAL BTC Discount rate to apply to BProPrice.
 
 ```js
@@ -868,6 +1006,8 @@ BPro discount rate [using DISCOUNT_PRECISION].
 | ------------- |------------- | -----|
 
 ### daysToSettlement
+
+⤾ overrides [IMoCState.daysToSettlement](IMoCState.md#daystosettlement)
 
 ⤿ Overridden Implementation(s): [MoCStateMock.daysToSettlement](MoCStateMock.md#daystosettlement)
 
@@ -926,6 +1066,8 @@ true if liquidation state is reached, false otherwise
 
 ### getLiquidationPrice
 
+⤾ overrides [IMoCState.getLiquidationPrice](IMoCState.md#getliquidationprice)
+
 Gets the price to use for doc redeem in a liquidation event
 
 ```js
@@ -943,6 +1085,8 @@ price to use for doc redeem in a liquidation event
 | ------------- |------------- | -----|
 
 ### getBucketNBTC
+
+⤾ overrides [IMoCState.getBucketNBTC](IMoCState.md#getbucketnbtc)
 
 ```js
 function getBucketNBTC(bytes32 bucket) public view
@@ -1020,6 +1164,8 @@ returns(uint256)
 | ------------- |------------- | -----|
 
 ### getBitcoinPrice
+
+⤾ overrides [IMoCState.getBitcoinPrice](IMoCState.md#getbitcoinprice)
 
 ```js
 function getBitcoinPrice() public view
@@ -1140,6 +1286,8 @@ function setPeg(uint256 _peg) public nonpayable onlyAuthorizedChanger
 
 ### getProtected
 
+⤾ overrides [IMoCState.getProtected](IMoCState.md#getprotected)
+
 return the value of the protected threshold configuration param
 
 ```js
@@ -1203,6 +1351,8 @@ function setLiquidationEnabled(bool _liquidationEnabled) public nonpayable onlyA
 | _liquidationEnabled | bool | is liquidation enabled | 
 
 ### nextState
+
+⤾ overrides [IMoCState.nextState](IMoCState.md#nextstate)
 
 Transitions to next state.
 
@@ -1281,6 +1431,8 @@ MoC price provider address
 
 ### getMoCPrice
 
+⤾ overrides [IMoCState.getMoCPrice](IMoCState.md#getmocprice)
+
 Gets the MoCPrice
 
 ```js
@@ -1297,6 +1449,120 @@ MoC price
 | Name        | Type           | Description  |
 | ------------- |------------- | -----|
 
+### bproToBtc
+
+BTC equivalent for the amount of bpros given
+
+```js
+function bproToBtc(uint256 amount) public view
+returns(uint256)
+```
+
+**Returns**
+
+total BTC Price of the amount BPros [using reservePrecision]
+
+**Arguments**
+
+| Name        | Type           | Description  |
+| ------------- |------------- | -----|
+| amount | uint256 | Amount of BPro to calculate the total price | 
+
+### btcToBPro
+
+Converts BTC to BPro
+
+```js
+function btcToBPro(uint256 btcAmount) public view
+returns(uint256)
+```
+
+**Returns**
+
+BPro amount
+
+**Arguments**
+
+| Name        | Type           | Description  |
+| ------------- |------------- | -----|
+| btcAmount | uint256 | BTC amount | 
+
+### docsToBtc
+
+⤾ overrides [IMoCState.docsToBtc](IMoCState.md#docstobtc)
+
+```js
+function docsToBtc(uint256 docAmount) public view
+returns(uint256)
+```
+
+**Arguments**
+
+| Name        | Type           | Description  |
+| ------------- |------------- | -----|
+| docAmount | uint256 |  | 
+
+### btcToDoc
+
+⤾ overrides [IMoCState.btcToDoc](IMoCState.md#btctodoc)
+
+```js
+function btcToDoc(uint256 btcAmount) public view
+returns(uint256)
+```
+
+**Arguments**
+
+| Name        | Type           | Description  |
+| ------------- |------------- | -----|
+| btcAmount | uint256 |  | 
+
+### bproxToBtc
+
+⤾ overrides [IMoCState.bproxToBtc](IMoCState.md#bproxtobtc)
+
+```js
+function bproxToBtc(uint256 bproxAmount, bytes32 bucket) public view
+returns(uint256)
+```
+
+**Arguments**
+
+| Name        | Type           | Description  |
+| ------------- |------------- | -----|
+| bproxAmount | uint256 |  | 
+| bucket | bytes32 |  | 
+
+### bproxToBtcHelper
+
+```js
+function bproxToBtcHelper(uint256 bproxAmount, bytes32 bucket) internal view
+returns(uint256)
+```
+
+**Arguments**
+
+| Name        | Type           | Description  |
+| ------------- |------------- | -----|
+| bproxAmount | uint256 |  | 
+| bucket | bytes32 |  | 
+
+### btcToBProx
+
+⤾ overrides [IMoCState.btcToBProx](IMoCState.md#btctobprox)
+
+```js
+function btcToBProx(uint256 btcAmount, bytes32 bucket) public view
+returns(uint256)
+```
+
+**Arguments**
+
+| Name        | Type           | Description  |
+| ------------- |------------- | -----|
+| btcAmount | uint256 |  | 
+| bucket | bytes32 |  | 
+
 ### setMoCToken
 
 Sets the MoC token contract address
@@ -1312,6 +1578,8 @@ function setMoCToken(address mocTokenAddress) public nonpayable onlyAuthorizedCh
 | mocTokenAddress | address | MoC token contract address | 
 
 ### getMoCToken
+
+⤾ overrides [IMoCState.getMoCToken](IMoCState.md#getmoctoken)
 
 Gets the MoC token contract address
 
@@ -1344,6 +1612,8 @@ function setMoCVendors(address mocVendorsAddress) public nonpayable onlyAuthoriz
 | mocVendorsAddress | address | MoCVendors contract address | 
 
 ### getMoCVendors
+
+⤾ overrides [IMoCState.getMoCVendors](IMoCState.md#getmocvendors)
 
 Gets the MoCVendors contract addfress
 

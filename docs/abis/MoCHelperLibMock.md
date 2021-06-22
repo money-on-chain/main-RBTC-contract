@@ -15,14 +15,16 @@ View Source: [contracts/mocks/MoCHelperLibMock.sol](../../contracts/mocks/MoCHel
 
 ```js
 struct MoCHelperLib.MocLibConfig internal mocLibConfig;
-
 ```
+---
 
-**Events**
+## MethodCalled
 
-```js
-event MethodCalled(bytes32  name);
-```
+**Parameters**
+
+| Name        | Type           | Description  |
+| ------------- |------------- | -----|
+| name | bytes32 |  | 
 
 ## Functions
 

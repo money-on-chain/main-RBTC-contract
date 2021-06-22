@@ -1,4 +1,4 @@
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 interface IMoCExchange {
     function getMoCTokenBalance(address owner, address spender) external view
@@ -24,8 +24,6 @@ interface IMoCExchange {
 
     function redeemAllDoc(address origin, address payable destination) external
     returns (uint256);
-
-    function convertToMoCPrice(uint256 btcAmount) external view returns (uint256, uint256, uint256);
 
     function forceRedeemBProx(bytes32 bucket, address payable account, uint256 bproxAmount, uint256 bproxPrice)
     external returns (bool);

@@ -1,65 +1,153 @@
 [
   {
-    "constant": true,
-    "inputs": [],
-    "name": "getReservePrecision",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "governor",
-    "outputs": [
-      {
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
+    "anonymous": false,
     "inputs": [
       {
-        "name": "",
+        "indexed": false,
+        "internalType": "address",
+        "name": "account",
         "type": "address"
       }
     ],
-    "name": "vendors",
-    "outputs": [
+    "name": "TotalPaidInMoCReset",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
       {
-        "name": "isActive",
-        "type": "bool"
+        "indexed": false,
+        "internalType": "address",
+        "name": "vendorGuardianAddress",
+        "type": "address"
+      }
+    ],
+    "name": "VendorGuardianAddressChanged",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "vendorAdress",
+        "type": "address"
       },
       {
-        "name": "markup",
-        "type": "uint256"
-      },
-      {
-        "name": "totalPaidInMoC",
-        "type": "uint256"
-      },
-      {
-        "name": "staking",
-        "type": "uint256"
-      },
-      {
+        "indexed": false,
+        "internalType": "uint256",
         "name": "paidMoC",
         "type": "uint256"
       },
       {
+        "indexed": false,
+        "internalType": "uint256",
         "name": "paidRBTC",
         "type": "uint256"
+      }
+    ],
+    "name": "VendorReceivedMarkup",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "markup",
+        "type": "uint256"
+      }
+    ],
+    "name": "VendorRegistered",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "staking",
+        "type": "uint256"
+      }
+    ],
+    "name": "VendorStakeAdded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "staking",
+        "type": "uint256"
+      }
+    ],
+    "name": "VendorStakeRemoved",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
+    ],
+    "name": "VendorUnregistered",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "markup",
+        "type": "uint256"
+      }
+    ],
+    "name": "VendorUpdated",
+    "type": "event"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "BUCKET_C0",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
       }
     ],
     "payable": false,
@@ -72,6 +160,7 @@
     "name": "BUCKET_X2",
     "outputs": [
       {
+        "internalType": "bytes32",
         "name": "",
         "type": "bytes32"
       }
@@ -86,36 +175,9 @@
     "name": "VENDORS_LIST_ARRAY_MAX_LENGTH",
     "outputs": [
       {
+        "internalType": "uint8",
         "name": "",
         "type": "uint8"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "connector",
-    "outputs": [
-      {
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "vendorGuardianAddress",
-    "outputs": [
-      {
-        "name": "",
-        "type": "address"
       }
     ],
     "payable": false,
@@ -128,6 +190,7 @@
     "name": "VENDOR_MAX_MARKUP",
     "outputs": [
       {
+        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -140,6 +203,7 @@
     "constant": false,
     "inputs": [
       {
+        "internalType": "contract IGovernor",
         "name": "newIGovernor",
         "type": "address"
       }
@@ -152,31 +216,13 @@
   },
   {
     "constant": true,
-    "inputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "vendorsList",
+    "inputs": [],
+    "name": "connector",
     "outputs": [
       {
+        "internalType": "contract MoCConnector",
         "name": "",
         "type": "address"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "BUCKET_C0",
-    "outputs": [
-      {
-        "name": "",
-        "type": "bytes32"
       }
     ],
     "payable": false,
@@ -189,6 +235,7 @@
     "name": "getDayPrecision",
     "outputs": [
       {
+        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -203,6 +250,7 @@
     "name": "getMocPrecision",
     "outputs": [
       {
+        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -212,114 +260,123 @@
     "type": "function"
   },
   {
-    "anonymous": false,
-    "inputs": [
+    "constant": true,
+    "inputs": [],
+    "name": "getReservePrecision",
+    "outputs": [
       {
-        "indexed": false,
-        "name": "account",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "name": "markup",
+        "internalType": "uint256",
+        "name": "",
         "type": "uint256"
       }
     ],
-    "name": "VendorRegistered",
-    "type": "event"
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    "anonymous": false,
+    "constant": true,
+    "inputs": [],
+    "name": "governor",
+    "outputs": [
+      {
+        "internalType": "contract IGovernor",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "vendorGuardianAddress",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
     "inputs": [
       {
-        "indexed": false,
-        "name": "account",
+        "internalType": "address",
+        "name": "",
         "type": "address"
+      }
+    ],
+    "name": "vendors",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "isActive",
+        "type": "bool"
       },
       {
-        "indexed": false,
+        "internalType": "uint256",
         "name": "markup",
         "type": "uint256"
-      }
-    ],
-    "name": "VendorUpdated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "name": "account",
-        "type": "address"
-      }
-    ],
-    "name": "VendorUnregistered",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "name": "account",
-        "type": "address"
       },
       {
-        "indexed": false,
+        "internalType": "uint256",
+        "name": "totalPaidInMoC",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
         "name": "staking",
         "type": "uint256"
       }
     ],
-    "name": "VendorStakeAdded",
-    "type": "event"
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    "anonymous": false,
+    "constant": true,
     "inputs": [
       {
-        "indexed": false,
-        "name": "account",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "name": "staking",
+        "internalType": "uint256",
+        "name": "",
         "type": "uint256"
       }
     ],
-    "name": "VendorStakeRemoved",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
+    "name": "vendorsList",
+    "outputs": [
       {
-        "indexed": false,
-        "name": "account",
+        "internalType": "address",
+        "name": "",
         "type": "address"
       }
     ],
-    "name": "TotalPaidInMoCReset",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "name": "vendorGuardianAddress",
-        "type": "address"
-      }
-    ],
-    "name": "VendorGuardianAddressChanged",
-    "type": "event"
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
   },
   {
     "constant": false,
     "inputs": [
       {
+        "internalType": "address",
+        "name": "connectorAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
         "name": "_governor",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_vendorGuardianAddress",
         "type": "address"
       }
     ],
@@ -333,15 +390,8 @@
     "constant": false,
     "inputs": [
       {
-        "name": "connectorAddress",
-        "type": "address"
-      },
-      {
+        "internalType": "contract IGovernor",
         "name": "_governor",
-        "type": "address"
-      },
-      {
-        "name": "_vendorGuardianAddress",
         "type": "address"
       }
     ],
@@ -357,6 +407,7 @@
     "name": "getVendorsCount",
     "outputs": [
       {
+        "internalType": "uint256",
         "name": "vendorsCount",
         "type": "uint256"
       }
@@ -369,10 +420,12 @@
     "constant": false,
     "inputs": [
       {
+        "internalType": "address",
         "name": "account",
         "type": "address"
       },
       {
+        "internalType": "uint256",
         "name": "markup",
         "type": "uint256"
       }
@@ -380,6 +433,7 @@
     "name": "registerVendor",
     "outputs": [
       {
+        "internalType": "bool",
         "name": "isActive",
         "type": "bool"
       }
@@ -392,6 +446,7 @@
     "constant": false,
     "inputs": [
       {
+        "internalType": "address",
         "name": "account",
         "type": "address"
       }
@@ -399,6 +454,7 @@
     "name": "unregisterVendor",
     "outputs": [
       {
+        "internalType": "bool",
         "name": "isActive",
         "type": "bool"
       }
@@ -411,6 +467,7 @@
     "constant": false,
     "inputs": [
       {
+        "internalType": "uint256",
         "name": "staking",
         "type": "uint256"
       }
@@ -425,6 +482,7 @@
     "constant": false,
     "inputs": [
       {
+        "internalType": "uint256",
         "name": "staking",
         "type": "uint256"
       }
@@ -439,24 +497,29 @@
     "constant": false,
     "inputs": [
       {
+        "internalType": "address",
         "name": "account",
         "type": "address"
       },
       {
+        "internalType": "uint256",
         "name": "mocAmount",
         "type": "uint256"
       },
       {
+        "internalType": "uint256",
         "name": "rbtcAmount",
-        "type": "uint256"
-      },
-      {
-        "name": "totalMoCAmount",
         "type": "uint256"
       }
     ],
     "name": "updatePaidMarkup",
-    "outputs": [],
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
     "payable": false,
     "stateMutability": "nonpayable",
     "type": "function"
@@ -465,6 +528,7 @@
     "constant": true,
     "inputs": [
       {
+        "internalType": "address",
         "name": "account",
         "type": "address"
       }
@@ -472,6 +536,7 @@
     "name": "getIsActive",
     "outputs": [
       {
+        "internalType": "bool",
         "name": "",
         "type": "bool"
       }
@@ -484,6 +549,7 @@
     "constant": true,
     "inputs": [
       {
+        "internalType": "address",
         "name": "account",
         "type": "address"
       }
@@ -491,6 +557,7 @@
     "name": "getMarkup",
     "outputs": [
       {
+        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -503,6 +570,7 @@
     "constant": true,
     "inputs": [
       {
+        "internalType": "address",
         "name": "account",
         "type": "address"
       }
@@ -510,6 +578,7 @@
     "name": "getTotalPaidInMoC",
     "outputs": [
       {
+        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -522,6 +591,7 @@
     "constant": true,
     "inputs": [
       {
+        "internalType": "address",
         "name": "account",
         "type": "address"
       }
@@ -529,44 +599,7 @@
     "name": "getStaking",
     "outputs": [
       {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "name": "account",
-        "type": "address"
-      }
-    ],
-    "name": "getPaidMoC",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "name": "account",
-        "type": "address"
-      }
-    ],
-    "name": "getPaidRBTC",
-    "outputs": [
-      {
+        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -590,6 +623,7 @@
     "name": "getVendorGuardianAddress",
     "outputs": [
       {
+        "internalType": "address",
         "name": "",
         "type": "address"
       }
@@ -602,6 +636,7 @@
     "constant": false,
     "inputs": [
       {
+        "internalType": "address",
         "name": "_vendorGuardianAddress",
         "type": "address"
       }

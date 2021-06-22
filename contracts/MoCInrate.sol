@@ -1,4 +1,4 @@
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 pragma experimental ABIEncoderV2;
 
 import "moc-governance/contracts/Governance/Governed.sol";
@@ -6,7 +6,6 @@ import "moc-governance/contracts/Governance/IGovernor.sol";
 import "./MoCLibConnection.sol";
 import "./interface/IMoCState.sol";
 import "./MoCBProxManager.sol";
-import "./MoCConverter.sol";
 import "./base/MoCBase.sol";
 import "./interface/IMoCVendors.sol";
 import "./interface/IMoCInrate.sol";
@@ -83,7 +82,9 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
 
   /**CONTRACTS**/
   IMoCState internal mocState;
-  MoCConverter internal mocConverter;
+  /** DEPRECATED **/
+  // solium-disable-next-line mixedcase
+  address internal DEPRECATED_mocConverter;
   MoCBProxManager internal bproxManager;
 
   /************************************/
@@ -384,7 +385,7 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
   function calcCommissionValue(uint256 rbtcAmount, uint8 txType)
   public view returns(uint256) {
     // Validate txType
-    require (txType > 0, "Invalid transaction type 'txType'");
+    require (txType > 0, "Invalid txType");
 
     uint256 finalCommissionAmount = rbtcAmount.mul(commissionRatesByTxType[txType]).div(mocLibConfig.mocPrecision);
     return finalCommissionAmount;
@@ -530,7 +531,7 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
   */
   function calcFullRedeemInterestValue(bytes32 bucket) internal view returns(uint256) {
     // Value in RBTC of all BProxs in the bucket
-    uint256 fullBProxRbtcValue = mocConverter.bproxToBtc(bproxManager.getBucketNBPro(bucket), bucket);
+    uint256 fullBProxRbtcValue = mocState.bproxToBtc(bproxManager.getBucketNBPro(bucket), bucket);
     // Interests to return if a redemption of all Bprox is done
     return calcRedeemInterestValue(bucket, fullBProxRbtcValue); // Redeem
   }
@@ -544,7 +545,7 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
   function simulateDocMovement(bytes32 bucket, uint256 btcAmount, bool onMinting) internal view returns(uint256) {
     // Calculates docs to move
     uint256 btcToMove = mocLibConfig.bucketTransferAmount(btcAmount, mocState.leverage(bucket));
-    uint256 docsToMove = mocConverter.btcToDoc(btcToMove);
+    uint256 docsToMove = mocState.btcToDoc(btcToMove);
 
     if (onMinting) {
       /* Should not happen when minting bpro because it's
@@ -591,7 +592,6 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
   function initializeContracts() internal {
     bproxManager = MoCBProxManager(connector.bproxManager());
     mocState = IMoCState(connector.mocState());
-    mocConverter = MoCConverter(connector.mocConverter());
   }
 
   /**
