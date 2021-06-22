@@ -8,7 +8,7 @@ original_id: MoC
 
 View Source: [contracts/MoC.sol](../../contracts/MoC.sol)
 
-**↗ Extends: [MoCEvents](MoCEvents.md), [MoCLibConnection](MoCLibConnection.md), [MoCBase](MoCBase.md), [Stoppable](Stoppable.md)**
+**↗ Extends: [MoCEvents](MoCEvents.md), [MoCLibConnection](MoCLibConnection.md), [MoCBase](MoCBase.md), [Stoppable](Stoppable.md), [IMoC](IMoC.md)**
 
 **MoC** - version: 0.1.10
 
@@ -16,31 +16,75 @@ View Source: [contracts/MoC.sol](../../contracts/MoC.sol)
 **Constants & Variables**
 
 ```js
-//internal members
-contract DocToken internal docToken;
-contract BProToken internal bproToken;
-contract MoCBProxManager internal bproxManager;
-contract MoCState internal mocState;
-contract MoCConverter internal mocConverter;
-contract MoCSettlement internal settlement;
-contract MoCExchange internal mocExchange;
-contract MoCInrate internal mocInrate;
-bool internal liquidationExecuted;
-
-//public members
-address public DEPRECATED_mocBurnout;
-
-//private members
-uint256[50] private upgradeGap;
-
+address internal docToken;
 ```
-
-**Events**
+---
 
 ```js
-event BucketLiquidation(bytes32  bucket);
-event ContractLiquidated(address  mocAddress);
+address internal bproToken;
 ```
+---
+
+```js
+contract MoCBProxManager internal bproxManager;
+```
+---
+
+```js
+contract IMoCState internal mocState;
+```
+---
+
+```js
+address internal DEPRECATED_mocConverter;
+```
+---
+
+```js
+contract IMoCSettlement internal settlement;
+```
+---
+
+```js
+contract IMoCExchange internal mocExchange;
+```
+---
+
+```js
+contract IMoCInrate internal mocInrate;
+```
+---
+
+```js
+bool internal liquidationExecuted;
+```
+---
+
+```js
+address public DEPRECATED_mocBurnout;
+```
+---
+
+```js
+uint256[50] private upgradeGap;
+```
+---
+
+## BucketLiquidation
+
+**Parameters**
+
+| Name        | Type           | Description  |
+| ------------- |------------- | -----|
+| bucket | bytes32 |  | 
+
+## ContractLiquidated
+
+**Parameters**
+
+| Name        | Type           | Description  |
+| ------------- |------------- | -----|
+| mocAddress | address |  | 
 
 ## Modifiers
 
@@ -68,38 +112,38 @@ modifier whenSettlementReady() internal
 ### atState
 
 ```js
-modifier atState(enum MoCState.States _state) internal
+modifier atState(enum IMoCState.States _state) internal
 ```
 
 **Arguments**
 
 | Name        | Type           | Description  |
 | ------------- |------------- | -----|
-| _state | enum MoCState.States |  | 
+| _state | enum IMoCState.States |  | 
 
 ### atLeastState
 
 ```js
-modifier atLeastState(enum MoCState.States _state) internal
+modifier atLeastState(enum IMoCState.States _state) internal
 ```
 
 **Arguments**
 
 | Name        | Type           | Description  |
 | ------------- |------------- | -----|
-| _state | enum MoCState.States |  | 
+| _state | enum IMoCState.States |  | 
 
 ### atMostState
 
 ```js
-modifier atMostState(enum MoCState.States _state) internal
+modifier atMostState(enum IMoCState.States _state) internal
 ```
 
 **Arguments**
 
 | Name        | Type           | Description  |
 | ------------- |------------- | -----|
-| _state | enum MoCState.States |  | 
+| _state | enum IMoCState.States |  | 
 
 ### notInProtectionMode
 
@@ -170,17 +214,17 @@ modifier transitionState() internal
 - [redeemDocRequest(uint256 docAmount)](#redeemdocrequest)
 - [alterRedeemRequestAmount(bool isAddition, uint256 delta)](#alterredeemrequestamount)
 - [mintBPro(uint256 btcToMint)](#mintbpro)
-- [mintBProVendors(uint256 btcToMint, address vendorAccount)](#mintbprovendors)
+- [mintBProVendors(uint256 btcToMint, address payable vendorAccount)](#mintbprovendors)
 - [redeemBPro(uint256 bproAmount)](#redeembpro)
-- [redeemBProVendors(uint256 bproAmount, address vendorAccount)](#redeembprovendors)
+- [redeemBProVendors(uint256 bproAmount, address payable vendorAccount)](#redeembprovendors)
 - [mintDoc(uint256 btcToMint)](#mintdoc)
-- [mintDocVendors(uint256 btcToMint, address vendorAccount)](#mintdocvendors)
+- [mintDocVendors(uint256 btcToMint, address payable vendorAccount)](#mintdocvendors)
 - [redeemBProx(bytes32 bucket, uint256 bproxAmount)](#redeembprox)
-- [redeemBProxVendors(bytes32 bucket, uint256 bproxAmount, address vendorAccount)](#redeembproxvendors)
+- [redeemBProxVendors(bytes32 bucket, uint256 bproxAmount, address payable vendorAccount)](#redeembproxvendors)
 - [mintBProx(bytes32 bucket, uint256 btcToMint)](#mintbprox)
-- [mintBProxVendors(bytes32 bucket, uint256 btcToMint, address vendorAccount)](#mintbproxvendors)
+- [mintBProxVendors(bytes32 bucket, uint256 btcToMint, address payable vendorAccount)](#mintbproxvendors)
 - [redeemFreeDoc(uint256 docAmount)](#redeemfreedoc)
-- [redeemFreeDocVendors(uint256 docAmount, address vendorAccount)](#redeemfreedocvendors)
+- [redeemFreeDocVendors(uint256 docAmount, address payable vendorAccount)](#redeemfreedocvendors)
 - [redeemAllDoc()](#redeemalldoc)
 - [dailyInratePayment()](#dailyinratepayment)
 - [payBitProHoldersInterestPayment()](#paybitproholdersinterestpayment)
@@ -197,14 +241,16 @@ modifier transitionState() internal
 - [runSettlement(uint256 steps)](#runsettlement)
 - [sendToAddress(address payable receiver, uint256 btcAmount)](#sendtoaddress)
 - [liquidate()](#liquidate)
-- [transferCommissions(address payable sender, uint256 value, uint256 totalBtcSpent, uint256 btcCommission, uint256 mocCommission, address vendorAccount, uint256 btcMarkup, uint256 mocMarkup)](#transfercommissions)
-- [transferMocCommission(address sender, uint256 mocCommission, address vendorAccount, uint256 mocMarkup, uint256 totalMoCFee)](#transfermoccommission)
-- [redeemWithMoCFees(address sender, uint256 btcCommission, uint256 mocCommission, address vendorAccount, uint256 btcMarkup, uint256 mocMarkup)](#redeemwithmocfees)
+- [transferCommissions(address payable sender, uint256 value, uint256 totalBtcSpent, uint256 btcCommission, uint256 mocCommission, address payable vendorAccount, uint256 btcMarkup, uint256 mocMarkup)](#transfercommissions)
+- [transferMocCommission(address sender, uint256 mocCommission, address vendorAccount, uint256 mocMarkup)](#transfermoccommission)
+- [redeemWithCommission(address payable sender, uint256 btcAmount, uint256 btcCommission, uint256 mocCommission, address payable vendorAccount, uint256 btcMarkup, uint256 mocMarkup)](#redeemWithCommission)
 - [transferBtcCommission(address payable vendorAccount, uint256 btcCommission, uint256 btcMarkup)](#transferbtccommission)
 - [doTransfer(address payable receiver, uint256 btcAmount)](#dotransfer)
 - [doSend(address payable receiver, uint256 btcAmount)](#dosend)
 
 ### 
+
+⤾ overrides [IMoC.](IMoC.md#)
 
 Fallback function
 
@@ -358,7 +404,7 @@ function mintBPro(uint256 btcToMint) public payable
 Mints BPRO and pays the comissions of the operation.
 
 ```js
-function mintBProVendors(uint256 btcToMint, address vendorAccount) public payable whenNotPaused transitionState notInProtectionMode 
+function mintBProVendors(uint256 btcToMint, address payable vendorAccount) public payable whenNotPaused transitionState notInProtectionMode 
 ```
 
 **Arguments**
@@ -366,7 +412,7 @@ function mintBProVendors(uint256 btcToMint, address vendorAccount) public payabl
 | Name        | Type           | Description  |
 | ------------- |------------- | -----|
 | btcToMint | uint256 | Amount in BTC to mint | 
-| vendorAccount | address | Vendor address | 
+| vendorAccount | address payable | Vendor address | 
 
 ### redeemBPro
 
@@ -387,7 +433,7 @@ function redeemBPro(uint256 bproAmount) public nonpayable
 Redeems Bpro Tokens and pays the comissions of the operation
 
 ```js
-function redeemBProVendors(uint256 bproAmount, address vendorAccount) public nonpayable whenNotPaused transitionState atLeastState 
+function redeemBProVendors(uint256 bproAmount, address payable vendorAccount) public nonpayable whenNotPaused transitionState atLeastState 
 ```
 
 **Arguments**
@@ -395,7 +441,7 @@ function redeemBProVendors(uint256 bproAmount, address vendorAccount) public non
 | Name        | Type           | Description  |
 | ------------- |------------- | -----|
 | bproAmount | uint256 | Amount in Bpro | 
-| vendorAccount | address | Vendor address | 
+| vendorAccount | address payable | Vendor address | 
 
 ### mintDoc
 
@@ -416,7 +462,7 @@ function mintDoc(uint256 btcToMint) public payable
 Mint Doc tokens and pays the commisions of the operation
 
 ```js
-function mintDocVendors(uint256 btcToMint, address vendorAccount) public payable whenNotPaused transitionState atLeastState 
+function mintDocVendors(uint256 btcToMint, address payable vendorAccount) public payable whenNotPaused transitionState atLeastState 
 ```
 
 **Arguments**
@@ -424,7 +470,7 @@ function mintDocVendors(uint256 btcToMint, address vendorAccount) public payable
 | Name        | Type           | Description  |
 | ------------- |------------- | -----|
 | btcToMint | uint256 | Amount in RBTC to mint | 
-| vendorAccount | address | Vendor address | 
+| vendorAccount | address payable | Vendor address | 
 
 ### redeemBProx
 
@@ -446,7 +492,7 @@ function redeemBProx(bytes32 bucket, uint256 bproxAmount) public nonpayable
 Redeems Bprox Tokens and pays the comissions of the operation in RBTC
 
 ```js
-function redeemBProxVendors(bytes32 bucket, uint256 bproxAmount, address vendorAccount) public nonpayable whenNotPaused whenSettlementReady availableBucket notBaseBucket transitionState bucketStateTransition 
+function redeemBProxVendors(bytes32 bucket, uint256 bproxAmount, address payable vendorAccount) public nonpayable whenNotPaused whenSettlementReady availableBucket notBaseBucket transitionState bucketStateTransition 
 ```
 
 **Arguments**
@@ -455,7 +501,7 @@ function redeemBProxVendors(bytes32 bucket, uint256 bproxAmount, address vendorA
 | ------------- |------------- | -----|
 | bucket | bytes32 | Bucket to reedem, for example X2 | 
 | bproxAmount | uint256 | Amount in Bprox | 
-| vendorAccount | address | Vendor address | 
+| vendorAccount | address payable | Vendor address | 
 
 ### mintBProx
 
@@ -477,7 +523,7 @@ function mintBProx(bytes32 bucket, uint256 btcToMint) public payable
 BUCKET bprox minting
 
 ```js
-function mintBProxVendors(bytes32 bucket, uint256 btcToMint, address vendorAccount) public payable whenNotPaused whenSettlementReady availableBucket notBaseBucket transitionState bucketStateTransition 
+function mintBProxVendors(bytes32 bucket, uint256 btcToMint, address payable vendorAccount) public payable whenNotPaused whenSettlementReady availableBucket notBaseBucket transitionState bucketStateTransition 
 ```
 
 **Arguments**
@@ -486,7 +532,7 @@ function mintBProxVendors(bytes32 bucket, uint256 btcToMint, address vendorAccou
 | ------------- |------------- | -----|
 | bucket | bytes32 | Name of the bucket used | 
 | btcToMint | uint256 | amount to mint on RBTC | 
-| vendorAccount | address | Vendor address | 
+| vendorAccount | address payable | Vendor address | 
 
 ### redeemFreeDoc
 
@@ -507,7 +553,7 @@ function redeemFreeDoc(uint256 docAmount) public nonpayable
 Redeems the requested amount for the msg.sender, or the max amount of free docs possible.
 
 ```js
-function redeemFreeDocVendors(uint256 docAmount, address vendorAccount) public nonpayable whenNotPaused transitionState notInProtectionMode 
+function redeemFreeDocVendors(uint256 docAmount, address payable vendorAccount) public nonpayable whenNotPaused transitionState notInProtectionMode 
 ```
 
 **Arguments**
@@ -515,7 +561,7 @@ function redeemFreeDocVendors(uint256 docAmount, address vendorAccount) public n
 | Name        | Type           | Description  |
 | ------------- |------------- | -----|
 | docAmount | uint256 | Amount of Docs to redeem. | 
-| vendorAccount | address | Vendor address | 
+| vendorAccount | address payable | Vendor address | 
 
 ### redeemAllDoc
 
@@ -729,6 +775,8 @@ function runSettlement(uint256 steps) public nonpayable whenNotPaused transition
 
 ### sendToAddress
 
+⤾ overrides [IMoC.sendToAddress](IMoC.md#sendtoaddress)
+
 Send RBTC to a user and update RbtcInSystem in MoCState
 
 ```js
@@ -763,7 +811,7 @@ function liquidate() internal nonpayable
 Transfer mint operation fees (commissions + vendor markup)
 
 ```js
-function transferCommissions(address payable sender, uint256 value, uint256 totalBtcSpent, uint256 btcCommission, uint256 mocCommission, address vendorAccount, uint256 btcMarkup, uint256 mocMarkup) internal nonpayable
+function transferCommissions(address payable sender, uint256 value, uint256 totalBtcSpent, uint256 btcCommission, uint256 mocCommission, address payable vendorAccount, uint256 btcMarkup, uint256 mocMarkup) internal nonpayable
 ```
 
 **Arguments**
@@ -775,7 +823,7 @@ function transferCommissions(address payable sender, uint256 value, uint256 tota
 | totalBtcSpent | uint256 | amount in RBTC spent | 
 | btcCommission | uint256 | commission amount in RBTC | 
 | mocCommission | uint256 | commission amount in MoC | 
-| vendorAccount | address | address of vendor | 
+| vendorAccount | address payable | address of vendor | 
 | btcMarkup | uint256 | vendor markup in RBTC | 
 | mocMarkup | uint256 | vendor markup in MoC | 
 
@@ -784,7 +832,7 @@ function transferCommissions(address payable sender, uint256 value, uint256 tota
 Transfer operation fees in MoC (commissions + vendor markup)
 
 ```js
-function transferMocCommission(address sender, uint256 mocCommission, address vendorAccount, uint256 mocMarkup, uint256 totalMoCFee) internal nonpayable
+function transferMocCommission(address sender, uint256 mocCommission, address vendorAccount, uint256 mocMarkup) internal nonpayable
 ```
 
 **Arguments**
@@ -795,24 +843,24 @@ function transferMocCommission(address sender, uint256 mocCommission, address ve
 | mocCommission | uint256 | commission amount in MoC | 
 | vendorAccount | address | address of vendor | 
 | mocMarkup | uint256 | vendor markup in MoC | 
-| totalMoCFee | uint256 | commission + vendor markup in MoC | 
 
-### redeemWithMoCFees
+### redeemWithCommission
 
 Transfer redeem operation fees (commissions + vendor markup)
 
 ```js
-function redeemWithMoCFees(address sender, uint256 btcCommission, uint256 mocCommission, address vendorAccount, uint256 btcMarkup, uint256 mocMarkup) internal nonpayable
+function redeemWithCommission(address payable sender, uint256 btcAmount, uint256 btcCommission, uint256 mocCommission, address payable vendorAccount, uint256 btcMarkup, uint256 mocMarkup) internal nonpayable
 ```
 
 **Arguments**
 
 | Name        | Type           | Description  |
 | ------------- |------------- | -----|
-| sender | address | address of msg.sender | 
+| sender | address payable | address of msg.sender | 
+| btcAmount | uint256 |  | 
 | btcCommission | uint256 | commission amount in RBTC | 
 | mocCommission | uint256 | commission amount in MoC | 
-| vendorAccount | address | address of vendor | 
+| vendorAccount | address payable | address of vendor | 
 | btcMarkup | uint256 | vendor markup in RBTC | 
 | mocMarkup | uint256 | vendor markup in MoC | 
 

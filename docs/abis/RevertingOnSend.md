@@ -15,17 +15,21 @@ View Source: [contracts/test-contracts/RevertingOnSend.sol](../../contracts/test
 
 ```js
 contract MoC internal moc;
-bool internal acceptMoney;
-
 ```
+---
+
+```js
+bool internal acceptMoney;
+```
+---
 
 ## Functions
 
 - [(address payable mocAddress)](#)
 - [()](#)
 - [setAcceptingMoney(bool accepting)](#setacceptingmoney)
-- [mintBProx(bytes32 bucket, uint256 bproxAmountToMint, address vendorAccount)](#mintbprox)
-- [mintDoc(uint256 docAmountToMint, address vendorAccount)](#mintdoc)
+- [mintBProx(bytes32 bucket, uint256 bproxAmountToMint, address payable vendorAccount)](#mintbprox)
+- [mintDoc(uint256 docAmountToMint, address payable vendorAccount)](#mintdoc)
 - [redeemDoCRequest(uint256 docAmount)](#redeemdocrequest)
 
 ### 
@@ -68,7 +72,7 @@ function setAcceptingMoney(bool accepting) public nonpayable
 ### mintBProx
 
 ```js
-function mintBProx(bytes32 bucket, uint256 bproxAmountToMint, address vendorAccount) public payable
+function mintBProx(bytes32 bucket, uint256 bproxAmountToMint, address payable vendorAccount) public payable
 ```
 
 **Arguments**
@@ -77,12 +81,12 @@ function mintBProx(bytes32 bucket, uint256 bproxAmountToMint, address vendorAcco
 | ------------- |------------- | -----|
 | bucket | bytes32 |  | 
 | bproxAmountToMint | uint256 |  | 
-| vendorAccount | address |  | 
+| vendorAccount | address payable |  | 
 
 ### mintDoc
 
 ```js
-function mintDoc(uint256 docAmountToMint, address vendorAccount) public payable
+function mintDoc(uint256 docAmountToMint, address payable vendorAccount) public payable
 ```
 
 **Arguments**
@@ -90,7 +94,7 @@ function mintDoc(uint256 docAmountToMint, address vendorAccount) public payable
 | Name        | Type           | Description  |
 | ------------- |------------- | -----|
 | docAmountToMint | uint256 |  | 
-| vendorAccount | address |  | 
+| vendorAccount | address payable |  | 
 
 ### redeemDoCRequest
 

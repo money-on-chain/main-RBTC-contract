@@ -22,12 +22,12 @@ module.exports = {
   // for more about customizing your Truffle configuration!
   compilers: {
     solc: {
-      version: '0.5.8',
+      version: '0.5.17',
       evmVersion: 'byzantium',
       settings: {
         optimizer: {
           enabled: true,
-          runs: 1
+          runs: 200
         }
       }
     }
@@ -92,6 +92,7 @@ module.exports = {
     }
   },
   mocha: {
+    reporter: 'eth-gas-reporter',
     useColors: true,
     bail: false,
     enableTimeouts: false

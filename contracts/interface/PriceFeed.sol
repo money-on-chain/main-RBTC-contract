@@ -1,4 +1,4 @@
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 interface PriceFeed {
     function poke(uint128 val_, uint32 zzz_) external;

@@ -1,10 +1,28 @@
 [
   {
+    "inputs": [
+      {
+        "internalType": "contract Medianizer",
+        "name": "_medianizer",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_priceFeed",
+        "type": "address"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
     "constant": true,
     "inputs": [],
     "name": "medianizer",
     "outputs": [
       {
+        "internalType": "contract Medianizer",
         "name": "",
         "type": "address"
       }
@@ -19,6 +37,7 @@
     "name": "priceFeed",
     "outputs": [
       {
+        "internalType": "address",
         "name": "",
         "type": "address"
       }
@@ -26,21 +45,6 @@
     "payable": false,
     "stateMutability": "view",
     "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "name": "_medianizer",
-        "type": "address"
-      },
-      {
-        "name": "_priceFeed",
-        "type": "address"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "constructor"
   },
   {
     "constant": false,

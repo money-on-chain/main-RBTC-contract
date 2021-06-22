@@ -54,8 +54,8 @@ module.exports = async ({ owner, useMock = true }) => {
   // Fix snapshot after moc deploy
   await saveState();
 
-  const mocFunctions = await functionHelper(contracts);
   const precisions = await precisionHelper(contracts.moc);
+  const mocFunctions = await functionHelper(contracts, precisions);
   const asserts = await assertsHelper(precisions);
 
   return {

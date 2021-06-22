@@ -14,32 +14,67 @@ View Source: [moc-governance/contracts/Stopper/Stoppable.sol](../../moc-governan
 **Stoppable** - version: 0.1.10
 
 Allow a contract to be paused through the stopper subsystem. This contracts
-is able to disable the stoppability feature through governance.
+is able to disable the stoppability feature through governance.This contract was heavily based on the _Pausable_ contract of openzeppelin-eth but
+it was modified in order to being able to turn on and off its stopability
 
 ## Contract Members
 **Constants & Variables**
 
 ```js
-//public members
 bool public stoppable;
-address public stopper;
-
-//private members
-bool private _paused;
-string private constant UNSTOPPABLE;
-string private constant CONTRACT_IS_ACTIVE;
-string private constant CONTRACT_IS_PAUSED;
-string private constant NOT_STOPPER;
-uint256[50] private upgradeGap;
-
 ```
-
-**Events**
+---
 
 ```js
-event Paused(address  account);
-event Unpaused(address  account);
+address public stopper;
 ```
+---
+
+```js
+bool private _paused;
+```
+---
+
+```js
+string private constant UNSTOPPABLE;
+```
+---
+
+```js
+string private constant CONTRACT_IS_ACTIVE;
+```
+---
+
+```js
+string private constant CONTRACT_IS_PAUSED;
+```
+---
+
+```js
+string private constant NOT_STOPPER;
+```
+---
+
+```js
+uint256[50] private upgradeGap;
+```
+---
+
+## Paused
+
+**Parameters**
+
+| Name        | Type           | Description  |
+| ------------- |------------- | -----|
+| account | address |  | 
+
+## Unpaused
+
+**Parameters**
+
+| Name        | Type           | Description  |
+| ------------- |------------- | -----|
+| account | address |  | 
 
 ## Modifiers
 
@@ -114,7 +149,8 @@ modifier onlyPauser() internal
 
 ### initialize
 
-Initialize the contract with the basic settings
+Initialize the contract with the basic settingsThis initialize replaces the constructor but it is not called automatically.
+It is necessary because of the upgradeability of the contracts. Either this function or the next can be used
 
 ```js
 function initialize(address _stopper, IGovernor _governor) public nonpayable initializer 
@@ -129,7 +165,8 @@ function initialize(address _stopper, IGovernor _governor) public nonpayable ini
 
 ### initialize
 
-Initialize the contract with the basic settings
+Initialize the contract with the basic settingsThis initialize replaces the constructor but it is not called automatically.
+It is necessary because of the upgradeability of the contracts. Either this function or the previous can be used
 
 ```js
 function initialize(address _stopper, IGovernor _governor, bool _stoppable) public nonpayable initializer 
@@ -159,7 +196,7 @@ returns(bool)
 
 ### pause
 
-Called by the owner to pause, triggers stopped state
+Called by the owner to pause, triggers stopped stateShould only be called by the pauser and when it is stoppable
 
 ```js
 function pause() public nonpayable whenStoppable onlyPauser whenNotPaused 
@@ -186,7 +223,7 @@ function unpause() public nonpayable onlyPauser whenPaused
 ### makeUnstoppable
 
 Switches OFF the stoppability of the contract; if the contract was paused
-it will no longer be so
+it will no longer be soShould be called through governance
 
 ```js
 function makeUnstoppable() public nonpayable onlyAuthorizedChanger 
@@ -200,7 +237,7 @@ function makeUnstoppable() public nonpayable onlyAuthorizedChanger
 ### makeStoppable
 
 Switches ON the stoppability of the contract; if the contract was paused
-before making it unstoppable it will be paused again after calling this function
+before making it unstoppable it will be paused again after calling this functionShould be called through governance
 
 ```js
 function makeStoppable() public nonpayable onlyAuthorizedChanger 
@@ -213,7 +250,7 @@ function makeStoppable() public nonpayable onlyAuthorizedChanger
 
 ### setStopper
 
-Changes the address which is enable to stop this contract
+Changes the address which is enable to stop this contractShould be called through governance
 
 ```js
 function setStopper(address newStopper) public nonpayable onlyAuthorizedChanger 

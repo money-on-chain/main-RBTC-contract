@@ -20,7 +20,6 @@ module.exports = async callback => {
       'MoCSettlement',
       'CommissionSplitter',
       'MoCInrate',
-      'MoCConverter',
       'MoCState',
       'MoCVendors'
     ];

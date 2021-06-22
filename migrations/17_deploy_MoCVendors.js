@@ -19,4 +19,5 @@ module.exports = async (deployer, currentNetwork, [owner]) => {
   if (utils.isDevelopment(currentNetwork))
     await deployUpgradable(MoCSettlementMock, MoCStateMock, index);
   else await deployUpgradable(MoCSettlement, MoCState, index);
+  console.log('finished vendors')
 };

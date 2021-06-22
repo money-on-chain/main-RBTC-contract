@@ -3,10 +3,12 @@
     "constant": false,
     "inputs": [
       {
+        "internalType": "uint128",
         "name": "val_",
         "type": "uint128"
       },
       {
+        "internalType": "uint32",
         "name": "zzz_",
         "type": "uint32"
       }
@@ -21,14 +23,17 @@
     "constant": false,
     "inputs": [
       {
+        "internalType": "uint128",
         "name": "val_",
         "type": "uint128"
       },
       {
+        "internalType": "uint32",
         "name": "zzz_",
         "type": "uint32"
       },
       {
+        "internalType": "address",
         "name": "med_",
         "type": "address"
       }

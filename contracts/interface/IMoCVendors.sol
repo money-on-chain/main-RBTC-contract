@@ -1,4 +1,4 @@
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 interface IMoCVendors {
     function resetTotalPaidInMoC() external;
@@ -15,5 +15,6 @@ interface IMoCVendors {
     function getMarkup(address account) external view
     returns (uint256);
 
-    function updatePaidMarkup(address account, uint256 mocAmount, uint256 rbtcAmount, uint256 totalMoCAmount) external;
+    function updatePaidMarkup(address account, uint256 mocAmount, uint256 rbtcAmount) external
+    returns(bool);
 }

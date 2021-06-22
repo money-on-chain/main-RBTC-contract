@@ -18,8 +18,8 @@ View Source: [moc-governance/contracts/ChangersTemplates/MakeStoppable.sol](../.
 
 ```js
 contract Stoppable internal contractToChange;
-
 ```
+---
 
 ## Functions
 

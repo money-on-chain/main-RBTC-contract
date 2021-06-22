@@ -17,9 +17,13 @@ View Source: [contracts/mocks/MoCPriceProviderMock.sol](../../contracts/mocks/Mo
 
 ```js
 bytes32 internal mocPrice;
-bool internal has;
-
 ```
+---
+
+```js
+bool internal has;
+```
+---
 
 ## Functions
 

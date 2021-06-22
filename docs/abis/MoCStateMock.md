@@ -17,8 +17,8 @@ View Source: [contracts/mocks/MoCStateMock.sol](../../contracts/mocks/MoCStateMo
 
 ```js
 uint256 internal _daysToSettlement;
-
 ```
+---
 
 ## Functions
 

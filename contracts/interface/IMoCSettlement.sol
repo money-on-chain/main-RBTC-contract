@@ -1,4 +1,4 @@
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 interface IMoCSettlement {
     function getRedeemRequestAt(uint256 _index) external view returns (address payable, uint256);

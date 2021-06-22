@@ -1,24 +1,33 @@
 [
   {
+    "inputs": [
+      {
+        "internalType": "contract PriceFactory",
+        "name": "_priceFactory",
+        "type": "address"
+      },
+      {
+        "internalType": "contract Medianizer",
+        "name": "_medianizer",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_priceFeedOwner",
+        "type": "address"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
     "constant": true,
     "inputs": [],
     "name": "medianizer",
     "outputs": [
       {
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "priceFeedOwner",
-    "outputs": [
-      {
+        "internalType": "contract Medianizer",
         "name": "",
         "type": "address"
       }
@@ -33,6 +42,7 @@
     "name": "priceFactory",
     "outputs": [
       {
+        "internalType": "contract PriceFactory",
         "name": "",
         "type": "address"
       }
@@ -42,23 +52,19 @@
     "type": "function"
   },
   {
-    "inputs": [
+    "constant": true,
+    "inputs": [],
+    "name": "priceFeedOwner",
+    "outputs": [
       {
-        "name": "_priceFactory",
-        "type": "address"
-      },
-      {
-        "name": "_medianizer",
-        "type": "address"
-      },
-      {
-        "name": "_priceFeedOwner",
+        "internalType": "address",
+        "name": "",
         "type": "address"
       }
     ],
     "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "constructor"
+    "stateMutability": "view",
+    "type": "function"
   },
   {
     "constant": false,

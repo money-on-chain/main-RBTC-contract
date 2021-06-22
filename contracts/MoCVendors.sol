@@ -1,4 +1,4 @@
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 import "openzeppelin-solidity/contracts/math/Math.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
@@ -37,6 +37,11 @@ contract MoCVendorsEvents {
   event VendorGuardianAddressChanged (
     address vendorGuardianAddress
   );
+  event VendorReceivedMarkup (
+    address vendorAdress,
+    uint256 paidMoC,
+    uint256 paidRBTC
+  );
 }
 
 contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed, IMoCVendors {
@@ -49,8 +54,6 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed, IM
     uint256 markup;
     uint256 totalPaidInMoC;
     uint256 staking; // temporarily retained
-    uint256 paidMoC;
-    uint256 paidRBTC;
   }
 
   // Contracts
@@ -168,11 +171,9 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed, IM
     @param staking Staking the vendor wants to remove
   */
   function removeStake(uint256 staking) public onlyActiveVendor() {
-    IERC20 mocToken = IERC20(mocState.getMoCToken());
-
     require(staking > 0, "Staking should be greater than 0");
-    require(staking <= vendors[msg.sender].totalPaidInMoC, "Vendor total paid is not enough");
 
+    IERC20 mocToken = IERC20(mocState.getMoCToken());
     mocToken.transfer(msg.sender, staking);
     vendors[msg.sender].staking = vendors[msg.sender].staking.sub(staking);
 
@@ -184,14 +185,25 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed, IM
     @param account Vendor address
     @param mocAmount paid markup in MoC
     @param rbtcAmount paid markup in RBTC
-    @param totalMoCAmount total paid in MoC
   */
-  function updatePaidMarkup(address account, uint256 mocAmount, uint256 rbtcAmount, uint256 totalMoCAmount)
+  function updatePaidMarkup(address account, uint256 mocAmount, uint256 rbtcAmount)
   public
-  onlyWhitelisted(msg.sender) {
-    vendors[account].totalPaidInMoC = vendors[account].totalPaidInMoC.add(totalMoCAmount);
-    vendors[account].paidMoC = vendors[account].paidMoC.add(mocAmount);
-    vendors[account].paidRBTC = vendors[account].paidRBTC.add(rbtcAmount);
+  onlyWhitelisted(msg.sender)
+  returns(bool) {
+    VendorDetails memory vendorDetails = vendors[account];
+    if (vendorDetails.isActive &&
+          vendorDetails.totalPaidInMoC.add(mocAmount) <= vendorDetails.staking) {
+      uint256 totalMoCAmount = mocAmount;
+      if (rbtcAmount > 0) {
+        uint256 btcPrice = mocState.getBitcoinPrice();
+        uint256 mocPrice = mocState.getMoCPrice();
+        totalMoCAmount = btcPrice.mul(rbtcAmount).div(mocPrice);
+      }
+      vendors[account].totalPaidInMoC = vendorDetails.totalPaidInMoC.add(totalMoCAmount);
+      emit VendorReceivedMarkup(account, mocAmount, rbtcAmount);
+      return true;
+    }
+    return false;
   }
 
   /**
@@ -232,26 +244,6 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed, IM
   function getStaking(address account) public view
   returns (uint256) {
     return vendors[account].staking;
-  }
-
-  /**
-    @dev Gets vendor paid in MoC
-    @param account Vendor address
-    @return Vendor paid in MoC
-  */
-  function getPaidMoC(address account) public view
-  returns (uint256) {
-    return vendors[account].paidMoC;
-  }
-
-  /**
-    @dev Gets vendor paid in RBTC
-    @param account Vendor address
-    @return Vendor total paid in RBTC
-  */
-  function getPaidRBTC(address account) public view
-  returns (uint256) {
-    return vendors[account].paidRBTC;
   }
 
   /**

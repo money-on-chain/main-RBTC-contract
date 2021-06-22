@@ -1,26 +1,57 @@
 [
   {
-    "constant": true,
-    "inputs": [],
-    "name": "getReservePrecision",
-    "outputs": [
+    "anonymous": false,
+    "inputs": [
       {
-        "name": "",
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "daysToSettlement",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "nReserveBucketC0",
         "type": "uint256"
       }
     ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
+    "name": "InrateDailyPay",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "nReserveBucketC0BeforePay",
+        "type": "uint256"
+      }
+    ],
+    "name": "RiskProHoldersInterestPay",
+    "type": "event"
   },
   {
     "constant": true,
     "inputs": [],
-    "name": "governor",
+    "name": "BUCKET_C0",
     "outputs": [
       {
+        "internalType": "bytes32",
         "name": "",
-        "type": "address"
+        "type": "bytes32"
       }
     ],
     "payable": false,
@@ -30,39 +61,12 @@
   {
     "constant": true,
     "inputs": [],
-    "name": "REDEEM_BTCX_FEES_RBTC",
+    "name": "BUCKET_X2",
     "outputs": [
       {
+        "internalType": "bytes32",
         "name": "",
-        "type": "uint8"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "REDEEM_BPRO_FEES_MOC",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint8"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "MINT_BPRO_FEES_RBTC",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint8"
+        "type": "bytes32"
       }
     ],
     "payable": false,
@@ -75,6 +79,7 @@
     "name": "DEPRECATED_commissionRate",
     "outputs": [
       {
+        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -89,6 +94,7 @@
     "name": "MINT_BPRO_FEES_MOC",
     "outputs": [
       {
+        "internalType": "uint8",
         "name": "",
         "type": "uint8"
       }
@@ -100,11 +106,12 @@
   {
     "constant": true,
     "inputs": [],
-    "name": "docTmax",
+    "name": "MINT_BPRO_FEES_RBTC",
     "outputs": [
       {
+        "internalType": "uint8",
         "name": "",
-        "type": "uint256"
+        "type": "uint8"
       }
     ],
     "payable": false,
@@ -117,6 +124,7 @@
     "name": "MINT_BTCX_FEES_MOC",
     "outputs": [
       {
+        "internalType": "uint8",
         "name": "",
         "type": "uint8"
       }
@@ -128,11 +136,12 @@
   {
     "constant": true,
     "inputs": [],
-    "name": "BUCKET_X2",
+    "name": "MINT_BTCX_FEES_RBTC",
     "outputs": [
       {
+        "internalType": "uint8",
         "name": "",
-        "type": "bytes32"
+        "type": "uint8"
       }
     ],
     "payable": false,
@@ -145,90 +154,7 @@
     "name": "MINT_DOC_FEES_MOC",
     "outputs": [
       {
-        "name": "",
-        "type": "uint8"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "bitProInterestBlockSpan",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "REDEEM_BPRO_FEES_RBTC",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint8"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "bitProRate",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "REDEEM_DOC_FEES_MOC",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint8"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "connector",
-    "outputs": [
-      {
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "REDEEM_BTCX_FEES_MOC",
-    "outputs": [
-      {
+        "internalType": "uint8",
         "name": "",
         "type": "uint8"
       }
@@ -243,6 +169,7 @@
     "name": "MINT_DOC_FEES_RBTC",
     "outputs": [
       {
+        "internalType": "uint8",
         "name": "",
         "type": "uint8"
       }
@@ -254,11 +181,12 @@
   {
     "constant": true,
     "inputs": [],
-    "name": "lastBitProInterestBlock",
+    "name": "REDEEM_BPRO_FEES_MOC",
     "outputs": [
       {
+        "internalType": "uint8",
         "name": "",
-        "type": "uint256"
+        "type": "uint8"
       }
     ],
     "payable": false,
@@ -266,27 +194,59 @@
     "type": "function"
   },
   {
-    "constant": false,
-    "inputs": [
+    "constant": true,
+    "inputs": [],
+    "name": "REDEEM_BPRO_FEES_RBTC",
+    "outputs": [
       {
-        "name": "newIGovernor",
-        "type": "address"
+        "internalType": "uint8",
+        "name": "",
+        "type": "uint8"
       }
     ],
-    "name": "changeIGovernor",
-    "outputs": [],
     "payable": false,
-    "stateMutability": "nonpayable",
+    "stateMutability": "view",
     "type": "function"
   },
   {
     "constant": true,
     "inputs": [],
-    "name": "docPower",
+    "name": "REDEEM_BTCX_FEES_MOC",
     "outputs": [
       {
+        "internalType": "uint8",
         "name": "",
-        "type": "uint256"
+        "type": "uint8"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "REDEEM_BTCX_FEES_RBTC",
+    "outputs": [
+      {
+        "internalType": "uint8",
+        "name": "",
+        "type": "uint8"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "REDEEM_DOC_FEES_MOC",
+    "outputs": [
+      {
+        "internalType": "uint8",
+        "name": "",
+        "type": "uint8"
       }
     ],
     "payable": false,
@@ -299,8 +259,90 @@
     "name": "REDEEM_DOC_FEES_RBTC",
     "outputs": [
       {
+        "internalType": "uint8",
         "name": "",
         "type": "uint8"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "bitProInterestAddress",
+    "outputs": [
+      {
+        "internalType": "address payable",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "bitProInterestBlockSpan",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "bitProRate",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "internalType": "contract IGovernor",
+        "name": "newIGovernor",
+        "type": "address"
+      }
+    ],
+    "name": "changeIGovernor",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "internalType": "uint8",
+        "name": "",
+        "type": "uint8"
+      }
+    ],
+    "name": "commissionRatesByTxType",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
       }
     ],
     "payable": false,
@@ -313,6 +355,7 @@
     "name": "commissionsAddress",
     "outputs": [
       {
+        "internalType": "address payable",
         "name": "",
         "type": "address"
       }
@@ -324,11 +367,42 @@
   {
     "constant": true,
     "inputs": [],
-    "name": "MINT_BTCX_FEES_RBTC",
+    "name": "connector",
     "outputs": [
       {
+        "internalType": "contract MoCConnector",
         "name": "",
-        "type": "uint8"
+        "type": "address"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "docPower",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "docTmax",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
       }
     ],
     "payable": false,
@@ -341,6 +415,7 @@
     "name": "docTmin",
     "outputs": [
       {
+        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -351,15 +426,71 @@
   },
   {
     "constant": true,
-    "inputs": [
-      {
-        "name": "",
-        "type": "uint8"
-      }
-    ],
-    "name": "commissionRatesByTxType",
+    "inputs": [],
+    "name": "getDayPrecision",
     "outputs": [
       {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "getMocPrecision",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "getReservePrecision",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "governor",
+    "outputs": [
+      {
+        "internalType": "contract IGovernor",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "lastBitProInterestBlock",
+    "outputs": [
+      {
+        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -374,6 +505,7 @@
     "name": "lastDailyPayBlock",
     "outputs": [
       {
+        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -381,106 +513,12 @@
     "payable": false,
     "stateMutability": "view",
     "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "BUCKET_C0",
-    "outputs": [
-      {
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "getDayPrecision",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "bitProInterestAddress",
-    "outputs": [
-      {
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [],
-    "name": "getMocPrecision",
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "name": "amount",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "name": "daysToSettlement",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "name": "nReserveBucketC0",
-        "type": "uint256"
-      }
-    ],
-    "name": "InrateDailyPay",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "name": "amount",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "name": "nReserveBucketC0BeforePay",
-        "type": "uint256"
-      }
-    ],
-    "name": "RiskProHoldersInterestPay",
-    "type": "event"
   },
   {
     "constant": false,
     "inputs": [
       {
+        "internalType": "uint256",
         "name": "_docTmin",
         "type": "uint256"
       }
@@ -495,6 +533,7 @@
     "constant": false,
     "inputs": [
       {
+        "internalType": "uint256",
         "name": "_docTmax",
         "type": "uint256"
       }
@@ -509,6 +548,7 @@
     "constant": false,
     "inputs": [
       {
+        "internalType": "uint256",
         "name": "_docPower",
         "type": "uint256"
       }
@@ -525,6 +565,7 @@
     "name": "getDoCTmin",
     "outputs": [
       {
+        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -539,6 +580,7 @@
     "name": "getDoCTmax",
     "outputs": [
       {
+        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -553,6 +595,7 @@
     "name": "getDoCPower",
     "outputs": [
       {
+        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -565,6 +608,7 @@
     "constant": true,
     "inputs": [
       {
+        "internalType": "uint256",
         "name": "docRedeem",
         "type": "uint256"
       }
@@ -572,6 +616,7 @@
     "name": "docInrateAvg",
     "outputs": [
       {
+        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -584,52 +629,71 @@
     "constant": false,
     "inputs": [
       {
-        "name": "connectorAddress",
-        "type": "address"
-      },
-      {
-        "name": "_governor",
-        "type": "address"
-      },
-      {
-        "name": "btcxTmin",
-        "type": "uint256"
-      },
-      {
-        "name": "btcxPower",
-        "type": "uint256"
-      },
-      {
-        "name": "btcxTmax",
-        "type": "uint256"
-      },
-      {
-        "name": "_bitProRate",
-        "type": "uint256"
-      },
-      {
-        "name": "blockSpanBitPro",
-        "type": "uint256"
-      },
-      {
-        "name": "bitProInterestTargetAddress",
-        "type": "address"
-      },
-      {
-        "name": "commissionsAddressTarget",
-        "type": "address"
-      },
-      {
-        "name": "_docTmin",
-        "type": "uint256"
-      },
-      {
-        "name": "_docPower",
-        "type": "uint256"
-      },
-      {
-        "name": "_docTmax",
-        "type": "uint256"
+        "components": [
+          {
+            "internalType": "address",
+            "name": "connectorAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "governor",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "btcxTmin",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "btcxPower",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "btcxTmax",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "bitProRate",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "blockSpanBitPro",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address payable",
+            "name": "bitProInterestTargetAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "address payable",
+            "name": "commissionsAddressTarget",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "docTmin",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "docPower",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "docTmax",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct MoCInrateStructs.InitializeParams",
+        "name": "params",
+        "type": "tuple"
       }
     ],
     "name": "initialize",
@@ -642,6 +706,7 @@
     "constant": false,
     "inputs": [
       {
+        "internalType": "contract IGovernor",
         "name": "_governor",
         "type": "address"
       }
@@ -658,6 +723,7 @@
     "name": "getBtcxTmin",
     "outputs": [
       {
+        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -672,6 +738,7 @@
     "name": "getBtcxTmax",
     "outputs": [
       {
+        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -686,6 +753,7 @@
     "name": "getBtcxPower",
     "outputs": [
       {
+        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -700,6 +768,7 @@
     "name": "getBitProInterestBlockSpan",
     "outputs": [
       {
+        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -712,6 +781,7 @@
     "constant": false,
     "inputs": [
       {
+        "internalType": "uint256",
         "name": "_btxcTmin",
         "type": "uint256"
       }
@@ -726,6 +796,7 @@
     "constant": false,
     "inputs": [
       {
+        "internalType": "uint256",
         "name": "_btxcTax",
         "type": "uint256"
       }
@@ -740,6 +811,7 @@
     "constant": false,
     "inputs": [
       {
+        "internalType": "uint256",
         "name": "_btxcPower",
         "type": "uint256"
       }
@@ -756,6 +828,7 @@
     "name": "getBitProRate",
     "outputs": [
       {
+        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -768,6 +841,7 @@
     "constant": false,
     "inputs": [
       {
+        "internalType": "uint256",
         "name": "newBitProRate",
         "type": "uint256"
       }
@@ -782,6 +856,7 @@
     "constant": false,
     "inputs": [
       {
+        "internalType": "uint256",
         "name": "newBitProBlockSpan",
         "type": "uint256"
       }
@@ -798,6 +873,7 @@
     "name": "getBitProInterestAddress",
     "outputs": [
       {
+        "internalType": "address payable",
         "name": "",
         "type": "address"
       }
@@ -810,6 +886,7 @@
     "constant": false,
     "inputs": [
       {
+        "internalType": "address payable",
         "name": "newBitProInterestAddress",
         "type": "address"
       }
@@ -824,6 +901,7 @@
     "constant": false,
     "inputs": [
       {
+        "internalType": "address payable",
         "name": "newCommissionsAddress",
         "type": "address"
       }
@@ -840,6 +918,7 @@
     "name": "spotInrate",
     "outputs": [
       {
+        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -852,14 +931,17 @@
     "constant": true,
     "inputs": [
       {
+        "internalType": "bytes32",
         "name": "bucket",
         "type": "bytes32"
       },
       {
+        "internalType": "uint256",
         "name": "btcAmount",
         "type": "uint256"
       },
       {
+        "internalType": "bool",
         "name": "onMinting",
         "type": "bool"
       }
@@ -867,6 +949,7 @@
     "name": "btcxInrateAvg",
     "outputs": [
       {
+        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -881,6 +964,7 @@
     "name": "dailyInrate",
     "outputs": [
       {
+        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -893,10 +977,12 @@
     "constant": true,
     "inputs": [
       {
+        "internalType": "bytes32",
         "name": "bucket",
         "type": "bytes32"
       },
       {
+        "internalType": "uint256",
         "name": "rbtcAmount",
         "type": "uint256"
       }
@@ -904,6 +990,7 @@
     "name": "calcMintInterestValues",
     "outputs": [
       {
+        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -916,10 +1003,12 @@
     "constant": true,
     "inputs": [
       {
+        "internalType": "uint256",
         "name": "docAmount",
         "type": "uint256"
       },
       {
+        "internalType": "uint256",
         "name": "rbtcAmount",
         "type": "uint256"
       }
@@ -927,6 +1016,7 @@
     "name": "calcDocRedInterestValues",
     "outputs": [
       {
+        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -939,10 +1029,12 @@
     "constant": true,
     "inputs": [
       {
+        "internalType": "bytes32",
         "name": "bucket",
         "type": "bytes32"
       },
       {
+        "internalType": "uint256",
         "name": "rbtcToRedeem",
         "type": "uint256"
       }
@@ -950,6 +1042,7 @@
     "name": "calcFinalRedeemInterestValue",
     "outputs": [
       {
+        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -962,10 +1055,12 @@
     "constant": true,
     "inputs": [
       {
+        "internalType": "uint256",
         "name": "rbtcAmount",
         "type": "uint256"
       },
       {
+        "internalType": "uint8",
         "name": "txType",
         "type": "uint8"
       }
@@ -973,6 +1068,7 @@
     "name": "calcCommissionValue",
     "outputs": [
       {
+        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -985,10 +1081,12 @@
     "constant": true,
     "inputs": [
       {
+        "internalType": "address",
         "name": "vendorAccount",
         "type": "address"
       },
       {
+        "internalType": "uint256",
         "name": "amount",
         "type": "uint256"
       }
@@ -996,6 +1094,7 @@
     "name": "calculateVendorMarkup",
     "outputs": [
       {
+        "internalType": "uint256",
         "name": "markup",
         "type": "uint256"
       }
@@ -1008,10 +1107,12 @@
     "constant": true,
     "inputs": [
       {
+        "internalType": "bytes32",
         "name": "bucket",
         "type": "bytes32"
       },
       {
+        "internalType": "uint256",
         "name": "rbtcToRedeem",
         "type": "uint256"
       }
@@ -1019,6 +1120,7 @@
     "name": "calcRedeemInterestValue",
     "outputs": [
       {
+        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -1033,6 +1135,7 @@
     "name": "dailyInratePayment",
     "outputs": [
       {
+        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -1047,6 +1150,7 @@
     "name": "isDailyEnabled",
     "outputs": [
       {
+        "internalType": "bool",
         "name": "",
         "type": "bool"
       }
@@ -1061,6 +1165,7 @@
     "name": "isBitProInterestEnabled",
     "outputs": [
       {
+        "internalType": "bool",
         "name": "",
         "type": "bool"
       }
@@ -1075,10 +1180,12 @@
     "name": "calculateBitProHoldersInterest",
     "outputs": [
       {
+        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       },
       {
+        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -1093,6 +1200,7 @@
     "name": "payBitProHoldersInterestPayment",
     "outputs": [
       {
+        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -1105,10 +1213,12 @@
     "constant": false,
     "inputs": [
       {
+        "internalType": "uint8",
         "name": "txType",
         "type": "uint8"
       },
       {
+        "internalType": "uint256",
         "name": "value",
         "type": "uint256"
       }

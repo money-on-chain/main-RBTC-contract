@@ -1,4 +1,4 @@
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 import "../auxiliar/CommissionSplitter.sol";
 import "moc-governance/contracts/Governance/ChangeContract.sol";
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
