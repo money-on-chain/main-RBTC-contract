@@ -5,7 +5,6 @@
     "MoCExchange": "0xc03Ac60eBbc01A1f4e9b5bb989F359e5D8348919",
     "MoCSettlement": "0x367D283c53f8F10e47424e2AeB102F45eCC49FEa",
     "MoCInrate": "0x76790f846FAAf44cf1B2D717d0A6c5f6f5152B60",
-    "MoCConverter": "0x47754fcc7151b00dD792E4eb148214bC349f22BE",
     "MoCState": "0x0adb40132cB0ffcEf6ED81c26A1881e214100555",
     "MoCVendors": "",
     "CommissionSplitter": "0xC003A2e210FA3E2fBdDcf564Fe0E1bbCd93E3B40"
@@ -16,7 +15,6 @@
     "MoCExchange": "",
     "MoCSettlement": "",
     "MoCInrate": "",
-    "MoCConverter": "",
     "MoCState": "",
     "ProxyAdmin": "0xffb65F6E24806B7e1A988EeD1Ad07BB2654fF695",
     "UpgradeDelegator": "0xCDAbFbF334A5F6BCe900D2f73470D1e6722365d8",
