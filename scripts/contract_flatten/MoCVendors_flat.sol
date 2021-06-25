@@ -143,7 +143,7 @@ library SafeMath {
 
 // File: moc-governance/contracts/Governance/ChangeContract.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 /**
   @title ChangeContract
@@ -164,7 +164,7 @@ interface ChangeContract {
 
 // File: moc-governance/contracts/Governance/IGovernor.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 
 /**
@@ -256,7 +256,7 @@ contract Initializable {
 
 // File: moc-governance/contracts/Governance/Governed.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 
 
@@ -311,7 +311,7 @@ contract Governed is Initializable {
 
 // File: contracts/MoCHelperLib.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 
 library MoCHelperLib {
@@ -996,7 +996,7 @@ library MoCHelperLib {
 
 // File: contracts/MoCLibConnection.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 
 /**
@@ -1036,7 +1036,7 @@ contract MoCLibConnection {
 
 // File: contracts/base/MoCWhitelist.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 /**
   @dev Provides access control between all MoC Contracts
@@ -1083,7 +1083,7 @@ contract MoCWhitelist {
 
 // File: contracts/base/MoCConnector.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 
 
@@ -1097,7 +1097,9 @@ contract MoCConnector is MoCWhitelist, Initializable {
   address public bproToken;
   address public bproxManager;
   address public mocState;
-  address public mocConverter;
+  /** DEPRECATED **/
+  // solium-disable-next-line mixedcase
+  address public DEPRECATED_mocConverter;
   address public mocSettlement;
   address public mocExchange;
   address public mocInrate;
@@ -1114,7 +1116,6 @@ contract MoCConnector is MoCWhitelist, Initializable {
     @param bproxAddress BProxManager contract address
     @param stateAddress MoCState contract address
     @param settlementAddress MoCSettlement contract address
-    @param converterAddress MoCConverter contract address
     @param exchangeAddress MoCExchange contract address
     @param inrateAddress MoCInrate contract address
     @param burnoutBookAddress (DEPRECATED) MoCBurnout contract address. DO NOT USE.
@@ -1126,7 +1127,6 @@ contract MoCConnector is MoCWhitelist, Initializable {
     address bproxAddress,
     address stateAddress,
     address settlementAddress,
-    address converterAddress,
     address exchangeAddress,
     address inrateAddress,
     address burnoutBookAddress
@@ -1137,7 +1137,6 @@ contract MoCConnector is MoCWhitelist, Initializable {
     bproxManager = bproxAddress;
     mocState = stateAddress;
     mocSettlement = settlementAddress;
-    mocConverter = converterAddress;
     mocExchange = exchangeAddress;
     mocInrate = inrateAddress;
     mocBurnout = burnoutBookAddress;
@@ -1149,7 +1148,6 @@ contract MoCConnector is MoCWhitelist, Initializable {
     add(bproxAddress);
     add(stateAddress);
     add(settlementAddress);
-    add(converterAddress);
     add(exchangeAddress);
     add(inrateAddress);
     add(burnoutBookAddress);
@@ -1162,7 +1160,7 @@ contract MoCConnector is MoCWhitelist, Initializable {
 
 // File: contracts/base/MoCConstants.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 /**
  * @dev Defines special constants to use along all the MoC System
@@ -1174,7 +1172,7 @@ contract MoCConstants {
 
 // File: contracts/base/MoCBase.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 
 
@@ -1204,7 +1202,7 @@ contract MoCBase is MoCConstants, Initializable {
 
 // File: contracts/interface/IMoC.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 interface IMoC {
     function() external payable;
@@ -1293,7 +1291,7 @@ interface IERC20 {
 
 // File: contracts/interface/IMoCExchange.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 interface IMoCExchange {
     function getMoCTokenBalance(address owner, address spender) external view
@@ -1320,8 +1318,6 @@ interface IMoCExchange {
     function redeemAllDoc(address origin, address payable destination) external
     returns (uint256);
 
-    function convertToMoCPrice(uint256 btcAmount) external view returns (uint256, uint256, uint256);
-
     function forceRedeemBProx(bytes32 bucket, address payable account, uint256 bproxAmount, uint256 bproxPrice)
     external returns (bool);
 
@@ -1331,7 +1327,7 @@ interface IMoCExchange {
 
 // File: contracts/interface/IMoCState.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 interface IMoCState {
 
@@ -1409,11 +1405,19 @@ interface IMoCState {
     function maxBProxBtcValue(bytes32 bucket) external view returns(uint256);
 
     function bucketBProTecPriceHelper(bytes32 bucket) external view returns(uint256);
+
+    // Ex Mocconverter
+    function docsToBtc(uint256 docAmount) external view returns(uint256);
+    function btcToDoc(uint256 btcAmount) external view returns(uint256);
+    function bproxToBtc(uint256 bproxAmount, bytes32 bucket) external view returns(uint256);
+    function btcToBProx(uint256 btcAmount, bytes32 bucket) external view returns(uint256);
+
+
 }
 
 // File: contracts/interface/IMoCVendors.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 interface IMoCVendors {
     function resetTotalPaidInMoC() external;
@@ -1430,12 +1434,13 @@ interface IMoCVendors {
     function getMarkup(address account) external view
     returns (uint256);
 
-    function updatePaidMarkup(address account, uint256 mocAmount, uint256 rbtcAmount, uint256 totalMoCAmount) external;
+    function updatePaidMarkup(address account, uint256 mocAmount, uint256 rbtcAmount) external
+    returns(bool);
 }
 
 // File: contracts/MoCVendors.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 
 
@@ -1473,6 +1478,11 @@ contract MoCVendorsEvents {
   event VendorGuardianAddressChanged (
     address vendorGuardianAddress
   );
+  event VendorReceivedMarkup (
+    address vendorAdress,
+    uint256 paidMoC,
+    uint256 paidRBTC
+  );
 }
 
 contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed, IMoCVendors {
@@ -1485,8 +1495,6 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed, IM
     uint256 markup;
     uint256 totalPaidInMoC;
     uint256 staking; // temporarily retained
-    uint256 paidMoC;
-    uint256 paidRBTC;
   }
 
   // Contracts
@@ -1604,11 +1612,9 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed, IM
     @param staking Staking the vendor wants to remove
   */
   function removeStake(uint256 staking) public onlyActiveVendor() {
-    IERC20 mocToken = IERC20(mocState.getMoCToken());
-
     require(staking > 0, "Staking should be greater than 0");
-    require(staking <= vendors[msg.sender].totalPaidInMoC, "Vendor total paid is not enough");
 
+    IERC20 mocToken = IERC20(mocState.getMoCToken());
     mocToken.transfer(msg.sender, staking);
     vendors[msg.sender].staking = vendors[msg.sender].staking.sub(staking);
 
@@ -1620,14 +1626,25 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed, IM
     @param account Vendor address
     @param mocAmount paid markup in MoC
     @param rbtcAmount paid markup in RBTC
-    @param totalMoCAmount total paid in MoC
   */
-  function updatePaidMarkup(address account, uint256 mocAmount, uint256 rbtcAmount, uint256 totalMoCAmount)
+  function updatePaidMarkup(address account, uint256 mocAmount, uint256 rbtcAmount)
   public
-  onlyWhitelisted(msg.sender) {
-    vendors[account].totalPaidInMoC = vendors[account].totalPaidInMoC.add(totalMoCAmount);
-    vendors[account].paidMoC = vendors[account].paidMoC.add(mocAmount);
-    vendors[account].paidRBTC = vendors[account].paidRBTC.add(rbtcAmount);
+  onlyWhitelisted(msg.sender)
+  returns(bool) {
+    VendorDetails memory vendorDetails = vendors[account];
+    if (vendorDetails.isActive &&
+          vendorDetails.totalPaidInMoC.add(mocAmount) <= vendorDetails.staking) {
+      uint256 totalMoCAmount = mocAmount;
+      if (rbtcAmount > 0) {
+        uint256 btcPrice = mocState.getBitcoinPrice();
+        uint256 mocPrice = mocState.getMoCPrice();
+        totalMoCAmount = btcPrice.mul(rbtcAmount).div(mocPrice);
+      }
+      vendors[account].totalPaidInMoC = vendorDetails.totalPaidInMoC.add(totalMoCAmount);
+      emit VendorReceivedMarkup(account, mocAmount, rbtcAmount);
+      return true;
+    }
+    return false;
   }
 
   /**
@@ -1668,26 +1685,6 @@ contract MoCVendors is MoCVendorsEvents, MoCBase, MoCLibConnection, Governed, IM
   function getStaking(address account) public view
   returns (uint256) {
     return vendors[account].staking;
-  }
-
-  /**
-    @dev Gets vendor paid in MoC
-    @param account Vendor address
-    @return Vendor paid in MoC
-  */
-  function getPaidMoC(address account) public view
-  returns (uint256) {
-    return vendors[account].paidMoC;
-  }
-
-  /**
-    @dev Gets vendor paid in RBTC
-    @param account Vendor address
-    @return Vendor total paid in RBTC
-  */
-  function getPaidRBTC(address account) public view
-  returns (uint256) {
-    return vendors[account].paidRBTC;
   }
 
   /**

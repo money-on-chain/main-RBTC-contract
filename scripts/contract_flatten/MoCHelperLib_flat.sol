@@ -111,7 +111,7 @@ library SafeMath {
 
 // File: contracts/MoCHelperLib.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 
 library MoCHelperLib {

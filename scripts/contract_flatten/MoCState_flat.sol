@@ -33,7 +33,7 @@ library Math {
 
 // File: contracts/interface/PriceProvider.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 interface PriceProvider {
   function peek() external view returns (bytes32, bool);
@@ -151,7 +151,7 @@ library SafeMath {
 
 // File: moc-governance/contracts/Governance/ChangeContract.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 /**
   @title ChangeContract
@@ -172,7 +172,7 @@ interface ChangeContract {
 
 // File: moc-governance/contracts/Governance/IGovernor.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 
 /**
@@ -264,7 +264,7 @@ contract Initializable {
 
 // File: moc-governance/contracts/Governance/Governed.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 
 
@@ -319,7 +319,7 @@ contract Governed is Initializable {
 
 // File: contracts/MoCEMACalculator.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 
 
@@ -430,7 +430,7 @@ contract MoCEMACalculator is Governed {
 
 // File: contracts/base/MoCWhitelist.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 /**
   @dev Provides access control between all MoC Contracts
@@ -477,7 +477,7 @@ contract MoCWhitelist {
 
 // File: contracts/base/MoCConnector.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 
 
@@ -491,7 +491,9 @@ contract MoCConnector is MoCWhitelist, Initializable {
   address public bproToken;
   address public bproxManager;
   address public mocState;
-  address public mocConverter;
+  /** DEPRECATED **/
+  // solium-disable-next-line mixedcase
+  address public DEPRECATED_mocConverter;
   address public mocSettlement;
   address public mocExchange;
   address public mocInrate;
@@ -508,7 +510,6 @@ contract MoCConnector is MoCWhitelist, Initializable {
     @param bproxAddress BProxManager contract address
     @param stateAddress MoCState contract address
     @param settlementAddress MoCSettlement contract address
-    @param converterAddress MoCConverter contract address
     @param exchangeAddress MoCExchange contract address
     @param inrateAddress MoCInrate contract address
     @param burnoutBookAddress (DEPRECATED) MoCBurnout contract address. DO NOT USE.
@@ -520,7 +521,6 @@ contract MoCConnector is MoCWhitelist, Initializable {
     address bproxAddress,
     address stateAddress,
     address settlementAddress,
-    address converterAddress,
     address exchangeAddress,
     address inrateAddress,
     address burnoutBookAddress
@@ -531,7 +531,6 @@ contract MoCConnector is MoCWhitelist, Initializable {
     bproxManager = bproxAddress;
     mocState = stateAddress;
     mocSettlement = settlementAddress;
-    mocConverter = converterAddress;
     mocExchange = exchangeAddress;
     mocInrate = inrateAddress;
     mocBurnout = burnoutBookAddress;
@@ -543,7 +542,6 @@ contract MoCConnector is MoCWhitelist, Initializable {
     add(bproxAddress);
     add(stateAddress);
     add(settlementAddress);
-    add(converterAddress);
     add(exchangeAddress);
     add(inrateAddress);
     add(burnoutBookAddress);
@@ -556,7 +554,7 @@ contract MoCConnector is MoCWhitelist, Initializable {
 
 // File: contracts/base/MoCConstants.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 /**
  * @dev Defines special constants to use along all the MoC System
@@ -568,7 +566,7 @@ contract MoCConstants {
 
 // File: contracts/base/MoCBase.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 
 
@@ -598,7 +596,7 @@ contract MoCBase is MoCConstants, Initializable {
 
 // File: contracts/MoCHelperLib.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 
 library MoCHelperLib {
@@ -1283,7 +1281,7 @@ library MoCHelperLib {
 
 // File: contracts/MoCLibConnection.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 
 /**
@@ -1323,7 +1321,7 @@ contract MoCLibConnection {
 
 // File: contracts/MoCBucketContainer.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 
 
@@ -1616,7 +1614,7 @@ contract MoCBucketContainer is MoCBase, Governed {
 
 // File: contracts/MoCBProxManager.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 
 
@@ -2306,7 +2304,7 @@ contract Ownable {
 
 // File: contracts/token/OwnerBurnableToken.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 
 
@@ -2327,7 +2325,7 @@ contract OwnerBurnableToken is Ownable, ERC20Mintable {
 
 // File: contracts/token/DocToken.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 
 
@@ -2505,7 +2503,7 @@ contract ERC20Pausable is ERC20, Pausable {
 
 // File: contracts/token/BProToken.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 
 
@@ -2531,7 +2529,7 @@ contract BProToken is ERC20Detailed, ERC20Pausable, OwnerBurnableToken {
 
 // File: contracts/token/MoCToken.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 
 
@@ -2557,7 +2555,7 @@ contract MoCToken is ERC20Detailed, OwnerBurnableToken {
 
 // File: contracts/interface/IMoCSettlement.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 interface IMoCSettlement {
     function getRedeemRequestAt(uint256 _index) external view returns (address payable, uint256);
@@ -2581,7 +2579,7 @@ interface IMoCSettlement {
 
 // File: contracts/interface/IMoCState.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 interface IMoCState {
 
@@ -2659,118 +2657,20 @@ interface IMoCState {
     function maxBProxBtcValue(bytes32 bucket) external view returns(uint256);
 
     function bucketBProTecPriceHelper(bytes32 bucket) external view returns(uint256);
-}
 
-// File: contracts/MoCConverter.sol
+    // Ex Mocconverter
+    function docsToBtc(uint256 docAmount) external view returns(uint256);
+    function btcToDoc(uint256 btcAmount) external view returns(uint256);
+    function bproxToBtc(uint256 bproxAmount, bytes32 bucket) external view returns(uint256);
+    function btcToBProx(uint256 btcAmount, bytes32 bucket) external view returns(uint256);
 
-pragma solidity 0.5.8;
 
-
-
-
-contract MoCConverter is MoCBase, MoCLibConnection {
-  IMoCState internal mocState;
-
-  function initialize(address connectorAddress) public initializer {
-    initializePrecisions();
-    initializeBase(connectorAddress);
-    mocState = IMoCState(connector.mocState());
-  }
-
-  /**
-  * @dev BTC equivalent for the amount of bpros given
-  * @param amount Amount of BPro to calculate the total price
-  * @return total BTC Price of the amount BPros [using reservePrecision]
-  */
-  function bproToBtc(uint256 amount) public view returns(uint256) {
-    uint256 tecPrice = mocState.bproTecPrice();
-
-    return mocLibConfig.totalBProInBtc(amount, tecPrice);
-  }
-
-  /**
-  * @dev Converts BTC to BPro
-  * @param btcAmount BTC amount
-  * @return BPro amount
-  */
-  function btcToBPro(uint256 btcAmount) public view returns(uint256) {
-    return mocLibConfig.maxBProWithBtc(btcAmount, mocState.bproTecPrice());
-  }
-
-  /**
-  * @dev BTC equivalent for the amount of bpro given applying the spotDiscountRate
-  * @param amount amount of BPro [using mocPrecision]
-  * @return BTC amount
-  */
-  function bproDiscToBtc(uint256 amount) public view returns(uint256) {
-    uint256 discountRate = mocState.bproSpotDiscountRate();
-    uint256 totalBtcValue = bproToBtc(amount);
-
-    return mocLibConfig.applyDiscountRate(totalBtcValue, discountRate);
-  }
-
-  function btcToBProDisc(uint256 btcAmount) public view returns(uint256) {
-    return mocLibConfig.maxBProWithBtc(btcAmount, mocState.bproDiscountPrice());
-  }
-
-  function docsToBtc(uint256 docAmount) public view returns(uint256) {
-    return mocLibConfig.docsBtcValue(docAmount, mocState.peg(), mocState.getBitcoinPrice());
-  }
-
-  function docsToBtcWithPrice(uint256 docAmount, uint256 btcPrice) public view returns(uint256) {
-    return mocLibConfig.docsBtcValue(docAmount, mocState.peg(), btcPrice);
-  }
-
-  function btcToDoc(uint256 btcAmount) public view returns(uint256) {
-    return mocLibConfig.maxDocsWithBtc(btcAmount, mocState.getBitcoinPrice());
-  }
-
-  function bproxToBtc(uint256 bproxAmount, bytes32 bucket) public view returns(uint256) {
-    return mocLibConfig.bproBtcValue(bproxAmount, mocState.bucketBProTecPrice(bucket));
-  }
-
-  function bproxToBtcHelper(uint256 bproxAmount, bytes32 bucket) public view returns(uint256) {
-    return mocLibConfig.bproBtcValue(bproxAmount, mocState.bucketBProTecPriceHelper(bucket));
-  }
-
-  function btcToBProx(uint256 btcAmount, bytes32 bucket) public view returns(uint256) {
-    return mocLibConfig.maxBProWithBtc(btcAmount, mocState.bucketBProTecPrice(bucket));
-  }
-
-  function btcToBProWithPrice(uint256 btcAmount, uint256 price) public view returns(uint256) {
-    return mocLibConfig.maxBProWithBtc(btcAmount, price);
-  }
-
-  function bproToBtcWithPrice(uint256 bproAmount, uint256 bproPrice) public view returns(uint256) {
-    return mocLibConfig.bproBtcValue(bproAmount, bproPrice);
-  }
-
-  function mocToBtc(uint256 mocAmount) public view returns(uint256) {
-    return mocLibConfig.mocBtcValue(mocAmount, mocState.getBitcoinPrice(), mocState.getMoCPrice());
-  }
-
-  function btcToMoC(uint256 btcAmount) public view returns(uint256) {
-    return mocLibConfig.maxMoCWithBtc(btcAmount, mocState.getBitcoinPrice(), mocState.getMoCPrice());
-  }
-
-  function mocToBtcWithPrice(uint256 mocAmount, uint256 btcPrice, uint256 mocPrice) public view returns(uint256) {
-    return mocLibConfig.mocBtcValue(mocAmount, btcPrice, mocPrice);
-  }
-
-  function btcToMoCWithPrice(uint256 btcAmount, uint256 btcPrice, uint256 mocPrice) public view returns(uint256) {
-    return mocLibConfig.maxMoCWithBtc(btcAmount, btcPrice, mocPrice);
-  }
-
-  // Leave a gap betweeen inherited contracts variables in order to be
-  // able to add more variables in them later
-  uint256[50] private upgradeGap;
 }
 
 // File: contracts/MoCState.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 pragma experimental ABIEncoderV2;
-
 
 
 
@@ -2817,7 +2717,9 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator, IMoCState {
   // Contracts
   PriceProvider internal btcPriceProvider;
   IMoCSettlement internal mocSettlement;
-  MoCConverter internal mocConverter;
+  /** DEPRECATED **/
+  // solium-disable-next-line mixedcase
+  address internal DEPRECATED_mocConverter;
   DocToken internal docToken;
   BProToken internal bproToken;
   MoCBProxManager internal bproxManager;
@@ -2962,7 +2864,7 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator, IMoCState {
     @dev Amount of Bitcoins in the system excluding BTCx values and interests holdings
   */
   function collateralRbtcInSystem() public view returns(uint256) {
-    uint256 rbtcInBtcx = mocConverter.bproxToBtcHelper(bproxManager.getBucketNBPro(BUCKET_X2),BUCKET_X2);
+    uint256 rbtcInBtcx = bproxToBtcHelper(bproxManager.getBucketNBPro(BUCKET_X2),BUCKET_X2);
     uint256 rbtcInBag = bproxManager.getInrateBag(BUCKET_C0);
 
     return rbtcInSystem.sub(rbtcInBtcx).sub(rbtcInBag);
@@ -3533,6 +3435,51 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator, IMoCState {
   }
 
   /**********************
+    Ex MoCConverter
+   *********************/
+
+   /**
+  * @dev BTC equivalent for the amount of bpros given
+  * @param amount Amount of BPro to calculate the total price
+  * @return total BTC Price of the amount BPros [using reservePrecision]
+  */
+  function bproToBtc(uint256 amount) public view returns(uint256) {
+    uint256 tecPrice = bproTecPrice();
+
+    return mocLibConfig.totalBProInBtc(amount, tecPrice);
+  }
+
+  /**
+  * @dev Converts BTC to BPro
+  * @param btcAmount BTC amount
+  * @return BPro amount
+  */
+  function btcToBPro(uint256 btcAmount) public view returns(uint256) {
+    return mocLibConfig.maxBProWithBtc(btcAmount, bproTecPrice());
+  }
+
+  function docsToBtc(uint256 docAmount) public view returns(uint256) {
+    return mocLibConfig.docsBtcValue(docAmount, peg, getBitcoinPrice());
+  }
+
+  function btcToDoc(uint256 btcAmount) public view returns(uint256) {
+    return mocLibConfig.maxDocsWithBtc(btcAmount, getBitcoinPrice());
+  }
+
+  function bproxToBtc(uint256 bproxAmount, bytes32 bucket) public view returns(uint256) {
+    return mocLibConfig.bproBtcValue(bproxAmount, bucketBProTecPrice(bucket));
+  }
+
+  function bproxToBtcHelper(uint256 bproxAmount, bytes32 bucket) internal view returns(uint256) {
+    return mocLibConfig.bproBtcValue(bproxAmount, bucketBProTecPriceHelper(bucket));
+  }
+
+  function btcToBProx(uint256 btcAmount, bytes32 bucket) public view returns(uint256) {
+    return mocLibConfig.maxBProWithBtc(btcAmount, bucketBProTecPrice(bucket));
+  }
+
+
+  /**********************
     MoC TOKEN
    *********************/
 
@@ -3658,7 +3605,6 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator, IMoCState {
     docToken = DocToken(connector.docToken());
     bproToken = BProToken(connector.bproToken());
     bproxManager = MoCBProxManager(connector.bproxManager());
-    mocConverter = MoCConverter(connector.mocConverter());
     setMoCTokenInternal(_mocTokenAddress);
     setMoCVendorsInternal(_mocVendorsAddress);
   }

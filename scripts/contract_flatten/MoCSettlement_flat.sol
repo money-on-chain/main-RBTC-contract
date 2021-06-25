@@ -207,7 +207,7 @@ contract Initializable {
 
 // File: contracts/base/MoCWhitelist.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 /**
   @dev Provides access control between all MoC Contracts
@@ -254,7 +254,7 @@ contract MoCWhitelist {
 
 // File: contracts/base/MoCConnector.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 
 
@@ -268,7 +268,9 @@ contract MoCConnector is MoCWhitelist, Initializable {
   address public bproToken;
   address public bproxManager;
   address public mocState;
-  address public mocConverter;
+  /** DEPRECATED **/
+  // solium-disable-next-line mixedcase
+  address public DEPRECATED_mocConverter;
   address public mocSettlement;
   address public mocExchange;
   address public mocInrate;
@@ -285,7 +287,6 @@ contract MoCConnector is MoCWhitelist, Initializable {
     @param bproxAddress BProxManager contract address
     @param stateAddress MoCState contract address
     @param settlementAddress MoCSettlement contract address
-    @param converterAddress MoCConverter contract address
     @param exchangeAddress MoCExchange contract address
     @param inrateAddress MoCInrate contract address
     @param burnoutBookAddress (DEPRECATED) MoCBurnout contract address. DO NOT USE.
@@ -297,7 +298,6 @@ contract MoCConnector is MoCWhitelist, Initializable {
     address bproxAddress,
     address stateAddress,
     address settlementAddress,
-    address converterAddress,
     address exchangeAddress,
     address inrateAddress,
     address burnoutBookAddress
@@ -308,7 +308,6 @@ contract MoCConnector is MoCWhitelist, Initializable {
     bproxManager = bproxAddress;
     mocState = stateAddress;
     mocSettlement = settlementAddress;
-    mocConverter = converterAddress;
     mocExchange = exchangeAddress;
     mocInrate = inrateAddress;
     mocBurnout = burnoutBookAddress;
@@ -320,7 +319,6 @@ contract MoCConnector is MoCWhitelist, Initializable {
     add(bproxAddress);
     add(stateAddress);
     add(settlementAddress);
-    add(converterAddress);
     add(exchangeAddress);
     add(inrateAddress);
     add(burnoutBookAddress);
@@ -333,7 +331,7 @@ contract MoCConnector is MoCWhitelist, Initializable {
 
 // File: contracts/base/MoCConstants.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 /**
  * @dev Defines special constants to use along all the MoC System
@@ -345,7 +343,7 @@ contract MoCConstants {
 
 // File: contracts/base/MoCBase.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 
 
@@ -928,7 +926,7 @@ contract Ownable {
 
 // File: contracts/token/OwnerBurnableToken.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 
 
@@ -949,7 +947,7 @@ contract OwnerBurnableToken is Ownable, ERC20Mintable {
 
 // File: contracts/token/DocToken.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 
 
@@ -975,7 +973,7 @@ contract DocToken is ERC20Detailed, OwnerBurnableToken {
 
 // File: contracts/interface/IMoCState.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 interface IMoCState {
 
@@ -1053,11 +1051,19 @@ interface IMoCState {
     function maxBProxBtcValue(bytes32 bucket) external view returns(uint256);
 
     function bucketBProTecPriceHelper(bytes32 bucket) external view returns(uint256);
+
+    // Ex Mocconverter
+    function docsToBtc(uint256 docAmount) external view returns(uint256);
+    function btcToDoc(uint256 btcAmount) external view returns(uint256);
+    function bproxToBtc(uint256 bproxAmount, bytes32 bucket) external view returns(uint256);
+    function btcToBProx(uint256 btcAmount, bytes32 bucket) external view returns(uint256);
+
+
 }
 
 // File: contracts/interface/IMoCExchange.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 interface IMoCExchange {
     function getMoCTokenBalance(address owner, address spender) external view
@@ -1084,8 +1090,6 @@ interface IMoCExchange {
     function redeemAllDoc(address origin, address payable destination) external
     returns (uint256);
 
-    function convertToMoCPrice(uint256 btcAmount) external view returns (uint256, uint256, uint256);
-
     function forceRedeemBProx(bytes32 bucket, address payable account, uint256 bproxAmount, uint256 bproxPrice)
     external returns (bool);
 
@@ -1095,7 +1099,7 @@ interface IMoCExchange {
 
 // File: moc-governance/contracts/Governance/ChangeContract.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 /**
   @title ChangeContract
@@ -1116,7 +1120,7 @@ interface ChangeContract {
 
 // File: moc-governance/contracts/Governance/IGovernor.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 
 /**
@@ -1144,7 +1148,7 @@ interface IGovernor{
 
 // File: moc-governance/contracts/Governance/Governed.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 
 
@@ -1199,7 +1203,7 @@ contract Governed is Initializable {
 
 // File: contracts/MoCBucketContainer.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 
 
@@ -1492,7 +1496,7 @@ contract MoCBucketContainer is MoCBase, Governed {
 
 // File: contracts/MoCBProxManager.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 
 
@@ -1629,7 +1633,7 @@ contract MoCBProxManager is MoCBucketContainer {
 
 // File: contracts/PartialExecution.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 
 
@@ -1931,7 +1935,7 @@ contract PartialExecution is PartialExecutionData {
 
 // File: contracts/interface/IMoCVendors.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 interface IMoCVendors {
     function resetTotalPaidInMoC() external;
@@ -1948,12 +1952,13 @@ interface IMoCVendors {
     function getMarkup(address account) external view
     returns (uint256);
 
-    function updatePaidMarkup(address account, uint256 mocAmount, uint256 rbtcAmount, uint256 totalMoCAmount) external;
+    function updatePaidMarkup(address account, uint256 mocAmount, uint256 rbtcAmount) external
+    returns(bool);
 }
 
 // File: contracts/interface/IMoCSettlement.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 interface IMoCSettlement {
     function getRedeemRequestAt(uint256 _index) external view returns (address payable, uint256);
@@ -1977,7 +1982,7 @@ interface IMoCSettlement {
 
 // File: contracts/MoCSettlement.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 
 

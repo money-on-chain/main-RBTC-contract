@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: 
 // File: moc-governance/contracts/Governance/ChangeContract.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 /**
   @title ChangeContract
@@ -22,7 +22,7 @@ interface ChangeContract {
 
 // File: moc-governance/contracts/Governance/IGovernor.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 
 /**
@@ -114,7 +114,7 @@ contract Initializable {
 
 // File: moc-governance/contracts/Governance/Governed.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 
 
@@ -279,7 +279,7 @@ library SafeMath {
 
 // File: contracts/MoCHelperLib.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 
 library MoCHelperLib {
@@ -964,7 +964,7 @@ library MoCHelperLib {
 
 // File: contracts/MoCLibConnection.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 
 /**
@@ -1004,7 +1004,7 @@ contract MoCLibConnection {
 
 // File: contracts/interface/IMoCState.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 interface IMoCState {
 
@@ -1082,11 +1082,19 @@ interface IMoCState {
     function maxBProxBtcValue(bytes32 bucket) external view returns(uint256);
 
     function bucketBProTecPriceHelper(bytes32 bucket) external view returns(uint256);
+
+    // Ex Mocconverter
+    function docsToBtc(uint256 docAmount) external view returns(uint256);
+    function btcToDoc(uint256 btcAmount) external view returns(uint256);
+    function bproxToBtc(uint256 bproxAmount, bytes32 bucket) external view returns(uint256);
+    function btcToBProx(uint256 btcAmount, bytes32 bucket) external view returns(uint256);
+
+
 }
 
 // File: contracts/base/MoCWhitelist.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 /**
   @dev Provides access control between all MoC Contracts
@@ -1133,7 +1141,7 @@ contract MoCWhitelist {
 
 // File: contracts/base/MoCConnector.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 
 
@@ -1147,7 +1155,9 @@ contract MoCConnector is MoCWhitelist, Initializable {
   address public bproToken;
   address public bproxManager;
   address public mocState;
-  address public mocConverter;
+  /** DEPRECATED **/
+  // solium-disable-next-line mixedcase
+  address public DEPRECATED_mocConverter;
   address public mocSettlement;
   address public mocExchange;
   address public mocInrate;
@@ -1164,7 +1174,6 @@ contract MoCConnector is MoCWhitelist, Initializable {
     @param bproxAddress BProxManager contract address
     @param stateAddress MoCState contract address
     @param settlementAddress MoCSettlement contract address
-    @param converterAddress MoCConverter contract address
     @param exchangeAddress MoCExchange contract address
     @param inrateAddress MoCInrate contract address
     @param burnoutBookAddress (DEPRECATED) MoCBurnout contract address. DO NOT USE.
@@ -1176,7 +1185,6 @@ contract MoCConnector is MoCWhitelist, Initializable {
     address bproxAddress,
     address stateAddress,
     address settlementAddress,
-    address converterAddress,
     address exchangeAddress,
     address inrateAddress,
     address burnoutBookAddress
@@ -1187,7 +1195,6 @@ contract MoCConnector is MoCWhitelist, Initializable {
     bproxManager = bproxAddress;
     mocState = stateAddress;
     mocSettlement = settlementAddress;
-    mocConverter = converterAddress;
     mocExchange = exchangeAddress;
     mocInrate = inrateAddress;
     mocBurnout = burnoutBookAddress;
@@ -1199,7 +1206,6 @@ contract MoCConnector is MoCWhitelist, Initializable {
     add(bproxAddress);
     add(stateAddress);
     add(settlementAddress);
-    add(converterAddress);
     add(exchangeAddress);
     add(inrateAddress);
     add(burnoutBookAddress);
@@ -1212,7 +1218,7 @@ contract MoCConnector is MoCWhitelist, Initializable {
 
 // File: contracts/base/MoCConstants.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 /**
  * @dev Defines special constants to use along all the MoC System
@@ -1224,7 +1230,7 @@ contract MoCConstants {
 
 // File: contracts/base/MoCBase.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 
 
@@ -1286,7 +1292,7 @@ library Math {
 
 // File: contracts/MoCBucketContainer.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 
 
@@ -1579,7 +1585,7 @@ contract MoCBucketContainer is MoCBase, Governed {
 
 // File: contracts/MoCBProxManager.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 
 
@@ -1714,114 +1720,9 @@ contract MoCBProxManager is MoCBucketContainer {
   uint256[50] private upgradeGap;
 }
 
-// File: contracts/MoCConverter.sol
-
-pragma solidity 0.5.8;
-
-
-
-
-contract MoCConverter is MoCBase, MoCLibConnection {
-  IMoCState internal mocState;
-
-  function initialize(address connectorAddress) public initializer {
-    initializePrecisions();
-    initializeBase(connectorAddress);
-    mocState = IMoCState(connector.mocState());
-  }
-
-  /**
-  * @dev BTC equivalent for the amount of bpros given
-  * @param amount Amount of BPro to calculate the total price
-  * @return total BTC Price of the amount BPros [using reservePrecision]
-  */
-  function bproToBtc(uint256 amount) public view returns(uint256) {
-    uint256 tecPrice = mocState.bproTecPrice();
-
-    return mocLibConfig.totalBProInBtc(amount, tecPrice);
-  }
-
-  /**
-  * @dev Converts BTC to BPro
-  * @param btcAmount BTC amount
-  * @return BPro amount
-  */
-  function btcToBPro(uint256 btcAmount) public view returns(uint256) {
-    return mocLibConfig.maxBProWithBtc(btcAmount, mocState.bproTecPrice());
-  }
-
-  /**
-  * @dev BTC equivalent for the amount of bpro given applying the spotDiscountRate
-  * @param amount amount of BPro [using mocPrecision]
-  * @return BTC amount
-  */
-  function bproDiscToBtc(uint256 amount) public view returns(uint256) {
-    uint256 discountRate = mocState.bproSpotDiscountRate();
-    uint256 totalBtcValue = bproToBtc(amount);
-
-    return mocLibConfig.applyDiscountRate(totalBtcValue, discountRate);
-  }
-
-  function btcToBProDisc(uint256 btcAmount) public view returns(uint256) {
-    return mocLibConfig.maxBProWithBtc(btcAmount, mocState.bproDiscountPrice());
-  }
-
-  function docsToBtc(uint256 docAmount) public view returns(uint256) {
-    return mocLibConfig.docsBtcValue(docAmount, mocState.peg(), mocState.getBitcoinPrice());
-  }
-
-  function docsToBtcWithPrice(uint256 docAmount, uint256 btcPrice) public view returns(uint256) {
-    return mocLibConfig.docsBtcValue(docAmount, mocState.peg(), btcPrice);
-  }
-
-  function btcToDoc(uint256 btcAmount) public view returns(uint256) {
-    return mocLibConfig.maxDocsWithBtc(btcAmount, mocState.getBitcoinPrice());
-  }
-
-  function bproxToBtc(uint256 bproxAmount, bytes32 bucket) public view returns(uint256) {
-    return mocLibConfig.bproBtcValue(bproxAmount, mocState.bucketBProTecPrice(bucket));
-  }
-
-  function bproxToBtcHelper(uint256 bproxAmount, bytes32 bucket) public view returns(uint256) {
-    return mocLibConfig.bproBtcValue(bproxAmount, mocState.bucketBProTecPriceHelper(bucket));
-  }
-
-  function btcToBProx(uint256 btcAmount, bytes32 bucket) public view returns(uint256) {
-    return mocLibConfig.maxBProWithBtc(btcAmount, mocState.bucketBProTecPrice(bucket));
-  }
-
-  function btcToBProWithPrice(uint256 btcAmount, uint256 price) public view returns(uint256) {
-    return mocLibConfig.maxBProWithBtc(btcAmount, price);
-  }
-
-  function bproToBtcWithPrice(uint256 bproAmount, uint256 bproPrice) public view returns(uint256) {
-    return mocLibConfig.bproBtcValue(bproAmount, bproPrice);
-  }
-
-  function mocToBtc(uint256 mocAmount) public view returns(uint256) {
-    return mocLibConfig.mocBtcValue(mocAmount, mocState.getBitcoinPrice(), mocState.getMoCPrice());
-  }
-
-  function btcToMoC(uint256 btcAmount) public view returns(uint256) {
-    return mocLibConfig.maxMoCWithBtc(btcAmount, mocState.getBitcoinPrice(), mocState.getMoCPrice());
-  }
-
-  function mocToBtcWithPrice(uint256 mocAmount, uint256 btcPrice, uint256 mocPrice) public view returns(uint256) {
-    return mocLibConfig.mocBtcValue(mocAmount, btcPrice, mocPrice);
-  }
-
-  function btcToMoCWithPrice(uint256 btcAmount, uint256 btcPrice, uint256 mocPrice) public view returns(uint256) {
-    return mocLibConfig.maxMoCWithBtc(btcAmount, btcPrice, mocPrice);
-  }
-
-  // Leave a gap betweeen inherited contracts variables in order to be
-  // able to add more variables in them later
-  uint256[50] private upgradeGap;
-}
-
 // File: contracts/interface/IMoCVendors.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 interface IMoCVendors {
     function resetTotalPaidInMoC() external;
@@ -1838,12 +1739,13 @@ interface IMoCVendors {
     function getMarkup(address account) external view
     returns (uint256);
 
-    function updatePaidMarkup(address account, uint256 mocAmount, uint256 rbtcAmount, uint256 totalMoCAmount) external;
+    function updatePaidMarkup(address account, uint256 mocAmount, uint256 rbtcAmount) external
+    returns(bool);
 }
 
 // File: contracts/interface/IMoCInrate.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 interface IMoCInrate {
     // Transaction types
@@ -1893,9 +1795,8 @@ interface IMoCInrate {
 
 // File: contracts/MoCInrate.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 pragma experimental ABIEncoderV2;
-
 
 
 
@@ -1977,7 +1878,9 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
 
   /**CONTRACTS**/
   IMoCState internal mocState;
-  MoCConverter internal mocConverter;
+  /** DEPRECATED **/
+  // solium-disable-next-line mixedcase
+  address internal DEPRECATED_mocConverter;
   MoCBProxManager internal bproxManager;
 
   /************************************/
@@ -2278,7 +2181,7 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
   function calcCommissionValue(uint256 rbtcAmount, uint8 txType)
   public view returns(uint256) {
     // Validate txType
-    require (txType > 0, "Invalid transaction type 'txType'");
+    require (txType > 0, "Invalid txType");
 
     uint256 finalCommissionAmount = rbtcAmount.mul(commissionRatesByTxType[txType]).div(mocLibConfig.mocPrecision);
     return finalCommissionAmount;
@@ -2424,7 +2327,7 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
   */
   function calcFullRedeemInterestValue(bytes32 bucket) internal view returns(uint256) {
     // Value in RBTC of all BProxs in the bucket
-    uint256 fullBProxRbtcValue = mocConverter.bproxToBtc(bproxManager.getBucketNBPro(bucket), bucket);
+    uint256 fullBProxRbtcValue = mocState.bproxToBtc(bproxManager.getBucketNBPro(bucket), bucket);
     // Interests to return if a redemption of all Bprox is done
     return calcRedeemInterestValue(bucket, fullBProxRbtcValue); // Redeem
   }
@@ -2438,7 +2341,7 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
   function simulateDocMovement(bytes32 bucket, uint256 btcAmount, bool onMinting) internal view returns(uint256) {
     // Calculates docs to move
     uint256 btcToMove = mocLibConfig.bucketTransferAmount(btcAmount, mocState.leverage(bucket));
-    uint256 docsToMove = mocConverter.btcToDoc(btcToMove);
+    uint256 docsToMove = mocState.btcToDoc(btcToMove);
 
     if (onMinting) {
       /* Should not happen when minting bpro because it's
@@ -2485,7 +2388,6 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
   function initializeContracts() internal {
     bproxManager = MoCBProxManager(connector.bproxManager());
     mocState = IMoCState(connector.mocState());
-    mocConverter = MoCConverter(connector.mocConverter());
   }
 
   /**

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: 
 // File: moc-governance/contracts/Governance/ChangeContract.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 /**
   @title ChangeContract
@@ -22,7 +22,7 @@ interface ChangeContract {
 
 // File: moc-governance/contracts/Governance/IGovernor.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 
 /**
@@ -114,7 +114,7 @@ contract Initializable {
 
 // File: moc-governance/contracts/Governance/Governed.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 
 
@@ -169,7 +169,7 @@ contract Governed is Initializable {
 
 // File: contracts/interface/IMoC.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 interface IMoC {
     function() external payable;
@@ -406,7 +406,7 @@ contract ReentrancyGuard is Initializable {
 
 // File: contracts/auxiliar/CommissionSplitter.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 
 

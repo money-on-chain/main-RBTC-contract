@@ -268,9 +268,895 @@ contract Pausable is PauserRole {
     }
 }
 
+// File: zos-lib/contracts/Initializable.sol
+
+pragma solidity >=0.4.24 <0.6.0;
+
+
+/**
+ * @title Initializable
+ *
+ * @dev Helper contract to support initializer functions. To use it, replace
+ * the constructor with a function that has the `initializer` modifier.
+ * WARNING: Unlike constructors, initializer functions must be manually
+ * invoked. This applies both to deploying an Initializable contract, as well
+ * as extending an Initializable contract via inheritance.
+ * WARNING: When used with inheritance, manual care must be taken to not invoke
+ * a parent initializer twice, or ensure that all initializers are idempotent,
+ * because this is not dealt with automatically as with constructors.
+ */
+contract Initializable {
+
+  /**
+   * @dev Indicates that the contract has been initialized.
+   */
+  bool private initialized;
+
+  /**
+   * @dev Indicates that the contract is in the process of being initialized.
+   */
+  bool private initializing;
+
+  /**
+   * @dev Modifier to use in the initializer function of a contract.
+   */
+  modifier initializer() {
+    require(initializing || isConstructor() || !initialized, "Contract instance has already been initialized");
+
+    bool isTopLevelCall = !initializing;
+    if (isTopLevelCall) {
+      initializing = true;
+      initialized = true;
+    }
+
+    _;
+
+    if (isTopLevelCall) {
+      initializing = false;
+    }
+  }
+
+  /// @dev Returns true if and only if the function is running in the constructor
+  function isConstructor() private view returns (bool) {
+    // extcodesize checks the size of the code stored in an address, and
+    // address returns the current address. Since the code is still not
+    // deployed when running a constructor, any checks on its code size will
+    // yield zero, making it an effective way to detect if a contract is
+    // under construction or not.
+    uint256 cs;
+    assembly { cs := extcodesize(address) }
+    return cs == 0;
+  }
+
+  // Reserved storage space to allow for layout changes in the future.
+  uint256[50] private ______gap;
+}
+
+// File: contracts/base/MoCWhitelist.sol
+
+pragma solidity ^0.5.8;
+
+/**
+  @dev Provides access control between all MoC Contracts
+ */
+contract MoCWhitelist {
+  mapping(address => bool) whitelist;
+
+  /**
+   * @dev Check if an account is whitelisted
+   * @return Bool
+   */
+  function isWhitelisted(address account)
+    public
+    view
+    returns (bool)
+  {
+    require(account != address(0), "Account must not be 0x0");
+    return whitelist[account];
+  }
+
+  /**
+   * @dev Add account to whitelist
+   */
+  function add(address account) internal {
+    require(account != address(0), "Account must not be 0x0");
+    require(!isWhitelisted(account), "Account not allowed to add accounts into white list");
+    whitelist[account] = true;
+  }
+
+  /**
+   * @dev Remove account from whitelist
+   */
+  function remove(address account) internal {
+    require(account != address(0), "Account must not be 0x0");
+    require(isWhitelisted(account), "Account is not allowed to remove address from the white list");
+
+    whitelist[account] = false;
+  }
+
+  // Leave a gap betweeen inherited contracts variables in order to be
+  // able to add more variables in them later
+  uint256[50] private upgradeGap;
+}
+
+// File: contracts/base/MoCConnector.sol
+
+pragma solidity ^0.5.8;
+
+
+
+/**
+  @dev Provides access control between all MoC Contracts
+ */
+contract MoCConnector is MoCWhitelist, Initializable {
+  // References
+  address payable public moc;
+  address public docToken;
+  address public bproToken;
+  address public bproxManager;
+  address public mocState;
+  /** DEPRECATED **/
+  // solium-disable-next-line mixedcase
+  address public DEPRECATED_mocConverter;
+  address public mocSettlement;
+  address public mocExchange;
+  address public mocInrate;
+  /** DEPRECATED mocBurnout **/
+  address public mocBurnout;
+
+  bool internal initialized;
+
+  /**
+    @dev Initializes the contract
+    @param mocAddress MoC contract address
+    @param docAddress DoCToken contract address
+    @param bproAddress BProToken contract address
+    @param bproxAddress BProxManager contract address
+    @param stateAddress MoCState contract address
+    @param settlementAddress MoCSettlement contract address
+    @param exchangeAddress MoCExchange contract address
+    @param inrateAddress MoCInrate contract address
+    @param burnoutBookAddress (DEPRECATED) MoCBurnout contract address. DO NOT USE.
+  */
+  function initialize(
+    address payable mocAddress,
+    address docAddress,
+    address bproAddress,
+    address bproxAddress,
+    address stateAddress,
+    address settlementAddress,
+    address exchangeAddress,
+    address inrateAddress,
+    address burnoutBookAddress
+  ) public initializer {
+    moc = mocAddress;
+    docToken = docAddress;
+    bproToken = bproAddress;
+    bproxManager = bproxAddress;
+    mocState = stateAddress;
+    mocSettlement = settlementAddress;
+    mocExchange = exchangeAddress;
+    mocInrate = inrateAddress;
+    mocBurnout = burnoutBookAddress;
+
+    // Add to Whitelist
+    add(mocAddress);
+    add(docAddress);
+    add(bproAddress);
+    add(bproxAddress);
+    add(stateAddress);
+    add(settlementAddress);
+    add(exchangeAddress);
+    add(inrateAddress);
+    add(burnoutBookAddress);
+  }
+
+  // Leave a gap betweeen inherited contracts variables in order to be
+  // able to add more variables in them later
+  uint256[50] private upgradeGap;
+}
+
+// File: contracts/base/MoCConstants.sol
+
+pragma solidity ^0.5.8;
+
+/**
+ * @dev Defines special constants to use along all the MoC System
+ */
+contract MoCConstants {
+  bytes32 constant public BUCKET_X2 = "X2";
+  bytes32 constant public BUCKET_C0 = "C0";
+}
+
+// File: contracts/base/MoCBase.sol
+
+pragma solidity ^0.5.8;
+
+
+
+
+/**
+  @dev General usefull modifiers and functions
+ */
+contract MoCBase is MoCConstants, Initializable {
+  // Contracts
+  MoCConnector public connector;
+
+  bool internal initialized;
+
+  function initializeBase(address connectorAddress) internal initializer {
+    connector = MoCConnector(connectorAddress);
+  }
+
+  modifier onlyWhitelisted(address account) {
+    require(connector.isWhitelisted(account), "Address is not whitelisted");
+    _;
+  }
+
+  // Leave a gap betweeen inherited contracts variables in order to be
+  // able to add more variables in them later
+  uint256[50] private upgradeGap;
+}
+
+// File: openzeppelin-solidity/contracts/math/Math.sol
+
+pragma solidity ^0.5.0;
+
+/**
+ * @dev Standard math utilities missing in the Solidity language.
+ */
+library Math {
+    /**
+     * @dev Returns the largest of two numbers.
+     */
+    function max(uint256 a, uint256 b) internal pure returns (uint256) {
+        return a >= b ? a : b;
+    }
+
+    /**
+     * @dev Returns the smallest of two numbers.
+     */
+    function min(uint256 a, uint256 b) internal pure returns (uint256) {
+        return a < b ? a : b;
+    }
+
+    /**
+     * @dev Returns the average of two numbers. The result is rounded towards
+     * zero.
+     */
+    function average(uint256 a, uint256 b) internal pure returns (uint256) {
+        // (a + b) / 2 can overflow, so we distribute
+        return (a / 2) + (b / 2) + ((a % 2 + b % 2) / 2);
+    }
+}
+
+// File: moc-governance/contracts/Governance/ChangeContract.sol
+
+pragma solidity ^0.5.8;
+
+/**
+  @title ChangeContract
+  @notice This interface is the one used by the governance system.
+  @dev If you plan to do some changes to a system governed by this project you should write a contract
+  that does those changes, like a recipe. This contract MUST not have ANY kind of public or external function
+  that modifies the state of this ChangeContract, otherwise you could run into front-running issues when the governance
+  system is fully in place.
+ */
+interface ChangeContract {
+
+  /**
+    @notice Override this function with a recipe of the changes to be done when this ChangeContract
+    is executed
+   */
+  function execute() external;
+}
+
+// File: moc-governance/contracts/Governance/IGovernor.sol
+
+pragma solidity ^0.5.8;
+
+
+/**
+  @title Governor
+  @notice Governor interface. This functions should be overwritten to
+  enable the comunnication with the rest of the system
+  */
+interface IGovernor{
+
+  /**
+    @notice Function to be called to make the changes in changeContract
+    @dev This function should be protected somehow to only execute changes that
+    benefit the system. This decision process is independent of this architechture
+    therefore is independent of this interface too
+    @param changeContract Address of the contract that will execute the changes
+   */
+  function executeChange(ChangeContract changeContract) external;
+
+  /**
+    @notice Function to be called to make the changes in changeContract
+    @param _changer Address of the contract that will execute the changes
+   */
+  function isAuthorizedChanger(address _changer) external view returns (bool);
+}
+
+// File: moc-governance/contracts/Governance/Governed.sol
+
+pragma solidity ^0.5.8;
+
+
+
+/**
+  @title Governed
+  @notice Base contract to be inherited by governed contracts
+  @dev This contract is not usable on its own since it does not have any _productive useful_ behaviour
+  The only purpose of this contract is to define some useful modifiers and functions to be used on the
+  governance aspect of the child contract
+  */
+contract Governed is Initializable {
+
+  /**
+    @notice The address of the contract which governs this one
+   */
+  IGovernor public governor;
+
+  string constant private NOT_AUTHORIZED_CHANGER = "not_authorized_changer";
+
+  /**
+    @notice Modifier that protects the function
+    @dev You should use this modifier in any function that should be called through
+    the governance system
+   */
+  modifier onlyAuthorizedChanger() {
+    require(governor.isAuthorizedChanger(msg.sender), NOT_AUTHORIZED_CHANGER);
+    _;
+  }
+
+  /**
+    @notice Initialize the contract with the basic settings
+    @dev This initialize replaces the constructor but it is not called automatically.
+    It is necessary because of the upgradeability of the contracts
+    @param _governor Governor address
+   */
+  function initialize(IGovernor _governor) public initializer {
+    governor = _governor;
+  }
+
+  /**
+    @notice Change the contract's governor. Should be called through the old governance system
+    @param newIGovernor New governor address
+   */
+  function changeIGovernor(IGovernor newIGovernor) public onlyAuthorizedChanger {
+    governor = newIGovernor;
+  }
+
+  // Leave a gap betweeen inherited contracts variables in order to be
+  // able to add more variables in them later
+  uint256[50] private upgradeGap;
+}
+
+// File: contracts/MoCBucketContainer.sol
+
+pragma solidity ^0.5.8;
+
+
+
+
+
+contract MoCBucketContainer is MoCBase, Governed {
+  using SafeMath for uint256;
+  using Math for uint256;
+
+  struct BProxBalance {
+    uint256 value;
+    uint index; // Index start in 1, zero is reserved for NULL
+  }
+
+  struct MoCBucket {
+    bytes32 name;
+    bool isBase;
+    uint256 nDoc;
+    uint256 nBPro;
+    uint256 nBTC;
+    uint256 cobj;
+    // Should only be used in L buckets
+    mapping(address => BProxBalance) bproxBalances;
+    address payable[] activeBalances;
+    uint256 activeBalancesLength;
+    // Should only be used in Base buckets (C0)
+    uint256 inrateBag;
+    bool available;
+  }
+
+  event BucketMovement(
+    bytes32 from,
+    bytes32 to,
+    uint256 reserves,
+    uint256 stableTokens
+  );
+
+  event BucketCreation(
+    bytes32 name,
+    uint256 cobj
+  );
+
+  event BucketStateUpdate(
+    bytes32 name,
+    uint256 nReserve,
+    uint256 nStable,
+    uint256 nRiskProx,
+    uint256 inrateBag
+  );
+
+  mapping(bytes32 => MoCBucket) internal mocBuckets;
+
+   /**
+   GETTERS
+   */
+  function getBucketNBTC(bytes32 bucket) public view returns(uint256) {
+    return mocBuckets[bucket].nBTC;
+  }
+
+  function getBucketNBPro(bytes32 bucket) public view returns(uint256) {
+    return mocBuckets[bucket].nBPro;
+  }
+
+  function getBucketNDoc(bytes32 bucket) public view returns(uint256) {
+    return mocBuckets[bucket].nDoc;
+  }
+
+  function getBucketCobj(bytes32 bucket) public view returns(uint256) {
+    return mocBuckets[bucket].cobj;
+  }
+
+  function getInrateBag(bytes32 bucket) public view returns(uint256) {
+    return mocBuckets[bucket].inrateBag;
+  }
+
+  /**
+   * @dev Sets the objective coverage (cobj) on an specficied bucket.
+   * @param  _bucket - name of the bucket
+   * @param  _cobj - new value of cobj
+   */
+  function setBucketCobj(bytes32 _bucket, uint256 _cobj) public onlyAuthorizedChanger(){
+    //TODO: It is necessary to analyze the impact in the model it has when changing X2. This
+    mocBuckets[_bucket].cobj = _cobj;
+  }
+
+  /**
+    @dev returns true if the bucket is a base bucket
+    @param bucket Name of the bucket
+  */
+  function isBucketBase(bytes32 bucket) public view returns(bool){
+    return mocBuckets[bucket].isBase;
+  }
+
+  /**
+    @dev returns true if the bucket have docs in it
+    @param bucket Name of the bucket
+  */
+  function isBucketEmpty(bytes32 bucket) public view returns(bool) {
+    return mocBuckets[bucket].nDoc == 0;
+  }
+
+  /**
+    @dev Returns all the address that currently have bprox position for this bucket
+    @param bucket bucket of the active address
+  */
+  function getActiveAddresses(bytes32 bucket) public view returns(address payable[] memory) {
+    return mocBuckets[bucket].activeBalances;
+  }
+
+  /**
+    @dev Returns all the address that currently have bprox position for this bucket
+    @param bucket bucket of the active address
+  */
+  function getActiveAddressesCount(bytes32 bucket) public view returns(uint256 count) {
+    return mocBuckets[bucket].activeBalancesLength;
+  }
+
+  /**
+    @dev Add values to all variables of the bucket
+    @param bucketName Name of the bucket
+    @param btc BTC amount [using reservePrecision]
+    @param doc Doc amount [using mocPrecision]
+    @param bprox BPro amount [using mocPrecision]
+  */
+  function addValuesToBucket(bytes32 bucketName, uint256 btc, uint256 doc, uint256 bprox)
+  public onlyWhitelisted(msg.sender) {
+    MoCBucket storage bucket = mocBuckets[bucketName];
+
+    bucket.nBTC = bucket.nBTC.add(btc);
+    bucket.nDoc = bucket.nDoc.add(doc);
+    bucket.nBPro = bucket.nBPro.add(bprox);
+  }
+
+  /**
+    @dev Substract values to all variables of the bucket
+    @param bucketName Name of the bucket
+    @param btc BTC amount [using reservePrecision]
+    @param doc Doc amount [using mocPrecision]
+    @param bprox BPro amount [using mocPrecision]
+  */
+  function substractValuesFromBucket(bytes32 bucketName, uint256 btc, uint256 doc, uint256 bprox)
+  public onlyWhitelisted(msg.sender)  {
+    MoCBucket storage bucket = mocBuckets[bucketName];
+
+    bucket.nBTC = bucket.nBTC.sub(btc);
+    bucket.nDoc = bucket.nDoc.sub(doc);
+    bucket.nBPro = bucket.nBPro.sub(bprox);
+  }
+
+  /**
+    @dev Moves BTC from inrateBag to main BTC bucket bag
+    @param bucketName Name of the bucket to operate
+    @param amount value to move from inrateBag to main bag [using reservePrecision]
+   */
+  function deliverInrate(bytes32 bucketName, uint256 amount) public
+   onlyWhitelisted(msg.sender) onlyBaseBucket(bucketName) bucketStateUpdate(bucketName) {
+    MoCBucket storage bucket = mocBuckets[bucketName];
+
+    uint256 toMove = Math.min(bucket.inrateBag, amount);
+
+    bucket.inrateBag = bucket.inrateBag.sub(toMove);
+    bucket.nBTC = bucket.nBTC.add(toMove);
+  }
+
+  /**
+    @dev Removes Interests rate from Inrate bag
+    @param bucketName Name of the bucket to operate
+    @param amount value to move from inrateBag to main bag [using reservePrecision]
+    @return Retrieved value
+   */
+  function recoverInrate(bytes32 bucketName, uint256 amount) public
+  onlyWhitelisted(msg.sender) onlyBaseBucket(bucketName) bucketStateUpdate(bucketName) returns(uint256) {
+    MoCBucket storage bucket = mocBuckets[bucketName];
+
+    uint256 toRetrieve = Math.min(bucket.inrateBag, amount);
+
+    bucket.inrateBag = bucket.inrateBag.sub(toRetrieve);
+
+    return toRetrieve;
+  }
+
+  /**
+    @dev Moves BTC from origin bucket to destination bucket inrateBag
+    @param bucketName name of the bucket to from which takes
+    @param btcAmount value to add to main bag [using reservePrecision]
+  */
+  function payInrate(bytes32 bucketName, uint256 btcAmount) public
+  onlyWhitelisted(msg.sender) onlyBaseBucket(bucketName) {
+    MoCBucket storage bucket = mocBuckets[bucketName];
+    bucket.inrateBag = bucket.inrateBag.add(btcAmount);
+  }
+
+  /**
+    @dev Move Btcs and Docs from one bucket to another
+    @param from Name of bucket from where the BTCs will be removed
+    @param to Name of bucket from where the BTCs will be added
+    @param btc BTCs amount [using reservePrecision]
+    @param docs Docs amount [using mocPrecision]
+  */
+  function moveBtcAndDocs(bytes32 from, bytes32 to, uint256 btc, uint256 docs) public
+  onlyWhitelisted(msg.sender) bucketStateUpdate(from) bucketStateUpdate(to) {
+    MoCBucket storage bucketFrom = mocBuckets[from];
+    MoCBucket storage bucketTo = mocBuckets[to];
+
+    bucketFrom.nBTC = bucketFrom.nBTC.sub(btc);
+    bucketTo.nBTC = bucketTo.nBTC.add(btc);
+
+    bucketFrom.nDoc = bucketFrom.nDoc.sub(docs);
+    bucketTo.nDoc = bucketTo.nDoc.add(docs);
+
+    emit BucketMovement(from, to, btc, docs);
+  }
+
+  /**
+    @dev Clears completely the origin bucket, removing all Docs, RBTCs and bproxs
+    @param toLiquidate Bucket to be cleared out
+    @param destination Bucket that will receive the Docs and RBTCs
+   */
+  function liquidateBucket(bytes32 toLiquidate, bytes32 destination) public onlyWhitelisted(msg.sender) {
+    require(!isBucketBase(toLiquidate), "Cannot liquidate a base bucket");
+
+    clearBucketBalances(toLiquidate);
+    emptyBucket(toLiquidate, destination);
+  }
+
+  /**
+    @dev Clears Docs and BTC from bucket origin and sends them to destination bucket
+    @param origin Bucket to clear out
+    @param destination Destination bucket
+  */
+  function emptyBucket(bytes32 origin, bytes32 destination) public onlyWhitelisted(msg.sender) {
+    moveBtcAndDocs(origin, destination, mocBuckets[origin].nBTC, mocBuckets[origin].nDoc);
+  }
+
+  /**
+   * @dev checks if a bucket exists
+   * @param bucket name of the bucket
+   */
+  function isAvailableBucket(bytes32 bucket) public view returns(bool) {
+    return mocBuckets[bucket].available;
+  }
+
+  /**
+    @dev Put all bucket BProx balances in zero
+    @param bucketName Bucket to clear out
+   */
+  function clearBucketBalances(bytes32 bucketName) public onlyWhitelisted(msg.sender) {
+    MoCBucket storage bucket = mocBuckets[bucketName];
+    bucket.nBPro = 0;
+    bucket.activeBalancesLength = 0;
+  }
+
+  /**
+    @dev Creates bucket
+    @param name Name of the bucket
+    @param cobj Target Coverage of the bucket
+    @param isBase Indicates if it is a base bucket (true) or not (false)
+  */
+  function createBucket(bytes32 name, uint256 cobj, bool isBase) internal {
+    mocBuckets[name].name = name;
+    mocBuckets[name].nDoc = 0;
+    mocBuckets[name].nBPro = 0;
+    mocBuckets[name].nBTC = 0;
+    mocBuckets[name].cobj = cobj;
+    mocBuckets[name].isBase = isBase;
+    mocBuckets[name].available = true;
+    emit BucketCreation(name, cobj);
+  }
+
+  modifier onlyBaseBucket(bytes32 bucket) {
+    require(isBucketBase(bucket), "Bucket should be a base type bucket");
+    _;
+  }
+
+  modifier bucketStateUpdate(bytes32 bucket) {
+    _;
+    emit BucketStateUpdate(
+      bucket,
+      mocBuckets[bucket].nBTC,
+      mocBuckets[bucket].nDoc,
+      mocBuckets[bucket].nBPro,
+      mocBuckets[bucket].inrateBag
+      );
+  }
+
+  // Leave a gap betweeen inherited contracts variables in order to be
+  // able to add more variables in them later
+  uint256[50] private upgradeGap;
+}
+
+// File: contracts/MoCBProxManager.sol
+
+pragma solidity ^0.5.8;
+
+
+
+
+contract MoCBProxManager is MoCBucketContainer {
+  using SafeMath for uint256;
+  uint256 constant MIN_ALLOWED_BALANCE = 0;
+
+  /**
+    @dev Initializes the contract
+    @param connectorAddress MoCConnector contract address
+    @param _governor Governor contract address
+    @param _c0Cobj Bucket C0 objective coverage
+    @param _x2Cobj Bucket X2 objective coverage
+  */
+  function initialize(
+    address connectorAddress,
+    address _governor,
+    uint256 _c0Cobj,
+    uint256 _x2Cobj
+  ) public initializer {
+    initializeBase(connectorAddress);
+    initializeValues(_governor);
+    createBucket(BUCKET_C0, _c0Cobj, true);
+    createBucket(BUCKET_X2, _x2Cobj, false);
+  }
+
+  /**
+    @dev returns user balance
+    @param bucket BProx corresponding bucket to get balance from
+    @param userAddress user address to get balance from
+    @return total balance for the userAddress
+  */
+  function bproxBalanceOf(bytes32 bucket, address userAddress) public view returns(uint256) {
+    BProxBalance memory userBalance = mocBuckets[bucket].bproxBalances[userAddress];
+    if (!hasValidBalance(bucket, userAddress, userBalance.index)) return 0;
+    return userBalance.value;
+  }
+
+  /**
+    @dev verifies that this user has assigned balance for the given bucket
+    @param bucket corresponding Leveraged bucket to get balance from
+    @param userAddress user address to verify balance for
+    @param index index, starting from 1, where the address of the user is being kept
+    @return true if the user has assigned balance
+  */
+  function hasValidBalance(bytes32 bucket, address userAddress, uint index) public view returns(bool) {
+    return (index != 0) &&
+      (index <= getActiveAddressesCount(bucket)) &&
+      (mocBuckets[bucket].activeBalances[index - 1] == userAddress);
+  }
+
+  /**
+    @dev  Assigns the amount of BProx
+    @param bucket bucket from which the BProx will be removed
+    @param account user address to redeem for
+    @param bproxAmount bprox amount to redeem [using mocPresicion]
+    @param totalCost btc value of bproxAmount [using reservePrecision]
+  */
+  function assignBProx(bytes32 bucket, address payable account, uint256 bproxAmount, uint256 totalCost)
+  public onlyWhitelisted(msg.sender) {
+    uint256 currentBalance = bproxBalanceOf(bucket, account);
+
+    setBProxBalanceOf(bucket, account, currentBalance.add(bproxAmount));
+    addValuesToBucket(bucket, totalCost, 0, bproxAmount);
+  }
+
+  /**
+    @dev Removes the amount of BProx and substract BTC cost from bucket
+    @param bucket bucket from which the BProx will be removed
+    @param userAddress user address to redeem for
+    @param bproxAmount bprox amount to redeem [using mocPresicion]
+    @param totalCost btc value of bproxAmount [using reservePrecision]
+  */
+  function removeBProx(bytes32 bucket, address payable userAddress, uint256 bproxAmount, uint256 totalCost)
+  public onlyWhitelisted(msg.sender) {
+    uint256 currentBalance = bproxBalanceOf(bucket, userAddress);
+
+    setBProxBalanceOf(bucket, userAddress, currentBalance.sub(bproxAmount));
+    substractValuesFromBucket(bucket, totalCost, 0, bproxAmount);
+  }
+
+  /**
+    @dev Sets the amount of BProx
+    @param bucket bucket from which the BProx will be setted
+    @param userAddress user address to redeem for
+    @param value bprox amount to redeem [using mocPresicion]
+  */
+  function setBProxBalanceOf(bytes32 bucket, address payable userAddress, uint256 value) public onlyWhitelisted(msg.sender) {
+    mocBuckets[bucket].bproxBalances[userAddress].value = value;
+    uint256 index = mocBuckets[bucket].bproxBalances[userAddress].index;
+    if (!hasValidBalance(bucket, userAddress, index))
+      index = 0;
+
+    bool hasBalance = value > MIN_ALLOWED_BALANCE;
+    // The address is not in the array
+    if (index == 0) {
+      if (hasBalance) {
+        if (mocBuckets[bucket].activeBalances.length == mocBuckets[bucket].activeBalancesLength) {
+          mocBuckets[bucket].activeBalances.length += 1;
+        }
+        uint256 currentIndex = mocBuckets[bucket].activeBalancesLength++;
+        mocBuckets[bucket].activeBalances[currentIndex] = userAddress;
+        mocBuckets[bucket].bproxBalances[userAddress].index = mocBuckets[bucket].activeBalancesLength;
+      }
+    } else {
+      if (!hasBalance) {
+        // We need to delete this address from the tracker
+        uint256 lastActiveIndex = mocBuckets[bucket].activeBalancesLength;
+        address payable keyToMove = mocBuckets[bucket].activeBalances[lastActiveIndex - 1];
+        mocBuckets[bucket].activeBalances[index - 1] = keyToMove;
+        // Alternative index and array decreases lenght to prevent gas limit
+        mocBuckets[bucket].activeBalancesLength--;
+        // Update moved key index
+        mocBuckets[bucket].bproxBalances[keyToMove].index = index;
+        // Disable empty account index (0 == NULL)
+        mocBuckets[bucket].bproxBalances[userAddress].index = 0;
+      }
+    }
+  }
+
+  /**
+   @dev intializes values of the contract
+   @param _governor Governor contract address
+  */
+  function initializeValues(address _governor) internal {
+    governor = IGovernor(_governor);
+  }
+
+  // Leave a gap betweeen inherited contracts variables in order to be
+  // able to add more variables in them later
+  uint256[50] private upgradeGap;
+}
+
+// File: contracts/interface/IMoCState.sol
+
+pragma solidity ^0.5.8;
+
+interface IMoCState {
+
+     /******STATE MACHINE*********/
+    enum States {
+        // State 0
+        Liquidated,
+        // State 1
+        BProDiscount,
+        // State 2
+        BelowCobj,
+        // State 3
+        AboveCobj
+    }
+
+
+    function addToRbtcInSystem(uint256 btcAmount) external;
+
+    function subtractRbtcFromSystem(uint256 btcAmount) external;
+
+    function coverage(bytes32 bucket) external view returns(uint256);
+
+    function getRbtcRemainder() external view returns(uint256);
+
+    function liq() external view returns(uint256);
+
+    function state() external view returns(States);
+
+    function peg() external view returns(uint256);
+
+    function dayBlockSpan() external view returns(uint256);
+
+    function getBitcoinPrice() external view returns(uint256);
+
+    function getMoCPrice() external view returns(uint256);
+
+    function getProtected() external view returns(uint256);
+
+    function globalCoverage() external view returns(uint256);
+
+    function getMoCVendors() external view returns(address);
+
+    function getMoCToken() external view returns(address);
+
+    function nextState() external;
+
+    function maxBProWithDiscount() external view returns(uint256);
+
+    function absoluteMaxBPro() external view returns(uint256);
+
+    function absoluteMaxDoc() external view returns(uint256);
+
+    function freeDoc() external view returns(uint256);
+
+    function bproTecPrice() external view returns(uint256);
+
+    function bproSpotDiscountRate() external view returns(uint256);
+
+    function bproDiscountPrice() external view returns(uint256);
+
+    function bucketBProTecPrice(bytes32 bucket) external view returns(uint256);
+
+    function currentAbundanceRatio() external view returns(uint256);
+
+    function abundanceRatio(uint256 doc0) external view returns(uint256);
+
+    function daysToSettlement() external view returns(uint256);
+
+    function leverage(bytes32 bucket) external view returns(uint256);
+
+    function getBucketNBTC(bytes32 bucket) external view returns(uint256);
+
+    function getLiquidationPrice() external view returns(uint256);
+
+    function maxBProxBtcValue(bytes32 bucket) external view returns(uint256);
+
+    function bucketBProTecPriceHelper(bytes32 bucket) external view returns(uint256);
+
+    // Ex Mocconverter
+    function docsToBtc(uint256 docAmount) external view returns(uint256);
+    function btcToDoc(uint256 btcAmount) external view returns(uint256);
+    function bproxToBtc(uint256 bproxAmount, bytes32 bucket) external view returns(uint256);
+    function btcToBProx(uint256 btcAmount, bytes32 bucket) external view returns(uint256);
+
+
+}
+
 // File: contracts/MoCHelperLib.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 
 library MoCHelperLib {
@@ -955,7 +1841,7 @@ library MoCHelperLib {
 
 // File: contracts/MoCLibConnection.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 
 /**
@@ -993,994 +1879,9 @@ contract MoCLibConnection {
   uint256[50] private upgradeGap;
 }
 
-// File: zos-lib/contracts/Initializable.sol
-
-pragma solidity >=0.4.24 <0.6.0;
-
-
-/**
- * @title Initializable
- *
- * @dev Helper contract to support initializer functions. To use it, replace
- * the constructor with a function that has the `initializer` modifier.
- * WARNING: Unlike constructors, initializer functions must be manually
- * invoked. This applies both to deploying an Initializable contract, as well
- * as extending an Initializable contract via inheritance.
- * WARNING: When used with inheritance, manual care must be taken to not invoke
- * a parent initializer twice, or ensure that all initializers are idempotent,
- * because this is not dealt with automatically as with constructors.
- */
-contract Initializable {
-
-  /**
-   * @dev Indicates that the contract has been initialized.
-   */
-  bool private initialized;
-
-  /**
-   * @dev Indicates that the contract is in the process of being initialized.
-   */
-  bool private initializing;
-
-  /**
-   * @dev Modifier to use in the initializer function of a contract.
-   */
-  modifier initializer() {
-    require(initializing || isConstructor() || !initialized, "Contract instance has already been initialized");
-
-    bool isTopLevelCall = !initializing;
-    if (isTopLevelCall) {
-      initializing = true;
-      initialized = true;
-    }
-
-    _;
-
-    if (isTopLevelCall) {
-      initializing = false;
-    }
-  }
-
-  /// @dev Returns true if and only if the function is running in the constructor
-  function isConstructor() private view returns (bool) {
-    // extcodesize checks the size of the code stored in an address, and
-    // address returns the current address. Since the code is still not
-    // deployed when running a constructor, any checks on its code size will
-    // yield zero, making it an effective way to detect if a contract is
-    // under construction or not.
-    uint256 cs;
-    assembly { cs := extcodesize(address) }
-    return cs == 0;
-  }
-
-  // Reserved storage space to allow for layout changes in the future.
-  uint256[50] private ______gap;
-}
-
-// File: contracts/base/MoCWhitelist.sol
-
-pragma solidity 0.5.8;
-
-/**
-  @dev Provides access control between all MoC Contracts
- */
-contract MoCWhitelist {
-  mapping(address => bool) whitelist;
-
-  /**
-   * @dev Check if an account is whitelisted
-   * @return Bool
-   */
-  function isWhitelisted(address account)
-    public
-    view
-    returns (bool)
-  {
-    require(account != address(0), "Account must not be 0x0");
-    return whitelist[account];
-  }
-
-  /**
-   * @dev Add account to whitelist
-   */
-  function add(address account) internal {
-    require(account != address(0), "Account must not be 0x0");
-    require(!isWhitelisted(account), "Account not allowed to add accounts into white list");
-    whitelist[account] = true;
-  }
-
-  /**
-   * @dev Remove account from whitelist
-   */
-  function remove(address account) internal {
-    require(account != address(0), "Account must not be 0x0");
-    require(isWhitelisted(account), "Account is not allowed to remove address from the white list");
-
-    whitelist[account] = false;
-  }
-
-  // Leave a gap betweeen inherited contracts variables in order to be
-  // able to add more variables in them later
-  uint256[50] private upgradeGap;
-}
-
-// File: contracts/base/MoCConnector.sol
-
-pragma solidity 0.5.8;
-
-
-
-/**
-  @dev Provides access control between all MoC Contracts
- */
-contract MoCConnector is MoCWhitelist, Initializable {
-  // References
-  address payable public moc;
-  address public docToken;
-  address public bproToken;
-  address public bproxManager;
-  address public mocState;
-  address public mocConverter;
-  address public mocSettlement;
-  address public mocExchange;
-  address public mocInrate;
-  /** DEPRECATED mocBurnout **/
-  address public mocBurnout;
-
-  bool internal initialized;
-
-  /**
-    @dev Initializes the contract
-    @param mocAddress MoC contract address
-    @param docAddress DoCToken contract address
-    @param bproAddress BProToken contract address
-    @param bproxAddress BProxManager contract address
-    @param stateAddress MoCState contract address
-    @param settlementAddress MoCSettlement contract address
-    @param converterAddress MoCConverter contract address
-    @param exchangeAddress MoCExchange contract address
-    @param inrateAddress MoCInrate contract address
-    @param burnoutBookAddress (DEPRECATED) MoCBurnout contract address. DO NOT USE.
-  */
-  function initialize(
-    address payable mocAddress,
-    address docAddress,
-    address bproAddress,
-    address bproxAddress,
-    address stateAddress,
-    address settlementAddress,
-    address converterAddress,
-    address exchangeAddress,
-    address inrateAddress,
-    address burnoutBookAddress
-  ) public initializer {
-    moc = mocAddress;
-    docToken = docAddress;
-    bproToken = bproAddress;
-    bproxManager = bproxAddress;
-    mocState = stateAddress;
-    mocSettlement = settlementAddress;
-    mocConverter = converterAddress;
-    mocExchange = exchangeAddress;
-    mocInrate = inrateAddress;
-    mocBurnout = burnoutBookAddress;
-
-    // Add to Whitelist
-    add(mocAddress);
-    add(docAddress);
-    add(bproAddress);
-    add(bproxAddress);
-    add(stateAddress);
-    add(settlementAddress);
-    add(converterAddress);
-    add(exchangeAddress);
-    add(inrateAddress);
-    add(burnoutBookAddress);
-  }
-
-  // Leave a gap betweeen inherited contracts variables in order to be
-  // able to add more variables in them later
-  uint256[50] private upgradeGap;
-}
-
-// File: contracts/base/MoCConstants.sol
-
-pragma solidity 0.5.8;
-
-/**
- * @dev Defines special constants to use along all the MoC System
- */
-contract MoCConstants {
-  bytes32 constant public BUCKET_X2 = "X2";
-  bytes32 constant public BUCKET_C0 = "C0";
-}
-
-// File: contracts/base/MoCBase.sol
-
-pragma solidity 0.5.8;
-
-
-
-
-/**
-  @dev General usefull modifiers and functions
- */
-contract MoCBase is MoCConstants, Initializable {
-  // Contracts
-  MoCConnector public connector;
-
-  bool internal initialized;
-
-  function initializeBase(address connectorAddress) internal initializer {
-    connector = MoCConnector(connectorAddress);
-  }
-
-  modifier onlyWhitelisted(address account) {
-    require(connector.isWhitelisted(account), "Address is not whitelisted");
-    _;
-  }
-
-  // Leave a gap betweeen inherited contracts variables in order to be
-  // able to add more variables in them later
-  uint256[50] private upgradeGap;
-}
-
-// File: openzeppelin-solidity/contracts/math/Math.sol
-
-pragma solidity ^0.5.0;
-
-/**
- * @dev Standard math utilities missing in the Solidity language.
- */
-library Math {
-    /**
-     * @dev Returns the largest of two numbers.
-     */
-    function max(uint256 a, uint256 b) internal pure returns (uint256) {
-        return a >= b ? a : b;
-    }
-
-    /**
-     * @dev Returns the smallest of two numbers.
-     */
-    function min(uint256 a, uint256 b) internal pure returns (uint256) {
-        return a < b ? a : b;
-    }
-
-    /**
-     * @dev Returns the average of two numbers. The result is rounded towards
-     * zero.
-     */
-    function average(uint256 a, uint256 b) internal pure returns (uint256) {
-        // (a + b) / 2 can overflow, so we distribute
-        return (a / 2) + (b / 2) + ((a % 2 + b % 2) / 2);
-    }
-}
-
-// File: moc-governance/contracts/Governance/ChangeContract.sol
-
-pragma solidity 0.5.8;
-
-/**
-  @title ChangeContract
-  @notice This interface is the one used by the governance system.
-  @dev If you plan to do some changes to a system governed by this project you should write a contract
-  that does those changes, like a recipe. This contract MUST not have ANY kind of public or external function
-  that modifies the state of this ChangeContract, otherwise you could run into front-running issues when the governance
-  system is fully in place.
- */
-interface ChangeContract {
-
-  /**
-    @notice Override this function with a recipe of the changes to be done when this ChangeContract
-    is executed
-   */
-  function execute() external;
-}
-
-// File: moc-governance/contracts/Governance/IGovernor.sol
-
-pragma solidity 0.5.8;
-
-
-/**
-  @title Governor
-  @notice Governor interface. This functions should be overwritten to
-  enable the comunnication with the rest of the system
-  */
-interface IGovernor{
-
-  /**
-    @notice Function to be called to make the changes in changeContract
-    @dev This function should be protected somehow to only execute changes that
-    benefit the system. This decision process is independent of this architechture
-    therefore is independent of this interface too
-    @param changeContract Address of the contract that will execute the changes
-   */
-  function executeChange(ChangeContract changeContract) external;
-
-  /**
-    @notice Function to be called to make the changes in changeContract
-    @param _changer Address of the contract that will execute the changes
-   */
-  function isAuthorizedChanger(address _changer) external view returns (bool);
-}
-
-// File: moc-governance/contracts/Governance/Governed.sol
-
-pragma solidity 0.5.8;
-
-
-
-/**
-  @title Governed
-  @notice Base contract to be inherited by governed contracts
-  @dev This contract is not usable on its own since it does not have any _productive useful_ behaviour
-  The only purpose of this contract is to define some useful modifiers and functions to be used on the
-  governance aspect of the child contract
-  */
-contract Governed is Initializable {
-
-  /**
-    @notice The address of the contract which governs this one
-   */
-  IGovernor public governor;
-
-  string constant private NOT_AUTHORIZED_CHANGER = "not_authorized_changer";
-
-  /**
-    @notice Modifier that protects the function
-    @dev You should use this modifier in any function that should be called through
-    the governance system
-   */
-  modifier onlyAuthorizedChanger() {
-    require(governor.isAuthorizedChanger(msg.sender), NOT_AUTHORIZED_CHANGER);
-    _;
-  }
-
-  /**
-    @notice Initialize the contract with the basic settings
-    @dev This initialize replaces the constructor but it is not called automatically.
-    It is necessary because of the upgradeability of the contracts
-    @param _governor Governor address
-   */
-  function initialize(IGovernor _governor) public initializer {
-    governor = _governor;
-  }
-
-  /**
-    @notice Change the contract's governor. Should be called through the old governance system
-    @param newIGovernor New governor address
-   */
-  function changeIGovernor(IGovernor newIGovernor) public onlyAuthorizedChanger {
-    governor = newIGovernor;
-  }
-
-  // Leave a gap betweeen inherited contracts variables in order to be
-  // able to add more variables in them later
-  uint256[50] private upgradeGap;
-}
-
-// File: contracts/MoCBucketContainer.sol
-
-pragma solidity 0.5.8;
-
-
-
-
-
-contract MoCBucketContainer is MoCBase, Governed {
-  using SafeMath for uint256;
-  using Math for uint256;
-
-  struct BProxBalance {
-    uint256 value;
-    uint index; // Index start in 1, zero is reserved for NULL
-  }
-
-  struct MoCBucket {
-    bytes32 name;
-    bool isBase;
-    uint256 nDoc;
-    uint256 nBPro;
-    uint256 nBTC;
-    uint256 cobj;
-    // Should only be used in L buckets
-    mapping(address => BProxBalance) bproxBalances;
-    address payable[] activeBalances;
-    uint256 activeBalancesLength;
-    // Should only be used in Base buckets (C0)
-    uint256 inrateBag;
-    bool available;
-  }
-
-  event BucketMovement(
-    bytes32 from,
-    bytes32 to,
-    uint256 reserves,
-    uint256 stableTokens
-  );
-
-  event BucketCreation(
-    bytes32 name,
-    uint256 cobj
-  );
-
-  event BucketStateUpdate(
-    bytes32 name,
-    uint256 nReserve,
-    uint256 nStable,
-    uint256 nRiskProx,
-    uint256 inrateBag
-  );
-
-  mapping(bytes32 => MoCBucket) internal mocBuckets;
-
-   /**
-   GETTERS
-   */
-  function getBucketNBTC(bytes32 bucket) public view returns(uint256) {
-    return mocBuckets[bucket].nBTC;
-  }
-
-  function getBucketNBPro(bytes32 bucket) public view returns(uint256) {
-    return mocBuckets[bucket].nBPro;
-  }
-
-  function getBucketNDoc(bytes32 bucket) public view returns(uint256) {
-    return mocBuckets[bucket].nDoc;
-  }
-
-  function getBucketCobj(bytes32 bucket) public view returns(uint256) {
-    return mocBuckets[bucket].cobj;
-  }
-
-  function getInrateBag(bytes32 bucket) public view returns(uint256) {
-    return mocBuckets[bucket].inrateBag;
-  }
-
-  /**
-   * @dev Sets the objective coverage (cobj) on an specficied bucket.
-   * @param  _bucket - name of the bucket
-   * @param  _cobj - new value of cobj
-   */
-  function setBucketCobj(bytes32 _bucket, uint256 _cobj) public onlyAuthorizedChanger(){
-    //TODO: It is necessary to analyze the impact in the model it has when changing X2. This
-    mocBuckets[_bucket].cobj = _cobj;
-  }
-
-  /**
-    @dev returns true if the bucket is a base bucket
-    @param bucket Name of the bucket
-  */
-  function isBucketBase(bytes32 bucket) public view returns(bool){
-    return mocBuckets[bucket].isBase;
-  }
-
-  /**
-    @dev returns true if the bucket have docs in it
-    @param bucket Name of the bucket
-  */
-  function isBucketEmpty(bytes32 bucket) public view returns(bool) {
-    return mocBuckets[bucket].nDoc == 0;
-  }
-
-  /**
-    @dev Returns all the address that currently have bprox position for this bucket
-    @param bucket bucket of the active address
-  */
-  function getActiveAddresses(bytes32 bucket) public view returns(address payable[] memory) {
-    return mocBuckets[bucket].activeBalances;
-  }
-
-  /**
-    @dev Returns all the address that currently have bprox position for this bucket
-    @param bucket bucket of the active address
-  */
-  function getActiveAddressesCount(bytes32 bucket) public view returns(uint256 count) {
-    return mocBuckets[bucket].activeBalancesLength;
-  }
-
-  /**
-    @dev Add values to all variables of the bucket
-    @param bucketName Name of the bucket
-    @param btc BTC amount [using reservePrecision]
-    @param doc Doc amount [using mocPrecision]
-    @param bprox BPro amount [using mocPrecision]
-  */
-  function addValuesToBucket(bytes32 bucketName, uint256 btc, uint256 doc, uint256 bprox)
-  public onlyWhitelisted(msg.sender) {
-    MoCBucket storage bucket = mocBuckets[bucketName];
-
-    bucket.nBTC = bucket.nBTC.add(btc);
-    bucket.nDoc = bucket.nDoc.add(doc);
-    bucket.nBPro = bucket.nBPro.add(bprox);
-  }
-
-  /**
-    @dev Substract values to all variables of the bucket
-    @param bucketName Name of the bucket
-    @param btc BTC amount [using reservePrecision]
-    @param doc Doc amount [using mocPrecision]
-    @param bprox BPro amount [using mocPrecision]
-  */
-  function substractValuesFromBucket(bytes32 bucketName, uint256 btc, uint256 doc, uint256 bprox)
-  public onlyWhitelisted(msg.sender)  {
-    MoCBucket storage bucket = mocBuckets[bucketName];
-
-    bucket.nBTC = bucket.nBTC.sub(btc);
-    bucket.nDoc = bucket.nDoc.sub(doc);
-    bucket.nBPro = bucket.nBPro.sub(bprox);
-  }
-
-  /**
-    @dev Moves BTC from inrateBag to main BTC bucket bag
-    @param bucketName Name of the bucket to operate
-    @param amount value to move from inrateBag to main bag [using reservePrecision]
-   */
-  function deliverInrate(bytes32 bucketName, uint256 amount) public
-   onlyWhitelisted(msg.sender) onlyBaseBucket(bucketName) bucketStateUpdate(bucketName) {
-    MoCBucket storage bucket = mocBuckets[bucketName];
-
-    uint256 toMove = Math.min(bucket.inrateBag, amount);
-
-    bucket.inrateBag = bucket.inrateBag.sub(toMove);
-    bucket.nBTC = bucket.nBTC.add(toMove);
-  }
-
-  /**
-    @dev Removes Interests rate from Inrate bag
-    @param bucketName Name of the bucket to operate
-    @param amount value to move from inrateBag to main bag [using reservePrecision]
-    @return Retrieved value
-   */
-  function recoverInrate(bytes32 bucketName, uint256 amount) public
-  onlyWhitelisted(msg.sender) onlyBaseBucket(bucketName) bucketStateUpdate(bucketName) returns(uint256) {
-    MoCBucket storage bucket = mocBuckets[bucketName];
-
-    uint256 toRetrieve = Math.min(bucket.inrateBag, amount);
-
-    bucket.inrateBag = bucket.inrateBag.sub(toRetrieve);
-
-    return toRetrieve;
-  }
-
-  /**
-    @dev Moves BTC from origin bucket to destination bucket inrateBag
-    @param bucketName name of the bucket to from which takes
-    @param btcAmount value to add to main bag [using reservePrecision]
-  */
-  function payInrate(bytes32 bucketName, uint256 btcAmount) public
-  onlyWhitelisted(msg.sender) onlyBaseBucket(bucketName) {
-    MoCBucket storage bucket = mocBuckets[bucketName];
-    bucket.inrateBag = bucket.inrateBag.add(btcAmount);
-  }
-
-  /**
-    @dev Move Btcs and Docs from one bucket to another
-    @param from Name of bucket from where the BTCs will be removed
-    @param to Name of bucket from where the BTCs will be added
-    @param btc BTCs amount [using reservePrecision]
-    @param docs Docs amount [using mocPrecision]
-  */
-  function moveBtcAndDocs(bytes32 from, bytes32 to, uint256 btc, uint256 docs) public
-  onlyWhitelisted(msg.sender) bucketStateUpdate(from) bucketStateUpdate(to) {
-    MoCBucket storage bucketFrom = mocBuckets[from];
-    MoCBucket storage bucketTo = mocBuckets[to];
-
-    bucketFrom.nBTC = bucketFrom.nBTC.sub(btc);
-    bucketTo.nBTC = bucketTo.nBTC.add(btc);
-
-    bucketFrom.nDoc = bucketFrom.nDoc.sub(docs);
-    bucketTo.nDoc = bucketTo.nDoc.add(docs);
-
-    emit BucketMovement(from, to, btc, docs);
-  }
-
-  /**
-    @dev Clears completely the origin bucket, removing all Docs, RBTCs and bproxs
-    @param toLiquidate Bucket to be cleared out
-    @param destination Bucket that will receive the Docs and RBTCs
-   */
-  function liquidateBucket(bytes32 toLiquidate, bytes32 destination) public onlyWhitelisted(msg.sender) {
-    require(!isBucketBase(toLiquidate), "Cannot liquidate a base bucket");
-
-    clearBucketBalances(toLiquidate);
-    emptyBucket(toLiquidate, destination);
-  }
-
-  /**
-    @dev Clears Docs and BTC from bucket origin and sends them to destination bucket
-    @param origin Bucket to clear out
-    @param destination Destination bucket
-  */
-  function emptyBucket(bytes32 origin, bytes32 destination) public onlyWhitelisted(msg.sender) {
-    moveBtcAndDocs(origin, destination, mocBuckets[origin].nBTC, mocBuckets[origin].nDoc);
-  }
-
-  /**
-   * @dev checks if a bucket exists
-   * @param bucket name of the bucket
-   */
-  function isAvailableBucket(bytes32 bucket) public view returns(bool) {
-    return mocBuckets[bucket].available;
-  }
-
-  /**
-    @dev Put all bucket BProx balances in zero
-    @param bucketName Bucket to clear out
-   */
-  function clearBucketBalances(bytes32 bucketName) public onlyWhitelisted(msg.sender) {
-    MoCBucket storage bucket = mocBuckets[bucketName];
-    bucket.nBPro = 0;
-    bucket.activeBalancesLength = 0;
-  }
-
-  /**
-    @dev Creates bucket
-    @param name Name of the bucket
-    @param cobj Target Coverage of the bucket
-    @param isBase Indicates if it is a base bucket (true) or not (false)
-  */
-  function createBucket(bytes32 name, uint256 cobj, bool isBase) internal {
-    mocBuckets[name].name = name;
-    mocBuckets[name].nDoc = 0;
-    mocBuckets[name].nBPro = 0;
-    mocBuckets[name].nBTC = 0;
-    mocBuckets[name].cobj = cobj;
-    mocBuckets[name].isBase = isBase;
-    mocBuckets[name].available = true;
-    emit BucketCreation(name, cobj);
-  }
-
-  modifier onlyBaseBucket(bytes32 bucket) {
-    require(isBucketBase(bucket), "Bucket should be a base type bucket");
-    _;
-  }
-
-  modifier bucketStateUpdate(bytes32 bucket) {
-    _;
-    emit BucketStateUpdate(
-      bucket,
-      mocBuckets[bucket].nBTC,
-      mocBuckets[bucket].nDoc,
-      mocBuckets[bucket].nBPro,
-      mocBuckets[bucket].inrateBag
-      );
-  }
-
-  // Leave a gap betweeen inherited contracts variables in order to be
-  // able to add more variables in them later
-  uint256[50] private upgradeGap;
-}
-
-// File: contracts/MoCBProxManager.sol
-
-pragma solidity 0.5.8;
-
-
-
-
-contract MoCBProxManager is MoCBucketContainer {
-  using SafeMath for uint256;
-  uint256 constant MIN_ALLOWED_BALANCE = 0;
-
-  /**
-    @dev Initializes the contract
-    @param connectorAddress MoCConnector contract address
-    @param _governor Governor contract address
-    @param _c0Cobj Bucket C0 objective coverage
-    @param _x2Cobj Bucket X2 objective coverage
-  */
-  function initialize(
-    address connectorAddress,
-    address _governor,
-    uint256 _c0Cobj,
-    uint256 _x2Cobj
-  ) public initializer {
-    initializeBase(connectorAddress);
-    initializeValues(_governor);
-    createBucket(BUCKET_C0, _c0Cobj, true);
-    createBucket(BUCKET_X2, _x2Cobj, false);
-  }
-
-  /**
-    @dev returns user balance
-    @param bucket BProx corresponding bucket to get balance from
-    @param userAddress user address to get balance from
-    @return total balance for the userAddress
-  */
-  function bproxBalanceOf(bytes32 bucket, address userAddress) public view returns(uint256) {
-    BProxBalance memory userBalance = mocBuckets[bucket].bproxBalances[userAddress];
-    if (!hasValidBalance(bucket, userAddress, userBalance.index)) return 0;
-    return userBalance.value;
-  }
-
-  /**
-    @dev verifies that this user has assigned balance for the given bucket
-    @param bucket corresponding Leveraged bucket to get balance from
-    @param userAddress user address to verify balance for
-    @param index index, starting from 1, where the address of the user is being kept
-    @return true if the user has assigned balance
-  */
-  function hasValidBalance(bytes32 bucket, address userAddress, uint index) public view returns(bool) {
-    return (index != 0) &&
-      (index <= getActiveAddressesCount(bucket)) &&
-      (mocBuckets[bucket].activeBalances[index - 1] == userAddress);
-  }
-
-  /**
-    @dev  Assigns the amount of BProx
-    @param bucket bucket from which the BProx will be removed
-    @param account user address to redeem for
-    @param bproxAmount bprox amount to redeem [using mocPresicion]
-    @param totalCost btc value of bproxAmount [using reservePrecision]
-  */
-  function assignBProx(bytes32 bucket, address payable account, uint256 bproxAmount, uint256 totalCost)
-  public onlyWhitelisted(msg.sender) {
-    uint256 currentBalance = bproxBalanceOf(bucket, account);
-
-    setBProxBalanceOf(bucket, account, currentBalance.add(bproxAmount));
-    addValuesToBucket(bucket, totalCost, 0, bproxAmount);
-  }
-
-  /**
-    @dev Removes the amount of BProx and substract BTC cost from bucket
-    @param bucket bucket from which the BProx will be removed
-    @param userAddress user address to redeem for
-    @param bproxAmount bprox amount to redeem [using mocPresicion]
-    @param totalCost btc value of bproxAmount [using reservePrecision]
-  */
-  function removeBProx(bytes32 bucket, address payable userAddress, uint256 bproxAmount, uint256 totalCost)
-  public onlyWhitelisted(msg.sender) {
-    uint256 currentBalance = bproxBalanceOf(bucket, userAddress);
-
-    setBProxBalanceOf(bucket, userAddress, currentBalance.sub(bproxAmount));
-    substractValuesFromBucket(bucket, totalCost, 0, bproxAmount);
-  }
-
-  /**
-    @dev Sets the amount of BProx
-    @param bucket bucket from which the BProx will be setted
-    @param userAddress user address to redeem for
-    @param value bprox amount to redeem [using mocPresicion]
-  */
-  function setBProxBalanceOf(bytes32 bucket, address payable userAddress, uint256 value) public onlyWhitelisted(msg.sender) {
-    mocBuckets[bucket].bproxBalances[userAddress].value = value;
-    uint256 index = mocBuckets[bucket].bproxBalances[userAddress].index;
-    if (!hasValidBalance(bucket, userAddress, index))
-      index = 0;
-
-    bool hasBalance = value > MIN_ALLOWED_BALANCE;
-    // The address is not in the array
-    if (index == 0) {
-      if (hasBalance) {
-        if (mocBuckets[bucket].activeBalances.length == mocBuckets[bucket].activeBalancesLength) {
-          mocBuckets[bucket].activeBalances.length += 1;
-        }
-        uint256 currentIndex = mocBuckets[bucket].activeBalancesLength++;
-        mocBuckets[bucket].activeBalances[currentIndex] = userAddress;
-        mocBuckets[bucket].bproxBalances[userAddress].index = mocBuckets[bucket].activeBalancesLength;
-      }
-    } else {
-      if (!hasBalance) {
-        // We need to delete this address from the tracker
-        uint256 lastActiveIndex = mocBuckets[bucket].activeBalancesLength;
-        address payable keyToMove = mocBuckets[bucket].activeBalances[lastActiveIndex - 1];
-        mocBuckets[bucket].activeBalances[index - 1] = keyToMove;
-        // Alternative index and array decreases lenght to prevent gas limit
-        mocBuckets[bucket].activeBalancesLength--;
-        // Update moved key index
-        mocBuckets[bucket].bproxBalances[keyToMove].index = index;
-        // Disable empty account index (0 == NULL)
-        mocBuckets[bucket].bproxBalances[userAddress].index = 0;
-      }
-    }
-  }
-
-  /**
-   @dev intializes values of the contract
-   @param _governor Governor contract address
-  */
-  function initializeValues(address _governor) internal {
-    governor = IGovernor(_governor);
-  }
-
-  // Leave a gap betweeen inherited contracts variables in order to be
-  // able to add more variables in them later
-  uint256[50] private upgradeGap;
-}
-
-// File: contracts/interface/IMoCState.sol
-
-pragma solidity 0.5.8;
-
-interface IMoCState {
-
-     /******STATE MACHINE*********/
-    enum States {
-        // State 0
-        Liquidated,
-        // State 1
-        BProDiscount,
-        // State 2
-        BelowCobj,
-        // State 3
-        AboveCobj
-    }
-
-
-    function addToRbtcInSystem(uint256 btcAmount) external;
-
-    function subtractRbtcFromSystem(uint256 btcAmount) external;
-
-    function coverage(bytes32 bucket) external view returns(uint256);
-
-    function getRbtcRemainder() external view returns(uint256);
-
-    function liq() external view returns(uint256);
-
-    function state() external view returns(States);
-
-    function peg() external view returns(uint256);
-
-    function dayBlockSpan() external view returns(uint256);
-
-    function getBitcoinPrice() external view returns(uint256);
-
-    function getMoCPrice() external view returns(uint256);
-
-    function getProtected() external view returns(uint256);
-
-    function globalCoverage() external view returns(uint256);
-
-    function getMoCVendors() external view returns(address);
-
-    function getMoCToken() external view returns(address);
-
-    function nextState() external;
-
-    function maxBProWithDiscount() external view returns(uint256);
-
-    function absoluteMaxBPro() external view returns(uint256);
-
-    function absoluteMaxDoc() external view returns(uint256);
-
-    function freeDoc() external view returns(uint256);
-
-    function bproTecPrice() external view returns(uint256);
-
-    function bproSpotDiscountRate() external view returns(uint256);
-
-    function bproDiscountPrice() external view returns(uint256);
-
-    function bucketBProTecPrice(bytes32 bucket) external view returns(uint256);
-
-    function currentAbundanceRatio() external view returns(uint256);
-
-    function abundanceRatio(uint256 doc0) external view returns(uint256);
-
-    function daysToSettlement() external view returns(uint256);
-
-    function leverage(bytes32 bucket) external view returns(uint256);
-
-    function getBucketNBTC(bytes32 bucket) external view returns(uint256);
-
-    function getLiquidationPrice() external view returns(uint256);
-
-    function maxBProxBtcValue(bytes32 bucket) external view returns(uint256);
-
-    function bucketBProTecPriceHelper(bytes32 bucket) external view returns(uint256);
-}
-
-// File: contracts/MoCConverter.sol
-
-pragma solidity 0.5.8;
-
-
-
-
-contract MoCConverter is MoCBase, MoCLibConnection {
-  IMoCState internal mocState;
-
-  function initialize(address connectorAddress) public initializer {
-    initializePrecisions();
-    initializeBase(connectorAddress);
-    mocState = IMoCState(connector.mocState());
-  }
-
-  /**
-  * @dev BTC equivalent for the amount of bpros given
-  * @param amount Amount of BPro to calculate the total price
-  * @return total BTC Price of the amount BPros [using reservePrecision]
-  */
-  function bproToBtc(uint256 amount) public view returns(uint256) {
-    uint256 tecPrice = mocState.bproTecPrice();
-
-    return mocLibConfig.totalBProInBtc(amount, tecPrice);
-  }
-
-  /**
-  * @dev Converts BTC to BPro
-  * @param btcAmount BTC amount
-  * @return BPro amount
-  */
-  function btcToBPro(uint256 btcAmount) public view returns(uint256) {
-    return mocLibConfig.maxBProWithBtc(btcAmount, mocState.bproTecPrice());
-  }
-
-  /**
-  * @dev BTC equivalent for the amount of bpro given applying the spotDiscountRate
-  * @param amount amount of BPro [using mocPrecision]
-  * @return BTC amount
-  */
-  function bproDiscToBtc(uint256 amount) public view returns(uint256) {
-    uint256 discountRate = mocState.bproSpotDiscountRate();
-    uint256 totalBtcValue = bproToBtc(amount);
-
-    return mocLibConfig.applyDiscountRate(totalBtcValue, discountRate);
-  }
-
-  function btcToBProDisc(uint256 btcAmount) public view returns(uint256) {
-    return mocLibConfig.maxBProWithBtc(btcAmount, mocState.bproDiscountPrice());
-  }
-
-  function docsToBtc(uint256 docAmount) public view returns(uint256) {
-    return mocLibConfig.docsBtcValue(docAmount, mocState.peg(), mocState.getBitcoinPrice());
-  }
-
-  function docsToBtcWithPrice(uint256 docAmount, uint256 btcPrice) public view returns(uint256) {
-    return mocLibConfig.docsBtcValue(docAmount, mocState.peg(), btcPrice);
-  }
-
-  function btcToDoc(uint256 btcAmount) public view returns(uint256) {
-    return mocLibConfig.maxDocsWithBtc(btcAmount, mocState.getBitcoinPrice());
-  }
-
-  function bproxToBtc(uint256 bproxAmount, bytes32 bucket) public view returns(uint256) {
-    return mocLibConfig.bproBtcValue(bproxAmount, mocState.bucketBProTecPrice(bucket));
-  }
-
-  function bproxToBtcHelper(uint256 bproxAmount, bytes32 bucket) public view returns(uint256) {
-    return mocLibConfig.bproBtcValue(bproxAmount, mocState.bucketBProTecPriceHelper(bucket));
-  }
-
-  function btcToBProx(uint256 btcAmount, bytes32 bucket) public view returns(uint256) {
-    return mocLibConfig.maxBProWithBtc(btcAmount, mocState.bucketBProTecPrice(bucket));
-  }
-
-  function btcToBProWithPrice(uint256 btcAmount, uint256 price) public view returns(uint256) {
-    return mocLibConfig.maxBProWithBtc(btcAmount, price);
-  }
-
-  function bproToBtcWithPrice(uint256 bproAmount, uint256 bproPrice) public view returns(uint256) {
-    return mocLibConfig.bproBtcValue(bproAmount, bproPrice);
-  }
-
-  function mocToBtc(uint256 mocAmount) public view returns(uint256) {
-    return mocLibConfig.mocBtcValue(mocAmount, mocState.getBitcoinPrice(), mocState.getMoCPrice());
-  }
-
-  function btcToMoC(uint256 btcAmount) public view returns(uint256) {
-    return mocLibConfig.maxMoCWithBtc(btcAmount, mocState.getBitcoinPrice(), mocState.getMoCPrice());
-  }
-
-  function mocToBtcWithPrice(uint256 mocAmount, uint256 btcPrice, uint256 mocPrice) public view returns(uint256) {
-    return mocLibConfig.mocBtcValue(mocAmount, btcPrice, mocPrice);
-  }
-
-  function btcToMoCWithPrice(uint256 btcAmount, uint256 btcPrice, uint256 mocPrice) public view returns(uint256) {
-    return mocLibConfig.maxMoCWithBtc(btcAmount, btcPrice, mocPrice);
-  }
-
-  // Leave a gap betweeen inherited contracts variables in order to be
-  // able to add more variables in them later
-  uint256[50] private upgradeGap;
-}
-
 // File: contracts/interface/IMoCSettlement.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 interface IMoCSettlement {
     function getRedeemRequestAt(uint256 _index) external view returns (address payable, uint256);
@@ -2004,7 +1905,7 @@ interface IMoCSettlement {
 
 // File: contracts/interface/IMoCExchange.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 interface IMoCExchange {
     function getMoCTokenBalance(address owner, address spender) external view
@@ -2031,8 +1932,6 @@ interface IMoCExchange {
     function redeemAllDoc(address origin, address payable destination) external
     returns (uint256);
 
-    function convertToMoCPrice(uint256 btcAmount) external view returns (uint256, uint256, uint256);
-
     function forceRedeemBProx(bytes32 bucket, address payable account, uint256 bproxAmount, uint256 bproxPrice)
     external returns (bool);
 
@@ -2042,7 +1941,7 @@ interface IMoCExchange {
 
 // File: moc-governance/contracts/Stopper/Stoppable.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 
 
@@ -2263,7 +2162,7 @@ interface IERC20 {
 
 // File: contracts/interface/IMoCVendors.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 interface IMoCVendors {
     function resetTotalPaidInMoC() external;
@@ -2280,12 +2179,13 @@ interface IMoCVendors {
     function getMarkup(address account) external view
     returns (uint256);
 
-    function updatePaidMarkup(address account, uint256 mocAmount, uint256 rbtcAmount, uint256 totalMoCAmount) external;
+    function updatePaidMarkup(address account, uint256 mocAmount, uint256 rbtcAmount) external
+    returns(bool);
 }
 
 // File: contracts/interface/IMoCInrate.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 interface IMoCInrate {
     // Transaction types
@@ -2335,7 +2235,7 @@ interface IMoCInrate {
 
 // File: contracts/interface/IMoC.sol
 
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 interface IMoC {
     function() external payable;
@@ -2345,8 +2245,7 @@ interface IMoC {
 
 // File: contracts/MoC.sol
 
-pragma solidity 0.5.8;
-
+pragma solidity ^0.5.8;
 
 
 
@@ -2375,7 +2274,9 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
   address internal bproToken;
   MoCBProxManager internal bproxManager;
   IMoCState internal mocState;
-  MoCConverter internal mocConverter;
+  /** DEPRECATED **/
+  // solium-disable-next-line mixedcase
+  address internal DEPRECATED_mocConverter;
   IMoCSettlement internal settlement;
   IMoCExchange internal mocExchange;
   IMoCInrate internal mocInrate;
@@ -2417,7 +2318,6 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
     bproxManager = MoCBProxManager(connector.bproxManager());
     mocState = IMoCState(connector.mocState());
     settlement = IMoCSettlement(connector.mocSettlement());
-    mocConverter = MoCConverter(connector.mocConverter());
     mocExchange = IMoCExchange(connector.mocExchange());
     mocInrate = IMoCInrate(connector.mocInrate());
     //initializeGovernanceContracts
@@ -2495,7 +2395,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
     @param btcToMint Amount in BTC to mint
     @param vendorAccount Vendor address
    */
-  function mintBProVendors(uint256 btcToMint, address vendorAccount)
+  function mintBProVendors(uint256 btcToMint, address payable vendorAccount)
   public payable
   whenNotPaused() transitionState() notInProtectionMode() {
     /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
@@ -2532,7 +2432,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
     @param bproAmount Amount in Bpro
     @param vendorAccount Vendor address
   */
-  function redeemBProVendors(uint256 bproAmount, address vendorAccount)
+  function redeemBProVendors(uint256 bproAmount, address payable vendorAccount)
   public
   whenNotPaused() transitionState() atLeastState(IMoCState.States.AboveCobj) {
     /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
@@ -2542,9 +2442,15 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
     uint256 btcMarkup,
     uint256 mocMarkup) = mocExchange.redeemBPro(msg.sender, bproAmount, vendorAccount);
 
-    redeemWithMoCFees(msg.sender, btcCommission, mocCommission, vendorAccount, btcMarkup, mocMarkup);
-
-    doTransfer(msg.sender, btcAmount);
+    redeemWithCommission(
+      msg.sender,
+      btcAmount,
+      btcCommission,
+      mocCommission,
+      vendorAccount,
+      btcMarkup,
+      mocMarkup
+    );
     /** END UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
   }
 
@@ -2563,7 +2469,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
    * @param btcToMint Amount in RBTC to mint
    * @param vendorAccount Vendor address
    */
-  function mintDocVendors(uint256 btcToMint, address vendorAccount)
+  function mintDocVendors(uint256 btcToMint, address payable vendorAccount)
   public payable
   whenNotPaused() transitionState() atLeastState(IMoCState.States.AboveCobj) {
     /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
@@ -2602,7 +2508,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
     @param bproxAmount Amount in Bprox
     @param vendorAccount Vendor address
   */
-  function redeemBProxVendors(bytes32 bucket, uint256 bproxAmount, address vendorAccount) public
+  function redeemBProxVendors(bytes32 bucket, uint256 bproxAmount, address payable vendorAccount) public
   whenNotPaused() whenSettlementReady() availableBucket(bucket) notBaseBucket(bucket)
   transitionState() bucketStateTransition(bucket) {
     /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
@@ -2612,9 +2518,15 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
     uint256 btcMarkup,
     uint256 mocMarkup) = mocExchange.redeemBProx(msg.sender, bucket, bproxAmount, vendorAccount);
 
-    redeemWithMoCFees(msg.sender, btcCommission, mocCommission, vendorAccount, btcMarkup, mocMarkup);
-
-    doTransfer(msg.sender, totalBtcRedeemed);
+    redeemWithCommission(
+      msg.sender,
+      totalBtcRedeemed,
+      btcCommission,
+      mocCommission,
+      vendorAccount,
+      btcMarkup,
+      mocMarkup
+    );
     /** END UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
   }
 
@@ -2634,7 +2546,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
     @param btcToMint amount to mint on RBTC
     @param vendorAccount Vendor address
   */
-  function mintBProxVendors(bytes32 bucket, uint256 btcToMint, address vendorAccount) public payable
+  function mintBProxVendors(bytes32 bucket, uint256 btcToMint, address payable vendorAccount) public payable
   whenNotPaused() whenSettlementReady() availableBucket(bucket) notBaseBucket(bucket)
   transitionState() bucketStateTransition(bucket) {
     /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
@@ -2672,7 +2584,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
     @param docAmount Amount of Docs to redeem.
     @param vendorAccount Vendor address
   */
-  function redeemFreeDocVendors(uint256 docAmount, address vendorAccount)
+  function redeemFreeDocVendors(uint256 docAmount, address payable vendorAccount)
   public
   whenNotPaused() transitionState() notInProtectionMode() {
     /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
@@ -2682,9 +2594,15 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
     uint256 btcMarkup,
     uint256 mocMarkup) = mocExchange.redeemFreeDoc(msg.sender, docAmount, vendorAccount);
 
-    redeemWithMoCFees(msg.sender, btcCommission, mocCommission, vendorAccount, btcMarkup, mocMarkup);
-
-    doTransfer(msg.sender, btcAmount);
+    redeemWithCommission(
+      msg.sender,
+      btcAmount,
+      btcCommission,
+      mocCommission,
+      vendorAccount,
+      btcMarkup,
+      mocMarkup
+    );
     /** END UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
   }
 
@@ -2851,28 +2769,26 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
     uint256 totalBtcSpent,
     uint256 btcCommission,
     uint256 mocCommission,
-    address vendorAccount,
+    address payable vendorAccount,
     uint256 btcMarkup,
     uint256 mocMarkup
   )
   internal {
-    uint256 totalMoCFee = mocCommission.add(mocMarkup);
-
-    if (totalMoCFee == 0) {
-      totalBtcSpent = totalBtcSpent.add(btcCommission).add(btcMarkup);
-      require(totalBtcSpent <= value, "amount is not enough");
+    uint256 totalBtcWithFees = totalBtcSpent;
+    if (mocCommission.add(mocMarkup) == 0) {
+      totalBtcWithFees = totalBtcSpent.add(btcCommission).add(btcMarkup);
     }
+    require(totalBtcWithFees <= value, "amount is not enough");
 
     // Need to update general State
-    mocState.addToRbtcInSystem(value);
+    mocState.addToRbtcInSystem(totalBtcSpent);
 
-    transferMocCommission(sender, mocCommission, vendorAccount, mocMarkup, totalMoCFee);
+    transferMocCommission(sender, mocCommission, vendorAccount, mocMarkup);
 
-    transferBtcCommission(mocLibConfig.getPayableAddress(vendorAccount), btcCommission, btcMarkup);
+    transferBtcCommission(vendorAccount, btcCommission, btcMarkup);
 
     // Calculate change
-    uint256 change = value.sub(totalBtcSpent);
-    doTransfer(sender, change);
+    sender.transfer(value.sub(totalBtcWithFees));
   }
 
   /**
@@ -2881,36 +2797,30 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
     @param mocCommission commission amount in MoC
     @param vendorAccount address of vendor
     @param mocMarkup vendor markup in MoC
-    @param totalMoCFee commission + vendor markup in MoC
   */
   // solium-disable-next-line security/no-assign-params
   function transferMocCommission(
     address sender,
     uint256 mocCommission,
     address vendorAccount,
-    uint256 mocMarkup,
-    uint256 totalMoCFee
+    uint256 mocMarkup
   ) internal {
-    IMoCVendors mocVendors = IMoCVendors(mocState.getMoCVendors());
-
     // If commission and markup are paid in MoC
+    uint256 totalMoCFee = mocCommission.add(mocMarkup);
     if (totalMoCFee > 0) {
+      IMoCVendors mocVendors = IMoCVendors(mocState.getMoCVendors());
       // Transfer MoC from sender to this contract
       IERC20 mocToken = IERC20(mocState.getMoCToken());
-      mocToken.transferFrom(sender, address(this), totalMoCFee);
 
       // Transfer vendor markup in MoC
-      if (mocVendors.getIsActive(vendorAccount) &&
-          mocVendors.getTotalPaidInMoC(vendorAccount).add(mocMarkup) <= mocVendors.getStaking(vendorAccount)) {
-        // Update vendor's markup
-        mocVendors.updatePaidMarkup(vendorAccount, mocMarkup, 0, mocMarkup);
+      if (mocVendors.updatePaidMarkup(vendorAccount, mocMarkup, 0)) {
         // Transfer MoC to vendor address
-        mocToken.transfer(vendorAccount, mocMarkup);
+        mocToken.transferFrom(sender, vendorAccount, mocMarkup);
         // Transfer MoC to commissions address
-        mocToken.transfer(mocInrate.commissionsAddress(), mocCommission);
+        mocToken.transferFrom(sender, mocInrate.commissionsAddress(), mocCommission);
       } else {
         // Transfer MoC to commissions address
-        mocToken.transfer(mocInrate.commissionsAddress(), totalMoCFee);
+        mocToken.transferFrom(sender, mocInrate.commissionsAddress(), totalMoCFee);
       }
     }
   }
@@ -2924,20 +2834,23 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
     @param btcMarkup vendor markup in RBTC
     @param mocMarkup vendor markup in MoC
   */
-  function redeemWithMoCFees(
-    address sender,
+  function redeemWithCommission(
+    address payable sender,
+    uint256 btcAmount,
     uint256 btcCommission,
     uint256 mocCommission,
-    address vendorAccount,
+    address payable vendorAccount,
     uint256 btcMarkup,
     uint256 mocMarkup
   )
    internal {
-    uint256 totalMoCFee = mocCommission.add(mocMarkup);
+    mocState.subtractRbtcFromSystem(btcAmount.add(btcMarkup).add(btcCommission));
 
-    transferMocCommission(sender, mocCommission, vendorAccount, mocMarkup, totalMoCFee);
+    transferMocCommission(sender, mocCommission, vendorAccount, mocMarkup);
 
-    transferBtcCommission(mocLibConfig.getPayableAddress(vendorAccount), btcCommission, btcMarkup);
+    transferBtcCommission(vendorAccount, btcCommission, btcMarkup);
+
+    sender.transfer(btcAmount);
   }
 
   /**
@@ -2947,24 +2860,20 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
     @param btcMarkup vendor markup in RBTC
   */
   function transferBtcCommission(address payable vendorAccount, uint256 btcCommission, uint256 btcMarkup) internal {
-    IMoCVendors mocVendors = IMoCVendors(mocState.getMoCVendors());
 
     uint256 totalBtcFee = btcCommission.add(btcMarkup);
-    (uint256 btcMarkupInMoC, , ) = mocExchange.convertToMoCPrice(btcMarkup);
 
     if (totalBtcFee > 0) {
+      IMoCVendors mocVendors = IMoCVendors(mocState.getMoCVendors());
       // Transfer vendor markup in MoC
-      if (mocVendors.getIsActive(vendorAccount) &&
-          mocVendors.getTotalPaidInMoC(vendorAccount).add(btcMarkupInMoC) <= mocVendors.getStaking(vendorAccount)) {
-        // Update vendor's markup
-        mocVendors.updatePaidMarkup(vendorAccount, 0, btcMarkup, btcMarkupInMoC);
+      if (mocVendors.updatePaidMarkup(vendorAccount, 0, btcMarkup)) {
         // Transfer RBTC to vendor address
-        doTransfer(vendorAccount, btcMarkup);
+        vendorAccount.transfer(btcMarkup);
         // Transfer RBTC to commissions address
-        doTransfer(mocInrate.commissionsAddress(), btcCommission);
+        mocInrate.commissionsAddress().transfer(btcCommission);
       } else {
         // Transfer MoC to commissions address
-        doTransfer(mocInrate.commissionsAddress(), totalBtcFee);
+        mocInrate.commissionsAddress().transfer(totalBtcFee);
       }
     }
   }
