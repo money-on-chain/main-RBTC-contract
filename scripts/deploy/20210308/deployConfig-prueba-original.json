@@ -1,0 +1,48 @@
+{
+  "proxyAddresses": {
+    "MoC": "0x71d0921010ca8367835d34f7f3d215047e307581",
+    "MoCConnector": "0x143d20f6688b64d0762692a6ec90e1e8650d4e07",
+    "MoCExchange": "0x9516644aafb05a13c97c575d1890af2a50b8ee6a",
+    "MoCSettlement": "0xc7cc226ed15a0a189e3ea709028081eb8befce46",
+    "MoCInrate": "0x3a11535315682780e096a3369e31dd84d9a32af8",
+    "MoCConverter": "0xd266243a9c940b31f406720693e94af74d73cbcd",
+    "MoCState": "0x56b4a2ebcda50a014f9a5f3d050c49b92badb81d",
+    "MoCVendors": "0x748c0ccbdfeb85df79fe978e9bade1c4aae8c757"
+  },
+  "implementationAddresses": {
+    "MoC": "0x87e091F4380C2Cd283e82dD7fdBd203C05F90395",
+    "MoCConnector": "",
+    "MoCExchange": "0x04B981EaCE9ba47702DA22D9d834c8726124300e",
+    "MoCSettlement": "0x471dAda152CcB397eF88D9eA2FcA500168034d82",
+    "MoCInrate": "0x946ED38864e4242897B3584750fe1bba144e7D40",
+    "MoCConverter": "0x8f08a21Ec8f1FdE4024b89ea2dC0028cC20d8707",
+    "MoCState": "0x96A7679002383D7681E2261d6E9a0998Bf7A7c0f",
+    "ProxyAdmin": "0x03ce6b189f63563bffa070f9e1768413ce1d0f36",
+    "UpgradeDelegator": "0xc7393c6bcf99c526352174fd1bbd9be9c25523ef",
+    "Governor": "0xc5a3d6cbe0eef0cf20cf7ca5540deaac19b2129e",
+    "MoCToken": "0x1dc4bec7ce1ca27ba16f419c514b62c88b9cb567",
+    "MoCPriceProvider": "0xeeae0b52ac1f0d7d139898997b8367dd67e3527c",
+    "MoCVendors": "0x1BD191AF686Dd4Cf721eD3C7cf7a23162045DEEC",
+    "MoCHelperLib": "0xd48f4af7520600f7fe8c4872e666137f9961fb32"
+  },
+  "valuesToAssign": {
+    "commissionRates": {
+      "MINT_BPRO_FEES_RBTC": 0.001,
+      "REDEEM_BPRO_FEES_RBTC": 0.002,
+      "MINT_DOC_FEES_RBTC": 0.003,
+      "REDEEM_DOC_FEES_RBTC": 0.004,
+      "MINT_BTCX_FEES_RBTC": 0.005,
+      "REDEEM_BTCX_FEES_RBTC": 0.006,
+      "MINT_BPRO_FEES_MOC": 0.007,
+      "REDEEM_BPRO_FEES_MOC": 0.008,
+      "MINT_DOC_FEES_MOC": 0.009,
+      "REDEEM_DOC_FEES_MOC": 0.01,
+      "MINT_BTCX_FEES_MOC": 0.011,
+      "REDEEM_BTCX_FEES_MOC": 0.012
+    },
+    "liquidationEnabled": false,
+    "protected": 1.5,
+    "vendorGuardianAddress": "0x9032f510a5b54a005f04e81b5c98b7f201c4dac1"
+  },
+  "changerAddresses": { }
+}

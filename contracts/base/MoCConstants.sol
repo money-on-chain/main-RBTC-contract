@@ -1,4 +1,4 @@
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 /**
  * @dev Defines special constants to use along all the MoC System

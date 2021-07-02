@@ -6,7 +6,7 @@ let toContractBN;
 let BUCKET_X2;
 let BUCKET_C0;
 
-contract('MoC : MoCExchange', function([owner, userAccount]) {
+contract('MoC : MoCExchange', function([owner, userAccount, vendorAccount]) {
   before(async function() {
     mocHelper = await testHelperBuilder({ owner, useMock: true });
     ({ toContractBN } = mocHelper);
@@ -17,8 +17,11 @@ contract('MoC : MoCExchange', function([owner, userAccount]) {
     btcPrice = await mocHelper.getBitcoinPrice();
   });
 
-  beforeEach(function() {
-    return mocHelper.revertState();
+  beforeEach(async function() {
+    await mocHelper.revertState();
+
+    // Register vendor for test
+    await mocHelper.registerVendor(vendorAccount, 0, owner);
   });
 
   describe('BProx minting', function() {
@@ -71,8 +74,8 @@ contract('MoC : MoCExchange', function([owner, userAccount]) {
     describe('GIVEN the user have 18 BPro and 8000 DOCs and Bitcoin price falls to 8000 and days to settlement is 2', function() {
       beforeEach(async function() {
         await this.mocState.setDaysToSettlement(toContractBN(2, 'DAY'));
-        await mocHelper.mintBProAmount(userAccount, 18);
-        await mocHelper.mintDocAmount(userAccount, 80000);
+        await mocHelper.mintBProAmount(userAccount, 18, vendorAccount);
+        await mocHelper.mintDocAmount(userAccount, 80000, vendorAccount);
         // Move price to change BProx price and make it different
         // from BPro price
         btcPrice = toContractBN(8000 * mocHelper.MOC_PRECISION);
@@ -110,7 +113,12 @@ contract('MoC : MoCExchange', function([owner, userAccount]) {
 
             initialBalance = toContractBN(await web3.eth.getBalance(owner));
 
-            const tx = await mocHelper.mintBProxAmount(owner, BUCKET_X2, s.params.nBProx);
+            const tx = await mocHelper.mintBProxAmount(
+              owner,
+              BUCKET_X2,
+              s.params.nBProx,
+              vendorAccount
+            );
             txCost = toContractBN(await mocHelper.getTxCost(tx));
           });
           it(`THEN he receives ${s.expect.nBProx} Bprox`, async function() {

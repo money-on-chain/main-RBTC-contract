@@ -4,7 +4,7 @@ let mocHelper;
 let userAccount;
 let BUCKET_X2;
 
-contract('MoC', function([owner]) {
+contract('MoC', function([owner, vendorAccount]) {
   before(async function() {
     userAccount = owner;
     mocHelper = await testHelperBuilder({ owner, useMock: true });
@@ -15,9 +15,12 @@ contract('MoC', function([owner]) {
 
   describe('GIVEN the user have 100 BPro and 100000 DOCs', function() {
     before(async function() {
+      // Register vendor for test
+      await mocHelper.registerVendor(vendorAccount, 0, owner);
+
       await this.mocState.setDaysToSettlement(0);
-      await mocHelper.mintBProAmount(userAccount, 100);
-      await mocHelper.mintDocAmount(userAccount, 1000000);
+      await mocHelper.mintBProAmount(userAccount, 100, vendorAccount);
+      await mocHelper.mintDocAmount(userAccount, 1000000, vendorAccount);
     });
 
     describe('WHEN a user mints BProx in sequence', function() {
@@ -27,10 +30,7 @@ contract('MoC', function([owner]) {
           // Max at the start
           const lastBtcMax = await this.mocState.maxBProxBtcValue(BUCKET_X2);
           // First minting
-          await this.moc.mintBProx(BUCKET_X2, btcTotal, {
-            from: userAccount,
-            value: btcTotal
-          });
+          await mocHelper.mintBProx(userAccount, BUCKET_X2, nB, vendorAccount, nB);
 
           const newBtcMax = await this.mocState.maxBProxBtcValue(BUCKET_X2);
 

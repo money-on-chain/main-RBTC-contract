@@ -61,7 +61,7 @@ contract('MoCHelperLib: BProDiscount', function([owner]) {
     ];
     states.forEach(state => {
       describe(`GIVEN the liquidationDiscountRate is ${state.discount}, liq is ${state.liq},
-      utpdu is ${state.utpdu} and cov is ${state.cov}`, function() {
+      utpdu is ${state.utpdu} and cov is ${state.coverage}`, function() {
         it(`THEN spot discount rate should be ${state.expect.discount}`, async function() {
           const { discount, liq, utpdu, coverage, expect } = mocHelper.getContractReadyState(state);
           const spotDiscount = await mocHelperLib.bproSpotDiscountRate(

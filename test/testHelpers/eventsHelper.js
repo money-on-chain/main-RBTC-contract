@@ -5,16 +5,15 @@ const BtcPriceProviderMock = artifacts.require('./contracts/mocks/BtcPriceProvid
 const DoC = artifacts.require('./contracts/DocToken.sol');
 const MoC = artifacts.require('./contracts/MoC.sol');
 const MoCState = artifacts.require('./contracts/MoCState.sol');
-const MoCConverter = artifacts.require('./contracts/MoCConverter.sol');
 const MoCExchange = artifacts.require('./contracts/MoCExchange.sol');
 const MoCInrate = artifacts.require('./contracts/MoCInrate.sol');
 const BPro = artifacts.require('./contracts/BProToken.sol');
 const BProxManager = artifacts.require('./contracts/MoCBProxManager.sol');
 const MoCSettlement = artifacts.require('./contracts/MoCSettlement.sol');
-const MoCBurnout = artifacts.require('./contracts/MoCBurnout.sol');
 const Governor = artifacts.require('moc-governance/contracts/Governance/Governor.sol');
 const Stopper = artifacts.require('moc-governance/contracts/Stopper/Stopper.sol');
 const CommissionSplitter = artifacts.require('./CommissionSplitter.sol');
+const MoCVendors = artifacts.require('./MoCVendors.sol');
 
 abiDecoder.addABI(MoC.abi);
 abiDecoder.addABI(DoC.abi);
@@ -24,12 +23,11 @@ abiDecoder.addABI(MoCSettlement.abi);
 abiDecoder.addABI(MoCState.abi);
 abiDecoder.addABI(MoCInrate.abi);
 abiDecoder.addABI(MoCExchange.abi);
-abiDecoder.addABI(MoCConverter.abi);
-abiDecoder.addABI(MoCBurnout.abi);
 abiDecoder.addABI(BtcPriceProviderMock.abi);
 abiDecoder.addABI(Governor.abi);
 abiDecoder.addABI(Stopper.abi);
 abiDecoder.addABI(CommissionSplitter.abi);
+abiDecoder.addABI(MoCVendors.abi);
 
 const objectToString = state =>
   Object.keys(state).reduce(
@@ -68,6 +66,7 @@ const findEvents = (tx, eventName, eventArgs) => {
   if (eventArgs) {
     return events.filter(ev => Object.entries(eventArgs).every(([k, v]) => ev[k] === v));
   }
+
   return events;
 };
 

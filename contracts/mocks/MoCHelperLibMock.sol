@@ -1,13 +1,15 @@
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 import "../MoCHelperLib.sol";
 
 contract MoCHelperLibMock {
-  uint256 constant UINT256_MAX = ~uint256(0);
   using MoCHelperLib for MoCHelperLib.MocLibConfig;
   MoCHelperLib.MocLibConfig internal mocLibConfig;
   event MethodCalled(bytes32 name);
 
+  /**
+    @dev Constructor
+  */
   constructor() public {
     mocLibConfig = MoCHelperLib.MocLibConfig({
       reservePrecision: 10 ** 18,
@@ -61,7 +63,7 @@ contract MoCHelperLibMock {
   // For testing purposes, sends infinite leverage to contract
   function bucketTransferAmountInfiniteLeverage(uint256 nB, uint256 delta)
   public view returns (uint256) {
-    return mocLibConfig.bucketTransferAmount(nB, UINT256_MAX - delta);
+    return mocLibConfig.bucketTransferAmount(nB, mocLibConfig.getMaxInt() - delta);
   }
 
   function bucketTransferAmount(uint256 nB,uint256 lev) public view returns (uint256) {
@@ -89,6 +91,6 @@ contract MoCHelperLibMock {
   function maxBProxBtcValueInfiniteLeverage(
     uint256 nDoc, uint256 peg, uint256 btcPrice, uint256 delta
   ) public view returns (uint256) {
-    return mocLibConfig.maxBProxBtcValue(nDoc, peg, btcPrice, UINT256_MAX - delta);
+    return mocLibConfig.maxBProxBtcValue(nDoc, peg, btcPrice, mocLibConfig.getMaxInt() - delta);
   }
 }

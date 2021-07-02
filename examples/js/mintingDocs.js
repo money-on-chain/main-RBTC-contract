@@ -1,8 +1,9 @@
 const BigNumber = require('bignumber.js');
 const Web3 = require('web3');
-//You must compile the smart contracts or use the official ABIs of the //repository
+//You must compile the smart contracts or use the official ABIs of the repository
 const MocAbi = require('../../build/contracts/MoC.json');
 const MoCInrateAbi = require('../../build/contracts/MoCInrate.json');
+const MoCExchangeAbi = require('../../build/contracts/MoCExchange.json');
 const MoCStateAbi = require('../../build/contracts/MoCState.json');
 const truffleConfig = require('../../truffle');
 
@@ -35,6 +36,7 @@ const gasPrice = getGasPrice('rskTestnet');
 //Contract addresses on testnet
 const mocContractAddress = '<contract-address>';
 const mocInrateAddress = '<contract-address>';
+const mocExchangeAddress = '<contract-address>';
 const mocStateAddress = '<contract-address>';
 
 const execute = async () => {
@@ -59,11 +61,18 @@ const execute = async () => {
     throw Error('Can not find MoC contract.');
   }
 
-  // Loading mocInrate contract. It is necessary to compute commissions
+  // Loading mocInrate contract. It is necessary to get fees for transaction types
   const mocInrate = await getContract(MoCInrateAbi.abi, mocInrateAddress);
   if (!mocInrate) {
     throw Error('Can not find MoC Inrate contract.');
   }
+
+  // Loading mocExchange contract. It is necessary to compute commissions and vendor markup
+  const mocExchange = await getContract(MoCExchangeAbi.abi, mocExchangeAddress);
+  if (!mocExchange) {
+    throw Error('Can not find MoC Exchange contract.');
+  }
+
 
   // Loading mocState contract. It is necessary to compute max BPRO available to mint
   const mocState = await getContract(MoCStateAbi.abi, mocStateAddress);
@@ -71,18 +80,36 @@ const execute = async () => {
     throw Error('Can not find MoCState contract.');
   }
 
-  const mintDoc = async btcAmount => {
+  const mintDoc = async (btcAmount, vendorAccount) => {
     const [from] = await web3.eth.getAccounts();
     const weiAmount = web3.utils.toWei(btcAmount, 'ether');
-    // Computes commision value
-    const commissionValue = new BigNumber(
-      await mocInrate.methods.calcCommissionValue(weiAmount).call()
-    );
-    // Computes totalBtcAmount to call mintBpro
-    const totalBtcAmount = toContract(commissionValue.plus(weiAmount));
+    let btcCommission;
+    let mocCommission;
+    let btcMarkup;
+    let mocMarkup;
+    // Set transaction types
+    const txTypeFeesRBTC = await mocInrate.methods.MINT_DOC_FEES_RBTC();
+    const txTypeFeesMOC = await mocInrate.methods.MINT_DOC_FEES_MOC();
+    // Compute fees
+    const params = {
+      account: from,
+      amount: toContractBN(weiAmount).toString(),
+      txTypeFeesMOC: txTypeFeesMOC.toString(),
+      txTypeFeesRBTC: txTypeFeesRBTC.toString(),
+      vendorAccount
+    };
+
+    ({
+      btcCommission,
+      mocCommission,
+      btcMarkup,
+      mocMarkup
+    } = await mocExchange.methods.calculateCommissionsWithPrices(params, { from }));
+    // Computes totalBtcAmount to call mintDocVendors
+    const totalBtcAmount = toContract(btcCommission.plus(btcMarkup).plus(weiAmount));
     console.log(`Calling Doc minting, account: ${from}, amount: ${weiAmount}.`);
     moc.methods
-      .mintDoc(weiAmount)
+      .mintDocVendors(weiAmount, vendorAccount)
       .send({ from, value: totalBtcAmount, gasPrice }, function(error, transactionHash) {
         if (error) console.log(error);
         if (transactionHash) console.log('txHash: '.concat(transactionHash));
@@ -99,12 +126,13 @@ const execute = async () => {
   // Gets max BPRO available to mint
   const getAbsoluteMaxDoc = await mocState.methods.absoluteMaxDoc().call();
   const btcAmount = '0.00001';
-  
+  const vendorAccount = '<vendor-address>';
+
   console.log('=== Max doc amount available to mint: ', getAbsoluteMaxDoc.toString());
   console.log('=== BTCs that are gonna be minted:  ', btcAmount);
 
   // Call mint
-  await mintDoc(btcAmount);
+  await mintDoc(btcAmount, vendorAccount);
 };
 
 execute()
