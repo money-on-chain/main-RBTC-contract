@@ -12,7 +12,15 @@ const input = {
 const execute = async () => {
   const config = getConfig(input.network);
   const { network } = input;
-  const { mocProportion, commissionAddress, proxyAdmin, moc, governor } = config;
+  const {
+    mocProportion,
+    commissionAddress,
+    proxyAdmin,
+    moc,
+    governor,
+    mocToken,
+    mocTokenCommissionAddress
+  } = config;
 
   return deployProxyContract(
     {
@@ -24,7 +32,9 @@ const execute = async () => {
       mocAddress: moc,
       commissionAddress,
       mocProportion,
-      governor
+      governor,
+      mocToken,
+      mocTokenCommissionAddress
     }
   );
 };

@@ -1,5 +1,5 @@
 const Web3 = require('web3');
-//You must compile the smart contracts or use the official ABIs of the //repository
+//You must compile the smart contracts or use the official ABIs of the repository
 const MocAbi = require('../../build/contracts/MoC.json');
 const MoCStateAbi = require('../../build/contracts/MoCState.json');
 const BProTokenAbi = require('../../build/contracts/BProToken.json');
@@ -67,11 +67,12 @@ const execute = async () => {
 
   const [from] = await web3.eth.getAccounts();
 
-  const redeemBpro = async bproAmount => {
+  const redeemBpro = async (bproAmount, vendorAccount) => {
     const weiAmount = web3.utils.toWei(bproAmount, 'ether');
+
     console.log(`Calling redeem Bpro with account: ${from} and amount: ${weiAmount}.`);
     moc.methods
-      .redeemBPro(weiAmount)
+      .redeemBProVendors(weiAmount, vendorAccount)
       .send({ from, gasPrice }, function(error, transactionHash) {
         if (error) console.log(error);
         if (transactionHash) console.log('txHash: '.concat(transactionHash));
@@ -92,9 +93,10 @@ const execute = async () => {
   console.log('=== User BPro Balance: ', userAmount.toString());
 
   const bproAmount = '0.00001';
+  const vendorAccount = '<vendor-address>';
 
   // Call redeem
-  await redeemBpro(bproAmount);
+  await redeemBpro(bproAmount, vendorAccount);
 };
 
 execute()

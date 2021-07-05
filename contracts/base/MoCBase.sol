@@ -1,4 +1,4 @@
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 import "zos-lib/contracts/Initializable.sol";
 
@@ -8,13 +8,13 @@ import "./MoCConstants.sol";
 /**
   @dev General usefull modifiers and functions
  */
-contract MoCBase is MoCConstants, Initializable{
+contract MoCBase is MoCConstants, Initializable {
   // Contracts
   MoCConnector public connector;
 
   bool internal initialized;
 
-  function initializeBase(address connectorAddress) internal initializer  {
+  function initializeBase(address connectorAddress) internal initializer {
     connector = MoCConnector(connectorAddress);
   }
 

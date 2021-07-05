@@ -1,4 +1,4 @@
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "./MoCLibConnection.sol";
@@ -14,11 +14,11 @@ import "./base/MoCBase.sol";
 import "moc-governance/contracts/Stopper/Stoppable.sol";
 import "moc-governance/contracts/Governance/IGovernor.sol";
 
-contract MoCEvents {
+contract MoCEvents_v019 {
   event BucketLiquidation(bytes32 bucket);
 }
 
-contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable  {
+contract MoC_v019 is MoCEvents_v019, MoCLibConnection, MoCBase, Stoppable  {
   using SafeMath for uint256;
 
   // Contracts

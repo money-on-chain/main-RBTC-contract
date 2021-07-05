@@ -1,0 +1,49 @@
+{
+  "proxyAddresses": {
+    "MoC": "",
+    "MoCConnector": "",
+    "MoCExchange": "",
+    "MoCSettlement": "",
+    "MoCInrate": "",
+    "MoCState": "",
+    "MoCVendors": "",
+    "CommissionSplitter": ""
+  },
+  "implementationAddresses": {
+    "MoC": "",
+    "MoCConnector": "",
+    "MoCExchange": "",
+    "MoCSettlement": "",
+    "MoCInrate": "",
+    "MoCState": "",
+    "ProxyAdmin": "",
+    "UpgradeDelegator": "",
+    "Governor": "",
+    "MoCToken": "",
+    "MoCPriceProvider": "",
+    "MoCVendors": "",
+    "MoCHelperLib": "",
+    "CommissionSplitter": ""
+  },
+  "valuesToAssign": {
+    "commissionRates": {
+      "MINT_BPRO_FEES_RBTC": "",
+      "REDEEM_BPRO_FEES_RBTC": "",
+      "MINT_DOC_FEES_RBTC": "",
+      "REDEEM_DOC_FEES_RBTC": "",
+      "MINT_BTCX_FEES_RBTC": "",
+      "REDEEM_BTCX_FEES_RBTC": "",
+      "MINT_BPRO_FEES_MOC": "",
+      "REDEEM_BPRO_FEES_MOC": "",
+      "MINT_DOC_FEES_MOC": "",
+      "REDEEM_DOC_FEES_MOC": "",
+      "MINT_BTCX_FEES_MOC": "",
+      "REDEEM_BTCX_FEES_MOC": ""
+    },
+    "liquidationEnabled": "",
+    "protected": "",
+    "vendorGuardianAddress": "",
+    "mocTokenCommissionsAddress": ""
+  },
+  "changerAddresses": { }
+}

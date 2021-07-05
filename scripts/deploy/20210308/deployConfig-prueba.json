@@ -1,0 +1,57 @@
+{
+  "proxyAddresses": {
+    "MoC": "0x71d0921010ca8367835d34f7f3d215047e307581",
+    "MoCConnector": "0x143d20f6688b64d0762692a6ec90e1e8650d4e07",
+    "MoCExchange": "0x9516644aafb05a13c97c575d1890af2a50b8ee6a",
+    "MoCSettlement": "0xc7cc226ed15a0a189e3ea709028081eb8befce46",
+    "MoCInrate": "0x3a11535315682780e096a3369e31dd84d9a32af8",
+    "MoCConverter": "0xd266243a9c940b31f406720693e94af74d73cbcd",
+    "MoCState": "0x56b4a2ebcda50a014f9a5f3d050c49b92badb81d",
+    "MoCVendors": "0xF443b2d754736ebFe86B058f9854D3F6AcaC8fC6"
+  },
+  "implementationAddresses": {
+    "MoC": "0x8e9FFB24063cB8AEbaf4D00aFc2f32659d909388",
+    "MoCConnector": "",
+    "MoCExchange": "0x301A5a66BF77e06785332d2D471950bc8AA4D5c0",
+    "MoCSettlement": "0x897F0E0E5038EA9ce29315C1FD29086276cD3A98",
+    "MoCInrate": "0x48a346823595BAb582b7A9b84e4a77E9d663f27A",
+    "MoCConverter": "0x7EB4ad5EAE2689a9DE61A0D7F580526DcBEC225A",
+    "MoCState": "0xbc219B39e9F005139429990aA94deE88117De5A4",
+    "ProxyAdmin": "0x03ce6b189f63563bffa070f9e1768413ce1d0f36",
+    "UpgradeDelegator": "0xc7393c6bcf99c526352174fd1bbd9be9c25523ef",
+    "Governor": "0xc5a3d6cbe0eef0cf20cf7ca5540deaac19b2129e",
+    "MoCToken": "0x1dc4bec7ce1ca27ba16f419c514b62c88b9cb567",
+    "MoCPriceProvider": "0xeeae0b52ac1f0d7d139898997b8367dd67e3527c",
+    "MoCVendors": "0x5c2eEf31921D680b6EF18fe4c12EC3F805a87443",
+    "MoCHelperLib": "0xDb45f39960B6DF34C46a0CAd20c35e0f6Bd5C060"
+  },
+  "valuesToAssign": {
+    "commissionRates": {
+      "MINT_BPRO_FEES_RBTC": 0.001,
+      "REDEEM_BPRO_FEES_RBTC": 0.002,
+      "MINT_DOC_FEES_RBTC": 0.003,
+      "REDEEM_DOC_FEES_RBTC": 0.004,
+      "MINT_BTCX_FEES_RBTC": 0.005,
+      "REDEEM_BTCX_FEES_RBTC": 0.006,
+      "MINT_BPRO_FEES_MOC": 0.007,
+      "REDEEM_BPRO_FEES_MOC": 0.008,
+      "MINT_DOC_FEES_MOC": 0.009,
+      "REDEEM_DOC_FEES_MOC": 0.01,
+      "MINT_BTCX_FEES_MOC": 0.011,
+      "REDEEM_BTCX_FEES_MOC": 0.012
+    },
+    "liquidationEnabled": false,
+    "protected": 1.5,
+    "vendorGuardianAddress": "0x9032f510a5b54a005f04e81b5c98b7f201c4dac1"
+  },
+  "changerAddresses": {
+    "3_MoC": "0x8781F4103f2059e406787373AFcAeE173703CaE7",
+    "4_MoCExchange": "0x986b21099F769dA1b22D45b01bE88Ad5DAFad6Ed",
+    "5_MoCSettlement": "0x0215463935F4b977AF39E21f91673bfDF786bF70",
+    "6_MoCInrate": "0xF4351A0B3ce0e0D21EAc01a37076447cAB482482",
+    "6_MoCInrateChangerDeploy": "0x4309FB3A1E61C5FbC6cb7504E4a409662806023B",
+    "7_MoCConverter": "0x8d7F7C16eE8c330237329fa62466A54b4C044465",
+    "8_MoCState": "0x6d3663b37af655558eBfC7A7bA29E26F64b28E57",
+    "9_MoCStateChangerDeploy": "0xBa16490cc577d527513eFC7EAaDA4e27ad4B6c7d"
+  }
+}

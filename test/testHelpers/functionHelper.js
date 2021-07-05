@@ -1,6 +1,6 @@
 const { BigNumber } = require('bignumber.js');
 const chai = require('chai');
-const { toContract } = require('../../utils/numberHelper');
+const { toContract, toBigNumber } = require('../../utils/numberHelper');
 const { toContractBNNoPrec } = require('./formatHelper');
 
 // Changers
@@ -19,12 +19,38 @@ const { BN, isBN } = web3.utils;
 
 chai.use(require('chai-bn')(BN)).should();
 
+const zeroAddress = '0x0000000000000000000000000000000000000000';
+
+const comissionsTxType = {
+  MINT_BPRO_FEES_RBTC: new BN(1),
+  REDEEM_BPRO_FEES_RBTC: new BN(2),
+  MINT_DOC_FEES_RBTC: new BN(3),
+  REDEEM_DOC_FEES_RBTC: new BN(4),
+  MINT_BTCX_FEES_RBTC: new BN(5),
+  REDEEM_BTCX_FEES_RBTC: new BN(6),
+  MINT_BPRO_FEES_MOC: new BN(7),
+  REDEEM_BPRO_FEES_MOC: new BN(8),
+  MINT_DOC_FEES_MOC: new BN(9),
+  REDEEM_DOC_FEES_MOC: new BN(10),
+  MINT_BTCX_FEES_MOC: new BN(11),
+  REDEEM_BTCX_FEES_MOC: new BN(12)
+};
+
 // Mock BTC price provider doesn't use second and third parameter
 const setBitcoinPrice = btcPriceProvider => async btcPrice =>
   btcPriceProvider.post(toContract(btcPrice), 0, btcPriceProvider.address);
 
 const getBitcoinPrice = btcPriceProvider => async () => {
   const priceValue = await btcPriceProvider.peek();
+  return priceValue['0'];
+};
+
+// Mock MoC price provider doesn't use second and third parameter
+const setMoCPrice = mocPriceProvider => async mocPrice =>
+  mocPriceProvider.post(toContract(mocPrice), 0, mocPriceProvider.address);
+
+const getMoCPrice = mocPriceProvider => async () => {
+  const priceValue = await mocPriceProvider.peek();
   return priceValue['0'];
 };
 
@@ -36,13 +62,20 @@ const setSmoothingFactor = (governor, mockMocStateChanger) => async _coeff => {
   return setSmooth;
 };
 
-const redeemFreeDoc = moc => async ({ userAccount, docAmount }) => {
+const redeemFreeDoc = moc => async ({ userAccount, docAmount, vendorAccount }) => {
+  let _vendorAccount = vendorAccount;
+  if (!vendorAccount) {
+    _vendorAccount = zeroAddress;
+  }
+
   const docPrecision = await moc.getMocPrecision();
   const formattedAmount = toContract(docAmount * docPrecision);
 
-  return moc.redeemFreeDoc(formattedAmount, {
-    from: userAccount
-  });
+  return _vendorAccount !== zeroAddress
+    ? moc.redeemFreeDocVendors(formattedAmount, _vendorAccount, {
+        from: userAccount
+      })
+    : moc.redeemFreeDoc(formattedAmount, { from: userAccount });
 };
 
 const calculateBitProHoldersInterest = moc => async () => moc.calculateBitProHoldersInterest();
@@ -57,38 +90,73 @@ const isBitProInterestEnabled = moc => async () => moc.isBitProInterestEnabled()
 
 const getBitProInterestAddress = moc => async () => moc.getBitProInterestAddress();
 
-const mintBPro = moc => async (from, reserveAmount, applyPrecision = true) => {
+const mintMoCToken = mocToken => async (anotherAccount, initialBalance, owner) => {
+  await mocToken.mint(anotherAccount, web3.utils.toWei(initialBalance.toString()), { from: owner });
+};
+
+const approveMoCToken = mocToken => async (anotherAccount, amount, owner) => {
+  await mocToken.approve(anotherAccount, web3.utils.toWei(amount.toString()), { from: owner });
+};
+
+const mintBPro = moc => async (
+  from,
+  reserveAmount,
+  vendorAccount = zeroAddress,
+  applyPrecision = true
+) => {
   const reservePrecision = await moc.getReservePrecision();
 
   const reserveAmountToMint = applyPrecision
     ? toContract(reserveAmount * reservePrecision)
     : toContract(reserveAmount);
 
-  return moc.mintBPro(reserveAmountToMint, {
-    from,
-    value: reserveAmountToMint
-  });
+  return vendorAccount !== zeroAddress
+    ? moc.mintBProVendors(reserveAmountToMint, vendorAccount, {
+        from,
+        value: reserveAmountToMint
+      })
+    : moc.mintBPro(reserveAmountToMint, { from, value: reserveAmountToMint });
 };
 
-const mintDoc = moc => async (from, reserveAmount) => {
+const mintDoc = moc => async (from, reserveAmount, vendorAccount = zeroAddress) => {
   const reservePrecision = await moc.getReservePrecision();
   const reserveAmountWithReservePrecision = toContract(reserveAmount * reservePrecision);
-  return moc.mintDoc(reserveAmountWithReservePrecision, {
-    from,
-    value: reserveAmountWithReservePrecision
-  });
+  return vendorAccount !== zeroAddress
+    ? moc.mintDocVendors(reserveAmountWithReservePrecision, vendorAccount, {
+        from,
+        value: reserveAmountWithReservePrecision
+      })
+    : moc.mintDoc(reserveAmountWithReservePrecision, {
+        from,
+        value: reserveAmountWithReservePrecision
+      });
 };
 
-const mintBProx = moc => async (from, bucket, btcToMint, btcValue) => {
+const mintBProx = moc => async (from, bucket, btcToMint, vendorAccount = zeroAddress, btcValue) => {
   // With this we make sure the amount sent is enough to pay the interests
   // and comissions for regular situations
   // TODO: Replace this with something more fancy
   const msgValue = btcValue || btcToMint * 2;
   const reservePrecision = await moc.getReservePrecision();
-  return moc.mintBProx(bucket, toContract(btcToMint * reservePrecision), {
-    from,
-    value: toContract(msgValue * reservePrecision)
-  });
+  return vendorAccount !== zeroAddress
+    ? moc.mintBProxVendors(bucket, toContract(btcToMint * reservePrecision), vendorAccount, {
+        from,
+        value: toContract(msgValue * reservePrecision)
+      })
+    : moc.mintBProx(bucket, toContract(btcToMint * reservePrecision), {
+        from,
+        value: toContract(msgValue * reservePrecision)
+      });
+};
+
+const redeemBProx = moc => async (from, bucket, amount, vendorAccount = zeroAddress) => {
+  const reservePrecision = await moc.getReservePrecision();
+  const amountWithPrecision = new BN(amount).mul(reservePrecision);
+  return vendorAccount !== zeroAddress
+    ? moc.redeemBProxVendors(bucket, toContract(amountWithPrecision), vendorAccount, {
+        from
+      })
+    : moc.redeemBProx(bucket, toContract(amountWithPrecision), { from });
 };
 
 const rbtcNeededToMintBpro = (moc, mocState) => async bproAmount => {
@@ -104,39 +172,89 @@ const rbtcNeededToMintBpro = (moc, mocState) => async bproAmount => {
   return btcTotal;
 };
 
-const mintBProAmount = (moc, mocState, mocInrate) => async (account, bproAmount) => {
+const mintBProAmount = (moc, mocState, mocInrate, mocVendors) => async (
+  account,
+  bproAmount,
+  vendorAccount,
+  txType = comissionsTxType.MINT_BPRO_FEES_RBTC
+) => {
   if (!bproAmount) {
     return;
   }
 
   const btcTotal = await rbtcNeededToMintBpro(moc, mocState)(bproAmount);
-
-  // Sent more to pay commissions
-  const commissionRate = await mocInrate.getCommissionRate();
+  // Sent more to pay commissions: if RBTC fees are used then get commission value,
+  // otherwise commission is 0 RBTC
+  const commissionRate = txType.eq(await mocInrate.MINT_BPRO_FEES_RBTC())
+    ? await mocInrate.commissionRatesByTxType(txType)
+    : 0;
   const mocPrecision = await moc.getMocPrecision();
-  const commissionRbtcAmount = btcTotal.mul(commissionRate).div(mocPrecision);
-  const value = toContract(new BigNumber(btcTotal).plus(commissionRbtcAmount));
-  return moc.mintBPro(toContract(btcTotal), { from: account, value });
+  const commissionRbtcAmount =
+    commissionRate > 0 ? btcTotal.mul(commissionRate).div(mocPrecision) : 0;
+
+  let markup;
+  if (vendorAccount === zeroAddress) {
+    markup = 0;
+  } else {
+    ({ markup } = await mocVendors.vendors(vendorAccount));
+  }
+  const markupRbtcAmount = markup > 0 ? btcTotal.mul(markup).div(mocPrecision) : 0;
+
+  const value = toContract(
+    new BigNumber(btcTotal).plus(commissionRbtcAmount).plus(markupRbtcAmount)
+  );
+
+  return moc.mintBProVendors(toContract(btcTotal), vendorAccount, { from: account, value });
 };
 
-const mintDocAmount = (moc, btcPriceProvider, mocInrate) => async (account, docsToMint) => {
+const mintDocAmount = (moc, btcPriceProvider, mocInrate, mocVendors) => async (
+  account,
+  docsToMint,
+  vendorAccount,
+  txType = comissionsTxType.MINT_DOC_FEES_RBTC
+) => {
   if (!docsToMint) {
     return;
   }
   const reservePrecision = await moc.getReservePrecision();
   const mocPrecision = await moc.getMocPrecision();
-
-  const formattedAmount = docsToMint * mocPrecision;
+  const formattedAmount = toBigNumber(docsToMint).times(mocPrecision);
   const btcPrice = await getBitcoinPrice(btcPriceProvider)();
-  const btcTotal = (formattedAmount / btcPrice) * reservePrecision;
-  const commissionRate = await mocInrate.getCommissionRate();
+  const btcTotal = formattedAmount.times(reservePrecision).div(btcPrice);
+  // Sent more to pay commissions: if RBTC fees are used then get commission value,
+  // otherwise commission is 0 RBTC
+  const commissionRate = txType.eq(await mocInrate.MINT_DOC_FEES_RBTC())
+    ? await mocInrate.commissionRatesByTxType(txType)
+    : 0;
 
-  const commissionRbtcAmount = (btcTotal * commissionRate) / mocPrecision;
-  const value = toContract(btcTotal + commissionRbtcAmount);
-  return moc.mintDoc(toContract(btcTotal), { from: account, value });
+  const commissionRbtcAmount =
+    commissionRate > 0
+      ? toBigNumber(btcTotal)
+          .times(commissionRate)
+          .div(mocPrecision)
+      : 0;
+
+  const vendor = await mocVendors.vendors(vendorAccount);
+  const { markup } = vendor;
+  const markupRbtcAmount =
+    markup > 0
+      ? toBigNumber(btcTotal)
+          .times(markup)
+          .div(mocPrecision)
+      : 0;
+
+  const value = toContract(btcTotal.plus(commissionRbtcAmount).plus(markupRbtcAmount));
+
+  return moc.mintDocVendors(toContract(btcTotal), vendorAccount, { from: account, value });
 };
 
-const mintBProxAmount = (moc, mocState, mocInrate) => async (account, bucket, bproxAmount) => {
+const mintBProxAmount = (moc, mocState, mocInrate, mocVendors) => async (
+  account,
+  bucket,
+  bproxAmount,
+  vendorAccount,
+  txType = comissionsTxType.MINT_BTCX_FEES_RBTC
+) => {
   if (!bproxAmount) {
     return;
   }
@@ -146,28 +264,43 @@ const mintBProxAmount = (moc, mocState, mocInrate) => async (account, bucket, bp
 
   const btcInterestAmount = await mocInrate.calcMintInterestValues(bucket, btcTotal);
 
+  // Sent more to pay commissions: if RBTC fees are used then get commission value,
+  // otherwise commission is 0 RBTC
+  const commissionRate = txType.eq(await mocInrate.MINT_BTCX_FEES_RBTC())
+    ? await mocInrate.commissionRatesByTxType(txType)
+    : 0;
   const mocPrecision = await moc.getMocPrecision();
-  const commissionRate = await mocInrate.getCommissionRate();
+  const commissionRbtcAmount =
+    commissionRate > 0 ? btcTotal.mul(commissionRate).div(mocPrecision) : 0;
 
-  const commissionRbtcAmount = btcTotal.mul(commissionRate).div(mocPrecision);
+  const vendor = await mocVendors.vendors(vendorAccount);
+  const { markup } = vendor;
+  const markupRbtcAmount = markup > 0 ? btcTotal.mul(markup).div(mocPrecision) : 0;
 
   // Multiply commission by 3 to avoid rounding issues
   const value = btcInterestAmount
-    .add(commissionRbtcAmount)
+    .add(toContractBNNoPrec(commissionRbtcAmount))
+    .add(toContractBNNoPrec(markupRbtcAmount))
     .add(btcTotal)
     .add(btcTotal);
 
-  return moc.mintBProx(bucket, btcTotal, { from: account, value });
+  return moc.mintBProxVendors(bucket, btcTotal, vendorAccount, { from: account, value });
 };
 
-const redeemBPro = moc => async (from, amount) => {
+const redeemBPro = moc => async (from, amount, vendorAccount = zeroAddress) => {
   const reservePrecision = await moc.getReservePrecision();
-  return moc.redeemBPro(toContract(amount * reservePrecision), { from });
+  return vendorAccount !== zeroAddress
+    ? moc.redeemBProVendors(toContract(amount * reservePrecision), vendorAccount, { from })
+    : moc.redeemBPro(toContract(amount * reservePrecision), { from });
 };
 
 const getDoCBalance = docToken => async address => docToken.balanceOf(address);
 
 const getBProBalance = bproToken => async address => bproToken.balanceOf(address);
+
+const getMoCBalance = mocToken => async address => mocToken.balanceOf(address);
+
+const getMoCAllowance = mocToken => async (owner, spender) => mocToken.allowance(owner, spender);
 
 const getReserveBalance = async address => new BN(await web3.eth.getBalance(address));
 
@@ -178,15 +311,16 @@ const getRedeemRequestAt = moc => async index => moc.getRedeemRequestAt(index);
 
 const getBProxBalance = bprox => async (bucket, address) => bprox.bproxBalanceOf(bucket, address);
 
-const getUserBalances = (bproToken, docToken, bproxManager) => async account => {
-  const [doc, bpro, bpro2x, rbtc] = await Promise.all([
+const getUserBalances = (bproToken, docToken, bproxManager, mocToken) => async account => {
+  const [doc, bpro, bpro2x, rbtc, moc] = await Promise.all([
     docToken.balanceOf(account),
     bproToken.balanceOf(account),
     bproxManager.bproxBalanceOf(BUCKET_X2, account),
-    web3.eth.getBalance(account)
+    web3.eth.getBalance(account),
+    mocToken.balanceOf(account)
   ]);
 
-  return { doc, bpro, bpro2x, rbtc };
+  return { doc, bpro, bpro2x, rbtc, moc };
 };
 
 const getGlobalState = mocState => async () => {
@@ -265,6 +399,147 @@ const setMocCommissionProportion = (commissionSplitter, governor) => async propo
   return governor.executeChange(setCommissionMocProportionChanger.address);
 };
 
+const getCommissionsArrayNonZero = (moc, mocInrate) => async () => {
+  let mocPrecision = 10 ** 18;
+  if (typeof moc !== 'undefined') {
+    mocPrecision = await moc.getMocPrecision();
+  }
+
+  const ret = [
+    {
+      txType: (await mocInrate.MINT_BPRO_FEES_RBTC()).toString(),
+      fee: BigNumber(0.001)
+        .times(mocPrecision)
+        .toString()
+    },
+    {
+      txType: (await mocInrate.REDEEM_BPRO_FEES_RBTC()).toString(),
+      fee: BigNumber(0.002)
+        .times(mocPrecision)
+        .toString()
+    },
+    {
+      txType: (await mocInrate.MINT_DOC_FEES_RBTC()).toString(),
+      fee: BigNumber(0.003)
+        .times(mocPrecision)
+        .toString()
+    },
+    {
+      txType: (await mocInrate.REDEEM_DOC_FEES_RBTC()).toString(),
+      fee: BigNumber(0.004)
+        .times(mocPrecision)
+        .toString()
+    },
+    {
+      txType: (await mocInrate.MINT_BTCX_FEES_RBTC()).toString(),
+      fee: BigNumber(0.005)
+        .times(mocPrecision)
+        .toString()
+    },
+    {
+      txType: (await mocInrate.REDEEM_BTCX_FEES_RBTC()).toString(),
+      fee: BigNumber(0.006)
+        .times(mocPrecision)
+        .toString()
+    },
+    {
+      txType: (await mocInrate.MINT_BPRO_FEES_MOC()).toString(),
+      fee: BigNumber(0.007)
+        .times(mocPrecision)
+        .toString()
+    },
+    {
+      txType: (await mocInrate.REDEEM_BPRO_FEES_MOC()).toString(),
+      fee: BigNumber(0.008)
+        .times(mocPrecision)
+        .toString()
+    },
+    {
+      txType: (await mocInrate.MINT_DOC_FEES_MOC()).toString(),
+      fee: BigNumber(0.009)
+        .times(mocPrecision)
+        .toString()
+    },
+    {
+      txType: (await mocInrate.REDEEM_DOC_FEES_MOC()).toString(),
+      fee: BigNumber(0.01)
+        .times(mocPrecision)
+        .toString()
+    },
+    {
+      txType: (await mocInrate.MINT_BTCX_FEES_MOC()).toString(),
+      fee: BigNumber(0.011)
+        .times(mocPrecision)
+        .toString()
+    },
+    {
+      txType: (await mocInrate.REDEEM_BTCX_FEES_MOC()).toString(),
+      fee: BigNumber(0.012)
+        .times(mocPrecision)
+        .toString()
+    }
+  ];
+  return ret;
+};
+
+const getCommissionsArrayInvalidLength = async () => {
+  const ret = [];
+  const length = 60;
+  const mocPrecision = 10 ** 18;
+
+  for (let i = 1; i <= length; i++) {
+    ret.push({
+      txType: i.toString(),
+      fee: BigNumber(i)
+        .times(mocPrecision)
+        .toString()
+    });
+  }
+
+  return ret;
+};
+
+const getCommissionsArrayChangingTest = async () => {
+  const ret = [];
+  const length = 12;
+  const mocPrecision = 10 ** 18;
+
+  for (let i = 1; i <= length; i++) {
+    ret.push({
+      txType: i.toString(),
+      fee: BigNumber(i * 2)
+        .times(mocPrecision)
+        .toString()
+    });
+  }
+
+  return ret;
+};
+
+const registerVendor = (moc, mocVendors) => async (vendorAccount, markup, from) => {
+  let mocPrecision = 10 ** 18;
+  if (typeof moc !== 'undefined') {
+    mocPrecision = await moc.getMocPrecision();
+  }
+
+  // Register vendor
+  return mocVendors.registerVendor(
+    vendorAccount,
+    toContractBNNoPrec(markup * mocPrecision).toString(),
+    {
+      from
+    }
+  );
+};
+
+const consolePrintTestVariables = obj => {
+  for (let i = 0; i < Object.keys(obj).length; i++) {
+    const variableName = Object.keys(obj)[i];
+    // eslint-disable-next-line no-console
+    console.log(`${variableName}: ${obj[variableName].toString()}`);
+  }
+};
+
 module.exports = async contracts => {
   const {
     doc,
@@ -276,7 +551,10 @@ module.exports = async contracts => {
     mocInrate,
     governor,
     mockMocStateChanger,
-    commissionSplitter
+    commissionSplitter,
+    mocToken,
+    mocPriceProvider,
+    mocVendors
   } = contracts;
 
   return {
@@ -286,16 +564,17 @@ module.exports = async contracts => {
     getBProBalance: getBProBalance(bpro),
     getBProxBalance: getBProxBalance(bprox),
     getReserveBalance,
-    getUserBalances: getUserBalances(bpro, doc, bprox),
+    getUserBalances: getUserBalances(bpro, doc, bprox, mocToken),
     setSmoothingFactor: setSmoothingFactor(governor, mockMocStateChanger),
     redeemFreeDoc: redeemFreeDoc(moc),
     mintBPro: mintBPro(moc),
     mintDoc: mintDoc(moc),
     mintBProx: mintBProx(moc),
+    redeemBProx: redeemBProx(moc),
     rbtcNeededToMintBpro: rbtcNeededToMintBpro(moc, mocState),
-    mintBProAmount: mintBProAmount(moc, mocState, mocInrate),
-    mintDocAmount: mintDocAmount(moc, btcPriceProvider, mocInrate),
-    mintBProxAmount: mintBProxAmount(moc, mocState, mocInrate),
+    mintBProAmount: mintBProAmount(moc, mocState, mocInrate, mocVendors),
+    mintDocAmount: mintDocAmount(moc, btcPriceProvider, mocInrate, mocVendors),
+    mintBProxAmount: mintBProxAmount(moc, mocState, mocInrate, mocVendors),
     redeemBPro: redeemBPro(moc),
     calculateBitProHoldersInterest: calculateBitProHoldersInterest(moc),
     getBitProRate: getBitProRate(moc),
@@ -309,6 +588,21 @@ module.exports = async contracts => {
     logBucket: logBucket(mocState),
     getRedeemRequestAt: getRedeemRequestAt(moc),
     setFinalCommissionAddress: setFinalCommissionAddress(commissionSplitter, governor),
-    setMocCommissionProportion: setMocCommissionProportion(commissionSplitter, governor)
+    setMocCommissionProportion: setMocCommissionProportion(commissionSplitter, governor),
+    mintMoCToken: mintMoCToken(mocToken),
+    getMoCBalance: getMoCBalance(mocToken),
+    approveMoCToken: approveMoCToken(mocToken),
+    getMoCAllowance: getMoCAllowance(mocToken),
+    comissionsTxType,
+    getCommissionsArrayNonZero: getCommissionsArrayNonZero(moc, mocInrate),
+    getCommissionsArrayInvalidLength,
+    getCommissionsArrayChangingTest,
+    BUCKET_C0,
+    BUCKET_X2,
+    zeroAddress,
+    setMoCPrice: setMoCPrice(mocPriceProvider),
+    getMoCPrice: getMoCPrice(mocPriceProvider),
+    registerVendor: registerVendor(moc, mocVendors),
+    consolePrintTestVariables
   };
 };

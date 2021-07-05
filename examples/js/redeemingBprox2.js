@@ -1,5 +1,5 @@
 const Web3 = require('web3');
-//You must compile the smart contracts or use the official ABIs of the //repository
+//You must compile the smart contracts or use the official ABIs of the repository
 const MoC = require('../../build/contracts/MoC.json');
 const MoCBProxManager = require('../../build/contracts/MoCBProxManager.json');
 const truffleConfig = require('../../truffle');
@@ -60,12 +60,12 @@ const execute = async () => {
 
   const [from] = await web3.eth.getAccounts();
 
-  const redeemBtc2x = async btc2xAmount => {
+  const redeemBtc2x = async (btc2xAmount, vendorAccount) => {
     const weiAmount = web3.utils.toWei(btc2xAmount, 'ether');
 
     console.log(`Calling redeem BTC2X with account: ${from}, amount: ${weiAmount}.`);
     moc.methods
-      .redeemBProx(strToBytes32(bucketX2), weiAmount)
+      .redeemBProxVendors(strToBytes32(bucketX2), weiAmount, vendorAccount)
       .send({ from, gasPrice }, function(error, transactionHash) {
         if (error) console.log(error);
         if (transactionHash) console.log('txHash: '.concat(transactionHash));
@@ -85,9 +85,10 @@ const execute = async () => {
   console.log('=== User BTC2X Balance: '.concat(userBalance.toString()));
 
   const btc2xAmount = '0.00001';
+  const vendorAccount = '<vendor-address>';
 
   // Call redeem
-  await redeemBtc2x(btc2xAmount);
+  await redeemBtc2x(btc2xAmount, vendorAccount);
 };
 
 execute()

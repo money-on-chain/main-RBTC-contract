@@ -4,7 +4,7 @@ let mocHelper;
 let toContractBN;
 let BUCKET_X2;
 
-contract('MoC : MoCExchange', function([owner, userAccount]) {
+contract('MoC : MoCExchange', function([owner, userAccount, vendorAccount]) {
   before(async function() {
     mocHelper = await testHelperBuilder({ owner, useMock: true });
     ({ toContractBN } = mocHelper);
@@ -22,9 +22,13 @@ contract('MoC : MoCExchange', function([owner, userAccount]) {
       describe(`GIVEN a user mints 5 BProx AND there are ${days} days til next settlement`, function() {
         before(async function() {
           await mocHelper.revertState();
+
+          // Register vendor for test
+          await mocHelper.registerVendor(vendorAccount, 0, owner);
+
           await this.mocState.setDaysToSettlement(toContractBN(days, 'DAY'));
-          await mocHelper.mintBPro(userAccount, 18);
-          await mocHelper.mintDoc(userAccount, 80000);
+          await mocHelper.mintBPro(userAccount, 18, vendorAccount);
+          await mocHelper.mintDoc(userAccount, 80000, vendorAccount);
 
           originalInrate = await this.mocInrate.btcxInrateAvg(
             BUCKET_X2,
@@ -32,7 +36,7 @@ contract('MoC : MoCExchange', function([owner, userAccount]) {
             true
           );
 
-          const mintTx = await mocHelper.mintBProx(userAccount, BUCKET_X2, 5);
+          const mintTx = await mocHelper.mintBProx(userAccount, BUCKET_X2, 5, vendorAccount);
           [mintEvent] = mocHelper.findEvents(mintTx, 'RiskProxMint');
         });
         it('THEN the interest taken includes all days to settlement', function() {
@@ -52,15 +56,12 @@ contract('MoC : MoCExchange', function([owner, userAccount]) {
               mintEvent.reserveTotal,
               false
             );
-            const redeemTx = await this.moc.redeemBProx(BUCKET_X2, toContractBN(5, 'BTC'), {
-              from: userAccount
-            });
+            const redeemTx = await mocHelper.redeemBProx(userAccount, BUCKET_X2, 5, vendorAccount);
 
             [redeemEvent] = mocHelper.findEvents(redeemTx, 'RiskProxRedeem');
           });
           it('THEN user recovers 1 day less of interest', function() {
             const expected = 0;
-
             mocHelper.assertBig(expected, redeemEvent.interests, 'Incorrect interests');
           });
         });

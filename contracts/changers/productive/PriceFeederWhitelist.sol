@@ -1,4 +1,4 @@
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 import "moc-governance/contracts/Governance/ChangeContract.sol";
 
@@ -15,6 +15,9 @@ contract PriceFeederWhitelist is ChangeContract {
   Medianizer public medianizer;
   address public priceFeed;
 
+  /**
+    @dev Constructor
+  */
   constructor(Medianizer _medianizer, address _priceFeed) public {
     medianizer = _medianizer;
     priceFeed = _priceFeed;

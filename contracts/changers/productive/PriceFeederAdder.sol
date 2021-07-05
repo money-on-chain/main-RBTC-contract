@@ -1,4 +1,4 @@
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 import "moc-governance/contracts/Governance/ChangeContract.sol";
 
@@ -23,6 +23,9 @@ contract PriceFeederAdder is ChangeContract {
   Medianizer public medianizer;
   address public priceFeedOwner;
 
+  /**
+    @dev Constructor
+  */
   constructor(PriceFactory _priceFactory, Medianizer _medianizer, address _priceFeedOwner) public {
     priceFactory = _priceFactory;
     medianizer = _medianizer;

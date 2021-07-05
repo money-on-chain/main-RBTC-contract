@@ -4,7 +4,12 @@ let mocHelper;
 let toContractBN;
 let BUCKET_C0;
 
-contract('MoC: BitPro holder interests payment', function([owner, account, targetAddr]) {
+contract('MoC: BitPro holder interests payment', function([
+  owner,
+  account,
+  targetAddr,
+  vendorAccount
+]) {
   before(async function() {
     mocHelper = await testHelperBuilder({ owner, useMock: true });
     ({ toContractBN } = mocHelper);
@@ -15,8 +20,11 @@ contract('MoC: BitPro holder interests payment', function([owner, account, targe
     ({ BUCKET_C0 } = mocHelper);
   });
 
-  beforeEach(function() {
-    return mocHelper.revertState();
+  beforeEach(async function() {
+    await mocHelper.revertState();
+
+    // Register vendor for test
+    await mocHelper.registerVendor(vendorAccount, 0, owner);
   });
 
   const scenarios = [
@@ -49,7 +57,7 @@ contract('MoC: BitPro holder interests payment', function([owner, account, targe
     let beforeTargetAddressBalance = 0;
     describe('GIVEN there are 2 RBTCs in the C0 nBTC Bucket', function() {
       beforeEach(async function() {
-        await mocHelper.mintBPro(account, toContractBN(s.bitProMintBtc));
+        await mocHelper.mintBPro(account, toContractBN(s.bitProMintBtc), vendorAccount);
         await this.mockMocInrateChanger.setBitProRate(toContractBN(s.bitProHolderRate));
         await this.mockMocInrateChanger.setBitProInterestAddress(s.bitProInterestTargetAddress);
         await this.mockMocInrateChanger.setBitProInterestBlockSpan(s.blockSpan);

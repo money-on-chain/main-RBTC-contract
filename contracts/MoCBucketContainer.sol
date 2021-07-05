@@ -1,12 +1,11 @@
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "openzeppelin-solidity/contracts/math/Math.sol";
 import "./base/MoCBase.sol";
 import "moc-governance/contracts/Governance/Governed.sol";
-import "moc-governance/contracts/Governance/IGovernor.sol";
 
-contract MoCBucketContainer is MoCBase, Governed{
+contract MoCBucketContainer is MoCBase, Governed {
   using SafeMath for uint256;
   using Math for uint256;
 
@@ -89,7 +88,7 @@ contract MoCBucketContainer is MoCBase, Governed{
   /**
     @dev returns true if the bucket is a base bucket
     @param bucket Name of the bucket
-  **/
+  */
   function isBucketBase(bytes32 bucket) public view returns(bool){
     return mocBuckets[bucket].isBase;
   }
@@ -97,7 +96,7 @@ contract MoCBucketContainer is MoCBase, Governed{
   /**
     @dev returns true if the bucket have docs in it
     @param bucket Name of the bucket
-  **/
+  */
   function isBucketEmpty(bytes32 bucket) public view returns(bool) {
     return mocBuckets[bucket].nDoc == 0;
   }
@@ -124,7 +123,7 @@ contract MoCBucketContainer is MoCBase, Governed{
     @param btc BTC amount [using reservePrecision]
     @param doc Doc amount [using mocPrecision]
     @param bprox BPro amount [using mocPrecision]
-  **/
+  */
   function addValuesToBucket(bytes32 bucketName, uint256 btc, uint256 doc, uint256 bprox)
   public onlyWhitelisted(msg.sender) {
     MoCBucket storage bucket = mocBuckets[bucketName];
@@ -140,7 +139,7 @@ contract MoCBucketContainer is MoCBase, Governed{
     @param btc BTC amount [using reservePrecision]
     @param doc Doc amount [using mocPrecision]
     @param bprox BPro amount [using mocPrecision]
-  **/
+  */
   function substractValuesFromBucket(bytes32 bucketName, uint256 btc, uint256 doc, uint256 bprox)
   public onlyWhitelisted(msg.sender)  {
     MoCBucket storage bucket = mocBuckets[bucketName];
@@ -199,7 +198,7 @@ contract MoCBucketContainer is MoCBase, Governed{
     @param to Name of bucket from where the BTCs will be added
     @param btc BTCs amount [using reservePrecision]
     @param docs Docs amount [using mocPrecision]
-  **/
+  */
   function moveBtcAndDocs(bytes32 from, bytes32 to, uint256 btc, uint256 docs) public
   onlyWhitelisted(msg.sender) bucketStateUpdate(from) bucketStateUpdate(to) {
     MoCBucket storage bucketFrom = mocBuckets[from];
@@ -230,7 +229,7 @@ contract MoCBucketContainer is MoCBase, Governed{
     @dev Clears Docs and BTC from bucket origin and sends them to destination bucket
     @param origin Bucket to clear out
     @param destination Destination bucket
-  **/
+  */
   function emptyBucket(bytes32 origin, bytes32 destination) public onlyWhitelisted(msg.sender) {
     moveBtcAndDocs(origin, destination, mocBuckets[origin].nBTC, mocBuckets[origin].nDoc);
   }
@@ -257,7 +256,8 @@ contract MoCBucketContainer is MoCBase, Governed{
     @dev Creates bucket
     @param name Name of the bucket
     @param cobj Target Coverage of the bucket
-  **/
+    @param isBase Indicates if it is a base bucket (true) or not (false)
+  */
   function createBucket(bytes32 name, uint256 cobj, bool isBase) internal {
     mocBuckets[name].name = name;
     mocBuckets[name].nDoc = 0;
