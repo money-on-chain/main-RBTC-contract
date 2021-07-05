@@ -28,7 +28,7 @@ contract MocInrateChangerDeploy is MocInrateChanger {
   public { }
 
   function execute() external {
-    /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
+    /** UPDATE V0112: 24/09/2020 - Upgrade to support multiple commission rates **/
     initializeCommissionRates();
   }
 }

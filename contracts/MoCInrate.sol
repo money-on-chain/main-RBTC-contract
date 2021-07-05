@@ -74,7 +74,7 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
 
   // Target addres to transfer commissions of mint/redeem
   address payable public commissionsAddress;
-  /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
+  /** UPDATE V0112: 24/09/2020 - Upgrade to support multiple commission rates **/
   /** DEPRECATED **/
   // commissionRate [using mocPrecision]
   // solium-disable-next-line mixedcase
@@ -372,7 +372,7 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
   /***** UPGRADE v0110      ***********/
   /************************************/
 
-  /** START UPDATE V0110: 24/09/2020  **/
+  /** START UPDATE V0112: 24/09/2020  **/
   /** Upgrade to support multiple commission rates **/
   /** Public functions **/
 
@@ -409,7 +409,7 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
     return markup;
   }
 
-  /** END UPDATE V0110: 24/09/2020 **/
+  /** END UPDATE V0112: 24/09/2020 **/
 
   /**
     @dev Calculates RBTC value to return to the user in concept of interests
@@ -479,7 +479,7 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
   /***** UPGRADE v0110      ***********/
   /************************************/
 
-  /** START UPDATE V0110: 24/09/2020  **/
+  /** START UPDATE V0112: 24/09/2020  **/
   /** Upgrade to support multiple commission rates **/
   /** Public functions **/
   /**
@@ -491,7 +491,7 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
     commissionRatesByTxType[txType] = value;
   }
 
-  /** END UPDATE V0110: 24/09/2020 **/
+  /** END UPDATE V0112: 24/09/2020 **/
 
   /**
     @dev Calculates the interest rate to pay until the settlement day
@@ -636,7 +636,7 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
   /***** UPGRADE v0110      ***********/
   /************************************/
 
-  /** START UPDATE V0110: 24/09/2020  **/
+  /** START UPDATE V0112: 24/09/2020  **/
   /** Upgrade to support multiple commission rates **/
 
   // Transaction types
@@ -655,7 +655,7 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
 
   mapping(uint8 => uint256) public commissionRatesByTxType;
 
-  /** END UPDATE V0110: 24/09/2020 **/
+  /** END UPDATE V0112: 24/09/2020 **/
 
   // Leave a gap betweeen inherited contracts variables in order to be
   // able to add more variables in them later

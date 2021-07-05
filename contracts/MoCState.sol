@@ -726,7 +726,7 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator, IMoCState {
   /***** UPGRADE v0110      ***********/
   /************************************/
 
-  /** START UPDATE V0110: 24/09/2020  **/
+  /** START UPDATE V0112: 24/09/2020  **/
   /** Upgrade to support multiple commission rates **/
   /** and rename price interfaces **/
   /** Public functions **/
@@ -851,13 +851,13 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator, IMoCState {
     return mocVendors;
   }
 
-  /** END UPDATE V0110: 24/09/2020 **/
+  /** END UPDATE V0112: 24/09/2020 **/
 
   /************************************/
   /***** UPGRADE v0110      ***********/
   /************************************/
 
-  /** START UPDATE V0110: 24/09/2020  **/
+  /** START UPDATE V0112: 24/09/2020  **/
   /** Upgrade to support multiple commission rates **/
   /** and rename price interfaces **/
   /** Internal functions **/
@@ -890,7 +890,7 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator, IMoCState {
     emit MoCVendorsChanged(mocVendorsAddress);
   }
 
-  /** END UPDATE V0110: 24/09/2020 **/
+  /** END UPDATE V0112: 24/09/2020 **/
 
   /**
     @dev Calculates price at liquidation event as the relation between
@@ -955,7 +955,7 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator, IMoCState {
   /***** UPGRADE v0110      ***********/
   /************************************/
 
-  /** START UPDATE V0110: 24/09/2020  **/
+  /** START UPDATE V0112: 24/09/2020  **/
   /** Upgrade to support multiple commission rates **/
   /** and rename price interfaces **/
   /** Variables and events **/
@@ -977,7 +977,7 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator, IMoCState {
     address mocVendorsAddress
   );
 
-  /** END UPDATE V0110: 24/09/2020 **/
+  /** END UPDATE V0112: 24/09/2020 **/
 
   // Leave a gap betweeen inherited contracts variables in order to be
   // able to add more variables in them later

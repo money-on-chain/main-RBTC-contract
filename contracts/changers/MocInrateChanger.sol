@@ -16,7 +16,7 @@ contract MocInrateChanger is ChangeContract, Ownable {
   uint256 public btxcTmax;
   uint256 public btxcPower;
   uint256 public newBitProRate;
-  /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
+  /** UPDATE V0112: 24/09/2020 - Upgrade to support multiple commission rates **/
   /** DEPRECATED **/
   // solium-disable-next-line mixedcase
   uint256 public DEPRECATED_newCommissionRate;
@@ -30,7 +30,7 @@ contract MocInrateChanger is ChangeContract, Ownable {
   /***** UPGRADE v0110      ***********/
   /************************************/
 
-  /** START UPDATE V0110: 24/09/2020  **/
+  /** START UPDATE V0112: 24/09/2020  **/
   /** Upgrade to support multiple commission rates **/
 
   CommissionRates[] public commissionRates;
@@ -41,7 +41,7 @@ contract MocInrateChanger is ChangeContract, Ownable {
     uint256 fee;
   }
 
-  /** END UPDATE V0110: 24/09/2020 **/
+  /** END UPDATE V0112: 24/09/2020 **/
 
   constructor(
     MoCInrate _mocInrate,
@@ -90,7 +90,7 @@ contract MocInrateChanger is ChangeContract, Ownable {
     mocInrate.setDoCTmax(docTmax);
     mocInrate.setDoCPower(docPower);
 
-    /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
+    /** UPDATE V0112: 24/09/2020 - Upgrade to support multiple commission rates **/
     initializeCommissionRates();
   }
 
@@ -142,7 +142,7 @@ contract MocInrateChanger is ChangeContract, Ownable {
   /***** UPGRADE v0110      ***********/
   /************************************/
 
-  /** START UPDATE V0110: 24/09/2020  **/
+  /** START UPDATE V0112: 24/09/2020  **/
   /** Upgrade to support multiple commission rates **/
   /** Public functions **/
 
@@ -157,13 +157,13 @@ contract MocInrateChanger is ChangeContract, Ownable {
     setCommissionRatesInternal(_commissionRates);
   }
 
-  /** END UPDATE V0110: 24/09/2020 **/
+  /** END UPDATE V0112: 24/09/2020 **/
 
   /************************************/
   /***** UPGRADE v0110      ***********/
   /************************************/
 
-  /** START UPDATE V0110: 24/09/2020  **/
+  /** START UPDATE V0112: 24/09/2020  **/
   /** Upgrade to support multiple commission rates **/
   /** Internal functions **/
 
@@ -192,5 +192,5 @@ contract MocInrateChanger is ChangeContract, Ownable {
     }
   }
 
-  /** END UPDATE V0110: 24/09/2020 **/
+  /** END UPDATE V0112: 24/09/2020 **/
 }

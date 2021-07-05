@@ -20,7 +20,7 @@ contract MoCInrateCommissionsChanger is ChangeContract, Ownable {
     uint256 fee;
   }
 
-  /** END UPDATE V0110: 24/09/2020 **/
+  /** END UPDATE V0112: 24/09/2020 **/
 
   constructor(
     MoCInrate _mocInrate,
@@ -34,7 +34,7 @@ contract MoCInrateCommissionsChanger is ChangeContract, Ownable {
     initializeCommissionRates();
   }
 
-  /** START UPDATE V0110: 24/09/2020  **/
+  /** START UPDATE V0112: 24/09/2020  **/
   /** Upgrade to support multiple commission rates **/
   /** Public functions **/
 
@@ -49,13 +49,13 @@ contract MoCInrateCommissionsChanger is ChangeContract, Ownable {
     setCommissionRatesInternal(_commissionRates);
   }
 
-  /** END UPDATE V0110: 24/09/2020 **/
+  /** END UPDATE V0112: 24/09/2020 **/
 
   /************************************/
   /***** UPGRADE v0110      ***********/
   /************************************/
 
-  /** START UPDATE V0110: 24/09/2020  **/
+  /** START UPDATE V0112: 24/09/2020  **/
   /** Upgrade to support multiple commission rates **/
   /** Internal functions **/
 
@@ -84,5 +84,5 @@ contract MoCInrateCommissionsChanger is ChangeContract, Ownable {
     }
   }
 
-  /** END UPDATE V0110: 24/09/2020 **/
+  /** END UPDATE V0112: 24/09/2020 **/
 }

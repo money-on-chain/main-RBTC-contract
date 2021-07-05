@@ -152,7 +152,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
   function mintBProVendors(uint256 btcToMint, address payable vendorAccount)
   public payable
   whenNotPaused() transitionState() notInProtectionMode() {
-    /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
+    /** UPDATE V0112: 24/09/2020 - Upgrade to support multiple commission rates **/
     (uint256 totalBtcSpent,
     uint256 btcCommission,
     uint256 mocCommission,
@@ -169,7 +169,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
       btcMarkup,
       mocMarkup
     );
-    /** END UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
+    /** END UPDATE V0112: 24/09/2020 - Upgrade to support multiple commission rates **/
   }
 
   /**
@@ -189,7 +189,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
   function redeemBProVendors(uint256 bproAmount, address payable vendorAccount)
   public
   whenNotPaused() transitionState() atLeastState(IMoCState.States.AboveCobj) {
-    /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
+    /** UPDATE V0112: 24/09/2020 - Upgrade to support multiple commission rates **/
     (uint256 btcAmount,
     uint256 btcCommission,
     uint256 mocCommission,
@@ -205,7 +205,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
       btcMarkup,
       mocMarkup
     );
-    /** END UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
+    /** END UPDATE V0112: 24/09/2020 - Upgrade to support multiple commission rates **/
   }
 
   /**
@@ -226,7 +226,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
   function mintDocVendors(uint256 btcToMint, address payable vendorAccount)
   public payable
   whenNotPaused() transitionState() atLeastState(IMoCState.States.AboveCobj) {
-    /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
+    /** UPDATE V0112: 24/09/2020 - Upgrade to support multiple commission rates **/
     (uint256 totalBtcSpent,
     uint256 btcCommission,
     uint256 mocCommission,
@@ -243,7 +243,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
       btcMarkup,
       mocMarkup
     );
-    /** END UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
+    /** END UPDATE V0112: 24/09/2020 - Upgrade to support multiple commission rates **/
   }
 
   /**
@@ -265,7 +265,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
   function redeemBProxVendors(bytes32 bucket, uint256 bproxAmount, address payable vendorAccount) public
   whenNotPaused() whenSettlementReady() availableBucket(bucket) notBaseBucket(bucket)
   transitionState() bucketStateTransition(bucket) {
-    /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
+    /** UPDATE V0112: 24/09/2020 - Upgrade to support multiple commission rates **/
     (uint256 totalBtcRedeemed,
     uint256 btcCommission,
     uint256 mocCommission,
@@ -281,7 +281,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
       btcMarkup,
       mocMarkup
     );
-    /** END UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
+    /** END UPDATE V0112: 24/09/2020 - Upgrade to support multiple commission rates **/
   }
 
   /**
@@ -303,7 +303,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
   function mintBProxVendors(bytes32 bucket, uint256 btcToMint, address payable vendorAccount) public payable
   whenNotPaused() whenSettlementReady() availableBucket(bucket) notBaseBucket(bucket)
   transitionState() bucketStateTransition(bucket) {
-    /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
+    /** UPDATE V0112: 24/09/2020 - Upgrade to support multiple commission rates **/
     (uint256 totalBtcSpent,
     uint256 btcCommission,
     uint256 mocCommission,
@@ -320,7 +320,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
       btcMarkup,
       mocMarkup
     );
-    /** END UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
+    /** END UPDATE V0112: 24/09/2020 - Upgrade to support multiple commission rates **/
   }
 
   /**
@@ -341,7 +341,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
   function redeemFreeDocVendors(uint256 docAmount, address payable vendorAccount)
   public
   whenNotPaused() transitionState() notInProtectionMode() {
-    /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
+    /** UPDATE V0112: 24/09/2020 - Upgrade to support multiple commission rates **/
     (uint256 btcAmount,
     uint256 btcCommission,
     uint256 mocCommission,
@@ -357,7 +357,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
       btcMarkup,
       mocMarkup
     );
-    /** END UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
+    /** END UPDATE V0112: 24/09/2020 - Upgrade to support multiple commission rates **/
   }
 
   /**
@@ -501,7 +501,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
   /***** UPGRADE v0110      ***********/
   /************************************/
 
-  /** START UPDATE V0110: 24/09/2020  **/
+  /** START UPDATE V0112: 24/09/2020  **/
   /** Upgrade to support multiple commission rates **/
   /** Internal functions **/
 
@@ -632,7 +632,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
     }
   }
 
-  /** END UPDATE V0110: 24/09/2020 **/
+  /** END UPDATE V0112: 24/09/2020 **/
 
   /**
     @dev Transfer using transfer function and updates global RBTC register in MoCState
