@@ -192,6 +192,7 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection, IMoCExchan
       ret.btcCommission = mocInrate.calcCommissionValue(params.amount, params.txTypeFeesRBTC);
       ret.btcMarkup = btcMarkup;
       return ret;
+      // Implicitly mocCommission = 0 and mocMarkup = 0
     }
 
     // Check commission rate in MoC according to transaction type
@@ -199,7 +200,9 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection, IMoCExchan
 
     // Calculate amount in MoC
     ret.mocCommission = ret.btcPrice.mul(mocCommissionInBtc).div(ret.mocPrice);
+    // Implicitly btcCommission = 0
     ret.mocMarkup = ret.btcPrice.mul(btcMarkup).div(ret.mocPrice);
+    // Implicitly btcMarkup = 0
 
     uint256 totalMoCFee = ret.mocCommission.add(ret.mocMarkup);
 
