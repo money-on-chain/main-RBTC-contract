@@ -12,8 +12,8 @@ module.exports = async (deployer, currentNetwork, [owner]) => {
     deployer
   );
 
-  let filePath = `../scripts/deploy/20210308/deployConfig-${currentNetwork}.json`;
-  let filePathCopy = `../scripts/deploy/20210308/deployConfig-${currentNetwork}-original.json`;
+  let filePath = `../scripts/deploy/upgrade_v0.1.12/deployConfig-${currentNetwork}.json`;
+  let filePathCopy = `../scripts/deploy/upgrade_v0.1.12/deployConfig-${currentNetwork}-original.json`;
   filePath = path.join(__dirname, filePath);
   filePathCopy = path.join(__dirname, filePathCopy);
   console.log(`--- Saving deploy configuration to ${filePath} ---`);

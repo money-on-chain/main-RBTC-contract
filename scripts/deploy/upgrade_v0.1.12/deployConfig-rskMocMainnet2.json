@@ -33,12 +33,12 @@
       "REDEEM_DOC_FEES_RBTC": 0.001,
       "MINT_BTCX_FEES_RBTC": 0.001,
       "REDEEM_BTCX_FEES_RBTC": 0.001,
-      "MINT_BPRO_FEES_MOC": 0.001,
-      "REDEEM_BPRO_FEES_MOC": 0.001,
-      "MINT_DOC_FEES_MOC": 0.001,
-      "REDEEM_DOC_FEES_MOC": 0.001,
-      "MINT_BTCX_FEES_MOC": 0.001,
-      "REDEEM_BTCX_FEES_MOC": 0.001
+      "MINT_BPRO_FEES_MOC": 0.0005,
+      "REDEEM_BPRO_FEES_MOC": 0.0005,
+      "MINT_DOC_FEES_MOC": 0.0005,
+      "REDEEM_DOC_FEES_MOC": 0.0005,
+      "MINT_BTCX_FEES_MOC": 0.0005,
+      "REDEEM_BTCX_FEES_MOC": 0.0005
     },
     "liquidationEnabled": false,
     "protected": "1.5",

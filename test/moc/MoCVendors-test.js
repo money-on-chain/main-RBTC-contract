@@ -179,7 +179,7 @@ contract('MoC: MoCVendors', function([
           );
         }
       );
-      it(`${scenario.params.description} WHEN a user mints ${scenario.params.mintAmount} BPRO THEN the vendor receives his corresponding fee and VendorReceivedMarkup event is emitted`, async function() {
+      it(`On scenario: ${scenario.params.description} WHEN a user mints ${scenario.params.mintAmount} BPRO THEN the vendor receives his corresponding fee and VendorReceivedMarkup event is emitted`, async function() {
         await mocHelper.mintMoCToken(userAccount, scenario.params.userAccountMocAmount, owner);
         await mocHelper.approveMoCToken(
           this.moc.address,
