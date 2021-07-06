@@ -1,5 +1,5 @@
 const Web3 = require('web3');
-//You must compile the smart contracts or use the official ABIs of the //repository
+//You must compile the smart contracts or use the official ABIs of the repository
 const MoC = require('../../build/contracts/MoC.json');
 const MocState = require('../../build/contracts/MoCState.json');
 const DocToken = require('../../build/contracts/DocToken.json');
@@ -65,12 +65,12 @@ const execute = async () => {
 
   const [from] = await web3.eth.getAccounts();
 
-  const redeemFreeDoc = async docAmount => {
+  const redeemFreeDoc = async (docAmount, vendorAccount) => {
     const weiAmount = web3.utils.toWei(docAmount, 'ether');
 
-    console.log(`Calling redeem free Doc, account: ${from}, amount: ${weiAmount}.`);
+    console.log(`Calling redeem Doc request, account: ${from}, amount: ${weiAmount}.`);
     moc.methods
-      .redeemFreeDoc(weiAmount)
+      .redeemFreeDocVendors(weiAmount, vendorAccount)
       .send({ from, gasPrice }, function(error, transactionHash) {
         if (error) console.log(error);
         if (transactionHash) console.log('txHash: '.concat(transactionHash));
@@ -82,18 +82,19 @@ const execute = async () => {
         console.log(receipt);
       })
       .on('error', console.error);
-
   };
 
   const docAmount = '10000';
   const freeDoc = await mocState.methods.freeDoc().call();
   const userDocBalance = await docToken.methods.balanceOf(from).call();
   const finalDocAmount = Math.min(freeDoc, userDocBalance);
+  const vendorAccount = '<vendor-address>';
+
   console.log('User DOC balance: ', userDocBalance.toString());
   console.log('=== Max Available DOC to redeem: ', finalDocAmount);
 
   // Call redeem
-  await redeemFreeDoc(docAmount);
+  await redeemFreeDoc(docAmount, vendorAccount);
 };
 
 execute()

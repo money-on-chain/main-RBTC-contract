@@ -1,0 +1,49 @@
+{
+  "proxyAddresses": {
+    "MoC": "0xf773B590aF754D597770937Fa8ea7AbDf2668370",
+    "MoCConnector": "0xcE2A128cC73e5d98355aAfb2595647F2D3171Faa",
+    "MoCExchange": "0x6aCb83bB0281FB847b43cf7dd5e2766BFDF49038",
+    "MoCSettlement": "0x609dF03D8a85eAffE376189CA7834D4C35e32F22",
+    "MoCInrate": "0xc0f9B54c41E3d0587Ce0F7540738d8d649b0A3F3",
+    "MoCState": "0xb9C42EFc8ec54490a37cA91c423F7285Fa01e257",
+    "MoCVendors": "",
+    "CommissionSplitter": "0xa5467535851263122ef1476e24C529CFc6CFc086"
+  },
+  "implementationAddresses": {
+    "MoC": "",
+    "MoCConnector": "",
+    "MoCExchange": "",
+    "MoCSettlement": "",
+    "MoCInrate": "",
+    "MoCState": "",
+    "ProxyAdmin": "0x009C51E1f6feDcDB8014Ea9AE1E39B6dbF2AC0EC",
+    "UpgradeDelegator": "0x5cE577f6Ec969CE9a282838D350206C52A6F338C",
+    "Governor": "0xC61F0392d5170214b5D93C0BC4c4354163aBC1f7",
+    "MoCToken": "0x9aC7Fe28967b30e3a4E6E03286D715B42B453d10",
+    "MoCPriceProvider": "0x72835fDc4F73cb33b1E7e03bFe067AAfED2BDB9C",
+    "MoCVendors": "",
+    "MoCHelperLib": "",
+    "CommissionSplitter": ""
+  },
+  "valuesToAssign": {
+    "commissionRates": {
+      "MINT_BPRO_FEES_RBTC": 0.001,
+      "REDEEM_BPRO_FEES_RBTC": 0.001,
+      "MINT_DOC_FEES_RBTC": 0.001,
+      "REDEEM_DOC_FEES_RBTC": 0.001,
+      "MINT_BTCX_FEES_RBTC": 0.001,
+      "REDEEM_BTCX_FEES_RBTC": 0.001,
+      "MINT_BPRO_FEES_MOC": 0.0005,
+      "REDEEM_BPRO_FEES_MOC": 0.0005,
+      "MINT_DOC_FEES_MOC": 0.0005,
+      "REDEEM_DOC_FEES_MOC": 0.0005,
+      "MINT_BTCX_FEES_MOC": 0.0005,
+      "REDEEM_BTCX_FEES_MOC": 0.0005
+    },
+    "liquidationEnabled": false,
+    "protected": "1.5",
+    "vendorGuardianAddress": "0xAb242e50E95C2f539242763A4eD5Db1aEE5ce461",
+    "mocTokenCommissionsAddress": "0x7002dD3027947aB98cA3DDC28F93F2450281453A"
+  },
+  "changerAddresses": {}
+}

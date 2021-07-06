@@ -4,7 +4,7 @@ let mocHelper;
 let toContractBN;
 let BUCKET_X2;
 
-contract.skip('MoC', function([owner, userAccount, otherAccount]) {
+contract.skip('MoC', function([owner, userAccount, otherAccount, vendorAccount]) {
   before(async function() {
     mocHelper = await testHelperBuilder({ owner, useMock: true });
     ({ toContractBN } = mocHelper);
@@ -17,6 +17,10 @@ contract.skip('MoC', function([owner, userAccount, otherAccount]) {
   describe('Free Doc redeem without interests', function() {
     before(async function() {
       await mocHelper.revertState();
+
+      // Register vendor for test
+      await mocHelper.registerVendor(vendorAccount, 0, owner);
+
       // This makes doc redemption interests zero
       await this.mocState.setDaysToSettlement(0);
     });
@@ -96,11 +100,11 @@ contract.skip('MoC', function([owner, userAccount, otherAccount]) {
         describe(`GIVEN ${scenario.params.bproToMint} BitPro is minted and btc price is ${scenario.params.initialBtcPrice} usd`, function() {
           beforeEach(async function() {
             await mocHelper.revertState();
-            await mocHelper.mintBProAmount(owner, scenario.params.bproToMint);
+            await mocHelper.mintBProAmount(owner, scenario.params.bproToMint, vendorAccount);
           });
           describe(`WHEN ${scenario.params.docsToMint} doc are minted`, function() {
             beforeEach(async function() {
-              await mocHelper.mintDocAmount(userAccount, scenario.params.docsToMint);
+              await mocHelper.mintDocAmount(userAccount, scenario.params.docsToMint, vendorAccount);
             });
             it(`THEN the user has ${scenario.params.docsToMint} docs`, async function() {
               const docBalance = await mocHelper.getDoCBalance(userAccount);
@@ -121,7 +125,12 @@ contract.skip('MoC', function([owner, userAccount, otherAccount]) {
           });
           describe(`WHEN ${scenario.params.bproxToMint} BProx are minted`, function() {
             beforeEach(async function() {
-              await mocHelper.mintBProxAmount(owner, BUCKET_X2, scenario.params.bproxToMint);
+              await mocHelper.mintBProxAmount(
+                owner,
+                BUCKET_X2,
+                scenario.params.bproxToMint,
+                vendorAccount
+              );
             });
             it(`THEN the user has ${scenario.params.bproxToMint} bprox `, async function() {
               const bproxBalance = await mocHelper.getBProxBalance(BUCKET_X2, owner);
@@ -182,12 +191,11 @@ contract.skip('MoC', function([owner, userAccount, otherAccount]) {
             describe(`AND ${scenario.params.docsToRedeem} docs are redeemed`, function() {
               beforeEach(async function() {
                 userBtcBalance = await web3.eth.getBalance(userAccount);
-                redeemTx = await this.moc.redeemFreeDoc(
-                  toContractBN(scenario.params.docsToRedeem * mocHelper.MOC_PRECISION),
-                  {
-                    from: userAccount
-                  }
-                );
+                redeemTx = await mocHelper.redeemFreeDoc({
+                  userAccount,
+                  docAmount: scenario.params.docsToRedeem,
+                  vendorAccount
+                });
                 usedGas = toContractBN(await mocHelper.getTxCost(redeemTx));
               });
               it(`THEN the redeemers BTC balance is increased by redeeming only ${scenario.expect.docsToRedeem} docs`, async function() {
@@ -364,8 +372,8 @@ contract.skip('MoC', function([owner, userAccount, otherAccount]) {
           describe(`GIVEN ${scenario.params.bproToMint} bitpro is minted and btc price is ${scenario.params.initialBtcPrice} usd`, function() {
             before(async function() {
               await mocHelper.revertState();
-              await mocHelper.mintBProAmount(owner, scenario.params.bproToMint);
-              await mocHelper.mintDocAmount(userAccount, scenario.params.docsToMint);
+              await mocHelper.mintBProAmount(owner, scenario.params.bproToMint, vendorAccount);
+              await mocHelper.mintDocAmount(userAccount, scenario.params.docsToMint, vendorAccount);
             });
             it(`THEN there are ${scenario.params.docsToMint} doc are minted`, async function() {
               const docBalance = await mocHelper.getDoCBalance(userAccount);
@@ -407,12 +415,11 @@ contract.skip('MoC', function([owner, userAccount, otherAccount]) {
               describe(`AND ${scenario.params.docsToRedeem} docs are redeemed`, function() {
                 beforeEach(async function() {
                   userBtcBalance = toContractBN(await web3.eth.getBalance(userAccount));
-                  redeemTx = await this.moc.redeemFreeDoc(
-                    toContractBN(scenario.params.docsToRedeem * mocHelper.RESERVE_PRECISION),
-                    {
-                      from: userAccount
-                    }
-                  );
+                  redeemTx = await mocHelper.redeemFreeDoc({
+                    userAccount,
+                    docAmount: scenario.params.docsToRedeem,
+                    vendorAccount
+                  });
                   usedGas = await mocHelper.getTxCost(redeemTx);
                 });
                 it(`THEN the redeemers BTC balance is increased by redeeming only ${scenario.expect.docsToRedeem} docs`, async function() {

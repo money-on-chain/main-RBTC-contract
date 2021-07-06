@@ -6,7 +6,7 @@ let toContractBN;
 let BUCKET_X2;
 let BUCKET_C0;
 
-contract('MoC : MoCExchange', function([owner, userAccount]) {
+contract('MoC : MoCExchange', function([owner, userAccount, vendorAccount]) {
   before(async function() {
     mocHelper = await testHelperBuilder({ owner, useMock: true });
     ({ toContractBN } = mocHelper);
@@ -16,8 +16,11 @@ contract('MoC : MoCExchange', function([owner, userAccount]) {
     this.mocInrate = mocHelper.mocInrate;
   });
 
-  beforeEach(function() {
-    return mocHelper.revertState();
+  beforeEach(async function() {
+    await mocHelper.revertState();
+
+    // Register vendor for test
+    await mocHelper.registerVendor(vendorAccount, 0, owner);
   });
 
   describe('GIVEN a user owns 5, BProxs', function() {
@@ -27,10 +30,10 @@ contract('MoC : MoCExchange', function([owner, userAccount]) {
     beforeEach(async function() {
       // Set days to settlement to calculate interests
       await this.mocState.setDaysToSettlement(5 * mocHelper.DAY_PRECISION);
-      await mocHelper.mintBProAmount(userAccount, 10);
-      await mocHelper.mintDocAmount(userAccount, 50000);
+      await mocHelper.mintBProAmount(userAccount, 10, vendorAccount);
+      await mocHelper.mintDocAmount(userAccount, 50000, vendorAccount);
 
-      await mocHelper.mintBProxAmount(userAccount, BUCKET_X2, 5);
+      await mocHelper.mintBProxAmount(userAccount, BUCKET_X2, 5, vendorAccount);
 
       initialRbtcBalance = toContractBN(await web3.eth.getBalance(userAccount));
       c0InitialState = await mocHelper.getBucketState(BUCKET_C0);
@@ -149,9 +152,7 @@ contract('MoC : MoCExchange', function([owner, userAccount]) {
           ({ params } = await mocHelper.getContractReadyState(s));
           await mocHelper.setBitcoinPrice(params.btcPrice);
 
-          tx = await this.moc.redeemBProx(BUCKET_X2, toContractBN(params.nBProx), {
-            from: userAccount
-          });
+          tx = await mocHelper.redeemBProx(userAccount, BUCKET_X2, s.params.nBProx, vendorAccount);
 
           finalRbtcBalance = toContractBN(await web3.eth.getBalance(userAccount));
           txCost = await mocHelper.getTxCost(tx);

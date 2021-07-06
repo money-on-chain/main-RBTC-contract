@@ -30,8 +30,8 @@ contract.skip('MoC', function([owner, userAccount]) {
   describe(`GIVEN settlement blockSpan is ${twoDays}`, function() {
     beforeEach(async function() {
       await mocHelper.revertState();
-      await mocHelper.mockMoCSettlementChanger.setBlockSpan(dayBlockSpan);
-      await mocHelper.governor.executeChange(mocHelper.mockMoCSettlementChanger.address);
+      await this.mockMoCSettlementChanger.setBlockSpan(dayBlockSpan);
+      await this.governor.executeChange(mocHelper.mockMoCSettlementChanger.address);
     });
     it('THEN days til settlement should be 2', async function() {
       const days = await this.mocState.daysToSettlement();
@@ -70,8 +70,8 @@ contract.skip('MoC', function([owner, userAccount]) {
 
   describe(`GIVEN settlement blockSpan is ${arbitraryBlockSpan}`, function() {
     beforeEach(async function() {
-      await mocHelper.mockMoCSettlementChanger.setBlockSpan(arbitraryBlockSpan);
-      await mocHelper.governor.executeChange(mocHelper.mockMoCSettlementChanger.address);
+      await this.mockMoCSettlementChanger.setBlockSpan(arbitraryBlockSpan);
+      await this.governor.executeChange(mocHelper.mockMoCSettlementChanger.address);
     });
     describe('WHEN a user runs the settlement before time', function() {
       it('THEN it reverts', async function() {

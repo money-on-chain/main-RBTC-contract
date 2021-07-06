@@ -1,4 +1,4 @@
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 import "zos-lib/contracts/Initializable.sol";
 
@@ -14,14 +14,29 @@ contract MoCConnector is MoCWhitelist, Initializable {
   address public bproToken;
   address public bproxManager;
   address public mocState;
-  address public mocConverter;
+  /** DEPRECATED **/
+  // solium-disable-next-line mixedcase
+  address public DEPRECATED_mocConverter;
   address public mocSettlement;
   address public mocExchange;
   address public mocInrate;
+  /** DEPRECATED mocBurnout **/
   address public mocBurnout;
 
   bool internal initialized;
 
+  /**
+    @dev Initializes the contract
+    @param mocAddress MoC contract address
+    @param docAddress DoCToken contract address
+    @param bproAddress BProToken contract address
+    @param bproxAddress BProxManager contract address
+    @param stateAddress MoCState contract address
+    @param settlementAddress MoCSettlement contract address
+    @param exchangeAddress MoCExchange contract address
+    @param inrateAddress MoCInrate contract address
+    @param burnoutBookAddress (DEPRECATED) MoCBurnout contract address. DO NOT USE.
+  */
   function initialize(
     address payable mocAddress,
     address docAddress,
@@ -29,7 +44,6 @@ contract MoCConnector is MoCWhitelist, Initializable {
     address bproxAddress,
     address stateAddress,
     address settlementAddress,
-    address converterAddress,
     address exchangeAddress,
     address inrateAddress,
     address burnoutBookAddress
@@ -40,7 +54,6 @@ contract MoCConnector is MoCWhitelist, Initializable {
     bproxManager = bproxAddress;
     mocState = stateAddress;
     mocSettlement = settlementAddress;
-    mocConverter = converterAddress;
     mocExchange = exchangeAddress;
     mocInrate = inrateAddress;
     mocBurnout = burnoutBookAddress;
@@ -52,7 +65,6 @@ contract MoCConnector is MoCWhitelist, Initializable {
     add(bproxAddress);
     add(stateAddress);
     add(settlementAddress);
-    add(converterAddress);
     add(exchangeAddress);
     add(inrateAddress);
     add(burnoutBookAddress);

@@ -7,7 +7,7 @@ let mocHelper;
 let toContractBN;
 let BUCKET_X2;
 let accounts;
-contract('MoC: Delever X', function([owner, ...allAccounts]) {
+contract('MoC: Delever X', function([owner, vendorAccount, ...allAccounts]) {
   accounts = allAccounts.slice(0, 10);
   before(async function() {
     mocHelper = await testHelperBuilder({ owner, useMock: true });
@@ -19,8 +19,11 @@ contract('MoC: Delever X', function([owner, ...allAccounts]) {
     this.revertingContract = mocHelper.revertingContract;
   });
 
-  beforeEach(function() {
-    return mocHelper.revertState();
+  beforeEach(async function() {
+    await mocHelper.revertState();
+
+    // Register vendor for test
+    await mocHelper.registerVendor(vendorAccount, 0, owner);
   });
 
   describe('DoS attack mitigation', function() {
@@ -28,15 +31,15 @@ contract('MoC: Delever X', function([owner, ...allAccounts]) {
 
     describe('GIVEN two honest users and one attacker mint BProx', function() {
       beforeEach(async function() {
-        await mocHelper.mintBProAmount(owner, 3);
-        await mocHelper.mintDocAmount(owner, 15000);
+        await mocHelper.mintBProAmount(owner, 3, vendorAccount);
+        await mocHelper.mintDocAmount(owner, 15000, vendorAccount);
 
-        await mocHelper.mintBProxAmount(accounts[1], BUCKET_X2, 0.5);
-        await mocHelper.mintBProxAmount(accounts[2], BUCKET_X2, 0.5);
+        await mocHelper.mintBProxAmount(accounts[1], BUCKET_X2, 0.5, vendorAccount);
+        await mocHelper.mintBProxAmount(accounts[2], BUCKET_X2, 0.5, vendorAccount);
         const btcToMint = toContractBN(0.5 * mocHelper.RESERVE_PRECISION);
         // Double is sent only to avoid calculations.
         const btcTotal = toContractBN(0.5 * 2 * mocHelper.RESERVE_PRECISION);
-        await this.revertingContract.mintBProx(BUCKET_X2, btcToMint, {
+        await this.revertingContract.mintBProx(BUCKET_X2, btcToMint, vendorAccount, {
           from: accounts[3],
           value: btcTotal
         });
@@ -77,12 +80,12 @@ contract('MoC: Delever X', function([owner, ...allAccounts]) {
     const bprox2Positions = [0.5, 0.5, 0.5, 0.5, 0.01];
     describe('GIVEN five users have BProX2 and there is a position and the settlement is enabled', function() {
       beforeEach(async function() {
-        await mocHelper.mintBProAmount(owner, 25);
-        await mocHelper.mintDocAmount(owner, 25000);
+        await mocHelper.mintBProAmount(owner, 25, vendorAccount);
+        await mocHelper.mintDocAmount(owner, 25000, vendorAccount);
 
         await Promise.all(
           bprox2Positions.map((position, i) =>
-            mocHelper.mintBProxAmount(accounts[i + 1], BUCKET_X2, position)
+            mocHelper.mintBProxAmount(accounts[i + 1], BUCKET_X2, position, vendorAccount)
           )
         );
         await mocHelper.moc.redeemDocRequest(toContractBN(1, 'USD'), {
@@ -120,12 +123,12 @@ contract('MoC: Delever X', function([owner, ...allAccounts]) {
     const bprox2Positions = [0.5, 0.5, 0.5, 0.5, 0.01];
     describe('GIVEN five users have only BProX2 positions and the settlement is enabled', function() {
       beforeEach(async function() {
-        await mocHelper.mintBProAmount(owner, 25);
-        await mocHelper.mintDocAmount(owner, 25000);
+        await mocHelper.mintBProAmount(owner, 25, vendorAccount);
+        await mocHelper.mintDocAmount(owner, 25000, vendorAccount);
 
         await Promise.all(
           bprox2Positions.map((position, i) =>
-            mocHelper.mintBProxAmount(accounts[i + 1], BUCKET_X2, position)
+            mocHelper.mintBProxAmount(accounts[i + 1], BUCKET_X2, position, vendorAccount)
           )
         );
         // Verify that the positions are placed
@@ -166,13 +169,13 @@ contract('MoC: Delever X', function([owner, ...allAccounts]) {
 
     describe('GIVEN five users have BProX2 and the settlement is enabled', function() {
       beforeEach(async function() {
-        await mocHelper.mintBProAmount(owner, 25);
-        await mocHelper.mintDocAmount(owner, 25000);
+        await mocHelper.mintBProAmount(owner, 25, vendorAccount);
+        await mocHelper.mintDocAmount(owner, 25000, vendorAccount);
 
         mocHelper.getBucketState(BUCKET_X2);
         await Promise.all(
           bprox2Positions.map((position, i) =>
-            mocHelper.mintBProxAmount(accounts[i + 1], BUCKET_X2, position)
+            mocHelper.mintBProxAmount(accounts[i + 1], BUCKET_X2, position, vendorAccount)
           )
         );
         await Promise.all(
@@ -294,17 +297,17 @@ contract('MoC: Delever X', function([owner, ...allAccounts]) {
   ];
   scenarios.forEach(s => {
     const userPrevBalances = [];
-    describe(`GIVEN there is 1 BProx in Bucket ${BUCKET_X2}`, function() {
+    describe('GIVEN there is 1 BProx in Bucket BUCKET_X2', function() {
       beforeEach(async function() {
         await new Promise(resolve => {
           s.users.forEach(async (user, index) => {
             const account = accounts[index + 1];
 
-            await mocHelper.mintBProAmount(account, user.nBPro);
-            await mocHelper.mintDocAmount(account, user.nDoc);
+            await mocHelper.mintBProAmount(account, user.nBPro, vendorAccount);
+            await mocHelper.mintDocAmount(account, user.nDoc, vendorAccount);
 
             if (user.bproxMint.nB) {
-              await mocHelper.mintBProx(account, BUCKET_X2, user.bproxMint.nB);
+              await mocHelper.mintBProx(account, BUCKET_X2, user.bproxMint.nB, vendorAccount);
             }
             userPrevBalances[index] = {
               nBProx: await mocHelper.getBProxBalance(BUCKET_X2, accounts[index + 1]),

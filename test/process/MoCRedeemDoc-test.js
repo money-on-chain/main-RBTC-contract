@@ -7,7 +7,7 @@ let mocHelper;
 let toContractBN;
 let BUCKET_C0;
 
-contract('MoC', function([owner, userAccount, attacker, ...accounts]) {
+contract('MoC', function([owner, userAccount, attacker, vendorAccount, ...accounts]) {
   const blockSpan = 41;
 
   before(async function() {
@@ -23,8 +23,11 @@ contract('MoC', function([owner, userAccount, attacker, ...accounts]) {
     this.governor = mocHelper.governor;
   });
 
-  beforeEach(function() {
-    return mocHelper.revertState();
+  beforeEach(async function() {
+    await mocHelper.revertState();
+
+    // Register vendor for test
+    await mocHelper.registerVendor(vendorAccount, 0, owner);
   });
 
   describe('DoC Redeem DoS attack mitigation', function() {
@@ -33,14 +36,14 @@ contract('MoC', function([owner, userAccount, attacker, ...accounts]) {
       beforeEach(async function() {
         await mocHelper.setBitcoinPrice(10000 * mocHelper.MOC_PRECISION);
 
-        await mocHelper.mintBProAmount(owner, 3);
-        await mocHelper.mintDocAmount(from, 1000);
+        await mocHelper.mintBProAmount(owner, 3, vendorAccount);
+        await mocHelper.mintDocAmount(from, 1000, vendorAccount);
         await this.moc.redeemDocRequest(toContractBN(1000 * mocHelper.MOC_PRECISION), {
           from
         });
         const toMint = toContractBN(0.1 * mocHelper.RESERVE_PRECISION);
         // Attacker mints and tries to redeem
-        await this.revertingContract.mintDoc(toMint, {
+        await this.revertingContract.mintDoc(toMint, vendorAccount, {
           value: toMint,
           from: attacker
         });
@@ -51,8 +54,8 @@ contract('MoC', function([owner, userAccount, attacker, ...accounts]) {
         // From now reverting
         await this.revertingContract.setAcceptingMoney(false);
         // Enabling Settlement
-        await mocHelper.mockMoCSettlementChanger.setBlockSpan(1);
-        await mocHelper.governor.executeChange(mocHelper.mockMoCSettlementChanger.address);
+        await this.mockMoCSettlementChanger.setBlockSpan(1);
+        await this.governor.executeChange(mocHelper.mockMoCSettlementChanger.address);
       });
 
       describe('WHEN a settlement is run', function() {
@@ -89,9 +92,9 @@ contract('MoC', function([owner, userAccount, attacker, ...accounts]) {
         await this.moc.sendTransaction({
           value: 1 * mocHelper.RESERVE_PRECISION
         });
-        await mocHelper.mintDoc(from, 0.25);
-        await mocHelper.mockMoCSettlementChanger.setBlockSpan(blockSpan);
-        await mocHelper.governor.executeChange(mocHelper.mockMoCSettlementChanger.address);
+        await mocHelper.mintDoc(from, 0.25, vendorAccount);
+        await this.mockMoCSettlementChanger.setBlockSpan(blockSpan);
+        await this.governor.executeChange(mocHelper.mockMoCSettlementChanger.address);
       });
       it(`THEN blockSpan should be ${blockSpan}`, async function() {
         const actualBlockSpan = await this.mocSettlement.getBlockSpan();
@@ -272,19 +275,19 @@ contract('MoC', function([owner, userAccount, attacker, ...accounts]) {
           value: 1 * mocHelper.RESERVE_PRECISION
         });
         const toMint = 0.25;
-        await mocHelper.mintDoc(from, toMint);
+        await mocHelper.mintDoc(from, toMint, vendorAccount);
         await this.moc.redeemDocRequest(toContractBN(200 * mocHelper.MOC_PRECISION), {
           from
         });
 
         // Add other redeemer
-        await mocHelper.mintDoc(accounts[2], toMint);
+        await mocHelper.mintDoc(accounts[2], toMint, vendorAccount);
         await this.moc.redeemDocRequest(toContractBN(200 * mocHelper.MOC_PRECISION), {
           from: accounts[2]
         });
 
-        await mocHelper.mockMoCSettlementChanger.setBlockSpan(1);
-        await mocHelper.governor.executeChange(mocHelper.mockMoCSettlementChanger.address);
+        await this.mockMoCSettlementChanger.setBlockSpan(1);
+        await this.governor.executeChange(mocHelper.mockMoCSettlementChanger.address);
       });
       describe('WHEN he cancel it AND settlement is executed', function() {
         let toCancel;
@@ -345,6 +348,48 @@ contract('MoC', function([owner, userAccount, attacker, ...accounts]) {
             const docBalance = await mocHelper.getDoCBalance(from);
             mocHelper.assertBigDollar(docBalance, 900, 'Balance should have decrease by 100');
           });
+        });
+      });
+    });
+  });
+
+  describe('Coverage below protection mode', function() {
+    describe(`GIVEN a user owns 1000 Docs, BTC price is 2000 USD, there is 1 BTC in Bucket 0 AND blockSpan is ${blockSpan}`, function() {
+      const from = userAccount;
+      const docAmount = 0.25;
+      const lowPrice = 2000;
+      const normalPrice = 10000;
+      beforeEach(async function() {
+        await this.moc.sendTransaction({
+          value: 1 * mocHelper.RESERVE_PRECISION
+        });
+        await mocHelper.mintDoc(from, docAmount, vendorAccount);
+        // Enabling Settlement
+        await this.mockMoCSettlementChanger.setBlockSpan(1);
+        await this.governor.executeChange(mocHelper.mockMoCSettlementChanger.address);
+        await mocHelper.setBitcoinPrice(lowPrice * mocHelper.MOC_PRECISION);
+      });
+      describe('WHEN a settlement is run', function() {
+        beforeEach(async function() {
+          await mocHelper.executeSettlement();
+        });
+        it('THEN docRedemptionStepCount should be 0', async function() {
+          const docRedemptionStepCount = await this.mocSettlement.docRedemptionStepCountForTest();
+          await mocHelper.assertBig(
+            docRedemptionStepCount,
+            0,
+            'docRedemptionStepCount Should be 0'
+          );
+        });
+        it(`THEN if BTC price is back to ${normalPrice}, docRedemptionStepCount should be ${docAmount}`, async function() {
+          await mocHelper.setBitcoinPrice(normalPrice * mocHelper.MOC_PRECISION);
+
+          const docRedemptionStepCountNormal = await this.mocSettlement.docRedemptionStepCountForTest();
+          await mocHelper.assertBig(
+            docRedemptionStepCountNormal,
+            docAmount,
+            'docRedemptionStepCount Should be greater than 0'
+          );
         });
       });
     });

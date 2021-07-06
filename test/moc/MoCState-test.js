@@ -1,18 +1,20 @@
 const testHelperBuilder = require('../mocHelper.js');
 
 let mocHelper;
-let toContractBN;
+
 const BUCKET_C0 = web3.utils.asciiToHex('C0', 32);
-contract('MoC', function([owner]) {
+contract('MoC', function([owner, vendorAccount]) {
   before(async function() {
     mocHelper = await testHelperBuilder({ owner });
-    ({ toContractBN } = mocHelper);
     this.mocState = mocHelper.mocState;
     this.moc = mocHelper.moc;
   });
 
-  beforeEach(function() {
-    return mocHelper.revertState();
+  beforeEach(async function() {
+    await mocHelper.revertState();
+
+    // Register vendor for test
+    await mocHelper.registerVendor(vendorAccount, 0, owner);
   });
 
   describe('State variables', function() {
@@ -61,6 +63,7 @@ contract('MoC', function([owner]) {
         }
       }, */
       {
+        ...baseState,
         nDoCs: 10000,
         initialnB: 6,
         btcPrice: { from: 10000, to: 5000 },
@@ -114,6 +117,17 @@ contract('MoC', function([owner]) {
             leverage: 1.1666666666666668
           }
         }
+      },
+      {
+        ...baseState,
+        nDoCs: 12000,
+        initialnB: 2.4,
+        btcPrice: { from: 10000, to: 1000 },
+        nDocsBtcAmount: 1.2,
+        expect: {
+          globals: { globalCoverage: 0.3, bproTecPrice: '0.000000000000000001' },
+          C0: { lockedBitcoin: 12, coverage: 0.3 }
+        }
       }
     ];
 
@@ -135,16 +149,12 @@ contract('MoC', function([owner]) {
               // It will be always the middle between the two values.
               await mocHelper.setSmoothingFactor(0.5 * 10 ** 18);
 
-              if (contractReadyState.nDoCs) {
-                await this.moc.mintDoc(toContractBN(contractReadyState.nDocsBtcAmount), {
-                  value: toContractBN(contractReadyState.nDocsBtcAmount)
-                });
+              if (state.nDoCs) {
+                await mocHelper.mintDoc(owner, state.nDocsBtcAmount, vendorAccount);
               }
 
-              if (contractReadyState.nBPro) {
-                await this.moc.mintBPro(toContractBN(contractReadyState.bproBtcAmount), {
-                  value: toContractBN(contractReadyState.bproBtcAmount)
-                });
+              if (state.nBPro) {
+                await mocHelper.mintBPro(owner, state.bproBtcAmount, vendorAccount);
               }
 
               await mocHelper.setBitcoinPrice(contractReadyState.btcPrice.to);

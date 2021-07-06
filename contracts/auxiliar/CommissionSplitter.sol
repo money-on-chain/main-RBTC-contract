@@ -1,8 +1,8 @@
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 import "moc-governance/contracts/Governance/Governed.sol";
 import "moc-governance/contracts/Governance/IGovernor.sol";
-import "../MoC.sol";
+import "../interface/IMoC.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/IERC20.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "openzeppelin-eth/contracts/utils/ReentrancyGuard.sol";
@@ -13,7 +13,7 @@ import "openzeppelin-eth/contracts/utils/ReentrancyGuard.sol";
   be a Money on Chain main contract.
  */
 contract CommissionSplitter is Governed, ReentrancyGuard {
-  event SplitExecuted(uint256 commissionAmount, uint256 mocAmount);
+  event SplitExecuted(uint256 commissionAmount, uint256 mocAmount, uint256 mocTokenCommissionAmount);
   // Math
   using SafeMath for uint256;
   uint256 public constant PRECISION = 10**18;
@@ -24,7 +24,10 @@ contract CommissionSplitter is Governed, ReentrancyGuard {
   uint256 public mocProportion;
 
   // Contracts
-  MoC public moc;
+  IMoC public moc;
+
+  IERC20 public mocToken;
+  address public mocTokenCommissionsAddress;
 
   /**
     @dev Initialize commission splitter contract
@@ -32,16 +35,22 @@ contract CommissionSplitter is Governed, ReentrancyGuard {
     @param _commissionsAddress the address in which the remaining commissions (profit ones) are sent
     @param _mocProportion the proportion of commission that moc will keep, it should have PRECISION precision
     @param _governor the address of the IGovernor contract
+    @param _mocToken the address of MoC Token contract
+    @param _mocTokenCommissionsAddress the address in which the Moc Token commissions are sent
    */
   function initialize(
-    MoC _mocAddress,
+    IMoC _mocAddress,
     address payable _commissionsAddress,
     uint256 _mocProportion,
-    IGovernor _governor
+    IGovernor _governor,
+    IERC20 _mocToken,
+    address _mocTokenCommissionsAddress
   ) public initializer {
     _setMocProportion(_mocProportion);
     moc = _mocAddress;
     commissionsAddress = _commissionsAddress;
+    mocToken = _mocToken;
+    mocTokenCommissionsAddress = _mocTokenCommissionsAddress;
 
     Governed.initialize(_governor);
   }
@@ -57,7 +66,13 @@ contract CommissionSplitter is Governed, ReentrancyGuard {
 
     _sendReservesToMoC(mocAmount);
     _sendReserves(commissionAmount, commissionsAddress);
-    emit SplitExecuted(commissionAmount, mocAmount);
+
+    uint256 mocTokenAmount = mocToken.balanceOf(address(this));
+    if (mocTokenAmount > 0) {
+      mocToken.transfer(mocTokenCommissionsAddress, mocTokenAmount);
+    }
+
+    emit SplitExecuted(commissionAmount, mocAmount, mocTokenAmount);
   }
 
   // Governance Setters
@@ -73,6 +88,16 @@ contract CommissionSplitter is Governed, ReentrancyGuard {
     onlyAuthorizedChanger
   {
     _setMocProportion(_mocProportion);
+  }
+
+  function setMocToken(address _mocToken) public onlyAuthorizedChanger {
+    require(_mocToken != address(0), "MocToken must not be 0x0");
+    mocToken = IERC20(_mocToken);
+  }
+
+  function setMocTokenCommissionAddress(address _mocTokenCommissionsAddress) public onlyAuthorizedChanger {
+    require(_mocTokenCommissionsAddress != address(0), "MocTokenCommissionAddress must not be 0x0");
+    mocTokenCommissionsAddress = _mocTokenCommissionsAddress;
   }
 
   function _setMocProportion(uint256 _mocProportion) internal {

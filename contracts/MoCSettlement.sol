@@ -1,15 +1,17 @@
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 import "openzeppelin-solidity/contracts/math/Math.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "./base/MoCBase.sol";
 import "./token/DocToken.sol";
-import "./MoCState.sol";
-import "./MoCExchange.sol";
+import "./interface/IMoCState.sol";
+import "./interface/IMoCExchange.sol";
 import "./MoCBProxManager.sol";
 import "./PartialExecution.sol";
 import "moc-governance/contracts/Governance/Governed.sol";
 import "moc-governance/contracts/Governance/IGovernor.sol";
+import "./interface/IMoCVendors.sol";
+import "./interface/IMoCSettlement.sol";
 
 contract MoCSettlementEvents {
   event RedeemRequestAlter(address indexed redeemer, bool isAddition, uint256 delta);
@@ -22,16 +24,15 @@ contract MoCSettlementEvents {
     uint256 riskProxPrice,
     uint256 reservePrice
   );
-  event SettlementCompleted(
-    uint256 commissionsPayed
-  );
+  event SettlementCompleted(uint256 commissionsPayed);
 }
 
 contract MoCSettlement is
 MoCSettlementEvents,
 MoCBase,
 PartialExecution,
-Governed
+Governed,
+IMoCSettlement
 {
   using Math for uint256;
   using SafeMath for uint256;
@@ -61,34 +62,41 @@ Governed
     uint256 finalCommissionAmount;
     uint256 leverage;
     uint256 startBlockNumber;
+    bool isProtectedMode;
   }
 
   // Contracts
-  MoCState internal mocState;
-  MoCExchange internal mocExchange;
+  IMoCState internal mocState;
+  IMoCExchange internal mocExchange;
   DocToken internal docToken;
   MoCBProxManager internal bproxManager;
 
   /**
   @dev Block Number of the last successful execution
-**/
+  */
   uint256 internal lastProcessedBlock;
   /**
   @dev Min number of blocks settlement should be re evaluated on
-**/
+  */
   uint256 internal blockSpan;
   /**
   @dev Information for Settlement execution
-**/
+  */
   SettlementInfo internal settlementInfo;
   /**
   @dev Redeem queue
-**/
+  */
   RedeemRequest[] private redeemQueue;
   uint256 private redeemQueueLength;
 
   mapping(address => UserRedeemRequest) private redeemMapping;
 
+  /**
+    @dev Initializes the contract
+    @param connectorAddress MoCConnector contract address
+    @param _governor Governor contract address
+    @param _blockSpan Blockspan configuration blockspan of settlement
+  */
   function initialize(
     address connectorAddress,
     address _governor,
@@ -123,10 +131,10 @@ Governed
   }
 
   /**
-  @dev Gets the RedeemRequest at the queue index position
-  @param _index queue position to get
-  @return redeemer's address and amount he submitted
-*/
+    @dev Gets the RedeemRequest at the queue index position
+    @param _index queue position to get
+    @return redeemer's address and amount he submitted
+  */
   function getRedeemRequestAt(uint256 _index)
   public
   view
@@ -137,61 +145,61 @@ Governed
   }
 
   /**
-  @dev Gets the number of blocks the settlemnet will be allowed to run
-*/
+    @dev Gets the number of blocks the settlemnet will be allowed to run
+  */
   function getBlockSpan() public view returns (uint256) {
     return blockSpan;
   }
 
   /**
- @dev Verify that the index is smaller than the length of the redeem request queue
- @param _index queue position to get
- */
+    @dev Verify that the index is smaller than the length of the redeem request queue
+    @param _index queue position to get
+  */
   modifier withinBoundaries(uint256 _index) {
     require(_index < redeemQueueLength, "Index out of boundaries");
     _;
   }
 
   /**
-  @dev Returns the current redeem request queue's length
- */
+    @dev Returns the current redeem request queue's length
+  */
   function redeemQueueSize() public view returns (uint256) {
     return redeemQueueLength;
   }
 
   /**
-  @dev Returns true if blockSpan number of blocks has pass since last execution
-*/
+    @dev Returns true if blockSpan number of blocks has pass since last execution
+  */
   function isSettlementEnabled() public view returns (bool) {
     return nextSettlementBlock() <= block.number;
   }
 
   /**
-  @dev Returns true if the settlment is running
-*/
+    @dev Returns true if the settlment is running
+  */
   function isSettlementRunning() public view returns (bool) {
     return isGroupRunning(SETTLEMENT_TASK);
   }
 
   /**
-  @dev Returns true if the settlment is ready
-*/
+    @dev Returns true if the settlment is ready
+  */
   function isSettlementReady() public view returns (bool) {
     return isGroupReady(SETTLEMENT_TASK);
   }
 
   /**
-  @dev Returns the next block from which settlement is possible
- */
+    @dev Returns the next block from which settlement is possible
+  */
   function nextSettlementBlock() public view returns (uint256) {
     return lastProcessedBlock.add(blockSpan);
   }
 
   /**
-  @dev returns the total amount of Docs in the redeem queue for _who
-  @param _who address for which ^ is computed
-  @return total amount of Docs in the redeem queue for _who [using mocPrecision]
- */
+    @dev returns the total amount of Docs in the redeem queue for _who
+    @param _who address for which ^ is computed
+    @return total amount of Docs in the redeem queue for _who [using mocPrecision]
+  */
   function docAmountToRedeem(address _who) public view returns (uint256) {
     if (!redeemMapping[_who].activeRedeemer) {
       return 0;
@@ -203,10 +211,10 @@ Governed
   }
 
   /**
-  @dev push a new redeem request to the queue for the sender or updates the amount if the user has a redeem request
-  @param amount amount he is willing to redeem [using mocPrecision]
-  @param redeemer redeemer address
-*/
+    @dev push a new redeem request to the queue for the sender or updates the amount if the user has a redeem request
+    @param amount amount he is willing to redeem [using mocPrecision]
+    @param redeemer redeemer address
+  */
   function addRedeemRequest(uint256 amount, address payable redeemer)
   public
   onlyWhitelisted(msg.sender)
@@ -225,19 +233,19 @@ Governed
   }
 
   /**
-  @dev empty the queue
- */
+    @dev empty the queue
+  */
   function clear() public onlyWhitelisted(msg.sender) {
     redeemQueueLength = 0;
   }
 
   /**
-  @dev Alters the redeem amount position for the redeemer
-  @param isAddition true if adding amount to redeem, false to substract.
-  @param delta the amount to add/substract to current position [using mocPrecision]
-  @param redeemer address to alter amount for
-  @return the filled amount [using mocPrecision]
-*/
+    @dev Alters the redeem amount position for the redeemer
+    @param isAddition true if adding amount to redeem, false to substract.
+    @param delta the amount to add/substract to current position [using mocPrecision]
+    @param redeemer address to alter amount for
+    @return the filled amount [using mocPrecision]
+  */
   function alterRedeemRequestAmount(
     bool isAddition,
     uint256 delta,
@@ -265,10 +273,10 @@ Governed
   }
 
   /**
-* @dev Runs settlement process in steps
-  @param steps Amount of steps to run
-  @return The commissions collected in the executed steps
-*/
+    @dev Runs settlement process in steps
+    @param steps Amount of steps to run
+    @return The commissions collected in the executed steps
+  */
   function runSettlement(uint256 steps)
   public
   onlyWhitelisted(msg.sender)
@@ -280,11 +288,42 @@ Governed
     return settlementInfo.finalCommissionAmount;
   }
 
+  /**
+    @dev Create Task structures for Settlement execution
+  */
+  function fixTasksPointer() public {
+    bytes32[] memory tasks = new bytes32[](2);
+    tasks[0] = DELEVERAGING_TASK;
+    tasks[1] = DOC_REDEMPTION_TASK;
+
+    resetTaskPointers(
+      DELEVERAGING_TASK,
+      deleveragingStepCount,
+      deleveragingStep,
+      noFunction,
+      finishDeleveraging
+    );
+    resetTaskPointers(
+      DOC_REDEMPTION_TASK,
+      docRedemptionStepCount,
+      docRedemptionStep,
+      noFunction,
+      finishDocRedemption
+    );
+    resetTaskGroupPointers(
+      SETTLEMENT_TASK,
+      tasks,
+      initializeSettlement,
+      finishSettlement,
+      true
+    );
+  }
+
   function initializeContracts() internal {
     docToken = DocToken(connector.docToken());
     bproxManager = MoCBProxManager(connector.bproxManager());
-    mocState = MoCState(connector.mocState());
-    mocExchange = MoCExchange(connector.mocExchange());
+    mocState = IMoCState(connector.mocState());
+    mocExchange = IMoCExchange(connector.mocExchange());
   }
 
   function initializeValues(address _governor, uint256 _blockSpan) internal {
@@ -293,6 +332,7 @@ Governed
     lastProcessedBlock = block.number;
     initializeTasks();
   }
+
 
   modifier isTime() {
     require(isSettlementEnabled(), "Settlement not yet enabled");
@@ -303,7 +343,7 @@ Governed
   /******************** TASKS ***********************/
   /**************************************************/
 
-  /**
+/**
   @dev Returns the amount of steps for the Deleveraging task
   which is the amount of active BProx addresses
 */
@@ -316,6 +356,10 @@ Governed
   which is the amount of redeem requests in the queue
 */
   function docRedemptionStepCount() internal view returns (uint256) {
+    // If Protected Mode is reached, DoCs in queue must not be redeemed until next settlement
+    if (mocState.globalCoverage() <= mocState.getProtected()) {
+      return 0;
+    }
     return redeemQueueLength;
   }
 
@@ -328,6 +372,13 @@ Governed
     settlementInfo.btcxPrice = mocState.bucketBProTecPrice(BUCKET_X2);
     settlementInfo.startBlockNumber = block.number;
 
+    // Protected Mode
+    if (mocState.globalCoverage() <= mocState.getProtected()) {
+      settlementInfo.isProtectedMode = true;
+    } else {
+      settlementInfo.isProtectedMode = false;
+    }
+
     settlementInfo.docRedeemCount = redeemQueueLength;
     settlementInfo.deleveragingCount = bproxManager.getActiveAddressesCount(
       BUCKET_X2
@@ -335,6 +386,10 @@ Governed
     settlementInfo.finalCommissionAmount = 0;
     settlementInfo.partialCommissionAmount = 0;
     settlementInfo.startBlockNumber = block.number;
+
+    // Reset total paid in MoC for every vendor
+    IMoCVendors mocVendors = IMoCVendors(mocState.getMoCVendors());
+    mocVendors.resetTotalPaidInMoC();
 
     emit SettlementStarted(
       settlementInfo.docRedeemCount,
@@ -378,7 +433,9 @@ Governed
       settlementInfo.btcPrice
     );
 
-    clear();
+    if (!settlementInfo.isProtectedMode) {
+      clear();
+    }
   }
 
   /**
@@ -438,39 +495,6 @@ Governed
     UserRedeemRequest storage userReedem = redeemMapping[redeemer];
     userReedem.activeRedeemer = false;
     redeemQueue[index].amount = 0;
-  }
-
-  /**
-  @dev Create Task structures for Settlement execution
-*/
-  function fixTasksPointer() public {
-    resetTaskPointers(
-      DELEVERAGING_TASK,
-      deleveragingStepCount,
-      deleveragingStep,
-      noFunction,
-      finishDeleveraging
-    );
-    resetTaskPointers(
-      DOC_REDEMPTION_TASK,
-      docRedemptionStepCount,
-      docRedemptionStep,
-      noFunction,
-      finishDocRedemption
-    );
-
-
-    bytes32[] memory tasks = new bytes32[](2);
-    tasks[0] = DELEVERAGING_TASK;
-    tasks[1] = DOC_REDEMPTION_TASK;
-
-    resetTaskGroupPointers(
-      SETTLEMENT_TASK,
-      tasks,
-      initializeSettlement,
-      finishSettlement,
-      true
-    );
   }
 
   /**

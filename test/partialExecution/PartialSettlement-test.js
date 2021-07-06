@@ -39,14 +39,22 @@ const executeSettlementRound = async round => {
   return mocHelper.moc.runSettlement(round.step);
 };
 
-const initializeSettlement = async accounts => {
+const initializeSettlement = async (vendorAccount, owner, accounts) => {
   await mocHelper.revertState();
+
+  // Register vendor for test
+  await mocHelper.registerVendor(vendorAccount, 0, owner);
+
   // Avoid interests
   await mocHelper.mocState.setDaysToSettlement(0);
   const docAccounts = accounts.slice(0, 5);
   const btcxAccounts = accounts.slice(5, 8);
-  await Promise.all(docAccounts.map(account => mocHelper.mintBProAmount(account, 10000)));
-  await Promise.all(docAccounts.map(account => mocHelper.mintDocAmount(account, 10000)));
+  await Promise.all(
+    docAccounts.map(account => mocHelper.mintBProAmount(account, 10000, vendorAccount))
+  );
+  await Promise.all(
+    docAccounts.map(account => mocHelper.mintDocAmount(account, 10000, vendorAccount))
+  );
   await Promise.all(
     docAccounts.map(account =>
       mocHelper.moc.redeemDocRequest(toContractBN(10, 'USD'), {
@@ -55,7 +63,9 @@ const initializeSettlement = async accounts => {
     )
   );
 
-  await Promise.all(btcxAccounts.map(account => mocHelper.mintBProxAmount(account, BUCKET_X2, 1)));
+  await Promise.all(
+    btcxAccounts.map(account => mocHelper.mintBProxAmount(account, BUCKET_X2, 1, vendorAccount))
+  );
   initialBalances = await Promise.all(accounts.map(address => mocHelper.getUserBalances(address)));
   await mocHelper.mocSettlement.setBlockSpan(1);
 };
@@ -75,7 +85,7 @@ const runScenario = scenario => {
   return reduced.then(lastTx => txs.concat(lastTx));
 };
 
-contract('MoC: Partial Settlement execution', function([owner, ...accounts]) {
+contract('MoC: Partial Settlement execution', function([owner, vendorAccount, ...accounts]) {
   before(async function() {
     mocHelper = await testHelperBuilder({ owner, useMock: true });
     ({ toContractBN } = mocHelper);
@@ -105,7 +115,7 @@ contract('MoC: Partial Settlement execution', function([owner, ...accounts]) {
         let txs = [];
         describe(scenario.description, function() {
           before(async function() {
-            await initializeSettlement(accounts);
+            await initializeSettlement(vendorAccount, owner, accounts);
             txs = await runScenario(scenario);
           });
 
@@ -165,7 +175,7 @@ contract('MoC: Partial Settlement execution', function([owner, ...accounts]) {
   describe('Consecutive Settlements', function() {
     describe('GIVEN first settlement is executed', function() {
       before(async function() {
-        await initializeSettlement(accounts);
+        await initializeSettlement(vendorAccount, owner, accounts);
         await mocHelper.moc.runSettlement(4);
         await mocHelper.setBitcoinPrice(toContractBN(8000, 'USD'));
         await mocHelper.moc.runSettlement(4);

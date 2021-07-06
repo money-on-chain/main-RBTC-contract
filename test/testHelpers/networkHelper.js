@@ -34,7 +34,7 @@ const saveState = async () =>
   });
 
 const revertState = async () => {
-  await new Promise(resolve =>
+  await new Promise((resolve, reject) =>
     web3.currentProvider.send(
       {
         jsonrpc: '2.0',
@@ -44,6 +44,10 @@ const revertState = async () => {
       },
       (error, res) => {
         resolve(res.result);
+
+        if (error) {
+          reject(error);
+        }
       }
     )
   );
