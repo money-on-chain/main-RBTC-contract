@@ -779,15 +779,6 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator, IMoCState {
     return mocLibConfig.totalBProInBtc(amount, tecPrice);
   }
 
-  /**
-  * @dev Converts BTC to BPro
-  * @param btcAmount BTC amount
-  * @return BPro amount
-  */
-  function btcToBPro(uint256 btcAmount) public view returns(uint256) {
-    return mocLibConfig.maxBProWithBtc(btcAmount, bproTecPrice());
-  }
-
   function docsToBtc(uint256 docAmount) public view returns(uint256) {
     return mocLibConfig.docsBtcValue(docAmount, peg, getBitcoinPrice());
   }
