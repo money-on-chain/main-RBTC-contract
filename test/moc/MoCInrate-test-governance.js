@@ -117,10 +117,9 @@ contract('MoCInrate Governed', function([owner, account2, vendorAccount]) {
     describe('GIVEN different transaction types and their fees to calculate commission rate (calcCommissionValue)', function() {
       it(`THEN transaction type ${scenario.invalidTxType} is invalid`, async function() {
         try {
-          const newCommisionRateInvalidTxType = await this.mocInrate.calcCommissionValue(
-            (scenario.rbtcAmount * mocHelper.MOC_PRECISION).toString(),
-            scenario.invalidTxType
-          );
+          const newCommisionRateInvalidTxType = await this.mocInrate.methods[
+            'calcCommissionValue(uint256,uint8)'
+          ]((scenario.rbtcAmount * mocHelper.MOC_PRECISION).toString(), scenario.invalidTxType);
           assert(newCommisionRateInvalidTxType === null, 'This should not happen');
         } catch (err) {
           assert(
@@ -130,7 +129,9 @@ contract('MoCInrate Governed', function([owner, account2, vendorAccount]) {
         }
       });
       it(`THEN transaction type ${scenario.validTxType} is valid`, async function() {
-        const newCommisionRateValidTxType = await this.mocInrate.calcCommissionValue(
+        const newCommisionRateValidTxType = await this.mocInrate.methods[
+          'calcCommissionValue(uint256,uint8)'
+        ](
           (scenario.rbtcAmount * mocHelper.MOC_PRECISION).toString(),
           scenario.validTxType.toString()
         );
@@ -140,11 +141,24 @@ contract('MoCInrate Governed', function([owner, account2, vendorAccount]) {
           `final commission amount should be ${scenario.commissionAmount} ether`
         );
       });
-      it(`THEN transaction type ${scenario.nonexistentTxType} is non-existent`, async function() {
-        const newCommisionRateNonExistentTxType = await this.mocInrate.calcCommissionValue(
-          (scenario.rbtcAmount * mocHelper.MOC_PRECISION).toString(),
-          scenario.nonexistentTxType
+      it('THEN DEPRECATED Retro compatible calcCommissionValue is valid', async function() {
+        // retro compatible calcCommissionValue always uses rates for mint bpro with rbtc comissions
+        const commissionRate = await this.mocInrate.commissionRatesByTxType(1);
+        const newCommisionRateValidTxType = await this.mocInrate.calcCommissionValue(
+          (scenario.rbtcAmount * mocHelper.MOC_PRECISION).toString()
         );
+        console.log('newCommisionRateValidTxType', newCommisionRateValidTxType.toString());
+        const finalCommission = commissionRate * scenario.rbtcAmount;
+        mocHelper.assertBig(
+          newCommisionRateValidTxType.toString(),
+          finalCommission.toString(),
+          `final commission amount should be ${finalCommission / mocHelper.MOC_PRECISION} ether`
+        );
+      });
+      it(`THEN transaction type ${scenario.nonexistentTxType} is non-existent`, async function() {
+        const newCommisionRateNonExistentTxType = await this.mocInrate.methods[
+          'calcCommissionValue(uint256,uint8)'
+        ]((scenario.rbtcAmount * mocHelper.MOC_PRECISION).toString(), scenario.nonexistentTxType);
         mocHelper.assertBig(
           newCommisionRateNonExistentTxType,
           scenario.commissionAmountZero,
@@ -162,10 +176,9 @@ contract('MoCInrate Governed', function([owner, account2, vendorAccount]) {
           /* eslint-disable no-await-in-loop */
           const commissionRate = await this.mockMocInrateChanger.commissionRates(i);
 
-          const newCommisionRateValidTxType = await this.mocInrate.calcCommissionValue(
-            (scenario.rbtcAmount * mocHelper.MOC_PRECISION).toString(),
-            commissionRate.txType
-          );
+          const newCommisionRateValidTxType = await this.mocInrate.methods[
+            'calcCommissionValue(uint256,uint8)'
+          ]((scenario.rbtcAmount * mocHelper.MOC_PRECISION).toString(), commissionRate.txType);
 
           /* eslint-enable no-await-in-loop */
           // The fee from the commissionRatesArray is already converted to wei
