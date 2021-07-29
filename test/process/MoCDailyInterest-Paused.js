@@ -5,7 +5,7 @@ let mocHelper;
 const CONTRACT_IS_PAUSED = 'contract_is_paused';
 let BUCKET_X2;
 let BUCKET_C0;
-contract('MoC: Daily interests payment paused', function([owner, account]) {
+contract('MoC: Daily interests payment paused', function([owner, account, vendorAccount]) {
   before(async function() {
     mocHelper = await testHelperBuilder({ owner, useMock: true });
     ({ BUCKET_C0, BUCKET_X2 } = mocHelper);
@@ -15,6 +15,10 @@ contract('MoC: Daily interests payment paused', function([owner, account]) {
 
   beforeEach(async function() {
     await mocHelper.revertState();
+
+    // Register vendor for test
+    await mocHelper.registerVendor(vendorAccount, 0, owner);
+
     await mocHelper.stopper.pause(mocHelper.moc.address);
     const paused = await mocHelper.moc.paused();
     assert(paused, 'Not paused');
@@ -27,9 +31,9 @@ contract('MoC: Daily interests payment paused', function([owner, account]) {
       const paused = await mocHelper.moc.paused();
       assert(!paused, 'Paused');
       await this.mocState.setDaysToSettlement(5 * mocHelper.DAY_PRECISION);
-      await mocHelper.mintBProAmount(account, 10);
-      await mocHelper.mintDocAmount(account, 10000);
-      await mocHelper.mintBProxAmount(account, BUCKET_X2, 1);
+      await mocHelper.mintBProAmount(account, 10, vendorAccount);
+      await mocHelper.mintDocAmount(account, 10000, vendorAccount);
+      await mocHelper.mintBProxAmount(account, BUCKET_X2, 1, vendorAccount);
       prevBucketC0State = await mocHelper.getBucketState(BUCKET_C0);
     });
 

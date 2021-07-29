@@ -5,7 +5,7 @@ let toContractBN;
 let BUCKET_X2;
 let BUCKET_C0;
 
-contract('MoC', function([owner, userAccount, userAccount2]) {
+contract('MoC', function([owner, userAccount, userAccount2, vendorAccount]) {
   before(async function() {
     mocHelper = await testHelperBuilder({ owner, useMock: true });
     ({ toContractBN } = mocHelper);
@@ -17,12 +17,15 @@ contract('MoC', function([owner, userAccount, userAccount2]) {
 
   beforeEach(async function() {
     await mocHelper.revertState();
+
+    // Register vendor for test
+    await mocHelper.registerVendor(vendorAccount, 0, owner);
   });
 
   describe('GIVEN the interest rate for 1 day to settlement is 0.00002611578760678', function() {
     beforeEach(async function() {
-      await mocHelper.mintBPro(owner, 10);
-      await mocHelper.mintDoc(userAccount, 10000); // 10000 Btc = all Docs
+      await mocHelper.mintBPro(owner, 10, vendorAccount);
+      await mocHelper.mintDoc(userAccount, 10000, vendorAccount); // 10000 Btc = all Docs
       await this.mocState.setDaysToSettlement(toContractBN(1, 'DAY'));
     });
 
@@ -44,7 +47,11 @@ contract('MoC', function([owner, userAccount, userAccount2]) {
       });
 
       it('AND the user redeems all the Free Docs THEN the RBTC interests are 0.000156694725640680 RBTC', async function() {
-        const redeemTx = await mocHelper.redeemFreeDoc({ userAccount, docAmount: 10000 });
+        const redeemTx = await mocHelper.redeemFreeDoc({
+          userAccount,
+          docAmount: 10000,
+          vendorAccount
+        });
         const [freeDocRedeemEvent] = mocHelper.findEvents(redeemTx, 'FreeStableTokenRedeem');
         mocHelper.assertBigRBTC(
           freeDocRedeemEvent.interests,
@@ -59,9 +66,9 @@ contract('MoC', function([owner, userAccount, userAccount2]) {
     const expectedInRate = '0.000130578938033900'; // 5 * 0,00002611578760678
     let prevNB;
     beforeEach(async function() {
-      await mocHelper.mintBPro(owner, 10);
+      await mocHelper.mintBPro(owner, 10, vendorAccount);
       ({ nB: prevNB } = await mocHelper.getBucketState(BUCKET_C0));
-      await mocHelper.mintDoc(userAccount, 1); // 1 Btc = 10000 Docs
+      await mocHelper.mintDoc(userAccount, 1, vendorAccount); // 1 Btc = 10000 Docs
       await this.mocState.setDaysToSettlement(toContractBN(1, 'DAY'));
     });
 
@@ -73,7 +80,7 @@ contract('MoC', function([owner, userAccount, userAccount2]) {
     describe('WHEN the user redeems all his docs', function() {
       let redeemTx;
       beforeEach(async function() {
-        redeemTx = await mocHelper.redeemFreeDoc({ userAccount, docAmount: 10000 });
+        redeemTx = await mocHelper.redeemFreeDoc({ userAccount, docAmount: 10000, vendorAccount });
       });
 
       it(`THEN the RBTC interests are ${expectedInRate} RBTC`, function() {
@@ -105,14 +112,14 @@ contract('MoC', function([owner, userAccount, userAccount2]) {
 
   describe('GIVEN a user mints all Docs and they are all available to redeem AND there are 1 day til next settlement', function() {
     beforeEach(async function() {
-      await mocHelper.mintBPro(owner, 10);
-      await mocHelper.mintDoc(userAccount, 10000);
+      await mocHelper.mintBPro(owner, 10, vendorAccount);
+      await mocHelper.mintDoc(userAccount, 10000, vendorAccount);
       await this.mocState.setDaysToSettlement(toContractBN(1, 'DAY'));
     });
 
     describe('AND another user buys 0.5 BTCx', function() {
       beforeEach(async function() {
-        await mocHelper.mintBProxAmount(userAccount2, BUCKET_X2, '0.5');
+        await mocHelper.mintBProxAmount(userAccount2, BUCKET_X2, '0.5', vendorAccount);
       });
 
       it('THEN the interest rate for redeem the full redemption is 0.00005223157521356', async function() {
@@ -125,7 +132,11 @@ contract('MoC', function([owner, userAccount, userAccount2]) {
         let redeemTx;
 
         beforeEach(async function() {
-          redeemTx = await mocHelper.redeemFreeDoc({ userAccount, docAmount: 10000 });
+          redeemTx = await mocHelper.redeemFreeDoc({
+            userAccount,
+            docAmount: 10000,
+            vendorAccount
+          });
         });
 
         it('THEN the RBTC interests are 0.00005223157521356 RBTC', function() {

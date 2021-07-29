@@ -1,4 +1,4 @@
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 /**
   @dev Provides access control between all MoC Contracts
@@ -29,7 +29,7 @@ contract MoCWhitelist {
   }
 
   /**
-   * @dev Remove account to whitelist
+   * @dev Remove account from whitelist
    */
   function remove(address account) internal {
     require(account != address(0), "Account must not be 0x0");

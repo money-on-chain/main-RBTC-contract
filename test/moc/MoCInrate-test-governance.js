@@ -1,26 +1,47 @@
+const { expectRevert } = require('openzeppelin-test-helpers');
 const testHelperBuilder = require('../mocHelper.js');
 
 let mocHelper;
+let toContractBN;
+
 const NOT_AUTHORIZED_CHANGER = 'not_authorized_changer';
+// eslint-disable-next-line quotes
+const INVALID_TXTYPE_ERROR = 'Invalid txType';
+
 const scenario = {
   btcxTmin: 4,
   btcxTmax: 7777777,
   btcxPower: 7,
-  commissionRate: 50,
   bitProInterestBlockSpan: 50 * 80 * 12,
-  bitProRate: 78
+  bitProRate: 78,
+  rbtcAmount: 20,
+  commissionAmount: 0.04,
+  invalidTxType: 0,
+  validTxType: 2,
+  nonexistentTxType: 15,
+  commissionAmountZero: 0
 };
 
-contract('MoCInrate Governed', function([owner, account2]) {
+contract('MoCInrate Governed', function([owner, account2, vendorAccount]) {
   before(async function() {
     mocHelper = await testHelperBuilder({ owner });
+    ({ toContractBN } = mocHelper);
     this.mocInrate = mocHelper.mocInrate;
     this.governor = mocHelper.governor;
     this.mockMocInrateChanger = mocHelper.mockMocInrateChanger;
   });
 
-  beforeEach(function() {
-    return mocHelper.revertState();
+  beforeEach(async function() {
+    await mocHelper.revertState();
+
+    // Register vendor for test
+    await mocHelper.registerVendor(vendorAccount, 0.01, owner);
+
+    // Commission rates for test are set in functionHelper.js
+    await mocHelper.mockMocInrateChanger.setCommissionRates(
+      await mocHelper.getCommissionsArrayNonZero()
+    );
+    await this.governor.executeChange(this.mockMocInrateChanger.address);
   });
 
   describe('MoCInrate settings params', function() {
@@ -93,26 +114,103 @@ contract('MoCInrate Governed', function([owner, account2]) {
       });
     });
 
-    describe('GIVEN the default commissionRate', function() {
-      it(`THEN an unauthorized account ${account2} tries to change commissionRate to ${scenario.commissionRate}`, async function() {
+    describe('GIVEN different transaction types and their fees to calculate commission rate (calcCommissionValue)', function() {
+      it(`THEN transaction type ${scenario.invalidTxType} is invalid`, async function() {
         try {
-          await this.mocInrate.setCommissionRate(scenario.commissionRate, { from: account2 });
+          const newCommisionRateInvalidTxType = await this.mocInrate.calcCommissionValue(
+            (scenario.rbtcAmount * mocHelper.MOC_PRECISION).toString(),
+            scenario.invalidTxType
+          );
+          assert(newCommisionRateInvalidTxType === null, 'This should not happen');
         } catch (err) {
           assert(
-            NOT_AUTHORIZED_CHANGER === err.reason,
-            `${account2} Should not be authorized to set commissionRate`
+            err.message.search(INVALID_TXTYPE_ERROR) >= 0,
+            `Transaction type ${scenario.invalidTxType} is invalid`
           );
         }
       });
-      it(`THEN an authorized contract tries to change commissionRate to ${scenario.commissionRate}`, async function() {
-        await this.mockMocInrateChanger.setCommissionRate(scenario.commissionRate);
+      it(`THEN transaction type ${scenario.validTxType} is valid`, async function() {
+        const newCommisionRateValidTxType = await this.mocInrate.calcCommissionValue(
+          (scenario.rbtcAmount * mocHelper.MOC_PRECISION).toString(),
+          scenario.validTxType.toString()
+        );
+        mocHelper.assertBig(
+          newCommisionRateValidTxType.toString(),
+          (scenario.commissionAmount * mocHelper.MOC_PRECISION).toString(),
+          `final commission amount should be ${scenario.commissionAmount} ether`
+        );
+      });
+      it(`THEN transaction type ${scenario.nonexistentTxType} is non-existent`, async function() {
+        const newCommisionRateNonExistentTxType = await this.mocInrate.calcCommissionValue(
+          (scenario.rbtcAmount * mocHelper.MOC_PRECISION).toString(),
+          scenario.nonexistentTxType
+        );
+        mocHelper.assertBig(
+          newCommisionRateNonExistentTxType,
+          scenario.commissionAmountZero,
+          `final commission amount should be ${scenario.commissionAmountZero} ether`
+        );
+      });
+    });
+
+    describe('GIVEN different *valid* transaction types and their fees to calculate commission rate (calcCommissionValue)', function() {
+      it('THEN the transaction types defined in the "commissionRates" array are valid', async function() {
+        const commissionRatesArrayLength = await this.mockMocInrateChanger.commissionRatesLength();
+
+        // Iterate through array
+        for (let i = 0; i < commissionRatesArrayLength; i++) {
+          /* eslint-disable no-await-in-loop */
+          const commissionRate = await this.mockMocInrateChanger.commissionRates(i);
+
+          const newCommisionRateValidTxType = await this.mocInrate.calcCommissionValue(
+            (scenario.rbtcAmount * mocHelper.MOC_PRECISION).toString(),
+            commissionRate.txType
+          );
+
+          /* eslint-enable no-await-in-loop */
+          // The fee from the commissionRatesArray is already converted to wei
+          const testCommissionValue = scenario.rbtcAmount * commissionRate.fee;
+
+          mocHelper.assertBig(
+            newCommisionRateValidTxType.toString(),
+            testCommissionValue.toString(),
+            `final commission amount should be ${testCommissionValue.toString()}`
+          );
+        }
+      });
+    });
+
+    describe('GIVEN the default commissionRates', function() {
+      it(`THEN an unauthorized account ${account2} tries to change commissionRates with another array`, async function() {
+        const setCommissionRates = this.mockMocInrateChanger.setCommissionRates(
+          await mocHelper.getCommissionsArrayChangingTest(),
+          { from: account2 }
+        );
+        await expectRevert(setCommissionRates, 'Ownable: caller is not the owner');
+      });
+      it('THEN an authorized contract tries to change commissionRate with another array', async function() {
+        await this.mockMocInrateChanger.setCommissionRates(
+          await mocHelper.getCommissionsArrayChangingTest()
+        );
         await this.governor.executeChange(this.mockMocInrateChanger.address);
-        const newCommissionRate = await this.mocInrate.getCommissionRate();
+        const newCommissionRate = await this.mocInrate.commissionRatesByTxType(
+          await mocHelper.mocInrate.MINT_BPRO_FEES_RBTC()
+        );
+        const expectedValue = '2000000000000000000';
         mocHelper.assertBig(
           newCommissionRate,
-          scenario.commissionRate,
-          `commissionRate should be ${scenario.commissionRate}`
+          expectedValue,
+          `commissionRate should be ${expectedValue}`
         );
+      });
+    });
+
+    describe('GIVEN a commissionRates array with invalid length', function() {
+      it('THEN setting this new array will fail and revert', async function() {
+        const setCommissionRates = this.mockMocInrateChanger.setCommissionRates(
+          await mocHelper.getCommissionsArrayInvalidLength()
+        );
+        await expectRevert(setCommissionRates, 'commissionRates length must be between 1 and 50');
       });
     });
 
@@ -166,6 +264,28 @@ contract('MoCInrate Governed', function([owner, account2]) {
           `bitProRate should be ${scenario.bitProRate}`
         );
       });
+    });
+  });
+  describe('MoCInrate calculate markup', function() {
+    it('WHEN address of vendorAccount is 0x0, THEN markup is 0', async function() {
+      const zeroAddress = '0x0000000000000000000000000000000000000000';
+      const markup = await this.mocInrate.calculateVendorMarkup(
+        zeroAddress,
+        toContractBN(1000 * mocHelper.MOC_PRECISION)
+      );
+      mocHelper.assertBig(markup.toString(), 0, 'vendor markup should be 0');
+    });
+    it('WHEN address of vendorAccount is valid, THEN markup is calculated correctly', async function() {
+      const vendorMarkup = 10;
+      const markup = await this.mocInrate.calculateVendorMarkup(
+        vendorAccount,
+        toContractBN(1000 * mocHelper.MOC_PRECISION)
+      );
+      mocHelper.assertBig(
+        markup.toString(),
+        (vendorMarkup * mocHelper.MOC_PRECISION).toString(),
+        `vendor markup should be ${vendorMarkup}`
+      );
     });
   });
 });

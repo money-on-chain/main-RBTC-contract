@@ -10,7 +10,9 @@ module.exports = async (deployer, currentNetwork, [owner]) => {
       deployGovernorContract,
       deployProxyAdminContract,
       deployStopperContract,
-      deployUpgradeDelegatorContract
+      deployUpgradeDelegatorContract,
+      deployMoCOracleMock,
+      deployMoCHelperLibHarness
     } = await utils.makeUtils(
       artifacts,
       currentNetwork,
@@ -20,10 +22,12 @@ module.exports = async (deployer, currentNetwork, [owner]) => {
     );
 
     console.log('Deploying Dev only 1');
-    await Promise.all([deployOracleMock(), deployGovernorContract()]);
+    await Promise.all([deployOracleMock(), deployGovernorContract(), deployMoCOracleMock()]);
     console.log('Deploying Dev only Proxy Admin');
     await deployProxyAdminContract();
     console.log('Deploying Dev only Stopper and delegator');
     await Promise.all([deployStopperContract(), deployUpgradeDelegatorContract()]);
+    console.log('Deploying Dev only MoCHelperLibHarness');
+    await deployMoCHelperLibHarness();
   }
 };

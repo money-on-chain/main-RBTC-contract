@@ -5,13 +5,15 @@ let BUCKET_X2;
 let initialAccounts;
 let afterAccounts;
 
-const initializeDeleveraging = async (owner, accounts) => {
-  await mocHelper.mintBProAmount(owner, 10 * accounts.length);
-  await mocHelper.mintDocAmount(owner, 50000 * accounts.length);
-  await Promise.all(accounts.map(account => mocHelper.mintBProx(account, BUCKET_X2, 5)));
+const initializeDeleveraging = async (owner, vendorAccount, accounts) => {
+  await mocHelper.mintBProAmount(owner, 10 * accounts.length, vendorAccount);
+  await mocHelper.mintDocAmount(owner, 50000 * accounts.length, vendorAccount);
+  await Promise.all(
+    accounts.map(account => mocHelper.mintBProx(account, BUCKET_X2, 5, vendorAccount))
+  );
 };
 
-contract.skip('MoC: Gas limit on deleveraging', function([owner, ...accounts]) {
+contract.skip('MoC: Gas limit on deleveraging', function([owner, vendorAccount, ...accounts]) {
   initialAccounts = accounts.slice(0, 300);
   afterAccounts = accounts.slice(300, 500);
   before(async function() {
@@ -21,11 +23,15 @@ contract.skip('MoC: Gas limit on deleveraging', function([owner, ...accounts]) {
     this.mocSettlement = mocHelper.mocSettlement;
     this.bprox = mocHelper.bprox;
     this.moc = mocHelper.moc;
+
     mocHelper.revertState();
 
-    await initializeDeleveraging(owner, initialAccounts.slice(0, 100));
-    await initializeDeleveraging(owner, initialAccounts.slice(100, 200));
-    await initializeDeleveraging(owner, initialAccounts.slice(200, 300));
+    // Register vendor for test
+    await mocHelper.registerVendor(vendorAccount, 0, owner);
+
+    await initializeDeleveraging(owner, vendorAccount, initialAccounts.slice(0, 100));
+    await initializeDeleveraging(owner, vendorAccount, initialAccounts.slice(100, 200));
+    await initializeDeleveraging(owner, vendorAccount, initialAccounts.slice(200, 300));
   });
 
   describe(`WHEN there are ${initialAccounts.length} accounts which minted BProx`, function() {

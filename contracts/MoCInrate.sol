@@ -1,11 +1,14 @@
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
+pragma experimental ABIEncoderV2;
 
 import "moc-governance/contracts/Governance/Governed.sol";
+import "moc-governance/contracts/Governance/IGovernor.sol";
 import "./MoCLibConnection.sol";
-import "./MoCState.sol";
+import "./interface/IMoCState.sol";
 import "./MoCBProxManager.sol";
-import "./MoCConverter.sol";
 import "./base/MoCBase.sol";
+import "./interface/IMoCVendors.sol";
+import "./interface/IMoCInrate.sol";
 
 contract MoCInrateEvents {
   event InrateDailyPay(uint256 amount, uint256 daysToSettlement, uint256 nReserveBucketC0);
@@ -24,10 +27,38 @@ contract MoCInrateStructs {
     tMin: 0,
     power: 1
   });
+
+  struct InitializeParams {
+    // MoCConnector contract address
+    address connectorAddress;
+    // Governor contract address
+    address governor;
+    // Minimum interest rate [using mocPrecision]
+    uint256 btcxTmin;
+    // Power is a parameter for interest rate calculation [using noPrecision]
+    uint256 btcxPower;
+    // Maximun interest rate [using mocPrecision]
+    uint256 btcxTmax;
+    // BitPro holder interest rate [using mocPrecision]
+    uint256 bitProRate;
+    // BitPro blockspan to configure payments periods[using mocPrecision]
+    uint256 blockSpanBitPro;
+    // Target address to transfer the weekly BitPro holders interest
+    address payable bitProInterestTargetAddress;
+    // Target address to transfer commissions of mint/redeem
+    address payable commissionsAddressTarget;
+    //uint256 commissionRateParam,
+    // Upgrade to support red doc inrate parameter
+    uint256 docTmin;
+    // Upgrade to support red doc inrate parameter
+    uint256 docPower;
+    // Upgrade to support red doc inrate parameter
+    uint256 docTmax;
+  }
 }
 
 
-contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnection, Governed {
+contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnection, Governed, IMoCInrate {
   using SafeMath for uint256;
 
   // Last block when a payment was executed
@@ -43,12 +74,17 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
 
   // Target addres to transfer commissions of mint/redeem
   address payable public commissionsAddress;
+  /** UPDATE V0112: 24/09/2020 - Upgrade to support multiple commission rates **/
+  /** DEPRECATED **/
   // commissionRate [using mocPrecision]
-  uint256 public commissionRate;
+  // solium-disable-next-line mixedcase
+  uint256 public DEPRECATED_commissionRate;
 
   /**CONTRACTS**/
-  MoCState internal mocState;
-  MoCConverter internal mocConverter;
+  IMoCState internal mocState;
+  /** DEPRECATED **/
+  // solium-disable-next-line mixedcase
+  address internal DEPRECATED_mocConverter;
   MoCBProxManager internal bproxManager;
 
   /************************************/
@@ -88,7 +124,6 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
 
   /**
     @dev Calculates an average interest rate between after and before free doc Redemption
-
     @param docRedeem Docs to redeem [using mocPrecision]
     @return Interest rate value [using mocPrecision]
    */
@@ -101,37 +136,27 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
 
   /** END UPDATE V017: 01/11/2019 **/
 
-  function initialize(
-    address connectorAddress,
-    address _governor,
-    uint256 btcxTmin,
-    uint256 btcxPower,
-    uint256 btcxTmax,
-    uint256 _bitProRate,
-    uint256 blockSpanBitPro,
-    address payable bitProInterestTargetAddress,
-    address payable commissionsAddressTarget,
-    uint256 commissionRateParam,
-    uint256 _docTmin,
-    uint256 _docPower,
-    uint256 _docTmax
-  ) public initializer {
+  /**
+    @dev Initializes the contract
+    @param params Params defined in InitializeParams struct
+  */
+  function initialize(InitializeParams memory params) public initializer {
     initializePrecisions();
-    initializeBase(connectorAddress);
+    initializeBase(params.connectorAddress);
     initializeContracts();
     initializeValues(
-      _governor,
-      btcxTmin,
-      btcxPower,
-      btcxTmax,
-      _bitProRate,
-      commissionsAddressTarget,
-      commissionRateParam,
-      blockSpanBitPro,
-      bitProInterestTargetAddress,
-      _docTmin,
-      _docPower,
-      _docTmax
+      params.governor,
+      params.btcxTmin,
+      params.btcxPower,
+      params.btcxTmax,
+      params.bitProRate,
+      params.commissionsAddressTarget,
+      //commissionRateParam,
+      params.blockSpanBitPro,
+      params.bitProInterestTargetAddress,
+      params.docTmin,
+      params.docPower,
+      params.docTmax
     );
   }
 
@@ -195,13 +220,13 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
    @dev Gets the rate for BitPro Holders
    @return BitPro Rate
   */
-  function getBitProRate() public view returns(uint256){
+  function getBitProRate() public view returns(uint256) {
     return bitProRate;
   }
 
-  function getCommissionRate() public view returns(uint256) {
-    return commissionRate;
-  }
+  // function getCommissionRate() public view returns(uint256) {
+  //   return commissionRate;
+  // }
 
    /**
     @dev Sets BitPro Holders rate
@@ -223,33 +248,33 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
    @dev Gets the target address to transfer BitPro Holders rate
    @return Target address to transfer BitPro Holders interest
   */
-  function getBitProInterestAddress() public view returns(address payable){
+  function getBitProInterestAddress() public view returns(address payable) {
     return bitProInterestAddress;
   }
 
-   /**
-    @dev Sets the target address to transfer BitPro Holders rate
-    @param newBitProInterestAddress New BitPro rate
-   */
+  /**
+   @dev Sets the target address to transfer BitPro Holders rate
+   @param newBitProInterestAddress New BitPro rate
+  */
   function setBitProInterestAddress(address payable newBitProInterestAddress ) public onlyAuthorizedChanger() {
     bitProInterestAddress = newBitProInterestAddress;
   }
 
-   /**
-    @dev Sets the target address to transfer commissions of Mint/Redeem transactions
-    @param newCommissionsAddress New commisions address
-   */
+  /**
+   @dev Sets the target address to transfer commissions of Mint/Redeem transactions
+   @param newCommissionsAddress New commisions address
+  */
   function setCommissionsAddress(address payable newCommissionsAddress) public onlyAuthorizedChanger() {
     commissionsAddress = newCommissionsAddress;
   }
 
-   /**
-    @dev Sets the commission rate for Mint/Redeem transactions
-    @param newCommissionRate New commission rate
-   */
-  function setCommissionRate(uint256 newCommissionRate) public onlyAuthorizedChanger() {
-    commissionRate = newCommissionRate;
-  }
+  //  /**
+  //   @dev Sets the commission rate for Mint/Redeem transactions
+  //   @param newCommissionRate New commission rate
+  //  */
+  // function setCommissionRate(uint256 newCommissionRate) public onlyAuthorizedChanger() {
+  //   commissionRate = newCommissionRate;
+  // }
 
   /**
     @dev Calculates interest rate for BProx Minting, redeem and Free Doc Redeem
@@ -263,7 +288,6 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
 
   /**
     @dev Calculates an average interest rate between after and before mint/redeem
-
     @param bucket Name of the bucket involved in the operation
     @param btcAmount Value of the operation from which calculates the inrate [using reservePrecision]
     @param onMinting Value that represents if the calculation is based on mint or on redeem
@@ -277,8 +301,7 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
   }
 
   /**
-    @dev returns the amount of BTC to pay in concept of interest
-    to bucket C0
+    @dev returns the amount of BTC to pay in concept of interest to bucket C0
    */
   function dailyInrate() public view returns(uint256) {
     uint256 daysToSettl = mocState.daysToSettlement();
@@ -345,16 +368,48 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
     return Math.min(proportionalInterest, redeemInterest);
   }
 
+  /************************************/
+  /***** UPGRADE v0110      ***********/
+  /************************************/
+
+  /** START UPDATE V0112: 24/09/2020  **/
+  /** Upgrade to support multiple commission rates **/
+  /** Public functions **/
+
   /**
-    @dev calculates the Commission rate from the passed RBTC amount for mint/redeem operations
+    @dev calculates the Commission rate from the passed RBTC amount and the transaction type for mint/redeem operations
     @param rbtcAmount Total value from which apply the Commission rate [using reservePrecision]
+    @param txType Transaction type according to constant values defined in this contract
     @return finalCommissionAmount [using reservePrecision]
   */
-  function calcCommissionValue(uint256 rbtcAmount)
+  function calcCommissionValue(uint256 rbtcAmount, uint8 txType)
   public view returns(uint256) {
-    uint256 finalCommissionAmount = rbtcAmount.mul(commissionRate).div(mocLibConfig.mocPrecision);
+    // Validate txType
+    require (txType > 0, "Invalid txType");
+
+    uint256 finalCommissionAmount = rbtcAmount.mul(commissionRatesByTxType[txType]).div(mocLibConfig.mocPrecision);
     return finalCommissionAmount;
   }
+
+  /**
+    @dev calculates the vendor markup rate from the passed vendor account and amount
+    @param vendorAccount Vendor address
+    @param amount Total value from which apply the vendor markup rate [using reservePrecision]
+    @return finalCommissionAmount [using reservePrecision]
+  */
+  function calculateVendorMarkup(address vendorAccount, uint256 amount) public view
+    returns (uint256 markup) {
+    // Calculate according to vendor markup
+    if (vendorAccount != address(0)) {
+      IMoCVendors mocVendors = IMoCVendors(mocState.getMoCVendors());
+
+      markup = amount.mul(mocVendors.getMarkup(vendorAccount)).div(mocLibConfig.mocPrecision);
+    }
+
+    return markup;
+  }
+
+  /** END UPDATE V0112: 24/09/2020 **/
 
   /**
     @dev Calculates RBTC value to return to the user in concept of interests
@@ -420,6 +475,24 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
     return bitProInterest;
   }
 
+  /************************************/
+  /***** UPGRADE v0110      ***********/
+  /************************************/
+
+  /** START UPDATE V0112: 24/09/2020  **/
+  /** Upgrade to support multiple commission rates **/
+  /** Public functions **/
+  /**
+    @dev Sets the commission rate to a particular transaction type
+    @param txType Transaction type according to constant values defined in this contract
+    @param value Commission rate
+  */
+  function setCommissionRateByTxType(uint8 txType, uint256 value) public onlyAuthorizedChanger() {
+    commissionRatesByTxType[txType] = value;
+  }
+
+  /** END UPDATE V0112: 24/09/2020 **/
+
   /**
     @dev Calculates the interest rate to pay until the settlement day
     @param inrate Spot interest rate
@@ -438,7 +511,6 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
     @param bucket Bucket to use to calculate interest
     @param redeemInterest Total value from which calculate interest [using reservePrecision]
     @return InterestsInBag * (RedeemInterests / FullRedeemInterest) [using reservePrecision]
-
   */
   function calcProportionalInterestValue(bytes32 bucket, uint256 redeemInterest) internal view returns(uint256) {
     uint256 fullRedeemInterest = calcFullRedeemInterestValue(bucket);
@@ -453,21 +525,19 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
   }
 
   /**
-    @dev This function calculates the interest to return
-    if a user redeem all Btcx in existance
+    @dev This function calculates the interest to return if a user redeem all Btcx in existance
     @param bucket Bucket to use to calculate interest
     @return Interests [using reservePrecision]
   */
   function calcFullRedeemInterestValue(bytes32 bucket) internal view returns(uint256) {
     // Value in RBTC of all BProxs in the bucket
-    uint256 fullBProxRbtcValue = mocConverter.bproxToBtc(bproxManager.getBucketNBPro(bucket), bucket);
+    uint256 fullBProxRbtcValue = mocState.bproxToBtc(bproxManager.getBucketNBPro(bucket), bucket);
     // Interests to return if a redemption of all Bprox is done
     return calcRedeemInterestValue(bucket, fullBProxRbtcValue); // Redeem
   }
 
   /**
     @dev Calculates the final amount of Bucket 0 DoCs on BProx mint/redeem
-
     @param bucket Name of the bucket involved in the operation
     @param btcAmount Value of the operation from which calculates the inrate [using reservePrecision]
     @return Final bucket 0 Doc amount
@@ -475,7 +545,7 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
   function simulateDocMovement(bytes32 bucket, uint256 btcAmount, bool onMinting) internal view returns(uint256) {
     // Calculates docs to move
     uint256 btcToMove = mocLibConfig.bucketTransferAmount(btcAmount, mocState.leverage(bucket));
-    uint256 docsToMove = mocConverter.btcToDoc(btcToMove);
+    uint256 docsToMove = mocState.btcToDoc(btcToMove);
 
     if (onMinting) {
       /* Should not happen when minting bpro because it's
@@ -489,14 +559,13 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
 
   /**
     @dev Returns the days to use for interests calculation
-
     @param countAllDays Value that represents if the calculation is based on mint or on redeem
     @return days [using dayPrecision]
    */
   function inrateDayCount(bool countAllDays) internal view returns(uint256) {
     uint256 daysToSettl = mocState.daysToSettlement();
 
-    if (daysToSettl < mocLibConfig.dayPrecision){
+    if (daysToSettl < mocLibConfig.dayPrecision) {
       return 0;
     }
 
@@ -522,8 +591,7 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
    */
   function initializeContracts() internal {
     bproxManager = MoCBProxManager(connector.bproxManager());
-    mocState = MoCState(connector.mocState());
-    mocConverter = MoCConverter(connector.mocConverter());
+    mocState = IMoCState(connector.mocState());
   }
 
   /**
@@ -534,7 +602,6 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
    * @param btcxMax Maximun interest rate [using mocPrecision]
    * @param _bitProRate BitPro holder interest rate [using mocPrecision]
    * @param blockSpanBitPro BitPro blockspan to configure payments periods[using mocPrecision]
-
    * @param bitProInterestsTarget Target address to transfer the weekly BitPro holders interest
    */
   function initializeValues(
@@ -544,7 +611,7 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
     uint256 btcxMax,
     uint256 _bitProRate,
     address payable commissionsAddressTarget,
-    uint256 commissionRateParam,
+    //uint256 commissionRateParam,
     uint256 blockSpanBitPro,
     address payable bitProInterestsTarget,
     uint256 _docTmin,
@@ -558,12 +625,37 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
     bitProRate = _bitProRate;
     bitProInterestAddress = bitProInterestsTarget;
     bitProInterestBlockSpan = blockSpanBitPro;
-    commissionRate = commissionRateParam;
+    //commissionRate = commissionRateParam;
     commissionsAddress = commissionsAddressTarget;
     docTmin = _docTmin;
     docPower = _docPower;
     docTmax = _docTmax;
   }
+
+  /************************************/
+  /***** UPGRADE v0110      ***********/
+  /************************************/
+
+  /** START UPDATE V0112: 24/09/2020  **/
+  /** Upgrade to support multiple commission rates **/
+
+  // Transaction types
+  uint8 public constant MINT_BPRO_FEES_RBTC = 1;
+  uint8 public constant REDEEM_BPRO_FEES_RBTC = 2;
+  uint8 public constant MINT_DOC_FEES_RBTC = 3;
+  uint8 public constant REDEEM_DOC_FEES_RBTC = 4;
+  uint8 public constant MINT_BTCX_FEES_RBTC = 5;
+  uint8 public constant REDEEM_BTCX_FEES_RBTC = 6;
+  uint8 public constant MINT_BPRO_FEES_MOC = 7;
+  uint8 public constant REDEEM_BPRO_FEES_MOC = 8;
+  uint8 public constant MINT_DOC_FEES_MOC = 9;
+  uint8 public constant REDEEM_DOC_FEES_MOC = 10;
+  uint8 public constant MINT_BTCX_FEES_MOC = 11;
+  uint8 public constant REDEEM_BTCX_FEES_MOC = 12;
+
+  mapping(uint8 => uint256) public commissionRatesByTxType;
+
+  /** END UPDATE V0112: 24/09/2020 **/
 
   // Leave a gap betweeen inherited contracts variables in order to be
   // able to add more variables in them later

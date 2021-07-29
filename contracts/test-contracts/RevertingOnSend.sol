@@ -1,4 +1,4 @@
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
 import "../../contracts/MoC.sol";
 
@@ -6,6 +6,10 @@ contract RevertingOnSend {
   MoC moc;
   bool acceptMoney = true;
 
+  /**
+    @dev Constructor
+    @param mocAddress MoC contract address
+  */
   constructor (address payable mocAddress) public {
     moc = MoC(mocAddress);
   }
@@ -19,12 +23,12 @@ contract RevertingOnSend {
     acceptMoney = accepting;
   }
 
-  function mintBProx(bytes32 bucket, uint256 bproxAmountToMint) public payable {
-    moc.mintBProx.value(msg.value)(bucket, bproxAmountToMint);
+  function mintBProx(bytes32 bucket, uint256 bproxAmountToMint, address payable vendorAccount) public payable {
+    moc.mintBProxVendors.value(msg.value)(bucket, bproxAmountToMint, vendorAccount);
   }
 
-  function mintDoc(uint256 docAmountToMint) public payable {
-    moc.mintDoc.value(msg.value)(docAmountToMint);
+  function mintDoc(uint256 docAmountToMint, address payable vendorAccount) public payable {
+    moc.mintDocVendors.value(msg.value)(docAmountToMint, vendorAccount);
   }
 
   function redeemDoCRequest(uint256 docAmount) public {

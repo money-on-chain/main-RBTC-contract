@@ -1,12 +1,16 @@
-pragma solidity 0.5.8;
+pragma solidity ^0.5.8;
 
-import "../interface/BtcPriceFeed.sol";
-import "../interface/BtcPriceProvider.sol";
+import "../interface/PriceFeed.sol";
+import "../interface/PriceProvider.sol";
 
-contract BtcPriceProviderMock is BtcPriceFeed, BtcPriceProvider {
+contract BtcPriceProviderMock is PriceFeed, PriceProvider {
   bytes32 btcPrice;
   bool has;
 
+  /**
+    @dev Constructor
+    @param price BTC price for mock contract
+  */
   constructor(uint256 price) public {
     btcPrice = bytes32(price);
     has = true;
