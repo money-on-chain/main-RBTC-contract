@@ -19,7 +19,8 @@ SCRIPTS="
 6_deploy_CommissionSplitter.js
 7_deploy_MoCInrate.js
 9_deploy_MoCState.js
-10_check_deploy.js
+10_batch_changer.js
+11_check_deploy.js
 "
 
 for S in $SCRIPTS; do
