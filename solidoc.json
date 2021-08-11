@@ -78,6 +78,7 @@
     "SetCommissionMocProportionChanger.json",
     "UpgradeabilityProxy.json",
     "UpgraderChanger.json",
+    "BatchChanger.json",
     "ZOSLibAddress.json",
     "ZOSLibOwnable.json"
   ]

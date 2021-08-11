@@ -2767,7 +2767,7 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection, IMoCExchan
   /***** UPGRADE v0110      ***********/
   /************************************/
 
-  /** START UPDATE V0110: 24/09/2020  **/
+  /** START UPDATE V0112: 24/09/2020  **/
   /** Upgrade to support multiple commission rates **/
   /** Public functions **/
 
@@ -2815,6 +2815,7 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection, IMoCExchan
       ret.btcCommission = mocInrate.calcCommissionValue(params.amount, params.txTypeFeesRBTC);
       ret.btcMarkup = btcMarkup;
       return ret;
+      // Implicitly mocCommission = 0 and mocMarkup = 0
     }
 
     // Check commission rate in MoC according to transaction type
@@ -2822,7 +2823,9 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection, IMoCExchan
 
     // Calculate amount in MoC
     ret.mocCommission = ret.btcPrice.mul(mocCommissionInBtc).div(ret.mocPrice);
+    // Implicitly btcCommission = 0
     ret.mocMarkup = ret.btcPrice.mul(btcMarkup).div(ret.mocPrice);
+    // Implicitly btcMarkup = 0
 
     uint256 totalMoCFee = ret.mocCommission.add(ret.mocMarkup);
 
@@ -2852,7 +2855,7 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection, IMoCExchan
     return mocLibConfig.applyDiscountRate(totalBtcValue, bproDiscountRate);
   }
 
-  /** END UPDATE V0110: 24/09/2020 **/
+  /** END UPDATE V0112: 24/09/2020 **/
 
   /**
    @dev Mint BPros and give it to the msg.sender
@@ -2904,7 +2907,7 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection, IMoCExchan
       details.finalBProAmount = details.finalBProAmount.add(details.regularBProAmount);
     }
 
-    /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
+    /** UPDATE V0112: 24/09/2020 - Upgrade to support multiple commission rates **/
     CommissionParamsStruct memory params;
     params.account = account;
     params.amount = btcAmount;
@@ -2923,7 +2926,7 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection, IMoCExchan
       details.commission.btcMarkup,
       details.commission.mocMarkup
     );
-    /** END UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
+    /** END UPDATE V0112: 24/09/2020 - Upgrade to support multiple commission rates **/
   }
 
   /**
@@ -2946,7 +2949,7 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection, IMoCExchan
     details.bproFinalAmount = Math.min(userAmount, mocState.absoluteMaxBPro());
     uint256 totalBtc = mocLibConfig.totalBProInBtc(details.bproFinalAmount, mocState.bproTecPrice());
 
-    /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
+    /** UPDATE V0112: 24/09/2020 - Upgrade to support multiple commission rates **/
     CommissionParamsStruct memory params;
     params.account = account;
     params.amount = totalBtc;
@@ -2955,7 +2958,7 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection, IMoCExchan
     params.vendorAccount = vendorAccount;
 
     (details.commission) = calculateCommissionsWithPrices(params);
-    /** END UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
+    /** END UPDATE V0112: 24/09/2020 - Upgrade to support multiple commission rates **/
 
     // Mint token
     bproToken.burn(account, details.bproFinalAmount);
@@ -3009,7 +3012,7 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection, IMoCExchan
       );
       details.finalBtcAmount = docsBtcValue.sub(details.btcInterestAmount);
 
-      /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
+      /** UPDATE V0112: 24/09/2020 - Upgrade to support multiple commission rates **/
       CommissionParamsStruct memory params;
       params.account = account;
       params.amount = details.finalBtcAmount;
@@ -3019,7 +3022,7 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection, IMoCExchan
 
       (details.commission) = calculateCommissionsWithPrices(params);
 
-      /** END UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
+      /** END UPDATE V0112: 24/09/2020 - Upgrade to support multiple commission rates **/
 
       doDocRedeem(account, details.finalDocAmount, docsBtcValue);
       bproxManager.payInrate(BUCKET_C0, details.btcInterestAmount);
@@ -3059,7 +3062,7 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection, IMoCExchan
       // Update Buckets
       bproxManager.addValuesToBucket(BUCKET_C0, details.totalCost, details.docAmount, 0);
 
-      /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
+      /** UPDATE V0112: 24/09/2020 - Upgrade to support multiple commission rates **/
       CommissionParamsStruct memory params;
       params.account = account;
       params.amount = details.totalCost;
@@ -3071,7 +3074,7 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection, IMoCExchan
 
       mintDocInternal(account, details, vendorAccount);
 
-      /** END UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
+      /** END UPDATE V0112: 24/09/2020 - Upgrade to support multiple commission rates **/
 
       return (details.totalCost, details.commission.btcCommission, details.commission.mocCommission, details.commission.btcMarkup, details.commission.mocMarkup);
     }
@@ -3095,11 +3098,11 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection, IMoCExchan
 
     details.totalBtc = mocLibConfig.docsBtcValue(amount, mocState.peg(), btcPrice); //doc to btc
 
-    /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
+    /** UPDATE V0112: 24/09/2020 - Upgrade to support multiple commission rates **/
     // Check commission rate in RBTC according to transaction type
     details.commission.btcCommission = mocInrate.calcCommissionValue(details.totalBtc, mocInrate.REDEEM_DOC_FEES_RBTC());
     details.commission.btcMarkup = 0;
-    /** END UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
+    /** END UPDATE V0112: 24/09/2020 - Upgrade to support multiple commission rates **/
 
     details.btcToRedeem = details.totalBtc.sub(details.commission.btcCommission).sub(details.commission.btcMarkup);
 
@@ -3201,7 +3204,7 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection, IMoCExchan
       // Calculate leverage after mint
       details.lev = mocState.leverage(bucket);
 
-      /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
+      /** UPDATE V0112: 24/09/2020 - Upgrade to support multiple commission rates **/
       CommissionParamsStruct memory params;
       params.account = account;
       params.amount = details.finalBtcToMint;
@@ -3212,7 +3215,7 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection, IMoCExchan
       (details.commission) = calculateCommissionsWithPrices(params);
 
       mintBProxInternal(account, bucket, details, vendorAccount);
-      /** END UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
+      /** END UPDATE V0112: 24/09/2020 - Upgrade to support multiple commission rates **/
 
       return (details.finalBtcToMint.add(details.btcInterestAmount), details.commission.btcCommission, details.commission.mocCommission, details.commission.btcMarkup, details.commission.mocMarkup);
     }
@@ -3268,7 +3271,7 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection, IMoCExchan
       moveExtraFundsToBucket(bucket, BUCKET_C0, details.rbtcToRedeem, details.bucketLev);
     }
 
-    /** UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
+    /** UPDATE V0112: 24/09/2020 - Upgrade to support multiple commission rates **/
     CommissionParamsStruct memory params;
     params.account = account;
     params.amount = details.rbtcToRedeem;
@@ -3278,7 +3281,7 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection, IMoCExchan
 
     (details.commission) = calculateCommissionsWithPrices(params);
 
-    /** END UPDATE V0110: 24/09/2020 - Upgrade to support multiple commission rates **/
+    /** END UPDATE V0112: 24/09/2020 - Upgrade to support multiple commission rates **/
 
     details.btcTotalWithoutCommission = details.rbtcToRedeem.sub(details.commission.btcCommission).sub(details.commission.btcMarkup);
     details.totalBtcRedeemed = details.btcTotalWithoutCommission.add(details.rbtcInterests);
@@ -3350,7 +3353,7 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection, IMoCExchan
   /***** UPGRADE v0110      ***********/
   /************************************/
 
-  /** START UPDATE V0110: 24/09/2020  **/
+  /** START UPDATE V0112: 24/09/2020  **/
   /** Upgrade to support multiple commission rates **/
   /** Internal functions **/
 
@@ -3496,7 +3499,7 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection, IMoCExchan
     );
   }
 
-  /** END UPDATE V0110: 24/09/2020 **/
+  /** END UPDATE V0112: 24/09/2020 **/
 
   /**
     @dev Calculates the amount of RBTC that one bucket should move to another in
@@ -3571,7 +3574,7 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection, IMoCExchan
   /***** UPGRADE v0110      ***********/
   /************************************/
 
-  /** START UPDATE V0110: 24/09/2020  **/
+  /** START UPDATE V0112: 24/09/2020  **/
   /** Upgrade to support multiple commission rates **/
   /** Structs **/
 
@@ -3649,7 +3652,7 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection, IMoCExchan
     CommissionReturnStruct commission;
   }
 
-  /** END UPDATE V0110: 24/09/2020 **/
+  /** END UPDATE V0112: 24/09/2020 **/
 
   // Leave a gap betweeen inherited contracts variables in order to be
   // able to add more variables in them later
