@@ -45,5 +45,6 @@
     "vendorGuardianAddress": "0x09f513cdcaabf26ba10fd4f6f5d74dcc61c1b6c1",
     "mocTokenCommissionsAddress": "0x7002dD3027947aB98cA3DDC28F93F2450281453A"
   },
-  "changerAddresses": {}
+  "changerAddresses": {},
+  "governorOwnerAddress": "0xC61820bFB8F87391d62Cd3976dDc1d35e0cf7128"
 }

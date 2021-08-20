@@ -98,7 +98,7 @@ module.exports = async callback => {
     const configPath = `${__dirname}/deployConfig-${network}.json`;
     const config = getConfig(network, configPath);
     const governorAddress = config.implementationAddresses.Governor;
-    const { governorOwner } = config;
+    const { governorOwnerAddress } = config;
     console.log('Governor Address', governorAddress);
     const governor = await Governor.at(governorAddress);
 
@@ -115,7 +115,7 @@ module.exports = async callback => {
       await batchChanger.schedule(target, data);
       await governor.contract.methods
         .executeChange(batchChanger.address)
-        .call({ from: governorOwner });
+        .call({ from: governorOwnerAddress });
     };
 
     /*

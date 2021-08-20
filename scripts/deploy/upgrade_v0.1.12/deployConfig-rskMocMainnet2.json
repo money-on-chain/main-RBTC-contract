@@ -47,5 +47,6 @@
   },
   "changerAddresses": {
     "BatchChanger": "0xb98200A3b89dD692E6F28AC7c5b8EBD35d1F7B1C"
-  }
+  },
+  "governorOwnerAddress": "0xC61820bFB8F87391d62Cd3976dDc1d35e0cf7128"
 }
