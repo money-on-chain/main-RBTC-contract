@@ -103,10 +103,12 @@ module.exports = async callback => {
     const governor = await Governor.at(governorAddress);
 
     console.log('BatchChanger Deploy');
-    const batchChanger = await BatchChanger.new();
-    // Save changer address to config file
+    //const batchChanger = await BatchChanger.new();
+    const batchChanger = await BatchChanger.at(config.changerAddresses.BatchChanger);
+
+    /*// Save changer address to config file
     config.changerAddresses.BatchChanger = batchChanger.address;
-    saveConfig(config, configPath);
+    saveConfig(config, configPath);*/
 
     const tryAndAddToBatch = async (target, data) => {
       console.log('Schedule change - BatchChanger');
@@ -116,6 +118,7 @@ module.exports = async callback => {
         .call({ from: governorOwner });
     };
 
+    /*
     console.log('Prepare Upgrades');
     const upgradeDelegatorAddress = config.implementationAddresses.UpgradeDelegator;
     const upgradeDelegator = await UpgradeDelegator.at(upgradeDelegatorAddress);
@@ -133,7 +136,7 @@ module.exports = async callback => {
     tryAndAddUpgrade('MoCSettlement');
     tryAndAddUpgrade('CommissionSplitter');
     tryAndAddUpgrade('MoCInrate');
-    tryAndAddUpgrade('MoCState');
+    tryAndAddUpgrade('MoCState');*/
 
     console.log('Prepare MoCSettlement');
     const moCSettlementAddress = config.proxyAddresses.MoCSettlement;
