@@ -19,7 +19,7 @@
     "ProxyAdmin": "0x009C51E1f6feDcDB8014Ea9AE1E39B6dbF2AC0EC",
     "UpgradeDelegator": "0x5cE577f6Ec969CE9a282838D350206C52A6F338C",
     "Governor": "0xC61F0392d5170214b5D93C0BC4c4354163aBC1f7",
-    "MoCToken": "0x9aC7Fe28967b30e3a4E6E03286D715B42B453d10",
+    "MoCToken": "0x9AC7fE28967B30E3A4e6e03286d715b42B453D10",
     "MoCPriceProvider": "0x72835fDc4F73cb33b1E7e03bFe067AAfED2BDB9C",
     "MoCVendors": "",
     "MoCHelperLib": "",
@@ -42,7 +42,7 @@
     },
     "liquidationEnabled": false,
     "protected": "1.5",
-    "vendorGuardianAddress": "0xAb242e50E95C2f539242763A4eD5Db1aEE5ce461",
+    "vendorGuardianAddress": "0x09f513cdcaabf26ba10fd4f6f5d74dcc61c1b6c1",
     "mocTokenCommissionsAddress": "0x7002dD3027947aB98cA3DDC28F93F2450281453A"
   },
   "changerAddresses": {}

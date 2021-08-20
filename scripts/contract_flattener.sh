@@ -9,5 +9,6 @@ echo "Starting to flatten our contracts"
 #node_modules/.bin/truffle-flattener contracts/MoCInrate.sol > scripts/contract_flatten/MoCInrate_flat.sol
 #node_modules/.bin/truffle-flattener contracts/MoCState.sol > scripts/contract_flatten/MoCState_flat.sol
 #node_modules/.bin/truffle-flattener zos-lib/contracts/upgradeability/AdminUpgradeabilityProxy.sol > scripts/contract_flatten/AdminUpgradeabilityProxy_flat.sol
-node_modules/.bin/truffle-flattener contracts/changers/MoCSettlementChanger.sol > scripts/contract_flatten/MoCSettlementChanger_flat.sol
+#node_modules/.bin/truffle-flattener contracts/changers/MoCSettlementChanger.sol > scripts/contract_flatten/MoCSettlementChanger_flat.sol
+node_modules/.bin/truffle-flattener contracts/changers/BatchChanger.sol > scripts/contract_flatten/BatchChanger_flat.sol
 echo "Finish successfully! Take a look in folder scripts/contract_flatten/..."
