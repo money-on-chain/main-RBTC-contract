@@ -43,7 +43,7 @@ contract BatchChanger is Ownable {
     * Emits one {CallScheduled} event per transaction in the batch.
     *
     */
-  function schedule(
+  function scheduleBatch(
     address[] memory targets,
     bytes[] memory datas
   ) public onlyOwner {
@@ -62,7 +62,7 @@ contract BatchChanger is Ownable {
     * Should be called by the governor, but this contract does not check that explicitly because
     * it is not its responsability in the current architecture
     */
-  function execute() public payable {
+  function execute() public {
     for (uint256 i = 0; i < targetsToExecute.length; ++i) {
       _call(targetsToExecute[i], datasToExecute[i]);
     }
@@ -80,8 +80,8 @@ contract BatchChanger is Ownable {
     bytes memory data
   ) private {
     // solium-disable security/no-low-level-calls
-    (bool success, ) = target.call(data);
-    require(success, "BatchChanger: underlying transaction reverted");
+    (bool success, bytes memory returndata) = target.call(data);
+    require(success, string(returndata));
 
     emit CallExecuted(target, data);
   }
@@ -99,6 +99,19 @@ contract BatchChanger is Ownable {
     targetsToExecute.push(target);
     datasToExecute.push(data);
     emit CallScheduled(target, data);
+  }
+
+  /**
+    * @dev Schedule a single transaction.
+    *
+    * Emits one {CallScheduled} event.
+    *
+    */
+  function schedule(
+    address target,
+    bytes memory data
+  ) public onlyOwner {
+    _schedule(target, data);
   }
 
 }

@@ -134,7 +134,7 @@ module.exports = async callback => {
     console.log('targets', targets);
     console.log('datas', datas);
     console.log('Schedule change - BatchChanger');
-    await batchChanger.schedule(targets, datas);
+    await batchChanger.scheduleBatch(targets, datas);
 
     if (shouldExecuteChanges(network)) {
       // Execute changes in contracts
