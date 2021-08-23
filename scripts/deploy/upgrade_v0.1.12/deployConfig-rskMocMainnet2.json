@@ -46,7 +46,7 @@
     "mocTokenCommissionsAddress": "0x7002dD3027947aB98cA3DDC28F93F2450281453A"
   },
   "changerAddresses": {
-    "BatchChanger": "0xb98200A3b89dD692E6F28AC7c5b8EBD35d1F7B1C"
+    "BatchChanger": "0x58933D29430b79780F54d1E97CB70eA9558360BE"
   },
   "governorOwnerAddress": "0xC61820bFB8F87391d62Cd3976dDc1d35e0cf7128"
 }

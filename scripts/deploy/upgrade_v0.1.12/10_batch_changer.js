@@ -109,67 +109,89 @@ module.exports = async callback => {
     const network = getNetwork(process.argv);
     const configPath = `${__dirname}/deployConfig-${network}.json`;
     const config = getConfig(network, configPath);
-    const governorAddress = config.implementationAddresses.Governor;
-    const { governorOwnerAddress } = config;
-    console.log('Governor Address', governorAddress);
-    const governor = await Governor.at(governorAddress);
 
     console.log('BatchChanger Deploy');
-    //const batchChanger = await BatchChanger.new();
-    const batchChanger = await BatchChanger.at(config.changerAddresses.BatchChanger);
-
-    /*// Save changer address to config file
+    const batchChanger = await BatchChanger.new();
+    // Save changer address to config file
     config.changerAddresses.BatchChanger = batchChanger.address;
-    saveConfig(config, configPath);*/
+    saveConfig(config, configPath);
 
-    const tryAndAddToBatch = async (target, data) => {
-      console.log('Schedule change - BatchChanger');
-      await batchChanger.schedule(target, data);
-      await governor.contract.methods
-        .executeChange(batchChanger.address)
-        .call({ from: governorOwnerAddress });
-    };
+    const targets = [];
+    const datas = [];
 
-    /*
     console.log('Prepare Upgrades');
     const upgradeDelegatorAddress = config.implementationAddresses.UpgradeDelegator;
     const upgradeDelegator = await UpgradeDelegator.at(upgradeDelegatorAddress);
+    // MoC
+    targets.push(upgradeDelegatorAddress);
+    datas.push(
+      upgradeDelegator.contract.methods
+        .upgrade(config.proxyAddresses.MoC, config.implementationAddresses.MoC)
+        .encodeABI()
+    );
+    // MoCExchange
+    targets.push(upgradeDelegatorAddress);
+    datas.push(
+      upgradeDelegator.contract.methods
+        .upgrade(config.proxyAddresses.MoCExchange, config.implementationAddresses.MoCExchange)
+        .encodeABI()
+    );
+    // MoCExchange
+    targets.push(upgradeDelegatorAddress);
+    datas.push(
+      upgradeDelegator.contract.methods
+        .upgrade(config.proxyAddresses.MoCSettlement, config.implementationAddresses.MoCSettlement)
+        .encodeABI()
+    );
+    // CommissionSplitter
+    targets.push(upgradeDelegatorAddress);
+    datas.push(
+      upgradeDelegator.contract.methods
+        .upgrade(
+          config.proxyAddresses.CommissionSplitter,
+          config.implementationAddresses.CommissionSplitter
+        )
+        .encodeABI()
+    );
+    // MoCInrate
+    targets.push(upgradeDelegatorAddress);
+    datas.push(
+      upgradeDelegator.contract.methods
+        .upgrade(config.proxyAddresses.MoCInrate, config.implementationAddresses.MoCInrate)
+        .encodeABI()
+    );
+    // MoCInrate
+    targets.push(upgradeDelegatorAddress);
+    datas.push(
+      upgradeDelegator.contract.methods
+        .upgrade(config.proxyAddresses.MoCState, config.implementationAddresses.MoCState)
+        .encodeABI()
+    );
 
-    const tryAndAddUpgrade = async contract => {
-      console.log(`tryAndAddUpgrade ${contract}`);
-      const data = upgradeDelegator.contract.methods
-        .upgrade(config.proxyAddresses[contract], config.implementationAddresses[contract])
-        .encodeABI();
-      await tryAndAddToBatch(upgradeDelegator.address, data);
-    };
-
-    tryAndAddUpgrade('MoC');
-    tryAndAddUpgrade('MoCExchange');
-    tryAndAddUpgrade('MoCSettlement');
-    tryAndAddUpgrade('CommissionSplitter');
-    tryAndAddUpgrade('MoCInrate');
-    tryAndAddUpgrade('MoCState');*/
-
-    // console.log('Prepare MoCSettlement');
-    // const moCSettlementAddress = config.proxyAddresses.MoCSettlement;
-    // const moCSettlement = await MoCSettlement.at(moCSettlementAddress);
-    // // fixTaskPointer
-    // const fixTaskPointer = moCSettlement.contract.methods.fixTasksPointer().encodeABI();
-    // await tryAndAddToBatch(moCSettlementAddress, fixTaskPointer);
+    console.log('Prepare MoCSettlement');
+    const moCSettlementAddress = config.proxyAddresses.MoCSettlement;
+    const moCSettlement = await MoCSettlement.at(moCSettlementAddress);
+    // fixTasksPointer
+    targets.push(moCSettlementAddress);
+    datas.push(moCSettlement.contract.methods.fixTasksPointer().encodeABI());
 
     console.log('Prepare CommissionSplitter');
     const commissionSplitterAddress = config.proxyAddresses.CommissionSplitter;
     const commissionSplitter = await CommissionSplitter.at(commissionSplitterAddress);
     // setMocToken
-    const setMocToken = commissionSplitter.contract.methods
-      .setMocToken(config.implementationAddresses.MoCToken)
-      .encodeABI();
-    await tryAndAddToBatch(commissionSplitterAddress, setMocToken);
+    targets.push(commissionSplitterAddress);
+    datas.push(
+      commissionSplitter.contract.methods
+        .setMocToken(config.implementationAddresses.MoCToken)
+        .encodeABI()
+    );
     // setMocTokenCommissionAddress
-    const setMocTokenCommissionAddress = commissionSplitter.contract.methods
-      .setMocTokenCommissionAddress(config.valuesToAssign.mocTokenCommissionsAddress)
-      .encodeABI();
-    await tryAndAddToBatch(commissionSplitterAddress, setMocTokenCommissionAddress);
+    targets.push(commissionSplitterAddress);
+    datas.push(
+      commissionSplitter.contract.methods
+        .setMocTokenCommissionAddress(config.valuesToAssign.mocTokenCommissionsAddress)
+        .encodeABI()
+    );
 
     console.log('Prepare MoCInrate');
     const moCInrateAddress = config.proxyAddresses.MoCInrate;
@@ -177,48 +199,64 @@ module.exports = async callback => {
     // Setting commissions
     const commissions = await getCommissionsArray(config);
     for (let i = 0; i < commissions.length; i++) {
-      const setCommissionRateByTxType = moCInrate.contract.methods
-        .setCommissionRateByTxType(commissions[i].txType, commissions[i].fee)
-        .encodeABI();
-      // eslint-disable-next-line no-await-in-loop
-      await tryAndAddToBatch(moCInrateAddress, setCommissionRateByTxType);
+      targets.push(moCInrateAddress);
+      datas.push(
+        moCInrate.contract.methods
+          .setCommissionRateByTxType(commissions[i].txType, commissions[i].fee)
+          .encodeABI()
+      );
     }
 
     console.log('Prepare MoCState');
     const moCStateAddress = config.proxyAddresses.MoCState;
     const moCState = await MoCState.at(moCStateAddress);
     // setMoCPriceProvider
-    const setMoCPriceProvider = moCState.contract.methods
-      .setMoCPriceProvider(config.implementationAddresses.MoCPriceProvider)
-      .encodeABI();
-    await tryAndAddToBatch(moCStateAddress, setMoCPriceProvider);
+    targets.push(moCStateAddress);
+    datas.push(
+      moCState.contract.methods
+        .setMoCPriceProvider(config.implementationAddresses.MoCPriceProvider)
+        .encodeABI()
+    );
     // setMoCToken
-    const setMoCToken = moCState.contract.methods
-      .setMoCToken(config.implementationAddresses.MoCToken)
-      .encodeABI();
-    await tryAndAddToBatch(moCStateAddress, setMoCToken);
+    targets.push(moCStateAddress);
+    datas.push(
+      moCState.contract.methods.setMoCToken(config.implementationAddresses.MoCToken).encodeABI()
+    );
     // setMoCVendors
-    const setMoCVendors = moCState.contract.methods
-      .setMoCVendors(config.proxyAddresses.MoCVendors)
-      .encodeABI();
-    await tryAndAddToBatch(moCStateAddress, setMoCVendors);
+    targets.push(moCStateAddress);
+    datas.push(
+      moCState.contract.methods.setMoCVendors(config.proxyAddresses.MoCVendors).encodeABI()
+    );
     // setLiquidationEnabled
-    const setLiquidationEnabled = moCState.contract.methods
-      .setLiquidationEnabled(config.valuesToAssign.liquidationEnabled)
-      .encodeABI();
-    await tryAndAddToBatch(moCStateAddress, setLiquidationEnabled);
+    targets.push(moCStateAddress);
+    datas.push(
+      moCState.contract.methods
+        .setLiquidationEnabled(config.valuesToAssign.liquidationEnabled)
+        .encodeABI()
+    );
     // setProtected
     const mocPrecision = 10 ** 18;
     const protectedValue = BigNumber(config.valuesToAssign.protected)
       .times(mocPrecision)
       .toString();
-    const setProtected = moCState.contract.methods.setProtected(protectedValue).encodeABI();
-    await tryAndAddToBatch(moCStateAddress, setProtected);
+    targets.push(moCStateAddress);
+    datas.push(moCState.contract.methods.setProtected(protectedValue).encodeABI());
+
+    console.log('targets', targets);
+    console.log('datas', datas);
+    console.log('Schedule change - BatchChanger');
+    await batchChanger.scheduleBatch(targets, datas);
 
     if (shouldExecuteChanges(network)) {
       // Execute changes in contracts
       console.log('Execute change - BatchChanger');
+      const governor = await Governor.at(config.implementationAddresses.Governor);
       await governor.executeChange(batchChanger.address);
+    } else {
+       console.log('Executing test governor execute change');
+       const governor = await Governor.at(config.implementationAddresses.Governor);
+       await governor.contract.methods.executeChange(config.changerAddresses.BatchChanger).call({from: config.governorOwnerAddress });
+
     }
 
     console.log('BatchChanger address: ', batchChanger.address);
