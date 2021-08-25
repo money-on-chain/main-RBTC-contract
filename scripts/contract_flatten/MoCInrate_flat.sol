@@ -2020,10 +2020,6 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
     return bitProRate;
   }
 
-  // function getCommissionRate() public view returns(uint256) {
-  //   return commissionRate;
-  // }
-
    /**
     @dev Sets BitPro Holders rate
     @param newBitProRate New BitPro rate
@@ -2063,14 +2059,6 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
   function setCommissionsAddress(address payable newCommissionsAddress) public onlyAuthorizedChanger() {
     commissionsAddress = newCommissionsAddress;
   }
-
-  //  /**
-  //   @dev Sets the commission rate for Mint/Redeem transactions
-  //   @param newCommissionRate New commission rate
-  //  */
-  // function setCommissionRate(uint256 newCommissionRate) public onlyAuthorizedChanger() {
-  //   commissionRate = newCommissionRate;
-  // }
 
   /**
     @dev Calculates interest rate for BProx Minting, redeem and Free Doc Redeem
@@ -2184,6 +2172,18 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
     require (txType > 0, "Invalid txType");
 
     uint256 finalCommissionAmount = rbtcAmount.mul(commissionRatesByTxType[txType]).div(mocLibConfig.mocPrecision);
+    return finalCommissionAmount;
+  }
+
+  /**
+    @dev DEPRECATED calculates the Commission rate from the passed RBTC amount for mint/redeem operations
+    @param rbtcAmount Total value from which apply the Commission rate [using reservePrecision]
+    @return finalCommissionAmount [using reservePrecision]
+  */
+  function calcCommissionValue(uint256 rbtcAmount)
+  external view returns(uint256) {
+    // solium-disable-next-line mixedcase
+    uint256 finalCommissionAmount = rbtcAmount.mul(commissionRatesByTxType[MINT_BPRO_FEES_RBTC]).div(mocLibConfig.mocPrecision);
     return finalCommissionAmount;
   }
 
