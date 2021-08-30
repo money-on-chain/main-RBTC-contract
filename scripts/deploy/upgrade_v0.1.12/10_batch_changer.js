@@ -253,10 +253,11 @@ module.exports = async callback => {
       const governor = await Governor.at(config.implementationAddresses.Governor);
       await governor.executeChange(batchChanger.address);
     } else {
-       console.log('Executing test governor execute change');
-       const governor = await Governor.at(config.implementationAddresses.Governor);
-       await governor.contract.methods.executeChange(config.changerAddresses.BatchChanger).call({from: config.governorOwnerAddress });
-
+      console.log('Executing test governor execute change');
+      const governor = await Governor.at(config.implementationAddresses.Governor);
+      await governor.contract.methods
+        .executeChange(config.changerAddresses.BatchChanger)
+        .call({ from: config.governorOwnerAddress });
     }
 
     console.log('BatchChanger address: ', batchChanger.address);

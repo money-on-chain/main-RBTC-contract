@@ -104,7 +104,6 @@ const getCommissionsArray = async config => {
 
 module.exports = async callback => {
   try {
-
     const network = getNetwork(process.argv);
     const configPath = `${__dirname}/deployConfig-${network}.json`;
     const config = getConfig(network, configPath);
@@ -119,12 +118,12 @@ module.exports = async callback => {
     const upgradeDelegator = await UpgradeDelegator.at(upgradeDelegatorAddress);
 
     console.log('Length Data: ', lengthData.toString());
-    console.log('Length Target: ',lengthTarget.toString());
+    console.log('Length Target: ', lengthTarget.toString());
 
-    if (lengthData.toString()!=lengthTarget.toString()) {
-        console.log("ERROR! Not valid array length");
+    if (lengthData.toString() !== lengthTarget.toString()) {
+      console.log('ERROR! Not valid array length');
     } else {
-        console.log("OK! length of arrays");
+      console.log('OK! length of arrays');
     }
 
     // STEP 0 MoC.sol Implementation Upgrade
@@ -135,12 +134,16 @@ module.exports = async callback => {
 
     let target = upgradeDelegatorAddress;
     let encodeData = upgradeDelegator.contract.methods
-        .upgrade(config.proxyAddresses.MoC, config.implementationAddresses.MoC)
-        .encodeABI();
+      .upgrade(config.proxyAddresses.MoC, config.implementationAddresses.MoC)
+      .encodeABI();
 
-    if ((dataBatch == encodeData) && (target==targetBatch)) {
-        console.log(`OK! STEP 0. MoC.sol [${config.proxyAddresses.MoC}] Upgrade to implementation [${config.implementationAddresses.MoC}].`);
-    } else {console.log('ERROR! NOT VALID! STEP 0.');}
+    if (dataBatch === encodeData && target === targetBatch) {
+      console.log(
+        `OK! STEP 0. MoC.sol [${config.proxyAddresses.MoC}] Upgrade to implementation [${config.implementationAddresses.MoC}].`
+      );
+    } else {
+      console.log('ERROR! NOT VALID! STEP 0.');
+    }
 
     // STEP 1 MoCExchange.sol Implementation Upgrade
 
@@ -150,12 +153,16 @@ module.exports = async callback => {
 
     target = upgradeDelegatorAddress;
     encodeData = upgradeDelegator.contract.methods
-        .upgrade(config.proxyAddresses.MoCExchange, config.implementationAddresses.MoCExchange)
-        .encodeABI();
+      .upgrade(config.proxyAddresses.MoCExchange, config.implementationAddresses.MoCExchange)
+      .encodeABI();
 
-    if ((dataBatch == encodeData) && (target==targetBatch)) {
-        console.log(`OK! STEP ${step}. MoCExchange.sol [${config.proxyAddresses.MoCExchange}] Upgrade to implementation [${config.implementationAddresses.MoCExchange}].`);
-    } else {console.log(`ERROR! NOT VALID! STEP: ${step}.`);}
+    if (dataBatch === encodeData && target === targetBatch) {
+      console.log(
+        `OK! STEP ${step}. MoCExchange.sol [${config.proxyAddresses.MoCExchange}] Upgrade to implementation [${config.implementationAddresses.MoCExchange}].`
+      );
+    } else {
+      console.log(`ERROR! NOT VALID! STEP: ${step}.`);
+    }
 
     // STEP 2 MoCSettlement.sol Implementation Upgrade
 
@@ -165,12 +172,16 @@ module.exports = async callback => {
 
     target = upgradeDelegatorAddress;
     encodeData = upgradeDelegator.contract.methods
-        .upgrade(config.proxyAddresses.MoCSettlement, config.implementationAddresses.MoCSettlement)
-        .encodeABI();
+      .upgrade(config.proxyAddresses.MoCSettlement, config.implementationAddresses.MoCSettlement)
+      .encodeABI();
 
-    if ((dataBatch == encodeData) && (target==targetBatch)) {
-        console.log(`OK! STEP ${step}. MoCSettlement.sol [${config.proxyAddresses.MoCSettlement}] Upgrade to implementation [${config.implementationAddresses.MoCSettlement}].`);
-    } else {console.log(`ERROR! NOT VALID! STEP: ${step}.`);}
+    if (dataBatch === encodeData && target === targetBatch) {
+      console.log(
+        `OK! STEP ${step}. MoCSettlement.sol [${config.proxyAddresses.MoCSettlement}] Upgrade to implementation [${config.implementationAddresses.MoCSettlement}].`
+      );
+    } else {
+      console.log(`ERROR! NOT VALID! STEP: ${step}.`);
+    }
 
     // STEP 3 CommissionSplitter.sol Implementation Upgrade
 
@@ -180,12 +191,19 @@ module.exports = async callback => {
 
     target = upgradeDelegatorAddress;
     encodeData = upgradeDelegator.contract.methods
-        .upgrade(config.proxyAddresses.CommissionSplitter, config.implementationAddresses.CommissionSplitter)
-        .encodeABI();
+      .upgrade(
+        config.proxyAddresses.CommissionSplitter,
+        config.implementationAddresses.CommissionSplitter
+      )
+      .encodeABI();
 
-    if ((dataBatch == encodeData) && (target==targetBatch)) {
-        console.log(`OK! STEP ${step}. CommissionSplitter.sol [${config.proxyAddresses.CommissionSplitter}] Upgrade to implementation [${config.implementationAddresses.CommissionSplitter}].`);
-    } else {console.log(`ERROR! NOT VALID! STEP: ${step}.`);}
+    if (dataBatch === encodeData && target === targetBatch) {
+      console.log(
+        `OK! STEP ${step}. CommissionSplitter.sol [${config.proxyAddresses.CommissionSplitter}] Upgrade to implementation [${config.implementationAddresses.CommissionSplitter}].`
+      );
+    } else {
+      console.log(`ERROR! NOT VALID! STEP: ${step}.`);
+    }
 
     // STEP 4 MoCInrate.sol Implementation Upgrade
 
@@ -195,12 +213,16 @@ module.exports = async callback => {
 
     target = upgradeDelegatorAddress;
     encodeData = upgradeDelegator.contract.methods
-        .upgrade(config.proxyAddresses.MoCInrate, config.implementationAddresses.MoCInrate)
-        .encodeABI();
+      .upgrade(config.proxyAddresses.MoCInrate, config.implementationAddresses.MoCInrate)
+      .encodeABI();
 
-    if ((dataBatch == encodeData) && (target==targetBatch)) {
-        console.log(`OK! STEP ${step}. MoCInrate.sol [${config.proxyAddresses.MoCInrate}] Upgrade to implementation [${config.implementationAddresses.MoCInrate}].`);
-    } else {console.log(`ERROR! NOT VALID! STEP: ${step}.`);}
+    if (dataBatch === encodeData && target === targetBatch) {
+      console.log(
+        `OK! STEP ${step}. MoCInrate.sol [${config.proxyAddresses.MoCInrate}] Upgrade to implementation [${config.implementationAddresses.MoCInrate}].`
+      );
+    } else {
+      console.log(`ERROR! NOT VALID! STEP: ${step}.`);
+    }
 
     // STEP 5 MoCState.sol Implementation Upgrade
 
@@ -210,12 +232,16 @@ module.exports = async callback => {
 
     target = upgradeDelegatorAddress;
     encodeData = upgradeDelegator.contract.methods
-        .upgrade(config.proxyAddresses.MoCState, config.implementationAddresses.MoCState)
-        .encodeABI();
+      .upgrade(config.proxyAddresses.MoCState, config.implementationAddresses.MoCState)
+      .encodeABI();
 
-    if ((dataBatch == encodeData) && (target==targetBatch)) {
-        console.log(`OK! STEP ${step}. MoCState.sol [${config.proxyAddresses.MoCState}] Upgrade to implementation [${config.implementationAddresses.MoCState}].`);
-    } else {console.log(`ERROR! NOT VALID! STEP: ${step}.`);}
+    if (dataBatch === encodeData && target === targetBatch) {
+      console.log(
+        `OK! STEP ${step}. MoCState.sol [${config.proxyAddresses.MoCState}] Upgrade to implementation [${config.implementationAddresses.MoCState}].`
+      );
+    } else {
+      console.log(`ERROR! NOT VALID! STEP: ${step}.`);
+    }
 
     // STEP 6 Prepare MoCSettlement
 
@@ -228,9 +254,11 @@ module.exports = async callback => {
 
     encodeData = moCSettlement.contract.methods.fixTasksPointer().encodeABI();
 
-    if ((dataBatch == encodeData) && (target==targetBatch)) {
-        console.log(`OK! STEP ${step}. Prepare moCSettlement.sol execute: [fixTasksPointer()]`);
-    } else {console.log(`ERROR! NOT VALID! STEP: ${step}.`);}
+    if (dataBatch === encodeData && target === targetBatch) {
+      console.log(`OK! STEP ${step}. Prepare moCSettlement.sol execute: [fixTasksPointer()]`);
+    } else {
+      console.log(`ERROR! NOT VALID! STEP: ${step}.`);
+    }
 
     // STEP 7 Prepare commissionSplitter - SetMoCToken
 
@@ -242,12 +270,16 @@ module.exports = async callback => {
     const commissionSplitter = await CommissionSplitter.at(target);
 
     encodeData = commissionSplitter.contract.methods
-        .setMocToken(config.implementationAddresses.MoCToken)
-        .encodeABI();
+      .setMocToken(config.implementationAddresses.MoCToken)
+      .encodeABI();
 
-    if ((dataBatch == encodeData) && (target==targetBatch)) {
-        console.log(`OK! STEP ${step}. Prepare commissionSplitter.sol execute: [setMocToken(${config.implementationAddresses.MoCToken})]`);
-    } else {console.log(`ERROR! NOT VALID! STEP: ${step}.`);}
+    if (dataBatch === encodeData && target === targetBatch) {
+      console.log(
+        `OK! STEP ${step}. Prepare commissionSplitter.sol execute: [setMocToken(${config.implementationAddresses.MoCToken})]`
+      );
+    } else {
+      console.log(`ERROR! NOT VALID! STEP: ${step}.`);
+    }
 
     // STEP 8 Prepare commissionSplitter - mocTokenCommissionsAddress
 
@@ -258,12 +290,16 @@ module.exports = async callback => {
     target = config.proxyAddresses.CommissionSplitter;
 
     encodeData = commissionSplitter.contract.methods
-        .setMocTokenCommissionAddress(config.valuesToAssign.mocTokenCommissionsAddress)
-        .encodeABI();
+      .setMocTokenCommissionAddress(config.valuesToAssign.mocTokenCommissionsAddress)
+      .encodeABI();
 
-    if ((dataBatch == encodeData) && (target==targetBatch)) {
-        console.log(`OK! STEP ${step}. Prepare commissionSplitter.sol execute: [setMocTokenCommissionAddress(${config.valuesToAssign.mocTokenCommissionsAddress})]`);
-    } else {console.log(`ERROR! NOT VALID! STEP: ${step}.`);}
+    if (dataBatch === encodeData && target === targetBatch) {
+      console.log(
+        `OK! STEP ${step}. Prepare commissionSplitter.sol execute: [setMocTokenCommissionAddress(${config.valuesToAssign.mocTokenCommissionsAddress})]`
+      );
+    } else {
+      console.log(`ERROR! NOT VALID! STEP: ${step}.`);
+    }
 
     // STEP 9 Prepare MoCInrate - setCommissionRateByTxType
 
@@ -274,22 +310,26 @@ module.exports = async callback => {
     const moCInrate = await MoCInrate.at(target);
 
     const commissions = await getCommissionsArray(config);
+    /* eslint-disable no-await-in-loop */
     for (let i = 0; i < commissions.length; i++) {
-
       targetBatch = await batchChanger.targetsToExecute(varStep);
       dataBatch = await batchChanger.datasToExecute(varStep);
 
       encodeData = moCInrate.contract.methods
-          .setCommissionRateByTxType(commissions[i].txType, commissions[i].fee)
-          .encodeABI();
+        .setCommissionRateByTxType(commissions[i].txType, commissions[i].fee)
+        .encodeABI();
 
-      if ((dataBatch == encodeData) && (target==targetBatch)) {
-          console.log(`OK! STEP ${varStep}. Prepare MoCInrate.sol execute: [setCommissionRateByTxType(${commissions[i].txType}, ${commissions[i].fee})]`);
-      } else {console.log(`ERROR! NOT VALID! STEP: ${varStep}.`);}
+      if (dataBatch === encodeData && target === targetBatch) {
+        console.log(
+          `OK! STEP ${varStep}. Prepare MoCInrate.sol execute: [setCommissionRateByTxType(${commissions[i].txType}, ${commissions[i].fee})]`
+        );
+      } else {
+        console.log(`ERROR! NOT VALID! STEP: ${varStep}.`);
+      }
 
-      varStep+=1;
-
+      varStep += 1;
     }
+    /* eslint-enable no-await-in-loop */
 
     // STEP 21 Prepare MoCState - setMoCPriceProvider
 
@@ -300,12 +340,16 @@ module.exports = async callback => {
     target = config.proxyAddresses.MoCState;
     const moCState = await MoCState.at(target);
     encodeData = moCState.contract.methods
-        .setMoCPriceProvider(config.implementationAddresses.MoCPriceProvider)
-        .encodeABI();
+      .setMoCPriceProvider(config.implementationAddresses.MoCPriceProvider)
+      .encodeABI();
 
-    if ((dataBatch == encodeData) && (target==targetBatch)) {
-        console.log(`OK! STEP ${step}. Prepare moCState.sol execute: [setMoCPriceProvider(${config.implementationAddresses.MoCPriceProvider})]`);
-    } else {console.log(`ERROR! NOT VALID! STEP: ${step}.`);}
+    if (dataBatch === encodeData && target === targetBatch) {
+      console.log(
+        `OK! STEP ${step}. Prepare moCState.sol execute: [setMoCPriceProvider(${config.implementationAddresses.MoCPriceProvider})]`
+      );
+    } else {
+      console.log(`ERROR! NOT VALID! STEP: ${step}.`);
+    }
 
     // STEP 22 Prepare MoCState - setMoCToken
 
@@ -314,11 +358,17 @@ module.exports = async callback => {
     dataBatch = await batchChanger.datasToExecute(step);
 
     target = config.proxyAddresses.MoCState;
-    encodeData = moCState.contract.methods.setMoCToken(config.implementationAddresses.MoCToken).encodeABI();
+    encodeData = moCState.contract.methods
+      .setMoCToken(config.implementationAddresses.MoCToken)
+      .encodeABI();
 
-    if ((dataBatch == encodeData) && (target==targetBatch)) {
-        console.log(`OK! STEP ${step}. Prepare moCState.sol execute: [setMoCToken(${config.implementationAddresses.MoCToken})]`);
-    } else {console.log(`ERROR! NOT VALID! STEP: ${step}.`);}
+    if (dataBatch === encodeData && target === targetBatch) {
+      console.log(
+        `OK! STEP ${step}. Prepare moCState.sol execute: [setMoCToken(${config.implementationAddresses.MoCToken})]`
+      );
+    } else {
+      console.log(`ERROR! NOT VALID! STEP: ${step}.`);
+    }
 
     // STEP 23 Prepare MoCState - setMoCVendors
 
@@ -327,11 +377,17 @@ module.exports = async callback => {
     dataBatch = await batchChanger.datasToExecute(step);
 
     target = config.proxyAddresses.MoCState;
-    encodeData = moCState.contract.methods.setMoCVendors(config.proxyAddresses.MoCVendors).encodeABI();
+    encodeData = moCState.contract.methods
+      .setMoCVendors(config.proxyAddresses.MoCVendors)
+      .encodeABI();
 
-    if ((dataBatch == encodeData) && (target==targetBatch)) {
-        console.log(`OK! STEP ${step}. Prepare moCState.sol execute: [setMoCVendors(${config.proxyAddresses.MoCVendors})]`);
-    } else {console.log(`ERROR! NOT VALID! STEP: ${step}.`);}
+    if (dataBatch === encodeData && target === targetBatch) {
+      console.log(
+        `OK! STEP ${step}. Prepare moCState.sol execute: [setMoCVendors(${config.proxyAddresses.MoCVendors})]`
+      );
+    } else {
+      console.log(`ERROR! NOT VALID! STEP: ${step}.`);
+    }
 
     // STEP 24 Prepare MoCState - setLiquidationEnabled
 
@@ -341,12 +397,16 @@ module.exports = async callback => {
 
     target = config.proxyAddresses.MoCState;
     encodeData = moCState.contract.methods
-        .setLiquidationEnabled(config.valuesToAssign.liquidationEnabled)
-        .encodeABI();
+      .setLiquidationEnabled(config.valuesToAssign.liquidationEnabled)
+      .encodeABI();
 
-    if ((dataBatch == encodeData) && (target==targetBatch)) {
-        console.log(`OK! STEP ${step}. Prepare moCState.sol execute: [setLiquidationEnabled(${config.valuesToAssign.liquidationEnabled})]`);
-    } else {console.log(`ERROR! NOT VALID! STEP: ${step}.`);}
+    if (dataBatch === encodeData && target === targetBatch) {
+      console.log(
+        `OK! STEP ${step}. Prepare moCState.sol execute: [setLiquidationEnabled(${config.valuesToAssign.liquidationEnabled})]`
+      );
+    } else {
+      console.log(`ERROR! NOT VALID! STEP: ${step}.`);
+    }
 
     // STEP 25 Prepare MoCState - setProtected
 
@@ -362,12 +422,13 @@ module.exports = async callback => {
       .toString();
     encodeData = moCState.contract.methods.setProtected(protectedValue).encodeABI();
 
-    if ((dataBatch == encodeData) && (target==targetBatch)) {
-        console.log(`OK! STEP ${step}. Prepare moCState.sol execute: [setProtected(${config.valuesToAssign.protected})]`);
-    } else {console.log(`ERROR! NOT VALID! STEP: ${step}.`);}
-
-
-
+    if (dataBatch === encodeData && target === targetBatch) {
+      console.log(
+        `OK! STEP ${step}. Prepare moCState.sol execute: [setProtected(${config.valuesToAssign.protected})]`
+      );
+    } else {
+      console.log(`ERROR! NOT VALID! STEP: ${step}.`);
+    }
   } catch (error) {
     callback(error);
   }
