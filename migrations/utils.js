@@ -582,11 +582,17 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
 
     const changerAddresses = {};
 
+    let governorOwnerAddress = owner;
+    if (networkConfig.governorOwnerAddress !== '') {
+      ({ governorOwnerAddress } = networkConfig.governorOwnerAddress);
+    }
+
     const configValues = {
       proxyAddresses,
       implementationAddresses,
       valuesToAssign,
-      changerAddresses
+      changerAddresses,
+      governorOwnerAddress
     };
 
     fs.writeFileSync(path, JSON.stringify(configValues, null, 2));

@@ -12,78 +12,90 @@ const BigNumber = require('bignumber.js');
 
 const { getConfig, getNetwork, saveConfig, shouldExecuteChanges } = require('../helper');
 
-const getCommissionsArray = mocInrate => async config => {
+const getCommissionsArray = async config => {
   const mocPrecision = 10 ** 18;
+  const MINT_BPRO_FEES_RBTC = '1';
+  const REDEEM_BPRO_FEES_RBTC = '2';
+  const MINT_DOC_FEES_RBTC = '3';
+  const REDEEM_DOC_FEES_RBTC = '4';
+  const MINT_BTCX_FEES_RBTC = '5';
+  const REDEEM_BTCX_FEES_RBTC = '6';
+  const MINT_BPRO_FEES_MOC = '7';
+  const REDEEM_BPRO_FEES_MOC = '8';
+  const MINT_DOC_FEES_MOC = '9';
+  const REDEEM_DOC_FEES_MOC = '10';
+  const MINT_BTCX_FEES_MOC = '11';
+  const REDEEM_BTCX_FEES_MOC = '12';
 
   const ret = [
     {
-      txType: (await mocInrate.MINT_BPRO_FEES_RBTC()).toString(),
+      txType: MINT_BPRO_FEES_RBTC,
       fee: BigNumber(config.valuesToAssign.commissionRates.MINT_BPRO_FEES_RBTC)
         .times(mocPrecision)
         .toString()
     },
     {
-      txType: (await mocInrate.REDEEM_BPRO_FEES_RBTC()).toString(),
+      txType: REDEEM_BPRO_FEES_RBTC,
       fee: BigNumber(config.valuesToAssign.commissionRates.REDEEM_BPRO_FEES_RBTC)
         .times(mocPrecision)
         .toString()
     },
     {
-      txType: (await mocInrate.MINT_DOC_FEES_RBTC()).toString(),
+      txType: MINT_DOC_FEES_RBTC,
       fee: BigNumber(config.valuesToAssign.commissionRates.MINT_DOC_FEES_RBTC)
         .times(mocPrecision)
         .toString()
     },
     {
-      txType: (await mocInrate.REDEEM_DOC_FEES_RBTC()).toString(),
+      txType: REDEEM_DOC_FEES_RBTC,
       fee: BigNumber(config.valuesToAssign.commissionRates.REDEEM_DOC_FEES_RBTC)
         .times(mocPrecision)
         .toString()
     },
     {
-      txType: (await mocInrate.MINT_BTCX_FEES_RBTC()).toString(),
+      txType: MINT_BTCX_FEES_RBTC,
       fee: BigNumber(config.valuesToAssign.commissionRates.MINT_BTCX_FEES_RBTC)
         .times(mocPrecision)
         .toString()
     },
     {
-      txType: (await mocInrate.REDEEM_BTCX_FEES_RBTC()).toString(),
+      txType: REDEEM_BTCX_FEES_RBTC,
       fee: BigNumber(config.valuesToAssign.commissionRates.REDEEM_BTCX_FEES_RBTC)
         .times(mocPrecision)
         .toString()
     },
     {
-      txType: (await mocInrate.MINT_BPRO_FEES_MOC()).toString(),
+      txType: MINT_BPRO_FEES_MOC,
       fee: BigNumber(config.valuesToAssign.commissionRates.MINT_BPRO_FEES_MOC)
         .times(mocPrecision)
         .toString()
     },
     {
-      txType: (await mocInrate.REDEEM_BPRO_FEES_MOC()).toString(),
+      txType: REDEEM_BPRO_FEES_MOC,
       fee: BigNumber(config.valuesToAssign.commissionRates.REDEEM_BPRO_FEES_MOC)
         .times(mocPrecision)
         .toString()
     },
     {
-      txType: (await mocInrate.MINT_DOC_FEES_MOC()).toString(),
+      txType: MINT_DOC_FEES_MOC,
       fee: BigNumber(config.valuesToAssign.commissionRates.MINT_DOC_FEES_MOC)
         .times(mocPrecision)
         .toString()
     },
     {
-      txType: (await mocInrate.REDEEM_DOC_FEES_MOC()).toString(),
+      txType: REDEEM_DOC_FEES_MOC,
       fee: BigNumber(config.valuesToAssign.commissionRates.REDEEM_DOC_FEES_MOC)
         .times(mocPrecision)
         .toString()
     },
     {
-      txType: (await mocInrate.MINT_BTCX_FEES_MOC()).toString(),
+      txType: MINT_BTCX_FEES_MOC,
       fee: BigNumber(config.valuesToAssign.commissionRates.MINT_BTCX_FEES_MOC)
         .times(mocPrecision)
         .toString()
     },
     {
-      txType: (await mocInrate.REDEEM_BTCX_FEES_MOC()).toString(),
+      txType: REDEEM_BTCX_FEES_MOC,
       fee: BigNumber(config.valuesToAssign.commissionRates.REDEEM_BTCX_FEES_MOC)
         .times(mocPrecision)
         .toString()
@@ -185,7 +197,7 @@ module.exports = async callback => {
     const moCInrateAddress = config.proxyAddresses.MoCInrate;
     const moCInrate = await MoCInrate.at(moCInrateAddress);
     // Setting commissions
-    const commissions = await getCommissionsArray(moCInrate)(config);
+    const commissions = await getCommissionsArray(config);
     for (let i = 0; i < commissions.length; i++) {
       targets.push(moCInrateAddress);
       datas.push(
@@ -233,13 +245,19 @@ module.exports = async callback => {
     console.log('targets', targets);
     console.log('datas', datas);
     console.log('Schedule change - BatchChanger');
-    await batchChanger.schedule(targets, datas);
+    await batchChanger.scheduleBatch(targets, datas);
 
     if (shouldExecuteChanges(network)) {
       // Execute changes in contracts
       console.log('Execute change - BatchChanger');
       const governor = await Governor.at(config.implementationAddresses.Governor);
       await governor.executeChange(batchChanger.address);
+    } else {
+      console.log('Executing test governor execute change');
+      const governor = await Governor.at(config.implementationAddresses.Governor);
+      await governor.contract.methods
+        .executeChange(config.changerAddresses.BatchChanger)
+        .call({ from: config.governorOwnerAddress });
     }
 
     console.log('BatchChanger address: ', batchChanger.address);
