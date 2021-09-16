@@ -107,7 +107,7 @@ module.exports = async callback => {
     const network = getNetwork(process.argv);
     const configPath = `${__dirname}/deployConfig-${network}.json`;
     const config = getConfig(network, configPath);
-    
+
     console.log('BatchChanger Deploy');
     const batchChanger = await BatchChanger.new();
     // Save changer address to config file

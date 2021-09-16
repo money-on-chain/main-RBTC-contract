@@ -464,7 +464,6 @@ module.exports = async callback => {
       error.push(msjError);
     }
 
-
     if (error.length === 0) {
       const governor = await Governor.at(config.implementationAddresses.Governor);
       if (shouldExecuteChanges(network)) {
