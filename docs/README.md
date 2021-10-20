@@ -9,8 +9,8 @@ fluctuations, and BTC2X is leveraged borrowing value from BitPro and DoC holders
 
 ## Documentation
 
-Please read our documentation at: 
+Please read our documentation: 
 
-[docs.moneyonchain.com/main-contract](https://docs.moneyonchain.com/main-contract/).
+## [Documentation wiki](https://docs.moneyonchain.com/main-contract/)
 
 
