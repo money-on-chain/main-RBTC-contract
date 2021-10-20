@@ -1,5 +1,5 @@
 ---
-id: version-0.1.10-MoCVendors
+id: version-0.1.12-MoCVendors
 title: MoCVendors
 original_id: MoCVendors
 ---
@@ -10,7 +10,7 @@ View Source: [contracts/MoCVendors.sol](../../contracts/MoCVendors.sol)
 
 **↗ Extends: [MoCVendorsEvents](MoCVendorsEvents.md), [MoCBase](MoCBase.md), [MoCLibConnection](MoCLibConnection.md), [Governed](Governed.md), [IMoCVendors](IMoCVendors.md)**
 
-**MoCVendors** - version: 0.1.10
+**MoCVendors** - version: 0.1.12
 
 ## Structs
 ### VendorDetails
@@ -28,119 +28,35 @@ struct VendorDetails {
 **Constants & Variables**
 
 ```js
+//internal members
 contract IMoC internal moc;
-```
----
-
-```js
 contract IMoCState internal mocState;
-```
----
-
-```js
 contract IMoCExchange internal mocExchange;
-```
----
 
-```js
+//public members
 uint8 public constant VENDORS_LIST_ARRAY_MAX_LENGTH;
-```
----
-
-```js
 uint256 public constant VENDOR_MAX_MARKUP;
-```
----
-
-```js
 address public vendorGuardianAddress;
-```
----
-
-```js
 mapping(address => struct MoCVendors.VendorDetails) public vendors;
-```
----
-
-```js
 address[] public vendorsList;
+
+//private members
+uint256[50] private upgradeGap;
+
 ```
----
+
+**Events**
 
 ```js
-uint256[50] private upgradeGap;
+event VendorRegistered(address  account, uint256  markup);
+event VendorUpdated(address  account, uint256  markup);
+event VendorUnregistered(address  account);
+event VendorStakeAdded(address  account, uint256  staking);
+event VendorStakeRemoved(address  account, uint256  staking);
+event TotalPaidInMoCReset(address  account);
+event VendorGuardianAddressChanged(address  vendorGuardianAddress);
+event VendorReceivedMarkup(address  vendorAdress, uint256  paidMoC, uint256  paidRBTC);
 ```
----
-
-## VendorRegistered
-
-**Parameters**
-
-| Name        | Type           | Description  |
-| ------------- |------------- | -----|
-| account | address |  | 
-| markup | uint256 |  | 
-
-## VendorUpdated
-
-**Parameters**
-
-| Name        | Type           | Description  |
-| ------------- |------------- | -----|
-| account | address |  | 
-| markup | uint256 |  | 
-
-## VendorUnregistered
-
-**Parameters**
-
-| Name        | Type           | Description  |
-| ------------- |------------- | -----|
-| account | address |  | 
-
-## VendorStakeAdded
-
-**Parameters**
-
-| Name        | Type           | Description  |
-| ------------- |------------- | -----|
-| account | address |  | 
-| staking | uint256 |  | 
-
-## VendorStakeRemoved
-
-**Parameters**
-
-| Name        | Type           | Description  |
-| ------------- |------------- | -----|
-| account | address |  | 
-| staking | uint256 |  | 
-
-## TotalPaidInMoCReset
-
-**Parameters**
-
-| Name        | Type           | Description  |
-| ------------- |------------- | -----|
-| account | address |  | 
-
-## VendorGuardianAddressChanged
-
-**Parameters**
-
-| Name        | Type           | Description  |
-| ------------- |------------- | -----|
-| vendorGuardianAddress | address |  | 
-
-## VendorReceivedMarkup
-
-**Parameters**
-
-| Name        | Type           | Description  |
-| ------------- |------------- | -----|
-| vendorAdress | address |  | 
-| paidMoC | uint256 |  | 
-| paidRBTC | uint256 |  | 
 
 ## Modifiers
 
@@ -296,7 +212,7 @@ function removeStake(uint256 staking) public nonpayable onlyActiveVendor
 
 ### updatePaidMarkup
 
-⤾ overrides [IMoCVendors.updatePaidMarkup](IMoCVendors.md#updatepaidmarkup)
+⤾ overrides IMoCVendors.updatePaidMarkup
 
 Allows to update paid markup to vendor
 
@@ -315,7 +231,7 @@ returns(bool)
 
 ### getIsActive
 
-⤾ overrides [IMoCVendors.getIsActive](IMoCVendors.md#getisactive)
+⤾ overrides IMoCVendors.getIsActive
 
 Gets if a vendor is active
 
@@ -336,7 +252,7 @@ true if vendor is active; false otherwise
 
 ### getMarkup
 
-⤾ overrides [IMoCVendors.getMarkup](IMoCVendors.md#getmarkup)
+⤾ overrides IMoCVendors.getMarkup
 
 Gets vendor markup
 
@@ -357,7 +273,7 @@ Vendor markup
 
 ### getTotalPaidInMoC
 
-⤾ overrides [IMoCVendors.getTotalPaidInMoC](IMoCVendors.md#gettotalpaidinmoc)
+⤾ overrides IMoCVendors.getTotalPaidInMoC
 
 Gets vendor total paid in MoC
 
@@ -378,7 +294,7 @@ Vendor total paid in MoC
 
 ### getStaking
 
-⤾ overrides [IMoCVendors.getStaking](IMoCVendors.md#getstaking)
+⤾ overrides IMoCVendors.getStaking
 
 Gets vendor staking
 
@@ -399,7 +315,7 @@ Vendor staking
 
 ### resetTotalPaidInMoC
 
-⤾ overrides [IMoCVendors.resetTotalPaidInMoC](IMoCVendors.md#resettotalpaidinmoc)
+⤾ overrides IMoCVendors.resetTotalPaidInMoC
 
 Allows to reset all active vendor's total paid in MoC during settlement
 

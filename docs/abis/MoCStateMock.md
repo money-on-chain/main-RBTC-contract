@@ -1,5 +1,5 @@
 ---
-id: version-0.1.10-MoCStateMock
+id: version-0.1.12-MoCStateMock
 title: MoCStateMock
 original_id: MoCStateMock
 ---
@@ -10,15 +10,15 @@ View Source: [contracts/mocks/MoCStateMock.sol](../../contracts/mocks/MoCStateMo
 
 **↗ Extends: [MoCState](MoCState.md)**
 
-**MoCStateMock** - version: 0.1.10
+**MoCStateMock** - version: 0.1.12
 
 ## Contract Members
 **Constants & Variables**
 
 ```js
 uint256 internal _daysToSettlement;
+
 ```
----
 
 ## Functions
 

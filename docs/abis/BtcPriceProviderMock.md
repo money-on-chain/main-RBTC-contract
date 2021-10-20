@@ -1,5 +1,5 @@
 ---
-id: version-0.1.10-BtcPriceProviderMock
+id: version-0.1.12-BtcPriceProviderMock
 title: BtcPriceProviderMock
 original_id: BtcPriceProviderMock
 ---
@@ -10,20 +10,16 @@ View Source: [contracts/mocks/BtcPriceProviderMock.sol](../../contracts/mocks/Bt
 
 **↗ Extends: [PriceFeed](PriceFeed.md), [PriceProvider](PriceProvider.md)**
 
-**BtcPriceProviderMock** - version: 0.1.10
+**BtcPriceProviderMock** - version: 0.1.12
 
 ## Contract Members
 **Constants & Variables**
 
 ```js
 bytes32 internal btcPrice;
-```
----
-
-```js
 bool internal has;
+
 ```
----
 
 ## Functions
 

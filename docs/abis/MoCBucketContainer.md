@@ -1,5 +1,5 @@
 ---
-id: version-0.1.10-MoCBucketContainer
+id: version-0.1.12-MoCBucketContainer
 title: MoCBucketContainer
 original_id: MoCBucketContainer
 ---
@@ -11,7 +11,7 @@ View Source: [contracts/MoCBucketContainer.sol](../../contracts/MoCBucketContain
 **↗ Extends: [MoCBase](MoCBase.md), [Governed](Governed.md)**
 **↘ Derived Contracts: [MoCBProxManager](MoCBProxManager.md)**
 
-**MoCBucketContainer** - version: 0.1.10
+**MoCBucketContainer** - version: 0.1.12
 
 ## Structs
 ### BProxBalance
@@ -45,46 +45,21 @@ struct MoCBucket {
 **Constants & Variables**
 
 ```js
+//internal members
 mapping(bytes32 => struct MoCBucketContainer.MoCBucket) internal mocBuckets;
+
+//private members
+uint256[50] private upgradeGap;
+
 ```
----
+
+**Events**
 
 ```js
-uint256[50] private upgradeGap;
+event BucketMovement(bytes32  from, bytes32  to, uint256  reserves, uint256  stableTokens);
+event BucketCreation(bytes32  name, uint256  cobj);
+event BucketStateUpdate(bytes32  name, uint256  nReserve, uint256  nStable, uint256  nRiskProx, uint256  inrateBag);
 ```
----
-
-## BucketMovement
-
-**Parameters**
-
-| Name        | Type           | Description  |
-| ------------- |------------- | -----|
-| from | bytes32 |  | 
-| to | bytes32 |  | 
-| reserves | uint256 |  | 
-| stableTokens | uint256 |  | 
-
-## BucketCreation
-
-**Parameters**
-
-| Name        | Type           | Description  |
-| ------------- |------------- | -----|
-| name | bytes32 |  | 
-| cobj | uint256 |  | 
-
-## BucketStateUpdate
-
-**Parameters**
-
-| Name        | Type           | Description  |
-| ------------- |------------- | -----|
-| name | bytes32 |  | 
-| nReserve | uint256 |  | 
-| nStable | uint256 |  | 
-| nRiskProx | uint256 |  | 
-| inrateBag | uint256 |  | 
 
 ## Modifiers
 

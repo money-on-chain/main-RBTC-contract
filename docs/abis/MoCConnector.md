@@ -1,5 +1,5 @@
 ---
-id: version-0.1.10-MoCConnector
+id: version-0.1.12-MoCConnector
 title: MoCConnector
 original_id: MoCConnector
 ---
@@ -10,7 +10,7 @@ View Source: [contracts/base/MoCConnector.sol](../../contracts/base/MoCConnector
 
 **↗ Extends: [MoCWhitelist](MoCWhitelist.md), [Initializable](Initializable.md)**
 
-**MoCConnector** - version: 0.1.10
+**MoCConnector** - version: 0.1.12
 
 Provides access control between all MoC Contracts
 
@@ -18,64 +18,25 @@ Provides access control between all MoC Contracts
 **Constants & Variables**
 
 ```js
+//public members
 address payable public moc;
-```
----
-
-```js
 address public docToken;
-```
----
-
-```js
 address public bproToken;
-```
----
-
-```js
 address public bproxManager;
-```
----
-
-```js
 address public mocState;
-```
----
-
-```js
 address public DEPRECATED_mocConverter;
-```
----
-
-```js
 address public mocSettlement;
-```
----
-
-```js
 address public mocExchange;
-```
----
-
-```js
 address public mocInrate;
-```
----
-
-```js
 address public mocBurnout;
-```
----
 
-```js
+//internal members
 bool internal initialized;
-```
----
 
-```js
+//private members
 uint256[50] private upgradeGap;
+
 ```
----
 
 ## Functions
 

@@ -1,5 +1,5 @@
 ---
-id: version-0.1.10-MoCToken
+id: version-0.1.12-MoCToken
 title: MoCToken
 original_id: MoCToken
 ---
@@ -10,25 +10,17 @@ View Source: [contracts/token/MoCToken.sol](../../contracts/token/MoCToken.sol)
 
 **↗ Extends: [ERC20Detailed](ERC20Detailed.md), [OwnerBurnableToken](OwnerBurnableToken.md)**
 
-**MoCToken** - version: 0.1.10
+**MoCToken** - version: 0.1.12
 
 ## Contract Members
 **Constants & Variables**
 
 ```js
 string private _name;
-```
----
-
-```js
 string private _symbol;
-```
----
-
-```js
 uint8 private _decimals;
+
 ```
----
 
 ## Functions
 

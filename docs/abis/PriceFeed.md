@@ -1,5 +1,5 @@
 ---
-id: version-0.1.10-PriceFeed
+id: version-0.1.12-PriceFeed
 title: PriceFeed
 original_id: PriceFeed
 ---
@@ -10,7 +10,7 @@ View Source: [contracts/interface/PriceFeed.sol](../../contracts/interface/Price
 
 **↘ Derived Contracts: [BtcPriceProviderMock](BtcPriceProviderMock.md), [MoCPriceProviderMock](MoCPriceProviderMock.md)**
 
-**PriceFeed** - version: 0.1.10
+**PriceFeed** - version: 0.1.12
 
 ## Functions
 

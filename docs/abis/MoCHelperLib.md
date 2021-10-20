@@ -1,5 +1,5 @@
 ---
-id: version-0.1.10-MoCHelperLib
+id: version-0.1.12-MoCHelperLib
 title: MoCHelperLib
 original_id: MoCHelperLib
 ---
@@ -8,7 +8,7 @@ original_id: MoCHelperLib
 
 View Source: [contracts/MoCHelperLib.sol](../../contracts/MoCHelperLib.sol)
 
-**MoCHelperLib** - version: 0.1.10
+**MoCHelperLib** - version: 0.1.12
 
 ## Structs
 ### MocLibConfig
@@ -26,8 +26,8 @@ struct MocLibConfig {
 
 ```js
 uint256 internal constant UINT256_MAX;
+
 ```
----
 
 ## Functions
 

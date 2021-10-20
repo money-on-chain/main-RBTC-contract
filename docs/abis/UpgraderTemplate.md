@@ -1,5 +1,5 @@
 ---
-id: version-0.1.10-UpgraderTemplate
+id: version-0.1.12-UpgraderTemplate
 title: UpgraderTemplate
 original_id: UpgraderTemplate
 ---
@@ -11,7 +11,7 @@ View Source: [moc-governance/contracts/ChangersTemplates/UpgraderTemplate.sol](.
 **↗ Extends: [ChangeContract](ChangeContract.md)**
 **↘ Derived Contracts: [MoCBProxManagerUpdater](MoCBProxManagerUpdater.md), [MockUpgraderTemplate](MockUpgraderTemplate.md)**
 
-**UpgraderTemplate** - version: 0.1.10
+**UpgraderTemplate** - version: 0.1.12
 
 This contract is a ChangeContract intended to be used when
 upgrading any contract upgradeable through the zos-lib upgradeability
@@ -23,18 +23,10 @@ this one or taking it as a guide
 
 ```js
 contract AdminUpgradeabilityProxy public proxy;
-```
----
-
-```js
 contract UpgradeDelegator public upgradeDelegator;
-```
----
-
-```js
 address public newImplementation;
+
 ```
----
 
 ## Functions
 
@@ -64,9 +56,7 @@ function (AdminUpgradeabilityProxy _proxy, UpgradeDelegator _upgradeDelegator, a
 
 ⤾ overrides ChangeContract.execute
 
-Execute the changes.Should be called by the governor, but this contract does not check that explicitly because it is not its responsability in
-the current architecture
-IMPORTANT: This function should not be overriden, you should only redefine the _beforeUpgrade and _afterUpgrade to use this template
+Execute the changes.
 
 ```js
 function execute() external nonpayable
@@ -79,7 +69,7 @@ function execute() external nonpayable
 
 ### _upgrade
 
-Upgrade the proxy to the newImplementationIMPORTANT: This function should not be overriden
+Upgrade the proxy to the newImplementation
 
 ```js
 function _upgrade() internal nonpayable
@@ -92,7 +82,7 @@ function _upgrade() internal nonpayable
 
 ### _beforeUpgrade
 
-Intended to prepare the system for the upgradeThis function can be overriden by child changers to upgrade contracts that require some preparation before the upgrade
+Intended to prepare the system for the upgrade
 
 ```js
 function _beforeUpgrade() internal nonpayable
@@ -105,7 +95,7 @@ function _beforeUpgrade() internal nonpayable
 
 ### _afterUpgrade
 
-Intended to do the final tweaks after the upgrade, for example initialize the contractThis function can be overriden by child changers to upgrade contracts that require some changes after the upgrade
+Intended to do the final tweaks after the upgrade, for example initialize the contract
 
 ```js
 function _afterUpgrade() internal nonpayable

@@ -1,5 +1,5 @@
 ---
-id: version-0.1.10-MockMakeUnstoppable
+id: version-0.1.12-MockMakeUnstoppable
 title: MockMakeUnstoppable
 original_id: MockMakeUnstoppable
 ---
@@ -10,7 +10,7 @@ View Source: [contracts/mocks/MockMakeUnstoppable.sol](../../contracts/mocks/Moc
 
 **↗ Extends: [MakeUnstoppable](MakeUnstoppable.md)**
 
-**MockMakeUnstoppable** - version: 0.1.10
+**MockMakeUnstoppable** - version: 0.1.12
 
 ## Functions
 
