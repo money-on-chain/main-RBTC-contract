@@ -1,12 +1,12 @@
-# Example code redeeming Free DOC
+# Example code redeeming Free DoC
 
 In the following example we will show how to invoke redeemFreeDocVendors from Money on Chain contract. This method allows to redeem DOC outside the settlement and they are limited by user balance. Check the [DOC redeemption section](redeeming-docs.md) for more details.
 
 We will learn how to:
 
-- Get the maximum amount of DOC available to redeem.
-- Get DOC balance of an account.
-- Redeem DOCs.
+- Get the maximum amount of DoCs available to redeem.
+- Get DoC balance of an account.
+- Redeem DoCs.
 
 You can find code examples into _/examples_ dir.
 We will use **truffle** and **testnet** network.

@@ -5,7 +5,7 @@
 A bucket (MoCBucket struct) is a Tokens/RBTC grouping abstraction that represents certain state and follows certain rules.
 It's identified by a name (currently `C0` and `X2`).
 It has a "balance" of RBTC, DoC, and BitPro.
-If it's a leverage (X) bucket, it also stores the balances of the leveraged token (currently only BTC2X) holders (`bproxBalances` and `activeBalances`).
+If it's a leverage (X) bucket, it also stores the balances of the leveraged token (currently only BTCx) holders (`bproxBalances` and `activeBalances`).
 If it's instead a base bucket, it has a RBTC balance (`inrateBag`) from interests accumulated by leveraged instruments allocations, daily processing will move the corresponding daily payment from this "bag" to base bucket balance.
 Balance accounting between buckets is articulated by a series of Smart Contracts that constitute the MoC ecosystem.
 
@@ -19,7 +19,7 @@ Locked RBTC amount is a result of the amount of DoCs and their price in BTC (BTC
 ### DoC
 
 Its value is pegged to one dollar, in the sense that the SC (using [Oracle's](main-concepts.md#oracle) btc/usd price) will always[^1] return the equivalent amount of Bitcoin to satisfy that convertibility. It's targeted towards users seeking to avoid crypto's market volatility.
-It's implemented as an ERC20 token, it can be traded freely, but minted/burned only by the MoC system. The more DocS minted, the more BTC2X can be minted, since they are used for leverage.
+It's implemented as an ERC20 token, it can be traded freely, but minted/burned only by the MoC system. The more DocS minted, the more BTCx can be minted, since they are used for leverage.
 
 [^1]: Needs sufficient collateral (coverage > 1) and redeems are only processed during [Settlements](process-actions.md#settlement)
 
@@ -33,7 +33,7 @@ The MoC token is designed to govern a decentralized autonomous organization (DAO
 
 ## Leveraged instruments
 
-### BTC2X
+### BTCx
 
 It's targeted towards users looking to profit from long positions in bitcoin, with two times the risk and reward.
 Leveraged instruments borrows capital from base bucket (50% in a X2) and pay a daily[^1] rate to it as return.
