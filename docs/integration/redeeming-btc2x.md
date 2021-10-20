@@ -1,6 +1,6 @@
-# Redeeming BTC2X
+# Redeeming BTCx
 
-The Money On Chain's Smart Contract suite is in control of redeeming its tokens, including the BTC2X token. This means that the return of BTC2X is controlled programmatically by said suite. ​A user can "sell" their BTC2X back to the contract and have RBTC deposited are sent back to the user, alongside the refunded interests (waiting in inrateBag) for the remaining time until the settlement (not yet charged).
+The Money On Chain's Smart Contract suite is in control of redeeming its tokens, including the BTCx token. This means that the return of BTCx is controlled programmatically by said suite. ​A user can "sell" their BTCx back to the contract and have RBTC deposited are sent back to the user, alongside the refunded interests (waiting in inrateBag) for the remaining time until the settlement (not yet charged).
 
 In this tutorial the method (or function) that is of interest to us is `function redeemBProxVendors(bytes32 bucket, uint256 bproxAmount, address vendorAccount) public`
 
@@ -10,9 +10,9 @@ NOTE: there is a retrocompatibility function called `function redeemBProx(bytes3
 
 ### The bucket parameter
 
-A bucket is a bag that stores the balances of the leveraged token holders. Currently, only the BTC2X bucket called _X2_ exists. The X2 must be passed as an hex value.
+A bucket is a bag that stores the balances of the leveraged token holders. Currently, only the BTCx bucket called _X2_ exists. The X2 must be passed as an hex value.
 
-There is also a bucket named _C0_ but it should not be used to mint and redeem BTC2X.
+There is also a bucket named _C0_ but it should not be used to mint and redeem BTCx.
 
 In the following example you can see how to do it with javascript and the web3 library. For more detailed information about web3 you can read the [From outside the blockchain](from-outside-the-blockchain.md) section.
 
@@ -22,7 +22,7 @@ const BUCKET_X2 = web3.utils.asciiToHex('X2', 32);
 
 ### The bproxAmount parameter
 
-It is the amount that the contract will use to redeem BTC2X and will be used to calculate commissions. All of these funds will be transformed exclusively into RBTC.
+It is the amount that the contract will use to redeem BTCx and will be used to calculate commissions. All of these funds will be transformed exclusively into RBTC.
 This parameter uses a precision of the type **reservePrecision** that contains 18 decimal places and is defined in **MoCLibConnection** contract.
 
 ### The vendorAccount parameter
@@ -54,7 +54,7 @@ All the needed calculations for the third and fourth parts are explained in more
 
 ### Gas limit and gas price
 
-These two values are a parameter of the transaction, this is not used in the contract and is generally managed by your wallet (you should read about them if you are developing and do not know exactly what they are), but you should take them into account when trying to redeem some BTC2X.
+These two values are a parameter of the transaction, this is not used in the contract and is generally managed by your wallet (you should read about them if you are developing and do not know exactly what they are), but you should take them into account when trying to redeem some BTCx.
 
 ## Possible failures
 
@@ -62,7 +62,7 @@ This operation may fail if one of the following scenarios occurs:
 
 ### The MoC contract is liquidated:
 
-In the extraneous case where a coverage that barely covers the stable tokens funds is reached, the contract will liquidate all of its assets. If this state occurs, no more BTC2X will be available for redeeming.
+In the extraneous case where a coverage that barely covers the stable tokens funds is reached, the contract will liquidate all of its assets. If this state occurs, no more BTCx will be available for redeeming.
 To know if the contract is liquidated you can ask the **MocState** for the **state**, this will return a 0 if liquidated (it is actually an enum).
 
 ### The MoC contract is paused:
@@ -77,11 +77,11 @@ The function can only be invoked when the Settlement has finished executing. If 
 
 ### Bucket is not available:
 
-Currently, only the BTC2X bucket called 'X2' exists. If it is called with another bucket, the transaction reverts with the error message: _Bucket is not available_.
+Currently, only the BTCx bucket called 'X2' exists. If it is called with another bucket, the transaction reverts with the error message: _Bucket is not available_.
 
 ### Bucket is not a base bucket:
 
-Currently, only the BTC2X bucket called 'X2' exists. If you call the function with _C0_ bucket, the transaction reverts with the error message: _Bucket should not be a base type bucket_.
+Currently, only the BTCx bucket called 'X2' exists. If you call the function with _C0_ bucket, the transaction reverts with the error message: _Bucket should not be a base type bucket_.
 
 ### Not enough gas:
 
@@ -121,7 +121,7 @@ constructor (MoC _mocContract, address vendorAccount, rest of your params...) {
 }
 ```
 
-​and, finally, redeem some BTC2X for RBTCs
+​and, finally, redeem some BTCx for RBTCs
 ​
 
 ```js
@@ -159,7 +159,7 @@ contract YourRedeemingBtc2xContract {
 ​
     function doTask(uint256 _bproxAmount) public {
         uint256 prevRbtcBalance = moc.bproxBalanceOf(BUCKET_X2, msg.sender);
-        // Mint some new BTC2X
+        // Mint some new BTCx
         moc.redeemBProxVendors(BUCKET_X2, _bproxAmount, vendorAccount);
         uint256 newRbtcBalance = moc.bproxBalanceOf(BUCKET_X2, msg.sender);
         // Rest of the function to actually perform the task

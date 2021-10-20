@@ -2,9 +2,9 @@
 
 In the following example we will learn how to:
 
-- Get the maximum amount of BPRO available to redeem.
-- Get BPRO balance of an account.
-- Redeem BPROs.
+- Get the maximum amount of BPro available to redeem.
+- Get BPro balance of an account.
+- Redeem BPros.
 
 We will use the **testnet** network.
 
