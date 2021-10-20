@@ -50,7 +50,9 @@ Note that the markup has also a precision of 18 decimals, i.e. a 1 \* 10^15 in t
 
 ### Moc Vendors
 
-Contract that manage vendors functions
+Contract that manage vendors functions.
+
+[MoCVendors contract ABI interface](../abis/MoCVendors.md). 
 
 | Environment | Contract | Contract address |
 | --- | --- | --- |
