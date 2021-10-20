@@ -1,5 +1,5 @@
 ---
-id: version-0.1.10-OwnerBurnableToken
+id: version-0.1.12-OwnerBurnableToken
 title: OwnerBurnableToken
 original_id: OwnerBurnableToken
 ---
@@ -11,7 +11,7 @@ View Source: [contracts/token/OwnerBurnableToken.sol](../../contracts/token/Owne
 **↗ Extends: [Ownable](Ownable.md), [ERC20Mintable](ERC20Mintable.md)**
 **↘ Derived Contracts: [BProToken](BProToken.md), [DocToken](DocToken.md), [MoCToken](MoCToken.md)**
 
-**OwnerBurnableToken** - version: 0.1.10
+**OwnerBurnableToken** - version: 0.1.12
 
 Token that allows the owner to irreversibly burned (destroyed) any token.
 

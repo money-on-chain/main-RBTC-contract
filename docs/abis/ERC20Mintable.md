@@ -1,5 +1,5 @@
 ---
-id: version-0.1.10-ERC20Mintable
+id: version-0.1.12-ERC20Mintable
 title: ERC20Mintable
 original_id: ERC20Mintable
 ---
@@ -11,7 +11,7 @@ View Source: [openzeppelin-solidity/contracts/token/ERC20/ERC20Mintable.sol](../
 **↗ Extends: [ERC20](ERC20.md), [MinterRole](MinterRole.md)**
 **↘ Derived Contracts: [OwnerBurnableToken](OwnerBurnableToken.md)**
 
-**ERC20Mintable** - version: 0.1.10
+**ERC20Mintable** - version: 0.1.12
 
 Extension of `ERC20` that adds a set of accounts with the `MinterRole`,
 which have permission to mint (create) new tokens as they see fit.

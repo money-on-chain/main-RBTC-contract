@@ -1,5 +1,5 @@
 ---
-id: version-0.1.10-RevertingOnSend
+id: version-0.1.12-RevertingOnSend
 title: RevertingOnSend
 original_id: RevertingOnSend
 ---
@@ -8,20 +8,16 @@ original_id: RevertingOnSend
 
 View Source: [contracts/test-contracts/RevertingOnSend.sol](../../contracts/test-contracts/RevertingOnSend.sol)
 
-**RevertingOnSend** - version: 0.1.10
+**RevertingOnSend** - version: 0.1.12
 
 ## Contract Members
 **Constants & Variables**
 
 ```js
 contract MoC internal moc;
-```
----
-
-```js
 bool internal acceptMoney;
+
 ```
----
 
 ## Functions
 

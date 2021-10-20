@@ -1,5 +1,5 @@
 ---
-id: version-0.1.10-MakeUnstoppable
+id: version-0.1.12-MakeUnstoppable
 title: MakeUnstoppable
 original_id: MakeUnstoppable
 ---
@@ -11,15 +11,15 @@ View Source: [moc-governance/contracts/ChangersTemplates/MakeUnstoppable.sol](..
 **↗ Extends: [ChangeContract](ChangeContract.md)**
 **↘ Derived Contracts: [MockMakeUnstoppable](MockMakeUnstoppable.md)**
 
-**MakeUnstoppable** - version: 0.1.10
+**MakeUnstoppable** - version: 0.1.12
 
 ## Contract Members
 **Constants & Variables**
 
 ```js
 contract Stoppable internal contractToChange;
+
 ```
----
 
 ## Functions
 

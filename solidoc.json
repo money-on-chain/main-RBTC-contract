@@ -4,7 +4,7 @@
   "noCompilation": false,
   "compiler": "npx truffle compile --all",
   "language": "en",
-  "version": "0.1.10",
+  "version": "0.1.12",
   "ignoreFiles": [
     "CommissionSplitterChanger.json",
     "CommissionSplitterChangerDeploy.json",
@@ -14,6 +14,7 @@
     "IMoCSettlement.json",
     "IMoCState.json",
     "IMoCVendors.json",
+    "MocInrateBtcxInterestChanger.json",
     "MoCInrateCommissionsChanger.json",
     "MoCSettlementChangerDeploy.json",
     "MoCStateLiquidationEnabledChanger.json",
@@ -26,13 +27,8 @@
     "BaseUpgradeabilityProxy.json",
     "ChangeContract.json",
     "CommissionsAddressChanger.json",
-    "CommissionSplitter.json",
     "DSAuth.json",
-    "ERC20.json",
-    "ERC20Detailed.json",
-    "ERC20Pausable.json",
     "Governor.json",
-    "IERC20.json",
     "IGovernor.json",
     "Math.json",
     "Medianizer.json",
@@ -80,6 +76,8 @@
     "UpgraderChanger.json",
     "BatchChanger.json",
     "ZOSLibAddress.json",
-    "ZOSLibOwnable.json"
+    "ZOSLibOwnable.json",
+    "MoCBProxManagerUpdater.json",
+    "MocInrateDocInterestChanger.json"
   ]
 }

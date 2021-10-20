@@ -1,5 +1,5 @@
 ---
-id: version-0.1.10-MoCEMACalculator
+id: version-0.1.12-MoCEMACalculator
 title: MoCEMACalculator
 original_id: MoCEMACalculator
 ---
@@ -11,54 +11,32 @@ View Source: [contracts/MoCEMACalculator.sol](../../contracts/MoCEMACalculator.s
 **↗ Extends: [Governed](Governed.md)**
 **↘ Derived Contracts: [MoCState](MoCState.md)**
 
-**MoCEMACalculator** - version: 0.1.10
+**MoCEMACalculator** - version: 0.1.12
 
 ## Contract Members
 **Constants & Variables**
 
 ```js
+//internal members
 uint256 internal bitcoinMovingAverage;
-```
----
 
-```js
+//public members
 uint256 public smoothingFactor;
-```
----
-
-```js
 uint256 public lastEmaCalculation;
-```
----
-
-```js
 uint256 public emaCalculationBlockSpan;
-```
----
-
-```js
 uint256 public constant PRICE_PRECISION;
-```
----
-
-```js
 uint256 public constant FACTOR_PRECISION;
+
+//private members
+uint256[50] private upgradeGap;
+
 ```
----
+
+**Events**
 
 ```js
-uint256[50] private upgradeGap;
+event MovingAverageCalculation(uint256  price, uint256  movingAverage);
 ```
----
-
-## MovingAverageCalculation
-
-**Parameters**
-
-| Name        | Type           | Description  |
-| ------------- |------------- | -----|
-| price | uint256 |  | 
-| movingAverage | uint256 |  | 
 
 ## Functions
 

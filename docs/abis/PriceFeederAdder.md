@@ -1,5 +1,5 @@
 ---
-id: version-0.1.10-PriceFeederAdder
+id: version-0.1.12-PriceFeederAdder
 title: PriceFeederAdder
 original_id: PriceFeederAdder
 ---
@@ -10,25 +10,17 @@ View Source: [contracts/changers/productive/PriceFeederAdder.sol](../../contract
 
 **↗ Extends: [ChangeContract](ChangeContract.md)**
 
-**PriceFeederAdder** - version: 0.1.10
+**PriceFeederAdder** - version: 0.1.12
 
 ## Contract Members
 **Constants & Variables**
 
 ```js
 contract PriceFactory public priceFactory;
-```
----
-
-```js
 contract Medianizer public medianizer;
-```
----
-
-```js
 address public priceFeedOwner;
+
 ```
----
 
 ## Functions
 

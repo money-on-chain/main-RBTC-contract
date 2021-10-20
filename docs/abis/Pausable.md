@@ -1,5 +1,5 @@
 ---
-id: version-0.1.10-Pausable
+id: version-0.1.12-Pausable
 title: Pausable
 original_id: Pausable
 ---
@@ -11,7 +11,7 @@ View Source: [openzeppelin-solidity/contracts/lifecycle/Pausable.sol](../../open
 **↗ Extends: [PauserRole](PauserRole.md)**
 **↘ Derived Contracts: [ERC20Pausable](ERC20Pausable.md)**
 
-**Pausable** - version: 0.1.10
+**Pausable** - version: 0.1.12
 
 Contract module which allows children to implement an emergency stop
 mechanism that can be triggered by an authorized account.
@@ -25,28 +25,15 @@ simply including this module, only once the modifiers are put in place.
 
 ```js
 bool private _paused;
+
 ```
----
 
-## Paused
+**Events**
 
-Emitted when the pause is triggered by a pauser (`account`).
-
-**Parameters**
-
-| Name        | Type           | Description  |
-| ------------- |------------- | -----|
-| account | address |  | 
-
-## Unpaused
-
-Emitted when the pause is lifted by a pauser (`account`).
-
-**Parameters**
-
-| Name        | Type           | Description  |
-| ------------- |------------- | -----|
-| account | address |  | 
+```js
+event Paused(address  account);
+event Unpaused(address  account);
+```
 
 ## Modifiers
 

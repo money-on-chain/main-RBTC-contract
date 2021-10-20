@@ -1,5 +1,5 @@
 ---
-id: version-0.1.10-MoCLibConnection
+id: version-0.1.12-MoCLibConnection
 title: MoCLibConnection
 original_id: MoCLibConnection
 ---
@@ -10,7 +10,7 @@ View Source: [contracts/MoCLibConnection.sol](../../contracts/MoCLibConnection.s
 
 **↘ Derived Contracts: [MoC](MoC.md), [MoCEvents](MoCEvents.md), [MoCExchange](MoCExchange.md), [MoCExchangeEvents](MoCExchangeEvents.md), [MoCHelperLibHarness](MoCHelperLibHarness.md), [MoCInrate](MoCInrate.md), [MoCInrateEvents](MoCInrateEvents.md), [MoCInrateStructs](MoCInrateStructs.md), [MoCState](MoCState.md), [MoCVendors](MoCVendors.md), [MoCVendorsEvents](MoCVendorsEvents.md)**
 
-**MoCLibConnection** - version: 0.1.10
+**MoCLibConnection** - version: 0.1.12
 
 Interface with MocHelperLib
 
@@ -18,14 +18,13 @@ Interface with MocHelperLib
 **Constants & Variables**
 
 ```js
+//internal members
 struct MoCHelperLib.MocLibConfig internal mocLibConfig;
-```
----
 
-```js
+//private members
 uint256[50] private upgradeGap;
+
 ```
----
 
 ## Functions
 

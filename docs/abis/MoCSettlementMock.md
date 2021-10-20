@@ -1,5 +1,5 @@
 ---
-id: version-0.1.10-MoCSettlementMock
+id: version-0.1.12-MoCSettlementMock
 title: MoCSettlementMock
 original_id: MoCSettlementMock
 ---
@@ -10,15 +10,15 @@ View Source: [contracts/mocks/MoCSettlementMock.sol](../../contracts/mocks/MoCSe
 
 **↗ Extends: [MoCSettlement](MoCSettlement.md)**
 
-**MoCSettlementMock** - version: 0.1.10
+**MoCSettlementMock** - version: 0.1.12
 
 ## Contract Members
 **Constants & Variables**
 
 ```js
 uint256 internal constant STEPS;
+
 ```
----
 
 ## Functions
 

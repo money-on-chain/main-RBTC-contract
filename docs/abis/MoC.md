@@ -1,5 +1,5 @@
 ---
-id: version-0.1.10-MoC
+id: version-0.1.12-MoC
 title: MoC
 original_id: MoC
 ---
@@ -10,81 +10,37 @@ View Source: [contracts/MoC.sol](../../contracts/MoC.sol)
 
 **↗ Extends: [MoCEvents](MoCEvents.md), [MoCLibConnection](MoCLibConnection.md), [MoCBase](MoCBase.md), [Stoppable](Stoppable.md), [IMoC](IMoC.md)**
 
-**MoC** - version: 0.1.10
+**MoC** - version: 0.1.12
 
 ## Contract Members
 **Constants & Variables**
 
 ```js
+//internal members
 address internal docToken;
-```
----
-
-```js
 address internal bproToken;
-```
----
-
-```js
 contract MoCBProxManager internal bproxManager;
-```
----
-
-```js
 contract IMoCState internal mocState;
-```
----
-
-```js
 address internal DEPRECATED_mocConverter;
-```
----
-
-```js
 contract IMoCSettlement internal settlement;
-```
----
-
-```js
 contract IMoCExchange internal mocExchange;
-```
----
-
-```js
 contract IMoCInrate internal mocInrate;
-```
----
-
-```js
 bool internal liquidationExecuted;
-```
----
 
-```js
+//public members
 address public DEPRECATED_mocBurnout;
+
+//private members
+uint256[50] private upgradeGap;
+
 ```
----
+
+**Events**
 
 ```js
-uint256[50] private upgradeGap;
+event BucketLiquidation(bytes32  bucket);
+event ContractLiquidated(address  mocAddress);
 ```
----
-
-## BucketLiquidation
-
-**Parameters**
-
-| Name        | Type           | Description  |
-| ------------- |------------- | -----|
-| bucket | bytes32 |  | 
-
-## ContractLiquidated
-
-**Parameters**
-
-| Name        | Type           | Description  |
-| ------------- |------------- | -----|
-| mocAddress | address |  | 
 
 ## Modifiers
 
@@ -243,14 +199,14 @@ modifier transitionState() internal
 - [liquidate()](#liquidate)
 - [transferCommissions(address payable sender, uint256 value, uint256 totalBtcSpent, uint256 btcCommission, uint256 mocCommission, address payable vendorAccount, uint256 btcMarkup, uint256 mocMarkup)](#transfercommissions)
 - [transferMocCommission(address sender, uint256 mocCommission, address vendorAccount, uint256 mocMarkup)](#transfermoccommission)
-- [redeemWithCommission(address payable sender, uint256 btcAmount, uint256 btcCommission, uint256 mocCommission, address payable vendorAccount, uint256 btcMarkup, uint256 mocMarkup)](#redeemWithCommission)
+- [redeemWithCommission(address payable sender, uint256 btcAmount, uint256 btcCommission, uint256 mocCommission, address payable vendorAccount, uint256 btcMarkup, uint256 mocMarkup)](#redeemwithcommission)
 - [transferBtcCommission(address payable vendorAccount, uint256 btcCommission, uint256 btcMarkup)](#transferbtccommission)
 - [doTransfer(address payable receiver, uint256 btcAmount)](#dotransfer)
 - [doSend(address payable receiver, uint256 btcAmount)](#dosend)
 
 ### 
 
-⤾ overrides [IMoC.](IMoC.md#)
+⤾ overrides IMoC.
 
 Fallback function
 
@@ -775,7 +731,7 @@ function runSettlement(uint256 steps) public nonpayable whenNotPaused transition
 
 ### sendToAddress
 
-⤾ overrides [IMoC.sendToAddress](IMoC.md#sendtoaddress)
+⤾ overrides IMoC.sendToAddress
 
 Send RBTC to a user and update RbtcInSystem in MoCState
 

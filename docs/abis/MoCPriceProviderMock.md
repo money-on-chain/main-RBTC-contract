@@ -1,5 +1,5 @@
 ---
-id: version-0.1.10-MoCPriceProviderMock
+id: version-0.1.12-MoCPriceProviderMock
 title: MoCPriceProviderMock
 original_id: MoCPriceProviderMock
 ---
@@ -10,20 +10,16 @@ View Source: [contracts/mocks/MoCPriceProviderMock.sol](../../contracts/mocks/Mo
 
 **↗ Extends: [PriceFeed](PriceFeed.md), [PriceProvider](PriceProvider.md)**
 
-**MoCPriceProviderMock** - version: 0.1.10
+**MoCPriceProviderMock** - version: 0.1.12
 
 ## Contract Members
 **Constants & Variables**
 
 ```js
 bytes32 internal mocPrice;
-```
----
-
-```js
 bool internal has;
+
 ```
----
 
 ## Functions
 

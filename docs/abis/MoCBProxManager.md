@@ -1,5 +1,5 @@
 ---
-id: version-0.1.10-MoCBProxManager
+id: version-0.1.12-MoCBProxManager
 title: MoCBProxManager
 original_id: MoCBProxManager
 ---
@@ -10,20 +10,19 @@ View Source: [contracts/MoCBProxManager.sol](../../contracts/MoCBProxManager.sol
 
 **↗ Extends: [MoCBucketContainer](MoCBucketContainer.md)**
 
-**MoCBProxManager** - version: 0.1.10
+**MoCBProxManager** - version: 0.1.12
 
 ## Contract Members
 **Constants & Variables**
 
 ```js
+//internal members
 uint256 internal constant MIN_ALLOWED_BALANCE;
-```
----
 
-```js
+//private members
 uint256[50] private upgradeGap;
+
 ```
----
 
 ## Functions
 

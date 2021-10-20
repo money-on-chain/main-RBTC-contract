@@ -1,5 +1,5 @@
 ---
-id: version-0.1.10-MockUpgraderTemplate
+id: version-0.1.12-MockUpgraderTemplate
 title: MockUpgraderTemplate
 original_id: MockUpgraderTemplate
 ---
@@ -10,7 +10,7 @@ View Source: [contracts/mocks/MockUpgraderTemplate.sol](../../contracts/mocks/Mo
 
 **↗ Extends: [UpgraderTemplate](UpgraderTemplate.md)**
 
-**MockUpgraderTemplate** - version: 0.1.10
+**MockUpgraderTemplate** - version: 0.1.12
 
 ## Functions
 
