@@ -21,7 +21,7 @@ Note that once a vendor is unregistered, they will not receive any more profits.
 ## Markup
 
 When a vendor decides to integrate their platform with the MoC ecosystem, they must be [registered](#vendor-registration) first. 
-Then, they will receive a markup for every transaction they are involved in (denoted by the parameter **vendorAccount**).
+Then, they will receive a markup for every transaction they are involved in (denoted by the parameter **[vendorAccount](minting-bitpros.md)**).
 
 If the user who makes the transaction has balance and allowance of MoC token, this markup will be charged in MoC; otherwise it will be charged in RBTC. 
 The exact percentage of the markup cannot be more than 1%. This is set in the **vendors** mapping of the **MoCVendors** contract 
