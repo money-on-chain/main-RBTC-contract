@@ -78,13 +78,11 @@ module.exports = async callback => {
       commissionSplitter.contract.methods.changeIGovernor(config.newGovernorAddress).encodeABI()
     );
 
-    /*
     console.log('Prepare change governor UpgradeDelegator.sol');
     const upgradeDelegatorAddress = config.contracts.UpgradeDelegator;
     const upgradeDelegator = await UpgradeDelegator.at(upgradeDelegatorAddress);
     targets.push(upgradeDelegatorAddress);
-    datas.push(upgradeDelegator.contract.methods.changeIGovernor(newGovernorAddress).encodeABI());
-    */
+    datas.push(upgradeDelegator.contract.methods.changeIGovernor(config.newGovernorAddress).encodeABI());
 
     console.log('targets', targets);
     console.log('datas', datas);

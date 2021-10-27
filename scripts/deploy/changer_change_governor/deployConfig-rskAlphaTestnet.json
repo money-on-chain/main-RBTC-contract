@@ -10,11 +10,11 @@
     "MoCVendors": "0xCDaCa57171cF101e52b391E024e0D3cCbB892588",
     "CommissionSplitter": "0x9c1e20A0Ea6c71B0AEA47fd8B1E29de208ab7A82",
     "UpgradeDelegator": "0xCDAbFbF334A5F6BCe900D2f73470D1e6722365d8",
-    "Governor": "0x7b716178771057195bB511f0B1F7198EEE62Bc22"
+    "Governor": "0x4eAC4518e81B3A5198aADAb998D2610B46aAA609"
   },
-  "newGovernorAddress": "0x4eAC4518e81B3A5198aADAb998D2610B46aAA609",
-  "governorOwnerAddress": "",
+  "newGovernorAddress": "0x7b716178771057195bB511f0B1F7198EEE62Bc22",
+  "governorOwnerAddress": "0xf69287F5Ca3cC3C6d3981f2412109110cB8af076",
   "changerAddresses": {
-    "BatchChanger": "0xFC6afbA979fe433e7352Dde48902868C7be525FE"
+    "BatchChanger": "0x070bB7a71649baD59379A855266b135D8Cd5dFf5"
   }
 }
