@@ -1,6 +1,6 @@
-# Minting BTC2X
+# Minting BTCx
 
-BTC2X can only be minted in exchange for RBTC.
+BTCx can only be minted in exchange for RBTC.
 
 In this tutorial the method (or function) that is of interest to us is `function mintBProxVendors(bytes32 bucket, uint256 btcToMint, address vendorAccount) public payable`. As you can see this function is payable, this means that it is prepared to receive RBTCs.
 
@@ -10,9 +10,9 @@ NOTE: there is a retrocompatibility function called `function mintBProx(bytes32 
 
 ### The bucket parameter
 
-A bucket is a bag that stores the balances of the leveraged token holders. Currently, only the BTC2X bucket called _X2_ exists. The X2 must be passed as a hex value.
+A bucket is a bag that stores the balances of the leveraged token holders. Currently, only the BTCx bucket called _X2_ exists. The X2 must be passed as a hex value.
 
-There is also a bucket named _C0_ but it should not be used to mint and redeem BTC2X.
+There is also a bucket named _C0_ but it should not be used to mint and redeem BTCx.
 
 In the following example you can see how to do it with javascript and the web3 library. For more detailed information about web3 you can read the [From outside the blockchain](from-outside-the-blockchain.md) section.
 
@@ -22,7 +22,7 @@ const BUCKET_X2 = web3.utils.asciiToHex('X2', 32);
 
 ### The btcToMint parameter
 
-It is the amount the contract will use to actually mint BTC2X, i.e. it will not be used to pay commission, all of this funds will be transformed purely on BTC2X.
+It is the amount the contract will use to actually mint BTCx, i.e. it will not be used to pay commission, all of this funds will be transformed purely on BTCx.
 This parameter uses a precision of the type **reservePrecision** that contains 18 decimal places is defined in **MoCLibConnection** contract.
 
 ### The vendorAccount parameter
@@ -33,7 +33,7 @@ It is the address of the vendor who will receive a [markup](vendors.md#markup) f
 
 The amount sent in RBTCs to the contract can be considered as a parameter of the transaction, which is why it will be explained in this section. You have to take into consideration that it will be split in five.
 
-- The first part will be used to mint some BTC2X, the size of this part depends directly on the btcToMint, and it may be smaller than btcToMint.
+- The first part will be used to mint some BTCx, the size of this part depends directly on the btcToMint, and it may be smaller than btcToMint.
 - The second part will be used to compute and pay interests that can be queried with the `calcMintInterestValues(bucket, finalBtcToMint)` of the **MocInrate** contract.
 - The third part will be used to pay the commission, this part is a percentage of the previous part. The commission fees are explained in [this](commission-fees-values.md) section.
 - The fourth part corresponds to the vendor markup, which refers to the fee a vendor will receive from this transaction and is a percentage of the first part. The vendor markup is explained in [this](vendors.md#markup) section.
@@ -43,7 +43,7 @@ All the needed calculations for the third and fourth parts are explained in more
 
 ### Gas limit and gas price
 
-This two values are a parameter of the transaction, this is not used in the contract and it is usually managed by your wallet (you should read about them if you are developing and you don't know exactly what are they) but you should take them into account when trying to send all of your funds to mint some BTC2X.
+This two values are a parameter of the transaction, this is not used in the contract and it is usually managed by your wallet (you should read about them if you are developing and you don't know exactly what are they) but you should take them into account when trying to send all of your funds to mint some BTCx.
 
 ## Possible failures
 
@@ -51,7 +51,7 @@ This operation may fail if one of the following scenarios occurs:
 
 ### The MoC contract is liquidated:
 
-In the extraneous case where a coverage that barely covers the stable tokens funds is reached, the contract will liquidate all of its assets. If this state occurs, no more BTC2X will be available for minting.
+In the extraneous case where a coverage that barely covers the stable tokens funds is reached, the contract will liquidate all of its assets. If this state occurs, no more BTCx will be available for minting.
 To know if the contract is liquidated you can ask the **MocState** for the **state**, this will return a 0 if liquidated (it is actually an enum).
 
 ### The MoC contract is paused:
@@ -66,11 +66,11 @@ The function can only be invoked when the Settlement is finished executing. If c
 
 ### Bucket is not available:
 
-Currently, only the BTC2X bucket called 'X2' exists. If it is called with another bucket, the transaction reverts with the error message: _Bucket is not available_.
+Currently, only the BTCx bucket called 'X2' exists. If it is called with another bucket, the transaction reverts with the error message: _Bucket is not available_.
 
 ### Bucket is not a base bucket:
 
-Currently, only the BTC2X bucket called 'X2' exists. If you call the function with _C0_ bucket, the transaction reverts with the error message: _Bucket should not be a base type bucket_.
+Currently, only the BTCx bucket called 'X2' exists. If you call the function with _C0_ bucket, the transaction reverts with the error message: _Bucket should not be a base type bucket_.
 
 ### You sent too few funds:
 
@@ -98,7 +98,7 @@ Assuming you already have your project up and running (if you don't, please foll
 npm install --save -E git+https://git@github.com/money-on-chain/main-RBTC-contract.git
 ```
 
-Having done that lets you use our contract as a dependency to your contract. For this let's suppose you are doing some kind of contract that when executing a certain task charges a fixed commission. Now let's suppose that the commission is sent in RBTCs because it is easier for the user but actually you want some BTC2X. The good news is that you can do this instantly just by minting them. The code necessary to do this is actually pretty simple.
+Having done that lets you use our contract as a dependency to your contract. For this let's suppose you are doing some kind of contract that when executing a certain task charges a fixed commission. Now let's suppose that the commission is sent in RBTCs because it is easier for the user but actually you want some BTCx. The good news is that you can do this instantly just by minting them. The code necessary to do this is actually pretty simple.
 ​
 You just have to import the contracts
 ​

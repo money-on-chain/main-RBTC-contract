@@ -1,5 +1,5 @@
 ---
-id: version-0.1.10-PriceFeederRemover
+id: version-0.1.12-PriceFeederRemover
 title: PriceFeederRemover
 original_id: PriceFeederRemover
 ---
@@ -10,20 +10,16 @@ View Source: [contracts/changers/productive/PriceFeederRemover.sol](../../contra
 
 **↗ Extends: [ChangeContract](ChangeContract.md)**
 
-**PriceFeederRemover** - version: 0.1.10
+**PriceFeederRemover** - version: 0.1.12
 
 ## Contract Members
 **Constants & Variables**
 
 ```js
 contract Medianizer public medianizer;
-```
----
-
-```js
 address public priceFeed;
+
 ```
----
 
 ## Functions
 

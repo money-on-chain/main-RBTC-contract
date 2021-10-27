@@ -1,9 +1,9 @@
-# Example code minting BTC2X
+# Example code minting BTCx
 
 In the following script example we will learn how to:
 
-- Get the maximum amount of BTC2X available to mint.
-- Mint BTC2X.
+- Get the maximum amount of BTCx available to mint.
+- Mint BTCx.
 
 We will use **truffle** and **testnet** network.
 You can find code examples into _/examples_ dir.

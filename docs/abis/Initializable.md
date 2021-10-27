@@ -1,5 +1,5 @@
 ---
-id: version-0.1.10-Initializable
+id: version-0.1.12-Initializable
 title: Initializable
 original_id: Initializable
 ---
@@ -11,7 +11,7 @@ View Source: [zos-lib/contracts/Initializable.sol](../../zos-lib/contracts/Initi
 
 **↘ Derived Contracts: [Governed](Governed.md), [MoCBase](MoCBase.md), [MoCConnector](MoCConnector.md), [MoCHelperLibHarness](MoCHelperLibHarness.md), [ReentrancyGuard](ReentrancyGuard.md)**
 
-**Initializable** - version: 0.1.10
+**Initializable** - version: 0.1.12
 
 Helper contract to support initializer functions. To use it, replace
 the constructor with a function that has the `initializer` modifier.
@@ -27,18 +27,10 @@ because this is not dealt with automatically as with constructors.
 
 ```js
 bool private initialized;
-```
----
-
-```js
 bool private initializing;
-```
----
-
-```js
 uint256[50] private ______gap;
+
 ```
----
 
 ## Modifiers
 

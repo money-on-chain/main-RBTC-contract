@@ -1,5 +1,5 @@
 ---
-id: version-0.1.10-MoCHelperLibMock
+id: version-0.1.12-MoCHelperLibMock
 title: MoCHelperLibMock
 original_id: MoCHelperLibMock
 ---
@@ -8,23 +8,21 @@ original_id: MoCHelperLibMock
 
 View Source: [contracts/mocks/MoCHelperLibMock.sol](../../contracts/mocks/MoCHelperLibMock.sol)
 
-**MoCHelperLibMock** - version: 0.1.10
+**MoCHelperLibMock** - version: 0.1.12
 
 ## Contract Members
 **Constants & Variables**
 
 ```js
 struct MoCHelperLib.MocLibConfig internal mocLibConfig;
+
 ```
----
 
-## MethodCalled
+**Events**
 
-**Parameters**
-
-| Name        | Type           | Description  |
-| ------------- |------------- | -----|
-| name | bytes32 |  | 
+```js
+event MethodCalled(bytes32  name);
+```
 
 ## Functions
 

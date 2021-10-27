@@ -1,5 +1,5 @@
 ---
-id: version-0.1.10-PriceProvider
+id: version-0.1.12-PriceProvider
 title: PriceProvider
 original_id: PriceProvider
 ---
@@ -10,7 +10,7 @@ View Source: [contracts/interface/PriceProvider.sol](../../contracts/interface/P
 
 **↘ Derived Contracts: [BtcPriceProviderMock](BtcPriceProviderMock.md), [MoCPriceProviderMock](MoCPriceProviderMock.md)**
 
-**PriceProvider** - version: 0.1.10
+**PriceProvider** - version: 0.1.12
 
 ## Functions
 

@@ -1,9 +1,9 @@
-# Example code redeeming BTC2X
+# Example code redeeming BTCx
 
 In the following script example we will learn how to:
 
-- Get BTC2X balance of an account.
-- Redeem BTC2X.
+- Get BTCx balance of an account.
+- Redeem BTCx.
 
 We will use **truffle** and **testnet** network.
 You can find code examples into _/examples_ dir.

@@ -1,5 +1,5 @@
 ---
-id: version-0.1.10-MockUpgradeDelegator
+id: version-0.1.12-MockUpgradeDelegator
 title: MockUpgradeDelegator
 original_id: MockUpgradeDelegator
 ---
@@ -10,7 +10,7 @@ View Source: [contracts/mocks/MockUpgradeDelegator.sol](../../contracts/mocks/Mo
 
 **↗ Extends: [UpgradeDelegator](UpgradeDelegator.md)**
 
-**MockUpgradeDelegator** - version: 0.1.10
+**MockUpgradeDelegator** - version: 0.1.12
 
 ## Functions
 

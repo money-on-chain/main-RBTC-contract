@@ -1,5 +1,5 @@
 ---
-id: version-0.1.10-MockStopper
+id: version-0.1.12-MockStopper
 title: MockStopper
 original_id: MockStopper
 ---
@@ -10,7 +10,7 @@ View Source: [contracts/mocks/MockStopper.sol](../../contracts/mocks/MockStopper
 
 **↗ Extends: [Stopper](Stopper.md)**
 
-**MockStopper** - version: 0.1.10
+**MockStopper** - version: 0.1.12
 
 ## Functions
 

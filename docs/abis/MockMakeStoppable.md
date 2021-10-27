@@ -1,5 +1,5 @@
 ---
-id: version-0.1.10-MockMakeStoppable
+id: version-0.1.12-MockMakeStoppable
 title: MockMakeStoppable
 original_id: MockMakeStoppable
 ---
@@ -10,7 +10,7 @@ View Source: [contracts/mocks/MockMakeStoppable.sol](../../contracts/mocks/MockM
 
 **↗ Extends: [MakeStoppable](MakeStoppable.md)**
 
-**MockMakeStoppable** - version: 0.1.10
+**MockMakeStoppable** - version: 0.1.12
 
 ## Functions
 

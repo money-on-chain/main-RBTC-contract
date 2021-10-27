@@ -1,5 +1,5 @@
 ---
-id: version-0.1.10-UpgradeDelegator
+id: version-0.1.12-UpgradeDelegator
 title: UpgradeDelegator
 original_id: UpgradeDelegator
 ---
@@ -11,18 +11,17 @@ View Source: [moc-governance/contracts/Upgradeability/UpgradeDelegator.sol](../.
 **↗ Extends: [Governed](Governed.md)**
 **↘ Derived Contracts: [MockUpgradeDelegator](MockUpgradeDelegator.md)**
 
-**UpgradeDelegator** - version: 0.1.10
+**UpgradeDelegator** - version: 0.1.12
 
-Dispatches to the proxyAdmin any call made through the governance systemAdapter between our governance system and the zeppelinOS proxyAdmin. This is
-needed to be able to upgrade governance through the same system
+Dispatches to the proxyAdmin any call made through the governance system
 
 ## Contract Members
 **Constants & Variables**
 
 ```js
 contract ProxyAdmin public proxyAdmin;
+
 ```
----
 
 ## Functions
 
@@ -35,8 +34,7 @@ contract ProxyAdmin public proxyAdmin;
 
 ### initialize
 
-Initialize the contract with the basic settingsThis initialize replaces the constructor but it is not called automatically.
-It is necessary because of the upgradeability of the contracts
+Initialize the contract with the basic settings
 
 ```js
 function initialize(IGovernor _governor, ProxyAdmin _proxyAdmin) public nonpayable initializer 
@@ -133,5 +131,7 @@ function upgradeAndCall(AdminUpgradeabilityProxy proxy, address implementation, 
 | ------------- |------------- | -----|
 | proxy | AdminUpgradeabilityProxy | Proxy to be upgraded. | 
 | implementation | address | Address of the Implementation. | 
-| data | bytes | Data to send as msg.data in the low level call.It should include the signature and the parameters of the function to be called, as described inhttps://solidity.readthedocs.io/en/v0.4.24/abi-spec.html#function-selector-and-argument-encoding. | 
+| data | bytes | Data to send as msg.data in the low level call.
+It should include the signature and the parameters of the function to be called, as described in
+https://solidity.readthedocs.io/en/v0.4.24/abi-spec.html#function-selector-and-argument-encoding. | 
 

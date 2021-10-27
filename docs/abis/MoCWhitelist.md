@@ -1,5 +1,5 @@
 ---
-id: version-0.1.10-MoCWhitelist
+id: version-0.1.12-MoCWhitelist
 title: MoCWhitelist
 original_id: MoCWhitelist
 ---
@@ -10,7 +10,7 @@ View Source: [contracts/base/MoCWhitelist.sol](../../contracts/base/MoCWhitelist
 
 **↘ Derived Contracts: [MoCConnector](MoCConnector.md)**
 
-**MoCWhitelist** - version: 0.1.10
+**MoCWhitelist** - version: 0.1.12
 
 Provides access control between all MoC Contracts
 
@@ -18,14 +18,13 @@ Provides access control between all MoC Contracts
 **Constants & Variables**
 
 ```js
+//internal members
 mapping(address => bool) internal whitelist;
-```
----
 
-```js
+//private members
 uint256[50] private upgradeGap;
+
 ```
----
 
 ## Functions
 

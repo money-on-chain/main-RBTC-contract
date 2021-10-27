@@ -1,5 +1,5 @@
 ---
-id: version-0.1.10-Stopper
+id: version-0.1.12-Stopper
 title: Stopper
 original_id: Stopper
 ---
@@ -11,7 +11,7 @@ View Source: [moc-governance/contracts/Stopper/Stopper.sol](../../moc-governance
 **↗ Extends: [Ownable](Ownable.md)**
 **↘ Derived Contracts: [MockStopper](MockStopper.md)**
 
-**Stopper** - version: 0.1.10
+**Stopper** - version: 0.1.12
 
 The contract in charge of handling the stoppability of the contract
 that define this contract as its stopper
@@ -21,8 +21,8 @@ that define this contract as its stopper
 
 ```js
 uint256[50] private upgradeGap;
+
 ```
----
 
 ## Functions
 
