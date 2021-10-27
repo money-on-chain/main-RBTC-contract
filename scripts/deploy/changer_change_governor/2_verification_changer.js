@@ -101,8 +101,7 @@ module.exports = async callback => {
     target = config.contracts.MoCInrate;
     const moCInrate = await MoCInrate.at(target);
 
-    encodeData = moCInrate.contract.methods
-      .changeIGovernor(config.newGovernorAddress).encodeABI();
+    encodeData = moCInrate.contract.methods.changeIGovernor(config.newGovernorAddress).encodeABI();
 
     if (dataBatch === encodeData && target === targetBatch) {
       console.log(`
@@ -120,8 +119,7 @@ module.exports = async callback => {
     target = config.contracts.MoCState;
     const moCState = await MoCState.at(target);
 
-    encodeData = moCState.contract.methods
-      .changeIGovernor(config.newGovernorAddress).encodeABI();
+    encodeData = moCState.contract.methods.changeIGovernor(config.newGovernorAddress).encodeABI();
 
     if (dataBatch === encodeData && target === targetBatch) {
       console.log(`
@@ -177,7 +175,8 @@ module.exports = async callback => {
     target = config.contracts.UpgradeDelegator;
 
     encodeData = upgradeDelegator.contract.methods
-      .changeIGovernor(config.newGovernorAddress).encodeABI();
+      .changeIGovernor(config.newGovernorAddress)
+      .encodeABI();
 
     if (dataBatch === encodeData && target === targetBatch) {
       console.log(`
