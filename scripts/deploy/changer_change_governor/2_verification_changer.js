@@ -13,7 +13,6 @@ const MoCVendors = artifacts.require('./MoCVendors.sol');
 const BigNumber = require('bignumber.js');
 const { getConfig, getNetwork } = require('../helper');
 
-
 module.exports = async callback => {
   try {
     const network = getNetwork(process.argv);
@@ -62,10 +61,14 @@ module.exports = async callback => {
     target = config.contracts.MoCBProxManager;
     const moCBProxManager = await MoCBProxManager.at(target);
 
-    encodeData = moCBProxManager.contract.methods.changeIGovernor(config.newGovernorAddress).encodeABI();
+    encodeData = moCBProxManager.contract.methods
+      .changeIGovernor(config.newGovernorAddress)
+      .encodeABI();
 
     if (dataBatch === encodeData && target === targetBatch) {
-      console.log(`OK! STEP ${step}. MoCBProxManager.sol : [ChangeIGovernor(${config.newGovernorAddress})]`);
+      console.log(`
+                  OK! STEP ${step}. MoCBProxManager.sol : [ChangeIGovernor(${config.newGovernorAddress})]
+                  `);
     } else {
       console.log(`ERROR! NOT VALID! STEP: ${step}.`);
     }
@@ -78,10 +81,14 @@ module.exports = async callback => {
     target = config.contracts.MoCSettlement;
     const moCSettlement = await MoCSettlement.at(target);
 
-    encodeData = moCSettlement.contract.methods.changeIGovernor(config.newGovernorAddress).encodeABI();
+    encodeData = moCSettlement.contract.methods
+      .changeIGovernor(config.newGovernorAddress)
+      .encodeABI();
 
     if (dataBatch === encodeData && target === targetBatch) {
-      console.log(`OK! STEP ${step}. MoCSettlement.sol : [ChangeIGovernor(${config.newGovernorAddress})]`);
+      console.log(`
+                  OK! STEP ${step}. MoCSettlement.sol : [ChangeIGovernor(${config.newGovernorAddress})]
+                  `);
     } else {
       console.log(`ERROR! NOT VALID! STEP: ${step}.`);
     }
@@ -94,10 +101,13 @@ module.exports = async callback => {
     target = config.contracts.MoCInrate;
     const moCInrate = await MoCInrate.at(target);
 
-    encodeData = moCInrate.contract.methods.changeIGovernor(config.newGovernorAddress).encodeABI();
+    encodeData = moCInrate.contract.methods
+      .changeIGovernor(config.newGovernorAddress).encodeABI();
 
     if (dataBatch === encodeData && target === targetBatch) {
-      console.log(`OK! STEP ${step}. MoCInrate.sol : [ChangeIGovernor(${config.newGovernorAddress})]`);
+      console.log(`
+                  OK! STEP ${step}. MoCInrate.sol : [ChangeIGovernor(${config.newGovernorAddress})]
+                  `);
     } else {
       console.log(`ERROR! NOT VALID! STEP: ${step}.`);
     }
@@ -110,10 +120,13 @@ module.exports = async callback => {
     target = config.contracts.MoCState;
     const moCState = await MoCState.at(target);
 
-    encodeData = moCState.contract.methods.changeIGovernor(config.newGovernorAddress).encodeABI();
+    encodeData = moCState.contract.methods
+      .changeIGovernor(config.newGovernorAddress).encodeABI();
 
     if (dataBatch === encodeData && target === targetBatch) {
-      console.log(`OK! STEP ${step}. MoCState.sol : [ChangeIGovernor(${config.newGovernorAddress})]`);
+      console.log(`
+                  OK! STEP ${step}. MoCState.sol : [ChangeIGovernor(${config.newGovernorAddress})]
+                  `);
     } else {
       console.log(`ERROR! NOT VALID! STEP: ${step}.`);
     }
@@ -129,7 +142,9 @@ module.exports = async callback => {
     encodeData = moCVendors.contract.methods.changeIGovernor(config.newGovernorAddress).encodeABI();
 
     if (dataBatch === encodeData && target === targetBatch) {
-      console.log(`OK! STEP ${step}. MoCVendors.sol : [ChangeIGovernor(${config.newGovernorAddress})]`);
+      console.log(`
+                  OK! STEP ${step}. MoCVendors.sol : [ChangeIGovernor(${config.newGovernorAddress})]
+                  `);
     } else {
       console.log(`ERROR! NOT VALID! STEP: ${step}.`);
     }
@@ -142,10 +157,14 @@ module.exports = async callback => {
     target = config.contracts.CommissionSplitter;
     const commissionSplitter = await CommissionSplitter.at(target);
 
-    encodeData = commissionSplitter.contract.methods.changeIGovernor(config.newGovernorAddress).encodeABI();
+    encodeData = commissionSplitter.contract.methods
+      .changeIGovernor(config.newGovernorAddress)
+      .encodeABI();
 
     if (dataBatch === encodeData && target === targetBatch) {
-      console.log(`OK! STEP ${step}. CommissionSplitter.sol : [ChangeIGovernor(${config.newGovernorAddress})]`);
+      console.log(`
+                  OK! STEP ${step}. CommissionSplitter.sol : [ChangeIGovernor(${config.newGovernorAddress})]
+                  `);
     } else {
       console.log(`ERROR! NOT VALID! STEP: ${step}.`);
     }
@@ -157,17 +176,16 @@ module.exports = async callback => {
 
     target = config.contracts.UpgradeDelegator;
 
-    encodeData = upgradeDelegator.contract.methods.changeIGovernor(config.newGovernorAddress).encodeABI();
+    encodeData = upgradeDelegator.contract.methods
+      .changeIGovernor(config.newGovernorAddress).encodeABI();
 
     if (dataBatch === encodeData && target === targetBatch) {
-      console.log(`OK! STEP ${step}. UpgradeDelegator.sol : [ChangeIGovernor(${config.newGovernorAddress})]`);
+      console.log(`
+                  OK! STEP ${step}. UpgradeDelegator.sol : [ChangeIGovernor(${config.newGovernorAddress})]
+                  `);
     } else {
       console.log(`ERROR! NOT VALID! STEP: ${step}.`);
     }
-
-
-
-
   } catch (error) {
     callback(error);
   }

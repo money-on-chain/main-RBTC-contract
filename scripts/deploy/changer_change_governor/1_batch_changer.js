@@ -35,7 +35,7 @@ module.exports = async callback => {
     const moc = await MoC.at(mocAddress);
     targets.push(mocAddress);
     datas.push(moc.contract.methods.changeIGovernor(config.newGovernorAddress).encodeABI());
-    
+
     console.log('Prepare change governor MoCBProxManager.sol');
     const mocBProxManagerAddress = config.contracts.MoCBProxManager;
     const mocBProxManager = await MoCBProxManager.at(mocBProxManagerAddress);
@@ -82,7 +82,9 @@ module.exports = async callback => {
     const upgradeDelegatorAddress = config.contracts.UpgradeDelegator;
     const upgradeDelegator = await UpgradeDelegator.at(upgradeDelegatorAddress);
     targets.push(upgradeDelegatorAddress);
-    datas.push(upgradeDelegator.contract.methods.changeIGovernor(config.newGovernorAddress).encodeABI());
+    datas.push(
+      upgradeDelegator.contract.methods.changeIGovernor(config.newGovernorAddress).encodeABI()
+    );
 
     console.log('targets', targets);
     console.log('datas', datas);
