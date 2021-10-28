@@ -1,0 +1,20 @@
+{
+  "contracts": {
+    "MoC": "0xf773B590aF754D597770937Fa8ea7AbDf2668370",
+    "MoCBProxManager": "0xC4fBFa2270Be87FEe5BC38f7a1Bb6A9415103b6c",
+    "MoCConnector": "0xcE2A128cC73e5d98355aAfb2595647F2D3171Faa",
+    "MoCExchange": "0x6aCb83bB0281FB847b43cf7dd5e2766BFDF49038",
+    "MoCSettlement": "0x609dF03D8a85eAffE376189CA7834D4C35e32F22",
+    "MoCInrate": "0xc0f9B54c41E3d0587Ce0F7540738d8d649b0A3F3",
+    "MoCState": "0xb9C42EFc8ec54490a37cA91c423F7285Fa01e257",
+    "MoCVendors": "0x2d442aA5D391475b6Af3ad361eA3b9818fb35BcA",
+    "CommissionSplitter": "0xa5467535851263122ef1476e24C529CFc6CFc086",
+    "UpgradeDelegator": "0x5cE577f6Ec969CE9a282838D350206C52A6F338C",
+    "Governor": "0xC61F0392d5170214b5D93C0BC4c4354163aBC1f7"
+  },
+  "newGovernorAddress": "",
+  "governorOwnerAddress": "",
+  "changerAddresses": {
+    "BatchChanger": ""
+  }
+}
