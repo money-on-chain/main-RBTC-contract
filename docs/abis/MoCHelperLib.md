@@ -26,8 +26,8 @@ struct MocLibConfig {
 
 ```js
 uint256 internal constant UINT256_MAX;
-
 ```
+---
 
 ## Functions
 

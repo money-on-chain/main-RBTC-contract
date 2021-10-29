@@ -15,18 +15,20 @@ View Source: [contracts/mocks/MoCHelperLibMock.sol](../../contracts/mocks/MoCHel
 
 ```js
 struct MoCHelperLib.MocLibConfig internal mocLibConfig;
-
 ```
+---
 
-**Events**
+## MethodCalled
 
-```js
-event MethodCalled(bytes32  name);
-```
+**Parameters**
+
+| Name        | Type           | Description  |
+| ------------- |------------- | -----|
+| name | bytes32 |  | 
 
 ## Functions
 
-- [()](#)
+- [()](#mochelperlibmocksol)
 - [spotInrate(uint256 tMin, uint256 tMax, uint256 doc0, uint256 doct)](#spotinrate)
 - [maxBProWithDiscount(uint256 nB, uint256 nDoc, uint256 utpdu, uint256 peg, uint256 btcPrice, uint256 bproUsdPrice, uint256 spotDiscount)](#maxbprowithdiscount)
 - [inrateAvg(uint256 tMax, uint256 fact, uint256 tMin, uint256 abRat1, uint256 abRat2)](#inrateavg)

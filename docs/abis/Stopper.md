@@ -21,8 +21,8 @@ that define this contract as its stopper
 
 ```js
 uint256[50] private upgradeGap;
-
 ```
+---
 
 ## Functions
 

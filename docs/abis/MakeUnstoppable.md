@@ -18,12 +18,12 @@ View Source: [moc-governance/contracts/ChangersTemplates/MakeUnstoppable.sol](..
 
 ```js
 contract Stoppable internal contractToChange;
-
 ```
+---
 
 ## Functions
 
-- [(Stoppable _stoppedContractntractToChange)](#)
+- [(Stoppable _stoppedContractntractToChange)](#makeunstoppablesol)
 - [execute()](#execute)
 
 ### 

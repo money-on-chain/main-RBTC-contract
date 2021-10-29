@@ -35,10 +35,18 @@ allowances. See `IERC20.approve`.
 
 ```js
 mapping(address => uint256) private _balances;
-mapping(address => mapping(address => uint256)) private _allowances;
-uint256 private _totalSupply;
-
 ```
+---
+
+```js
+mapping(address => mapping(address => uint256)) private _allowances;
+```
+---
+
+```js
+uint256 private _totalSupply;
+```
+---
 
 ## Functions
 

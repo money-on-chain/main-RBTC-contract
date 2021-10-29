@@ -28,35 +28,119 @@ struct VendorDetails {
 **Constants & Variables**
 
 ```js
-//internal members
 contract IMoC internal moc;
-contract IMoCState internal mocState;
-contract IMoCExchange internal mocExchange;
-
-//public members
-uint8 public constant VENDORS_LIST_ARRAY_MAX_LENGTH;
-uint256 public constant VENDOR_MAX_MARKUP;
-address public vendorGuardianAddress;
-mapping(address => struct MoCVendors.VendorDetails) public vendors;
-address[] public vendorsList;
-
-//private members
-uint256[50] private upgradeGap;
-
 ```
-
-**Events**
+---
 
 ```js
-event VendorRegistered(address  account, uint256  markup);
-event VendorUpdated(address  account, uint256  markup);
-event VendorUnregistered(address  account);
-event VendorStakeAdded(address  account, uint256  staking);
-event VendorStakeRemoved(address  account, uint256  staking);
-event TotalPaidInMoCReset(address  account);
-event VendorGuardianAddressChanged(address  vendorGuardianAddress);
-event VendorReceivedMarkup(address  vendorAdress, uint256  paidMoC, uint256  paidRBTC);
+contract IMoCState internal mocState;
 ```
+---
+
+```js
+contract IMoCExchange internal mocExchange;
+```
+---
+
+```js
+uint8 public constant VENDORS_LIST_ARRAY_MAX_LENGTH;
+```
+---
+
+```js
+uint256 public constant VENDOR_MAX_MARKUP;
+```
+---
+
+```js
+address public vendorGuardianAddress;
+```
+---
+
+```js
+mapping(address => struct MoCVendors.VendorDetails) public vendors;
+```
+---
+
+```js
+address[] public vendorsList;
+```
+---
+
+```js
+uint256[50] private upgradeGap;
+```
+---
+
+## VendorRegistered
+
+**Parameters**
+
+| Name        | Type           | Description  |
+| ------------- |------------- | -----|
+| account | address |  | 
+| markup | uint256 |  | 
+
+## VendorUpdated
+
+**Parameters**
+
+| Name        | Type           | Description  |
+| ------------- |------------- | -----|
+| account | address |  | 
+| markup | uint256 |  | 
+
+## VendorUnregistered
+
+**Parameters**
+
+| Name        | Type           | Description  |
+| ------------- |------------- | -----|
+| account | address |  | 
+
+## VendorStakeAdded
+
+**Parameters**
+
+| Name        | Type           | Description  |
+| ------------- |------------- | -----|
+| account | address |  | 
+| staking | uint256 |  | 
+
+## VendorStakeRemoved
+
+**Parameters**
+
+| Name        | Type           | Description  |
+| ------------- |------------- | -----|
+| account | address |  | 
+| staking | uint256 |  | 
+
+## TotalPaidInMoCReset
+
+**Parameters**
+
+| Name        | Type           | Description  |
+| ------------- |------------- | -----|
+| account | address |  | 
+
+## VendorGuardianAddressChanged
+
+**Parameters**
+
+| Name        | Type           | Description  |
+| ------------- |------------- | -----|
+| vendorGuardianAddress | address |  | 
+
+## VendorReceivedMarkup
+
+**Parameters**
+
+| Name        | Type           | Description  |
+| ------------- |------------- | -----|
+| vendorAdress | address |  | 
+| paidMoC | uint256 |  | 
+| paidRBTC | uint256 |  | 
 
 ## Modifiers
 

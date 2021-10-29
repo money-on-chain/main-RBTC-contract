@@ -41,44 +41,151 @@ struct InitializeParams {
 **Constants & Variables**
 
 ```js
-//public members
 enum IMoCState.States public state;
-uint256 public dayBlockSpan;
-uint256 public peg;
-uint256 public bproMaxDiscountRate;
-uint256 public liq;
-uint256 public utpdu;
-uint256 public rbtcInSystem;
-uint256 public liquidationPrice;
-bool public liquidationEnabled;
-uint256 public protected;
-uint256 public maxMintBPro;
-
-//internal members
-contract PriceProvider internal btcPriceProvider;
-contract IMoCSettlement internal mocSettlement;
-address internal DEPRECATED_mocConverter;
-contract DocToken internal docToken;
-contract BProToken internal bproToken;
-contract MoCBProxManager internal bproxManager;
-contract PriceProvider internal mocPriceProvider;
-contract MoCToken internal mocToken;
-address internal mocVendors;
-
-//private members
-uint256[50] private upgradeGap;
-
 ```
-
-**Events**
+---
 
 ```js
-event StateTransition(enum IMoCState.States  newState);
-event BtcPriceProviderUpdated(address  oldAddress, address  newAddress);
-event MoCPriceProviderUpdated(address  oldAddress, address  newAddress);
-event MoCTokenChanged(address  mocTokenAddress);
-event MoCVendorsChanged(address  mocVendorsAddress);
+uint256 public dayBlockSpan;
 ```
+---
+
+```js
+uint256 public peg;
+```
+---
+
+```js
+uint256 public bproMaxDiscountRate;
+```
+---
+
+```js
+uint256 public liq;
+```
+---
+
+```js
+uint256 public utpdu;
+```
+---
+
+```js
+uint256 public rbtcInSystem;
+```
+---
+
+```js
+uint256 public liquidationPrice;
+```
+---
+
+```js
+bool public liquidationEnabled;
+```
+---
+
+```js
+uint256 public protected;
+```
+---
+
+```js
+uint256 public maxMintBPro;
+```
+---
+
+```js
+contract PriceProvider internal btcPriceProvider;
+```
+---
+
+```js
+contract IMoCSettlement internal mocSettlement;
+```
+---
+
+```js
+address internal DEPRECATED_mocConverter;
+```
+---
+
+```js
+contract DocToken internal docToken;
+```
+---
+
+```js
+contract BProToken internal bproToken;
+```
+---
+
+```js
+contract MoCBProxManager internal bproxManager;
+```
+---
+
+```js
+contract PriceProvider internal mocPriceProvider;
+```
+---
+
+```js
+contract MoCToken internal mocToken;
+```
+---
+
+```js
+address internal mocVendors;
+```
+---
+
+```js
+uint256[50] private upgradeGap;
+```
+---
+
+## StateTransition
+
+**Parameters**
+
+| Name        | Type           | Description  |
+| ------------- |------------- | -----|
+| newState | enum IMoCState.States |  | 
+
+## BtcPriceProviderUpdated
+
+**Parameters**
+
+| Name        | Type           | Description  |
+| ------------- |------------- | -----|
+| oldAddress | address |  | 
+| newAddress | address |  | 
+
+## MoCPriceProviderUpdated
+
+**Parameters**
+
+| Name        | Type           | Description  |
+| ------------- |------------- | -----|
+| oldAddress | address |  | 
+| newAddress | address |  | 
+
+## MoCTokenChanged
+
+**Parameters**
+
+| Name        | Type           | Description  |
+| ------------- |------------- | -----|
+| mocTokenAddress | address |  | 
+
+## MoCVendorsChanged
+
+**Parameters**
+
+| Name        | Type           | Description  |
+| ------------- |------------- | -----|
+| mocVendorsAddress | address |  | 
 
 ## Functions
 

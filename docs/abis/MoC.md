@@ -16,31 +16,75 @@ View Source: [contracts/MoC.sol](../../contracts/MoC.sol)
 **Constants & Variables**
 
 ```js
-//internal members
 address internal docToken;
-address internal bproToken;
-contract MoCBProxManager internal bproxManager;
-contract IMoCState internal mocState;
-address internal DEPRECATED_mocConverter;
-contract IMoCSettlement internal settlement;
-contract IMoCExchange internal mocExchange;
-contract IMoCInrate internal mocInrate;
-bool internal liquidationExecuted;
-
-//public members
-address public DEPRECATED_mocBurnout;
-
-//private members
-uint256[50] private upgradeGap;
-
 ```
-
-**Events**
+---
 
 ```js
-event BucketLiquidation(bytes32  bucket);
-event ContractLiquidated(address  mocAddress);
+address internal bproToken;
 ```
+---
+
+```js
+contract MoCBProxManager internal bproxManager;
+```
+---
+
+```js
+contract IMoCState internal mocState;
+```
+---
+
+```js
+address internal DEPRECATED_mocConverter;
+```
+---
+
+```js
+contract IMoCSettlement internal settlement;
+```
+---
+
+```js
+contract IMoCExchange internal mocExchange;
+```
+---
+
+```js
+contract IMoCInrate internal mocInrate;
+```
+---
+
+```js
+bool internal liquidationExecuted;
+```
+---
+
+```js
+address public DEPRECATED_mocBurnout;
+```
+---
+
+```js
+uint256[50] private upgradeGap;
+```
+---
+
+## BucketLiquidation
+
+**Parameters**
+
+| Name        | Type           | Description  |
+| ------------- |------------- | -----|
+| bucket | bytes32 |  | 
+
+## ContractLiquidated
+
+**Parameters**
+
+| Name        | Type           | Description  |
+| ------------- |------------- | -----|
+| mocAddress | address |  | 
 
 ## Modifiers
 
@@ -161,7 +205,7 @@ modifier transitionState() internal
 
 ## Functions
 
-- [()](#)
+- [()](#mocsol)
 - [initialize(address connectorAddress, address governorAddress, address stopperAddress, bool startStoppable)](#initialize)
 - [bproxBalanceOf(bytes32 bucket, address account)](#bproxbalanceof)
 - [getRedeemRequestAt(uint256 index)](#getredeemrequestat)

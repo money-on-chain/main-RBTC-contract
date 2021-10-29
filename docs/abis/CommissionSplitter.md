@@ -21,19 +21,43 @@ be a Money on Chain main contract.
 
 ```js
 uint256 public constant PRECISION;
-address payable public commissionsAddress;
-uint256 public mocProportion;
-contract IMoC public moc;
-contract IERC20 public mocToken;
-address public mocTokenCommissionsAddress;
-
 ```
-
-**Events**
+---
 
 ```js
-event SplitExecuted(uint256  commissionAmount, uint256  mocAmount, uint256  mocTokenCommissionAmount);
+address payable public commissionsAddress;
 ```
+---
+
+```js
+uint256 public mocProportion;
+```
+---
+
+```js
+contract IMoC public moc;
+```
+---
+
+```js
+contract IERC20 public mocToken;
+```
+---
+
+```js
+address public mocTokenCommissionsAddress;
+```
+---
+
+## SplitExecuted
+
+**Parameters**
+
+| Name        | Type           | Description  |
+| ------------- |------------- | -----|
+| commissionAmount | uint256 |  | 
+| mocAmount | uint256 |  | 
+| mocTokenCommissionAmount | uint256 |  | 
 
 ## Functions
 
@@ -46,7 +70,7 @@ event SplitExecuted(uint256  commissionAmount, uint256  mocAmount, uint256  mocT
 - [_setMocProportion(uint256 _mocProportion)](#_setmocproportion)
 - [_sendReservesToMoC(uint256 amount)](#_sendreservestomoc)
 - [_sendReserves(uint256 amount, address payable receiver)](#_sendreserves)
-- [()](#)
+- [()](#commissionsplittersol)
 
 ### initialize
 

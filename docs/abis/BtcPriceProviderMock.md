@@ -17,13 +17,17 @@ View Source: [contracts/mocks/BtcPriceProviderMock.sol](../../contracts/mocks/Bt
 
 ```js
 bytes32 internal btcPrice;
-bool internal has;
-
 ```
+---
+
+```js
+bool internal has;
+```
+---
 
 ## Functions
 
-- [(uint256 price)](#)
+- [(uint256 price)](#btcpriceprovidermocksol)
 - [peek()](#peek)
 - [poke(uint128 val_, uint32 )](#poke)
 - [post(uint128 val_, uint32 , address )](#post)

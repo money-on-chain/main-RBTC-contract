@@ -46,48 +46,163 @@ struct InitializeParams {
 **Constants & Variables**
 
 ```js
-//internal members
 struct MoCInrateStructs.InrateParams internal btcxParams;
-contract IMoCState internal mocState;
-address internal DEPRECATED_mocConverter;
-contract MoCBProxManager internal bproxManager;
-
-//public members
-uint256 public lastDailyPayBlock;
-uint256 public bitProRate;
-address payable public bitProInterestAddress;
-uint256 public lastBitProInterestBlock;
-uint256 public bitProInterestBlockSpan;
-address payable public commissionsAddress;
-uint256 public DEPRECATED_commissionRate;
-uint256 public docTmin;
-uint256 public docPower;
-uint256 public docTmax;
-uint8 public constant MINT_BPRO_FEES_RBTC;
-uint8 public constant REDEEM_BPRO_FEES_RBTC;
-uint8 public constant MINT_DOC_FEES_RBTC;
-uint8 public constant REDEEM_DOC_FEES_RBTC;
-uint8 public constant MINT_BTCX_FEES_RBTC;
-uint8 public constant REDEEM_BTCX_FEES_RBTC;
-uint8 public constant MINT_BPRO_FEES_MOC;
-uint8 public constant REDEEM_BPRO_FEES_MOC;
-uint8 public constant MINT_DOC_FEES_MOC;
-uint8 public constant REDEEM_DOC_FEES_MOC;
-uint8 public constant MINT_BTCX_FEES_MOC;
-uint8 public constant REDEEM_BTCX_FEES_MOC;
-mapping(uint8 => uint256) public commissionRatesByTxType;
-
-//private members
-uint256[50] private upgradeGap;
-
 ```
-
-**Events**
+---
 
 ```js
-event InrateDailyPay(uint256  amount, uint256  daysToSettlement, uint256  nReserveBucketC0);
-event RiskProHoldersInterestPay(uint256  amount, uint256  nReserveBucketC0BeforePay);
+contract IMoCState internal mocState;
 ```
+---
+
+```js
+address internal DEPRECATED_mocConverter;
+```
+---
+
+```js
+contract MoCBProxManager internal bproxManager;
+```
+---
+
+```js
+uint256 public lastDailyPayBlock;
+```
+---
+
+```js
+uint256 public bitProRate;
+```
+---
+
+```js
+address payable public bitProInterestAddress;
+```
+---
+
+```js
+uint256 public lastBitProInterestBlock;
+```
+---
+
+```js
+uint256 public bitProInterestBlockSpan;
+```
+---
+
+```js
+address payable public commissionsAddress;
+```
+---
+
+```js
+uint256 public DEPRECATED_commissionRate;
+```
+---
+
+```js
+uint256 public docTmin;
+```
+---
+
+```js
+uint256 public docPower;
+```
+---
+
+```js
+uint256 public docTmax;
+```
+---
+
+```js
+uint8 public constant MINT_BPRO_FEES_RBTC;
+```
+---
+
+```js
+uint8 public constant REDEEM_BPRO_FEES_RBTC;
+```
+---
+
+```js
+uint8 public constant MINT_DOC_FEES_RBTC;
+```
+---
+
+```js
+uint8 public constant REDEEM_DOC_FEES_RBTC;
+```
+---
+
+```js
+uint8 public constant MINT_BTCX_FEES_RBTC;
+```
+---
+
+```js
+uint8 public constant REDEEM_BTCX_FEES_RBTC;
+```
+---
+
+```js
+uint8 public constant MINT_BPRO_FEES_MOC;
+```
+---
+
+```js
+uint8 public constant REDEEM_BPRO_FEES_MOC;
+```
+---
+
+```js
+uint8 public constant MINT_DOC_FEES_MOC;
+```
+---
+
+```js
+uint8 public constant REDEEM_DOC_FEES_MOC;
+```
+---
+
+```js
+uint8 public constant MINT_BTCX_FEES_MOC;
+```
+---
+
+```js
+uint8 public constant REDEEM_BTCX_FEES_MOC;
+```
+---
+
+```js
+mapping(uint8 => uint256) public commissionRatesByTxType;
+```
+---
+
+```js
+uint256[50] private upgradeGap;
+```
+---
+
+## InrateDailyPay
+
+**Parameters**
+
+| Name        | Type           | Description  |
+| ------------- |------------- | -----|
+| amount | uint256 |  | 
+| daysToSettlement | uint256 |  | 
+| nReserveBucketC0 | uint256 |  | 
+
+## RiskProHoldersInterestPay
+
+**Parameters**
+
+| Name        | Type           | Description  |
+| ------------- |------------- | -----|
+| amount | uint256 |  | 
+| nReserveBucketC0BeforePay | uint256 |  | 
 
 ## Modifiers
 
