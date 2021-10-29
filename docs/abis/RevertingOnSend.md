@@ -15,14 +15,18 @@ View Source: [contracts/test-contracts/RevertingOnSend.sol](../../contracts/test
 
 ```js
 contract MoC internal moc;
-bool internal acceptMoney;
-
 ```
+---
+
+```js
+bool internal acceptMoney;
+```
+---
 
 ## Functions
 
-- [(address payable mocAddress)](#)
-- [()](#)
+- [(address payable mocAddress)](#revertingonsendsol)
+- [()](#revertingonsendsol)
 - [setAcceptingMoney(bool accepting)](#setacceptingmoney)
 - [mintBProx(bytes32 bucket, uint256 bproxAmountToMint, address payable vendorAccount)](#mintbprox)
 - [mintDoc(uint256 docAmountToMint, address payable vendorAccount)](#mintdoc)

@@ -18,13 +18,14 @@ Interface with MocHelperLib
 **Constants & Variables**
 
 ```js
-//internal members
 struct MoCHelperLib.MocLibConfig internal mocLibConfig;
-
-//private members
-uint256[50] private upgradeGap;
-
 ```
+---
+
+```js
+uint256[50] private upgradeGap;
+```
+---
 
 ## Functions
 

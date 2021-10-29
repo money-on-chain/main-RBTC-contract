@@ -25,15 +25,28 @@ simply including this module, only once the modifiers are put in place.
 
 ```js
 bool private _paused;
-
 ```
+---
 
-**Events**
+## Paused
 
-```js
-event Paused(address  account);
-event Unpaused(address  account);
-```
+Emitted when the pause is triggered by a pauser (`account`).
+
+**Parameters**
+
+| Name        | Type           | Description  |
+| ------------- |------------- | -----|
+| account | address |  | 
+
+## Unpaused
+
+Emitted when the pause is lifted by a pauser (`account`).
+
+**Parameters**
+
+| Name        | Type           | Description  |
+| ------------- |------------- | -----|
+| account | address |  | 
 
 ## Modifiers
 
@@ -68,7 +81,7 @@ modifier whenPaused() internal
 
 ## Functions
 
-- [()](#)
+- [()](#pausablesol)
 - [paused()](#paused)
 - [pause()](#pause)
 - [unpause()](#unpause)

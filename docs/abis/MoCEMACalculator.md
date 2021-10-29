@@ -17,26 +17,48 @@ View Source: [contracts/MoCEMACalculator.sol](../../contracts/MoCEMACalculator.s
 **Constants & Variables**
 
 ```js
-//internal members
 uint256 internal bitcoinMovingAverage;
-
-//public members
-uint256 public smoothingFactor;
-uint256 public lastEmaCalculation;
-uint256 public emaCalculationBlockSpan;
-uint256 public constant PRICE_PRECISION;
-uint256 public constant FACTOR_PRECISION;
-
-//private members
-uint256[50] private upgradeGap;
-
 ```
-
-**Events**
+---
 
 ```js
-event MovingAverageCalculation(uint256  price, uint256  movingAverage);
+uint256 public smoothingFactor;
 ```
+---
+
+```js
+uint256 public lastEmaCalculation;
+```
+---
+
+```js
+uint256 public emaCalculationBlockSpan;
+```
+---
+
+```js
+uint256 public constant PRICE_PRECISION;
+```
+---
+
+```js
+uint256 public constant FACTOR_PRECISION;
+```
+---
+
+```js
+uint256[50] private upgradeGap;
+```
+---
+
+## MovingAverageCalculation
+
+**Parameters**
+
+| Name        | Type           | Description  |
+| ------------- |------------- | -----|
+| price | uint256 |  | 
+| movingAverage | uint256 |  | 
 
 ## Functions
 

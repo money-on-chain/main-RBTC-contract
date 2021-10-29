@@ -127,32 +127,180 @@ struct StableTokenRedeemStruct {
 **Constants & Variables**
 
 ```js
-//internal members
 contract IMoCState internal mocState;
-address internal DEPRECATED_mocConverter;
-contract MoCBProxManager internal bproxManager;
-contract BProToken internal bproToken;
-contract DocToken internal docToken;
-contract IMoCInrate internal mocInrate;
-contract IMoC internal moc;
-
-//private members
-uint256[50] private upgradeGap;
-
 ```
-
-**Events**
+---
 
 ```js
-event RiskProMint(address indexed account, uint256  amount, uint256  reserveTotal, uint256  commission, uint256  reservePrice, uint256  mocCommissionValue, uint256  mocPrice, uint256  btcMarkup, uint256  mocMarkup, address  vendorAccount);
-event RiskProWithDiscountMint(uint256  riskProTecPrice, uint256  riskProDiscountPrice, uint256  amount);
-event RiskProRedeem(address indexed account, uint256  amount, uint256  reserveTotal, uint256  commission, uint256  reservePrice, uint256  mocCommissionValue, uint256  mocPrice, uint256  btcMarkup, uint256  mocMarkup, address  vendorAccount);
-event StableTokenMint(address indexed account, uint256  amount, uint256  reserveTotal, uint256  commission, uint256  reservePrice, uint256  mocCommissionValue, uint256  mocPrice, uint256  btcMarkup, uint256  mocMarkup, address  vendorAccount);
-event StableTokenRedeem(address indexed account, uint256  amount, uint256  reserveTotal, uint256  commission, uint256  reservePrice, uint256  mocCommissionValue, uint256  mocPrice, uint256  btcMarkup, uint256  mocMarkup, address  vendorAccount);
-event FreeStableTokenRedeem(address indexed account, uint256  amount, uint256  reserveTotal, uint256  commission, uint256  interests, uint256  reservePrice, uint256  mocCommissionValue, uint256  mocPrice, uint256  btcMarkup, uint256  mocMarkup, address  vendorAccount);
-event RiskProxMint(bytes32  bucket, address indexed account, uint256  amount, uint256  reserveTotal, uint256  interests, uint256  leverage, uint256  commission, uint256  reservePrice, uint256  mocCommissionValue, uint256  mocPrice, uint256  btcMarkup, uint256  mocMarkup, address  vendorAccount);
-event RiskProxRedeem(bytes32  bucket, address indexed account, uint256  commission, uint256  amount, uint256  reserveTotal, uint256  interests, uint256  leverage, uint256  reservePrice, uint256  mocCommissionValue, uint256  mocPrice, uint256  btcMarkup, uint256  mocMarkup, address  vendorAccount);
+address internal DEPRECATED_mocConverter;
 ```
+---
+
+```js
+contract MoCBProxManager internal bproxManager;
+```
+---
+
+```js
+contract BProToken internal bproToken;
+```
+---
+
+```js
+contract DocToken internal docToken;
+```
+---
+
+```js
+contract IMoCInrate internal mocInrate;
+```
+---
+
+```js
+contract IMoC internal moc;
+```
+---
+
+```js
+uint256[50] private upgradeGap;
+```
+---
+
+## RiskProMint
+
+**Parameters**
+
+| Name        | Type           | Description  |
+| ------------- |------------- | -----|
+| account | address |  | 
+| amount | uint256 |  | 
+| reserveTotal | uint256 |  | 
+| commission | uint256 |  | 
+| reservePrice | uint256 |  | 
+| mocCommissionValue | uint256 |  | 
+| mocPrice | uint256 |  | 
+| btcMarkup | uint256 |  | 
+| mocMarkup | uint256 |  | 
+| vendorAccount | address |  | 
+
+## RiskProWithDiscountMint
+
+**Parameters**
+
+| Name        | Type           | Description  |
+| ------------- |------------- | -----|
+| riskProTecPrice | uint256 |  | 
+| riskProDiscountPrice | uint256 |  | 
+| amount | uint256 |  | 
+
+## RiskProRedeem
+
+**Parameters**
+
+| Name        | Type           | Description  |
+| ------------- |------------- | -----|
+| account | address |  | 
+| amount | uint256 |  | 
+| reserveTotal | uint256 |  | 
+| commission | uint256 |  | 
+| reservePrice | uint256 |  | 
+| mocCommissionValue | uint256 |  | 
+| mocPrice | uint256 |  | 
+| btcMarkup | uint256 |  | 
+| mocMarkup | uint256 |  | 
+| vendorAccount | address |  | 
+
+## StableTokenMint
+
+**Parameters**
+
+| Name        | Type           | Description  |
+| ------------- |------------- | -----|
+| account | address |  | 
+| amount | uint256 |  | 
+| reserveTotal | uint256 |  | 
+| commission | uint256 |  | 
+| reservePrice | uint256 |  | 
+| mocCommissionValue | uint256 |  | 
+| mocPrice | uint256 |  | 
+| btcMarkup | uint256 |  | 
+| mocMarkup | uint256 |  | 
+| vendorAccount | address |  | 
+
+## StableTokenRedeem
+
+**Parameters**
+
+| Name        | Type           | Description  |
+| ------------- |------------- | -----|
+| account | address |  | 
+| amount | uint256 |  | 
+| reserveTotal | uint256 |  | 
+| commission | uint256 |  | 
+| reservePrice | uint256 |  | 
+| mocCommissionValue | uint256 |  | 
+| mocPrice | uint256 |  | 
+| btcMarkup | uint256 |  | 
+| mocMarkup | uint256 |  | 
+| vendorAccount | address |  | 
+
+## FreeStableTokenRedeem
+
+**Parameters**
+
+| Name        | Type           | Description  |
+| ------------- |------------- | -----|
+| account | address |  | 
+| amount | uint256 |  | 
+| reserveTotal | uint256 |  | 
+| commission | uint256 |  | 
+| interests | uint256 |  | 
+| reservePrice | uint256 |  | 
+| mocCommissionValue | uint256 |  | 
+| mocPrice | uint256 |  | 
+| btcMarkup | uint256 |  | 
+| mocMarkup | uint256 |  | 
+| vendorAccount | address |  | 
+
+## RiskProxMint
+
+**Parameters**
+
+| Name        | Type           | Description  |
+| ------------- |------------- | -----|
+| bucket | bytes32 |  | 
+| account | address |  | 
+| amount | uint256 |  | 
+| reserveTotal | uint256 |  | 
+| interests | uint256 |  | 
+| leverage | uint256 |  | 
+| commission | uint256 |  | 
+| reservePrice | uint256 |  | 
+| mocCommissionValue | uint256 |  | 
+| mocPrice | uint256 |  | 
+| btcMarkup | uint256 |  | 
+| mocMarkup | uint256 |  | 
+| vendorAccount | address |  | 
+
+## RiskProxRedeem
+
+**Parameters**
+
+| Name        | Type           | Description  |
+| ------------- |------------- | -----|
+| bucket | bytes32 |  | 
+| account | address |  | 
+| commission | uint256 |  | 
+| amount | uint256 |  | 
+| reserveTotal | uint256 |  | 
+| interests | uint256 |  | 
+| leverage | uint256 |  | 
+| reservePrice | uint256 |  | 
+| mocCommissionValue | uint256 |  | 
+| mocPrice | uint256 |  | 
+| btcMarkup | uint256 |  | 
+| mocMarkup | uint256 |  | 
+| vendorAccount | address |  | 
 
 ## Functions
 

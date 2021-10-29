@@ -20,14 +20,22 @@ Optional functions from the ERC20 standard.
 
 ```js
 string private _name;
-string private _symbol;
-uint8 private _decimals;
-
 ```
+---
+
+```js
+string private _symbol;
+```
+---
+
+```js
+uint8 private _decimals;
+```
+---
 
 ## Functions
 
-- [(string name, string symbol, uint8 decimals)](#)
+- [(string name, string symbol, uint8 decimals)](#erc20detailedsol)
 - [name()](#name)
 - [symbol()](#symbol)
 - [decimals()](#decimals)

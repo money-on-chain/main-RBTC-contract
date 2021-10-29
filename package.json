@@ -36,7 +36,7 @@
   "author": "Atix",
   "license": "AGPL-3.0",
   "dependencies": {
-    "@thinkanddev/solidoc": "^2.0.0",
+    "@thinkanddev/solidoc": "^3.0.1",
     "eth-gas-reporter": "^0.2.22",
     "moc-governance": "git+ssh://git@github.com:money-on-chain/Areopagus-Governance.git#v0.3.1-optimizer",
     "openzeppelin-eth": "2.1.3",

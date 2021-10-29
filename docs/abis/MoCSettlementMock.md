@@ -17,13 +17,13 @@ View Source: [contracts/mocks/MoCSettlementMock.sol](../../contracts/mocks/MoCSe
 
 ```js
 uint256 internal constant STEPS;
-
 ```
+---
 
 ## Functions
 
-- [()](#)
-- [()](#)
+- [()](#mocsettlementmocksol)
+- [()](#mocsettlementmocksol)
 - [pubRunDeleveraging()](#pubrundeleveraging)
 - [pubRunRedeemDoc()](#pubrunredeemdoc)
 - [setBlockSpan(uint256 _blockSpan)](#setblockspan)
