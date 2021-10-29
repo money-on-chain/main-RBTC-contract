@@ -8,7 +8,7 @@ original_id: MoCBProxManager
 
 View Source: [contracts/MoCBProxManager.sol](../../contracts/MoCBProxManager.sol)
 
-**↗ Extends: [MoCBucketContainer](MoCBucketContainer.md)**
+**Extends: [MoCBucketContainer](MoCBucketContainer.md)**
 
 **MoCBProxManager** - version: 0.1.12
 
