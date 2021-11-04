@@ -11,7 +11,6 @@ fluctuations, and BTCx is leveraged borrowing value from BitPro and DoC holders,
 
 Please read our documentation: 
 
-## [Documentation wiki](https://docs.moneyonchain.com/main-contract/)
-
+## [Documentation wiki](https://docs.moneyonchain.com/main-rbtc-contract/)
 
 
