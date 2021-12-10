@@ -12,9 +12,9 @@
     "UpgradeDelegator": "0x5cE577f6Ec969CE9a282838D350206C52A6F338C",
     "Governor": "0xC61F0392d5170214b5D93C0BC4c4354163aBC1f7"
   },
-  "newGovernorAddress": "",
-  "governorOwnerAddress": "",
+  "newGovernorAddress": "0x3b8853DF65AfBd94853E6D77ee0Ab5590F41bB08",
+  "governorOwnerAddress": "0xC61820bFB8F87391d62Cd3976dDc1d35e0cf7128",
   "changerAddresses": {
-    "BatchChanger": ""
+    "BatchChanger": "0x457895c086c67D575Ce147Ed21b8441d367D3DAa"
   }
 }
