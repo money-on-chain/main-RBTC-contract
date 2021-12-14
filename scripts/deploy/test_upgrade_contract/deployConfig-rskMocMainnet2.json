@@ -1,0 +1,15 @@
+{
+  "proxyAddresses": {
+    "MoCSettlement": "0x609dF03D8a85eAffE376189CA7834D4C35e32F22"
+  },
+  "implementationAddresses": {
+    "MoCSettlement": "",
+    "ProxyAdmin": "0x009C51E1f6feDcDB8014Ea9AE1E39B6dbF2AC0EC",
+    "UpgradeDelegator": "0x5cE577f6Ec969CE9a282838D350206C52A6F338C",
+    "Governor": "0x3b8853DF65AfBd94853E6D77ee0Ab5590F41bB08"
+  },
+  "changerAddresses": {
+    "BatchChanger": ""
+  },
+  "governorOwnerAddress": ""
+}
