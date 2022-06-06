@@ -25,7 +25,7 @@ B. Interacting with the Remix Interface
 C. With one click Dapp UI.
 
 
-You must interact with the following [contract](https://github.com/money-on-chain/main-RBTC-contract/blob/master-gitbook/contracts/MoCVendors.sol) and paste it in remix
+You must interact with the following [contract](https://github.com/money-on-chain/main-RBTC-contract/blob/master-gitbook/contracts/MoCVendors.sol) 
 
 **Moc Token**
 
