@@ -93,6 +93,7 @@ Example Call approve:
 | ---         | ---               | ---                                        | ---                    |
 | Testnet     | MoC.sol           | 0x2820f6d4D199B8D8838A4B26F9917754B86a0c1F | 1000000000000000000000 |
 | Testnet     | MoCVendors.sol    | 0x84b895A1b7be8fAc64d43757479281Bf0b5E3719 | 1000000000000000000000 |
+
 | Mainnet     | MoC.sol           | 0xf773B590aF754D597770937Fa8ea7AbDf2668370 | 1000000000000000000000 |
 | Mainnet     | MoCVendors.sol    | 0x2d442aA5D391475b6Af3ad361eA3b9818fb35BcA | 1000000000000000000000 |
 

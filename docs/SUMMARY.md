@@ -75,6 +75,11 @@
     * [Example code minting BTCx](integration/example-code-minting-btc2x.md)
     * [Example code redeeming BTCx](integration/example-code-redeeming-btc2x.md)
 
+
+ ## Become partner with us.
+ * [What are the vendors?](integration/vendors.md)
+ * [Step by step guide](integration/stepbystep.md)    
+
 ## Smart contracts
 
 * [Contracts verification](contracts-verification.md)
