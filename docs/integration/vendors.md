@@ -5,7 +5,7 @@ and receive this value as MoC tokens. These tokens neither receive rewards nor v
 
 ## Registration
 
-Please contact the [Money on Chain team](https://moneyonchain.com/) if you wish to be registered as a vendor.
+Please contact the [Money on Chain team](https://discord.gg/v2pS7zbVGb) if you wish to be registered as a vendor.
 
 **Register a vendor in money on chain requires**:
 
@@ -14,7 +14,7 @@ Please contact the [Money on Chain team](https://moneyonchain.com/) if you wish 
 
 ## Unregistration
 
-Please contact the [Money on Chain team](https://moneyonchain.com/) if you wish to be unregistered as a vendor.
+Please contact the [Money on Chain team](https://discord.gg/v2pS7zbVGb) if you wish to be unregistered as a vendor.
 
 Note that once a vendor is unregistered, they will not receive any more profits.
 
