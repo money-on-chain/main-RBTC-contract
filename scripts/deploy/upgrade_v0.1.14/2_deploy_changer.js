@@ -3,7 +3,6 @@ const Governor = artifacts.require('moc-governance/contracts/Governance/Governor
 const UpgraderChanger = artifacts.require('./changers/UpgraderChanger.sol');
 const { getConfig, getNetwork, saveConfig, shouldExecuteChanges } = require('../helper');
 
-
 module.exports = async callback => {
   try {
     const network = getNetwork(process.argv);
@@ -12,9 +11,9 @@ module.exports = async callback => {
 
     console.log('Up-grader Changer Deploy');
     const upgradeChanger = await UpgraderChanger.new(
-        config.proxyAddresses.MoC,
-        config.implementationAddresses.UpgradeDelegator,
-        config.implementationAddresses.MoC,
+      config.proxyAddresses.MoC,
+      config.implementationAddresses.UpgradeDelegator,
+      config.implementationAddresses.MoC
     );
 
     console.log('Changer address: ', upgradeChanger.address);
@@ -35,8 +34,6 @@ module.exports = async callback => {
         .executeChange(config.changerAddresses.Changer)
         .call({ from: config.governorOwnerAddress });
     }
-
-
   } catch (error) {
     callback(error);
   }
