@@ -11,4 +11,5 @@ node_modules/.bin/truffle-flattener contracts/MoCState.sol > scripts/contract_fl
 node_modules/.bin/truffle-flattener zos-lib/contracts/upgradeability/AdminUpgradeabilityProxy.sol > scripts/contract_flatten/AdminUpgradeabilityProxy_flat.sol
 node_modules/.bin/truffle-flattener contracts/changers/MoCSettlementChanger.sol > scripts/contract_flatten/MoCSettlementChanger_flat.sol
 node_modules/.bin/truffle-flattener contracts/changers/BatchChanger.sol > scripts/contract_flatten/BatchChanger_flat.sol
+node_modules/.bin/truffle-flattener contracts/changers/UpgraderChanger.sol > scripts/contract_flatten/UpgraderChanger_flat.sol
 echo "Finish successfully! Take a look in folder scripts/contract_flatten/..."

@@ -2549,24 +2549,8 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
   function mintBProxVendors(bytes32 bucket, uint256 btcToMint, address payable vendorAccount) public payable
   whenNotPaused() whenSettlementReady() availableBucket(bucket) notBaseBucket(bucket)
   transitionState() bucketStateTransition(bucket) {
-    /** UPDATE V0112: 24/09/2020 - Upgrade to support multiple commission rates **/
-    (uint256 totalBtcSpent,
-    uint256 btcCommission,
-    uint256 mocCommission,
-    uint256 btcMarkup,
-    uint256 mocMarkup) = mocExchange.mintBProx(msg.sender, bucket, btcToMint, vendorAccount);
-
-    transferCommissions(
-      msg.sender,
-      msg.value,
-      totalBtcSpent,
-      btcCommission,
-      mocCommission,
-      vendorAccount,
-      btcMarkup,
-      mocMarkup
-    );
-    /** END UPDATE V0112: 24/09/2020 - Upgrade to support multiple commission rates **/
+    /** UPDATE V0114: 31/01/2023 - Removal of leveraged positions. Please take a look at http://bit.ly/3XPiKUA **/
+    revert("Mint Leveraged position is disabled. See: http://bit.ly/3XPiKUA");
   }
 
   /**
