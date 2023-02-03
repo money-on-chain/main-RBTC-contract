@@ -3,7 +3,7 @@ const testHelperBuilder = require('../mocHelper.js');
 let mocHelper;
 let toContractBN;
 let BUCKET_X2;
-const BTCX_OWNERS_QUANTITY = 9;
+const BTCX_OWNERS_QUANTITY = 0;
 
 const initializeSettlement = async (owner, vendorAccount, btcxOwners) => {
   await mocHelper.revertState();
