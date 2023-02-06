@@ -24,6 +24,6 @@ jobs:
         with:
           node-version: '8.17.0'
       - run: npm ci
-      - run: npm solium
-      - run: npm eslint
+      - run: npm run solium
+      - run: npm run eslint
       - run: npm test
