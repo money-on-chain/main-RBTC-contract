@@ -28,10 +28,6 @@
     "copy-abis": "npx truffle compile; node copyAbis.js",
     "flatten-contracts": "bash scripts/contract_flattener.sh"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/money-on-chain/main-RBTC-contract.git"
-  },
   "keywords": [],
   "author": "Atix",
   "license": "AGPL-3.0",
