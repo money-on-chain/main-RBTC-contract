@@ -13,5 +13,6 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '8.17.0'
+      - run: git config --global url."https://".insteadOf git://
       - run: npm ci
       - run: npm test
