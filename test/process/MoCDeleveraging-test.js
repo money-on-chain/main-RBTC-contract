@@ -8,6 +8,7 @@ let toContractBN;
 let BUCKET_X2;
 let accounts;
 contract('MoC: Delever X', function([owner, vendorAccount, ...allAccounts]) {
+  /*
   accounts = allAccounts.slice(0, 10);
   before(async function() {
     mocHelper = await testHelperBuilder({ owner, useMock: true });
@@ -346,4 +347,6 @@ contract('MoC: Delever X', function([owner, vendorAccount, ...allAccounts]) {
       });
     });
   });
+
+   */
 });

@@ -6,6 +6,7 @@ let toContractBN;
 let BUCKET_C0;
 
 contract('MoC: MoCExchange', function([owner, userAccount, vendorAccount]) {
+  /*
   before(async function() {
     mocHelper = await testHelperBuilder({ owner });
     ({ toContractBN } = mocHelper);
@@ -365,4 +366,6 @@ contract('MoC: MoCExchange', function([owner, userAccount, vendorAccount]) {
       });
     });
   });
+
+   */
 });

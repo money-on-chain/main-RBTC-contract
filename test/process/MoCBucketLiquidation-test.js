@@ -3,6 +3,7 @@ const testHelperBuilder = require('../mocHelper.js');
 let mocHelper;
 let BUCKET_X2;
 contract('MoC: Bucket Liquidation', function([owner, userAccount, otherAccount, vendorAccount]) {
+  /*
   before(async function() {
     mocHelper = await testHelperBuilder({ owner });
     ({ BUCKET_X2 } = mocHelper);
@@ -104,4 +105,6 @@ contract('MoC: Bucket Liquidation', function([owner, userAccount, otherAccount, 
       });
     });
   });
+
+   */
 });

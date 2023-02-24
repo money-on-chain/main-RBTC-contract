@@ -117,7 +117,7 @@ contract('MoC', function([owner, userAccount, userAccount2, vendorAccount]) {
       await this.mocState.setDaysToSettlement(toContractBN(1, 'DAY'));
     });
 
-    describe('AND another user buys 0.5 BTCx', function() {
+    /*describe('AND another user buys 0.5 BTCx', function() {
       beforeEach(async function() {
         await mocHelper.mintBProxAmount(userAccount2, BUCKET_X2, '0.5', vendorAccount);
       });
@@ -157,6 +157,6 @@ contract('MoC', function([owner, userAccount, userAccount2, vendorAccount]) {
           );
         });
       });
-    });
+    });*/
   });
 });

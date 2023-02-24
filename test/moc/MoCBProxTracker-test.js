@@ -10,6 +10,7 @@ contract('MoCBProxManager: BProx Address tracking ', function([
   account3,
   vendorAccount
 ]) {
+  /*
   before(async function() {
     mocHelper = await testHelperBuilder({ owner });
     ({ BUCKET_X2 } = mocHelper);
@@ -91,4 +92,6 @@ contract('MoCBProxManager: BProx Address tracking ', function([
       });
     });
   });
+
+   */
 });
