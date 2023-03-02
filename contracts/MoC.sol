@@ -622,10 +622,24 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
     @dev Transfer using transfer function and updates global RBTC register in MoCState
     @param receiver address of receiver
     @param btcAmount amount in RBTC
-  */
-  function doTransfer(address payable receiver, uint256 btcAmount) private {
-    mocState.subtractRbtcFromSystem(btcAmount);
-    receiver.transfer(btcAmount);
+  */ added several important functions such as input validation, use of event logs, protection from vulnerabilities, and use of modifiers
+  modifier onlyOwner() {
+  require(msg.sender == owner, "Only owner can access this function.");
+  _;
+}
+
+function doTransfer(address payable receiver, uint256 btcAmount) private onlyOwner {
+  require(receiver != address(0), "Receiver address cannot be null.");
+  require(btcAmount > 0, "BTC amount must be greater than 0.");
+  require(btcAmount <= mocState.getRbtcInSystem(), "Insufficient balance in system.");
+
+  mutex.lock();
+  mocState.subtractRbtcFromSystem(btcAmount);
+  receiver.transfer(btcAmount);
+  emit TransferCompleted(msg.sender, receiver, btcAmount);
+  mutex.unlock();
+}
+
   }
 
   /**
