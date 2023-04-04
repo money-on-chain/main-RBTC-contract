@@ -62,7 +62,7 @@ $ truffle exec 4_deploy_CommissionSplitterV3.js --network rdocMainnet
 
 Standing in the `scripts/deploy/upgrade_v0.1.15` path of the [MOC repository](https://github.com/money-on-chain/main-RBTC-contract), we run these commands:
 
-**FIX THIS**
+**FIX THIS!**
 
 ```js
 truffle exec 2_deploy_changer.js --network rskMocMainnet2
@@ -71,7 +71,16 @@ truffle exec 2_deploy_changer.js --network rskMocMainnet2
 
 ## Deploy Addresses
 
-**FIX THIS**
+**FIX THIS!**
+
+✓ [This is the pull request](https://github.com/money-on-chain/fix_me) to add these changes to the repository.
+
+✓ The `change contract`  to make the changes that is also already deployed in `mainet` would be this [`0x???`](https://explorer.rsk.co/address/0x???__ctab=Code)
+
+✓ This is the `change contract` that will be submitted to a vote.
+
+✓ The upgrade delegator in `mainet` is [`0x5cE577f6Ec969CE9a282838D350206C52A6F338C`](https://explorer.rsk.co/address/0x5cE577f6Ec969CE9a282838D350206C52A6F338C?__ctab=Code)
+
 
 **Proxies**
 
