@@ -75,7 +75,7 @@ truffle exec 10_deploy_FeeIncreaseProposalCombined.js --network rskMocMainnet2
 
 ✓ [This is the pull request](https://github.com/money-on-chain/fix_me) to add these changes to the repository.
 
-✓ The `change contract`  to make the changes that is also already deployed in `mainet` would be this [`0x???`](https://explorer.rsk.co/address/0x???__ctab=Code)
+✓ The `change contract`  to make the changes that is also already deployed in `mainnet` would be this [`0x???`](https://explorer.rsk.co/address/0x???__ctab=Code)
 
 ✓ This is the `change contract` that will be submitted to a vote.
 
@@ -86,13 +86,13 @@ truffle exec 10_deploy_FeeIncreaseProposalCombined.js --network rskMocMainnet2
 
 |  Contract  |  Address |  
 |:---|:---|
-|  CommissionSplitterV2  | [0x???](https://explorer.rsk.co/address/0x???) |
-|  CommissionSplitterV3  | [0x???](https://explorer.rsk.co/address/0x???) |
+|  `CommissionSplitterV2`  | [0x???](https://explorer.rsk.co/address/0x???) |
+|  `CommissionSplitterV3`  | [0x???](https://explorer.rsk.co/address/0x???) |
 
 
 **Implementations**
 
 |  Contract  |  Address |  
 |:---|:---|
-|  CommissionSplitterV2  | [0x???](https://explorer.rsk.co/address/0x???) |
-|  CommissionSplitterV3  | [0x???](https://explorer.rsk.co/address/0x???) |
+|  `CommissionSplitterV2`  | [0x???](https://explorer.rsk.co/address/0x???) |
+|  `CommissionSplitterV3`  | [0x???](https://explorer.rsk.co/address/0x???) |
