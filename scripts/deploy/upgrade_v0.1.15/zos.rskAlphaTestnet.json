@@ -1,0 +1,326 @@
+{
+  "contracts": {
+    "CommissionSplitterV2": {
+      "address": "0xFCB0524C58F3aaC73A2dD888bAAE1F6EAc578698",
+      "constructorCode": "608060405234801561001057600080fd5b50611c36806100206000396000f3fe",
+      "bodyBytecodeHash": "f4dc1664eb61d79b7287cc9730f77dd0f0f9a1a245810524d47a89524af39a3d",
+      "localBytecodeHash": "5dae81cff8abba5f6649a959978889414f40da24190336220fc2859e19430e23",
+      "deployedBytecodeHash": "5dae81cff8abba5f6649a959978889414f40da24190336220fc2859e19430e23",
+      "types": {
+        "t_bool": {
+          "id": "t_bool",
+          "kind": "elementary",
+          "label": "bool"
+        },
+        "t_uint256": {
+          "id": "t_uint256",
+          "kind": "elementary",
+          "label": "uint256"
+        },
+        "t_array:50<t_uint256>": {
+          "id": "t_array:50<t_uint256>",
+          "valueType": "t_uint256",
+          "length": "50",
+          "kind": "array",
+          "label": "uint256[50]"
+        },
+        "t_address": {
+          "id": "t_address",
+          "kind": "elementary",
+          "label": "address"
+        },
+        "t_address_payable": {
+          "id": "t_address_payable",
+          "kind": "elementary",
+          "label": "address payable"
+        }
+      },
+      "storage": [
+        {
+          "contract": "Initializable",
+          "path": "zos-lib/contracts/Initializable.sol",
+          "label": "initialized",
+          "astId": 20964,
+          "type": "t_bool",
+          "src": "757:24:105"
+        },
+        {
+          "contract": "Initializable",
+          "path": "zos-lib/contracts/Initializable.sol",
+          "label": "initializing",
+          "astId": 20966,
+          "type": "t_bool",
+          "src": "876:25:105"
+        },
+        {
+          "contract": "Initializable",
+          "path": "zos-lib/contracts/Initializable.sol",
+          "label": "______gap",
+          "astId": 21022,
+          "type": "t_array:50<t_uint256>",
+          "src": "1951:29:105"
+        },
+        {
+          "contract": "Governed",
+          "path": "moc-governance/contracts/Governance/Governed.sol",
+          "label": "governor",
+          "astId": 18956,
+          "type": "t_address",
+          "src": "550:25:85"
+        },
+        {
+          "contract": "Governed",
+          "path": "moc-governance/contracts/Governance/Governed.sol",
+          "label": "upgradeGap",
+          "astId": 19000,
+          "type": "t_array:50<t_uint256>",
+          "src": "1699:30:85"
+        },
+        {
+          "contract": "ReentrancyGuard",
+          "path": "openzeppelin-eth/contracts/utils/ReentrancyGuard.sol",
+          "label": "_guardCounter",
+          "astId": 19586,
+          "type": "t_uint256",
+          "src": "415:29:92"
+        },
+        {
+          "contract": "ReentrancyGuard",
+          "path": "openzeppelin-eth/contracts/utils/ReentrancyGuard.sol",
+          "label": "______gap",
+          "astId": 19618,
+          "type": "t_array:50<t_uint256>",
+          "src": "1210:29:92"
+        },
+        {
+          "contract": "CommissionSplitterV2",
+          "path": "../../../contracts/auxiliar/CommissionSplitterV2.sol",
+          "label": "outputAddress_1",
+          "astId": 12650,
+          "type": "t_address_payable",
+          "src": "829:38:14"
+        },
+        {
+          "contract": "CommissionSplitterV2",
+          "path": "../../../contracts/auxiliar/CommissionSplitterV2.sol",
+          "label": "outputAddress_2",
+          "astId": 12652,
+          "type": "t_address_payable",
+          "src": "903:38:14"
+        },
+        {
+          "contract": "CommissionSplitterV2",
+          "path": "../../../contracts/auxiliar/CommissionSplitterV2.sol",
+          "label": "outputAddress_3",
+          "astId": 12654,
+          "type": "t_address_payable",
+          "src": "977:38:14"
+        },
+        {
+          "contract": "CommissionSplitterV2",
+          "path": "../../../contracts/auxiliar/CommissionSplitterV2.sol",
+          "label": "outputProportion_1",
+          "astId": 12656,
+          "type": "t_uint256",
+          "src": "1063:33:14"
+        },
+        {
+          "contract": "CommissionSplitterV2",
+          "path": "../../../contracts/auxiliar/CommissionSplitterV2.sol",
+          "label": "outputProportion_2",
+          "astId": 12658,
+          "type": "t_uint256",
+          "src": "1144:33:14"
+        },
+        {
+          "contract": "CommissionSplitterV2",
+          "path": "../../../contracts/auxiliar/CommissionSplitterV2.sol",
+          "label": "outputTokenGovernAddress_1",
+          "astId": 12660,
+          "type": "t_address_payable",
+          "src": "1255:49:14"
+        },
+        {
+          "contract": "CommissionSplitterV2",
+          "path": "../../../contracts/auxiliar/CommissionSplitterV2.sol",
+          "label": "outputTokenGovernAddress_2",
+          "astId": 12662,
+          "type": "t_address_payable",
+          "src": "1354:49:14"
+        },
+        {
+          "contract": "CommissionSplitterV2",
+          "path": "../../../contracts/auxiliar/CommissionSplitterV2.sol",
+          "label": "outputProportionTokenGovern_1",
+          "astId": 12664,
+          "type": "t_uint256",
+          "src": "1467:44:14"
+        },
+        {
+          "contract": "CommissionSplitterV2",
+          "path": "../../../contracts/auxiliar/CommissionSplitterV2.sol",
+          "label": "tokenGovern",
+          "astId": 12666,
+          "type": "t_address",
+          "src": "1542:25:14"
+        }
+      ],
+      "warnings": {
+        "hasConstructor": false,
+        "hasSelfDestruct": false,
+        "hasDelegateCall": false,
+        "hasInitialValuesInDeclarations": false,
+        "uninitializedBaseContracts": []
+      }
+    },
+    "CommissionSplitterV3": {
+      "address": "0x3B23975aC34611585Cc1b318A45045557bD52B1f",
+      "constructorCode": "608060405234801561001057600080fd5b50610e31806100206000396000f3fe",
+      "bodyBytecodeHash": "eb3f2afb3f72b9e0500d6a1b3cae59ce425b13643df67b6a32c5a6265b2d3163",
+      "localBytecodeHash": "806100ab4ee397617eb299f662b6be852aac139e3db55838ae568ebb62def9c1",
+      "deployedBytecodeHash": "806100ab4ee397617eb299f662b6be852aac139e3db55838ae568ebb62def9c1",
+      "types": {
+        "t_bool": {
+          "id": "t_bool",
+          "kind": "elementary",
+          "label": "bool"
+        },
+        "t_uint256": {
+          "id": "t_uint256",
+          "kind": "elementary",
+          "label": "uint256"
+        },
+        "t_array:50<t_uint256>": {
+          "id": "t_array:50<t_uint256>",
+          "valueType": "t_uint256",
+          "length": "50",
+          "kind": "array",
+          "label": "uint256[50]"
+        },
+        "t_address": {
+          "id": "t_address",
+          "kind": "elementary",
+          "label": "address"
+        },
+        "t_address_payable": {
+          "id": "t_address_payable",
+          "kind": "elementary",
+          "label": "address payable"
+        }
+      },
+      "storage": [
+        {
+          "contract": "Initializable",
+          "path": "zos-lib/contracts/Initializable.sol",
+          "label": "initialized",
+          "astId": 20964,
+          "type": "t_bool",
+          "src": "757:24:105"
+        },
+        {
+          "contract": "Initializable",
+          "path": "zos-lib/contracts/Initializable.sol",
+          "label": "initializing",
+          "astId": 20966,
+          "type": "t_bool",
+          "src": "876:25:105"
+        },
+        {
+          "contract": "Initializable",
+          "path": "zos-lib/contracts/Initializable.sol",
+          "label": "______gap",
+          "astId": 21022,
+          "type": "t_array:50<t_uint256>",
+          "src": "1951:29:105"
+        },
+        {
+          "contract": "Governed",
+          "path": "moc-governance/contracts/Governance/Governed.sol",
+          "label": "governor",
+          "astId": 18956,
+          "type": "t_address",
+          "src": "550:25:85"
+        },
+        {
+          "contract": "Governed",
+          "path": "moc-governance/contracts/Governance/Governed.sol",
+          "label": "upgradeGap",
+          "astId": 19000,
+          "type": "t_array:50<t_uint256>",
+          "src": "1699:30:85"
+        },
+        {
+          "contract": "ReentrancyGuard",
+          "path": "openzeppelin-eth/contracts/utils/ReentrancyGuard.sol",
+          "label": "_guardCounter",
+          "astId": 19586,
+          "type": "t_uint256",
+          "src": "415:29:92"
+        },
+        {
+          "contract": "ReentrancyGuard",
+          "path": "openzeppelin-eth/contracts/utils/ReentrancyGuard.sol",
+          "label": "______gap",
+          "astId": 19618,
+          "type": "t_array:50<t_uint256>",
+          "src": "1210:29:92"
+        },
+        {
+          "contract": "CommissionSplitterV3",
+          "path": "../../../contracts/auxiliar/CommissionSplitterV3.sol",
+          "label": "outputAddress_1",
+          "astId": 13065,
+          "type": "t_address_payable",
+          "src": "670:38:15"
+        },
+        {
+          "contract": "CommissionSplitterV3",
+          "path": "../../../contracts/auxiliar/CommissionSplitterV3.sol",
+          "label": "outputAddress_2",
+          "astId": 13067,
+          "type": "t_address_payable",
+          "src": "744:38:15"
+        },
+        {
+          "contract": "CommissionSplitterV3",
+          "path": "../../../contracts/auxiliar/CommissionSplitterV3.sol",
+          "label": "outputProportion_1",
+          "astId": 13069,
+          "type": "t_uint256",
+          "src": "830:33:15"
+        }
+      ],
+      "warnings": {
+        "hasConstructor": false,
+        "hasSelfDestruct": false,
+        "hasDelegateCall": false,
+        "hasInitialValuesInDeclarations": false,
+        "uninitializedBaseContracts": []
+      }
+    }
+  },
+  "solidityLibs": {},
+  "proxies": {
+    "money-on-chain/CommissionSplitterV2": [
+      {
+        "address": "0xce4548BC0b865197D94E15a5440299398aB9d32E",
+        "version": "0.1.3",
+        "implementation": "0xFCB0524C58F3aaC73A2dD888bAAE1F6EAc578698",
+        "admin": "0xcc8fb7E8666F3bEe51511235753406f96C16E26b"
+      }
+    ],
+    "money-on-chain/CommissionSplitterV3": [
+      {
+        "address": "0xE85f16aD5431C9526F13D7b1eb0A143720A33aa2",
+        "version": "0.1.3",
+        "implementation": "0x3B23975aC34611585Cc1b318A45045557bD52B1f",
+        "admin": "0xcc8fb7E8666F3bEe51511235753406f96C16E26b"
+      }
+    ]
+  },
+  "zosversion": "2.2",
+  "version": "0.1.3",
+  "proxyAdmin": {
+    "address": "0x6C83793D5C8bD8203fF9eB68a580f6bD276e0082"
+  }
+}

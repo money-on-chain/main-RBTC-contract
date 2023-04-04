@@ -1,0 +1,55 @@
+{
+  "CommissionSplitterV2": {
+    "outputAddress_1": "0xCD8A1c9aCc980ae031456573e34dC05cD7daE6e3",
+    "outputAddress_2": "0xB5E2Bed9235b6366Fa0254c2e6754E167e0a2383",
+    "outputAddress_3": "0xf69287F5Ca3cC3C6d3981f2412109110cB8af076",
+    "outputProportion_1": "400000000000000000",
+    "outputProportion_2": "400000000000000000",
+    "outputTokenGovernAddress_1": "0xCD8A1c9aCc980ae031456573e34dC05cD7daE6e3",
+    "outputTokenGovernAddress_2": "0xB5E2Bed9235b6366Fa0254c2e6754E167e0a2383",
+    "outputProportionTokenGovern_1": "500000000000000000",
+    "tokenGovern": "0x0399c7F7B37E21cB9dAE04Fb57E24c68ed0B4635"
+  },
+  "CommissionSplitterV3": {
+    "outputAddress_1": "0xCD8A1c9aCc980ae031456573e34dC05cD7daE6e3",
+    "outputAddress_2": "0xB5E2Bed9235b6366Fa0254c2e6754E167e0a2383",
+    "outputProportion_1": "500000000000000000"
+  },
+  "proxyAddresses": {
+    "CommissionSplitterV3": "0xE85f16aD5431C9526F13D7b1eb0A143720A33aa2",
+    "CommissionSplitterV2": "0xce4548BC0b865197D94E15a5440299398aB9d32E"
+  },
+  "implementationAddresses": {
+    "ProxyAdmin": "0xcc8fb7E8666F3bEe51511235753406f96C16E26b",
+    "UpgradeDelegator": "0x00a47D7d7B9bD22e0A862908EC493bDE893f627B",
+    "Governor": "0x7b716178771057195bB511f0B1F7198EEE62Bc22",
+    "CommissionSplitterV2": "0xFCB0524C58F3aaC73A2dD888bAAE1F6EAc578698",
+    "CommissionSplitterV3": "0x3B23975aC34611585Cc1b318A45045557bD52B1f"
+  },
+  "FeeIncreaseProposal": {
+    "MOC": {
+      "MoCInrate": "0x8CA7685F69B4bb96D221049Ac84e2F9363ca7F2c",
+      "bitProInterestAddress": "0xE85f16aD5431C9526F13D7b1eb0A143720A33aa2",
+      "commissionAddress": "0xce4548BC0b865197D94E15a5440299398aB9d32E",
+      "bitProRate": "191414800000000",
+      "commissionRates": {
+        "MINT_BPRO_FEES_RBTC": 0.002,
+        "REDEEM_BPRO_FEES_RBTC": 0.002,
+        "MINT_DOC_FEES_RBTC": 0.002,
+        "REDEEM_DOC_FEES_RBTC": 0.002,
+        "MINT_BTCX_FEES_RBTC": 0.002,
+        "REDEEM_BTCX_FEES_RBTC": 0.002,
+        "MINT_BPRO_FEES_MOC": 0.001,
+        "REDEEM_BPRO_FEES_MOC": 0.001,
+        "MINT_DOC_FEES_MOC": 0.001,
+        "REDEEM_DOC_FEES_MOC": 0.001,
+        "MINT_BTCX_FEES_MOC": 0.001,
+        "REDEEM_BTCX_FEES_MOC": 0.001
+      }
+    }
+  },
+  "changerAddresses": {
+    "FeeIncreaseProposal": "0xD45b0561e4E3848adAF23305dbeF0B36a8363808"
+  },
+  "governorOwnerAddress": "0x7D124cC0f59aDA5793AD8edA9eD1836cB7e797a3"
+}
