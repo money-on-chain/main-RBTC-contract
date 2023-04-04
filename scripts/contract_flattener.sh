@@ -15,6 +15,7 @@ CONTRACTS=(
     "contracts/MoCState.sol"
     "contracts/changers/MoCSettlementChanger.sol"
     "contracts/changers/proposal_fee_increase/FeeIncreaseProposal.sol"
+    "contracts/changers/proposal_fee_increase/FeeIncreaseProposalCombined.sol"
     "contracts/changers/BatchChanger.sol"
     "contracts/changers/UpgraderChanger.sol"
     "zos-lib/contracts/upgradeability/AdminUpgradeabilityProxy.sol"

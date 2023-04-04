@@ -70,7 +70,7 @@ contract('MoC: Retrocompatibility', function([owner, userAccount]) {
       mocHelper.assertBigRBTC(balance, 0, 'userAccount DoC balance was not 0');
     });
   });
-  /*describe('GIVEN since the user wants to mint and redeem BPROX with the retrocompatible functions', function() {
+  /* describe('GIVEN since the user wants to mint and redeem BPROX with the retrocompatible functions', function() {
     it('WHEN a user tries to mint BPROXs, THEN operation is successful', async function() {
       // Mint BPros to be able to mint DoC
       await mocHelper.mintBPro(userAccount, 100);
@@ -99,5 +99,5 @@ contract('MoC: Retrocompatibility', function([owner, userAccount]) {
       const balance = await mocHelper.getBProxBalance(BUCKET_X2, userAccount);
       mocHelper.assertBigRBTC(balance, 0, 'userAccount BPROX balance was not 0');
     });
-  });*/
+  }); */
 });

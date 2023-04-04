@@ -58,7 +58,8 @@ module.exports = async callback => {
       commissionSplitterV2Address
     );
 
-    await CommissionSplitterV2Deployed.methods.initialize(
+    await CommissionSplitterV2Deployed.methods
+      .initialize(
         governor,
         outputAddress_1,
         outputAddress_2,
@@ -92,7 +93,6 @@ module.exports = async callback => {
     config.proxyAddresses.CommissionSplitterV2 =
       proxies.proxies['money-on-chain/CommissionSplitterV2'][0].address;
     saveConfig(config, configPath);
-
   } catch (error) {
     callback(error);
   }
