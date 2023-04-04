@@ -57,7 +57,7 @@ $ truffle exec 4_deploy_CommissionSplitterV3.js --network rdocMainnet
 ```
 
 
-## Deploy Changer
+## Deploy Changer (Combined MOC & ROC)
 
 
 Standing in the `scripts/deploy/upgrade_v0.1.15` path of the [MOC repository](https://github.com/money-on-chain/main-RBTC-contract), we run these commands:
@@ -65,7 +65,7 @@ Standing in the `scripts/deploy/upgrade_v0.1.15` path of the [MOC repository](ht
 **FIX THIS!**
 
 ```js
-truffle exec 2_deploy_changer.js --network rskMocMainnet2
+truffle exec 10_deploy_FeeIncreaseProposalCombined.js --network rskMocMainnet2
 ```
 
 
