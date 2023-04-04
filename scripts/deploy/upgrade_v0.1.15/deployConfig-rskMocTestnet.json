@@ -16,21 +16,21 @@
     "outputProportion_1": "500000000000000000"
   },
   "proxyAddresses": {
-    "CommissionSplitterV3": "",
-    "CommissionSplitterV2": ""
+    "CommissionSplitterV3": "0x0dee24D1ffb67fA751a58042F2C7a858FFb3F207",
+    "CommissionSplitterV2": "0xFA17f640d0E914B20CDDF985B269D2Dc16e0f767"
   },
   "implementationAddresses": {
     "ProxyAdmin": "0x3CE255E0A842884837Db76b5025d53475eFa18fd",
     "UpgradeDelegator": "0x546AFdf647d0B5c73323366B090Ebe6C0C4D9b2C",
     "Governor": "0x7b716178771057195bB511f0B1F7198EEE62Bc22",
-    "CommissionSplitterV2": "",
-    "CommissionSplitterV3": ""
+    "CommissionSplitterV2": "0xfd5BAb5c176431Abe8adE80BEa81fd47d0Df60Cf",
+    "CommissionSplitterV3": "0xa6C35a5269E504451bf4d86Cfb2BdEfcBeC574Ce"
   },
   "FeeIncreaseProposal": {
     "MOC": {
       "MoCInrate": "0x76790f846FAAf44cf1B2D717d0A6c5f6f5152B60",
-      "bitProInterestAddress": "<CommissionSplitterV3>",
-      "commissionAddress": "<CommissionSplitterV2>",
+      "bitProInterestAddress": "0x0dee24D1ffb67fA751a58042F2C7a858FFb3F207",
+      "commissionAddress": "0xFA17f640d0E914B20CDDF985B269D2Dc16e0f767",
       "bitProRate": "196200000000000",
       "commissionRates": {
         "MINT_BPRO_FEES_RBTC": 0.002,
@@ -49,8 +49,8 @@
     },
     "ROC": {
       "MoCInrate": "0x4C54053845F4f219AddB43ef3A7d4478E89a2A47",
-      "riskProInterestAddress": "<CommissionSplitterV3>",
-      "commissionAddress": "<CommissionSplitterV2>",
+      "riskProInterestAddress": "0x7fC75AEb9542D416762C9C34E11d3126Fd66FB41",
+      "commissionAddress": "0x652FD7b78aCd4d0b9A14dF3Ae40918EFf6770Efd",
       "riskProRate": "196200000000000",
       "commissionRates": {
         "MINT_RISKPRO_FEES_RESERVE": 0.002,
@@ -69,7 +69,8 @@
     }
   },
   "changerAddresses": {
-    "FeeIncreaseProposal": ""
+    "FeeIncreaseProposal": "",
+    "FeeIncreaseProposalCombined": "0xbBc65648d155D935c0f3c252e464bcCEd8838BD5"
   },
   "governorOwnerAddress": "0xDfD27488c552E3B3E48d35cf2940f93ec9b75415"
 }
