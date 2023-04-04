@@ -11,11 +11,7 @@ module.exports = async callback => {
     const config = getConfig(network, configPath);
     const [owner] = await web3.eth.getAccounts();
 
-    const {
-      outputAddress_1,
-      outputAddress_2,
-      outputProportion_1
-    } = config.CommissionSplitterV3;
+    const { outputAddress_1, outputAddress_2, outputProportion_1 } = config.CommissionSplitterV3;
 
     const proxyAdmin = config.implementationAddresses.ProxyAdmin;
     const governor = config.implementationAddresses.Governor;
@@ -46,12 +42,8 @@ module.exports = async callback => {
       commissionSplitterV3Address
     );
 
-    await CommissionSplitterV3Deployed.methods.initialize(
-        governor,
-        outputAddress_1,
-        outputAddress_2,
-        outputProportion_1
-      )
+    await CommissionSplitterV3Deployed.methods
+      .initialize(governor, outputAddress_1, outputAddress_2, outputProportion_1)
       .send({ from: owner, gas: 1e6 })
       .on('transactionHash', hash => console.log('TxHash:', hash))
       .on('confirmation', confirmationNumber => console.log('Tx confirmation:', confirmationNumber))
@@ -74,7 +66,6 @@ module.exports = async callback => {
     config.proxyAddresses.CommissionSplitterV3 =
       proxies.proxies['money-on-chain/CommissionSplitterV3'][0].address;
     saveConfig(config, configPath);
-
   } catch (error) {
     callback(error);
   }

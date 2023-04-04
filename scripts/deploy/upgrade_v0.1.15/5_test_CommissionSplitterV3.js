@@ -29,7 +29,9 @@ module.exports = async callback => {
       console.log('ERROR. 2. outputAddress_2: ', contractInfo.outputAddress_2);
     }
 
-    if (contractInfo.outputProportion_1.toString() === config.CommissionSplitterV3.outputProportion_1) {
+    if (
+      contractInfo.outputProportion_1.toString() === config.CommissionSplitterV3.outputProportion_1
+    ) {
       console.log('OK. 3. outputProportion_1: ', contractInfo.outputProportion_1.toString());
     } else {
       console.log('ERROR. 3. outputProportion_1: ', contractInfo.outputProportion_1.toString());

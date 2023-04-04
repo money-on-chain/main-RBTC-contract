@@ -1,4 +1,5 @@
 /* eslint-disable no-console */
+/* eslint-disable camelcase */
 const BigNumber = require('bignumber.js');
 
 const IMOCMoCInrate = artifacts.require(
