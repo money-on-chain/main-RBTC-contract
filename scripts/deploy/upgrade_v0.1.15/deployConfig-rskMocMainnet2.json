@@ -31,7 +31,7 @@
       "MoCInrate": "0xc0f9B54c41E3d0587Ce0F7540738d8d649b0A3F3",
       "bitProInterestAddress": "<CommissionSplitterV3>",
       "commissionAddress": "<CommissionSplitterV2>",
-      "bitProRate": "191780821917808",
+      "bitProRate": "196200000000000",
       "commissionRates": {
         "MINT_BPRO_FEES_RBTC": 0.002,
         "REDEEM_BPRO_FEES_RBTC": 0.002,
@@ -39,19 +39,19 @@
         "REDEEM_DOC_FEES_RBTC": 0.002,
         "MINT_BTCX_FEES_RBTC": 0.002,
         "REDEEM_BTCX_FEES_RBTC": 0.002,
-        "MINT_BPRO_FEES_MOC": 0.001,
-        "REDEEM_BPRO_FEES_MOC": 0.001,
-        "MINT_DOC_FEES_MOC": 0.001,
-        "REDEEM_DOC_FEES_MOC": 0.001,
-        "MINT_BTCX_FEES_MOC": 0.001,
-        "REDEEM_BTCX_FEES_MOC": 0.001
+        "MINT_BPRO_FEES_MOC": 0.0015,
+        "REDEEM_BPRO_FEES_MOC": 0.0015,
+        "MINT_DOC_FEES_MOC": 0.0015,
+        "REDEEM_DOC_FEES_MOC": 0.0015,
+        "MINT_BTCX_FEES_MOC": 0.0015,
+        "REDEEM_BTCX_FEES_MOC": 0.0015
       }
     },
     "ROC": {
       "MoCInrate": "0x1DaB07c4FD07d6eE1359a5198ACa2DEe64F371f3",
       "riskProInterestAddress": "<CommissionSplitterV3>",
       "commissionAddress": "<CommissionSplitterV2>",
-      "riskProRate": "191780821917808",
+      "riskProRate": "196200000000000",
       "commissionRates": {
         "MINT_RISKPRO_FEES_RESERVE": 0.002,
         "REDEEM_RISKPRO_FEES_RESERVE": 0.002,
@@ -59,12 +59,12 @@
         "REDEEM_STABLETOKEN_FEES_RESERVE": 0.002,
         "MINT_RISKPROX_FEES_RESERVE": 0.002,
         "REDEEM_RISKPROX_FEES_RESERVE": 0.002,
-        "MINT_RISKPRO_FEES_MOC": 0.001,
-        "REDEEM_RISKPRO_FEES_MOC": 0.001,
-        "MINT_STABLETOKEN_FEES_MOC": 0.001,
-        "REDEEM_STABLETOKEN_FEES_MOC": 0.001,
-        "MINT_RISKPROX_FEES_MOC": 0.001,
-        "REDEEM_RISKPROX_FEES_MOC": 0.001
+        "MINT_RISKPRO_FEES_MOC": 0.0015,
+        "REDEEM_RISKPRO_FEES_MOC": 0.0015,
+        "MINT_STABLETOKEN_FEES_MOC": 0.0015,
+        "REDEEM_STABLETOKEN_FEES_MOC": 0.0015,
+        "MINT_RISKPROX_FEES_MOC": 0.0015,
+        "REDEEM_RISKPROX_FEES_MOC": 0.0015
       }
     }
   },
