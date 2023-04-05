@@ -103,4 +103,4 @@ $ truffle exec 10_deploy_FeeIncreaseProposalCombined.js --network rskMocMainnet2
 
 ✓ For the changes to be applied, the `change contract` must have been submitted to the voting process.
 
-✓ The upgrade delegator in `mainnet` is [`0x5cE577f6Ec969CE9a282838D350206C52A6F338C`](https://explorer.rsk.co/address/0x5cE577f6Ec969CE9a282838D350206C52A6F338C?__ctab=Code)
+✓ The `upgrade delegator` in `mainnet` is [`0x5cE577f6Ec969CE9a282838D350206C52A6F338C`](https://explorer.rsk.co/address/0x5cE577f6Ec969CE9a282838D350206C52A6F338C?__ctab=Code)
