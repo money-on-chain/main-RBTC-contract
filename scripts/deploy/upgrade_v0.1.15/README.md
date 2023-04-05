@@ -25,6 +25,7 @@ To implement the fee increase, we propose the following steps:
 6. We will deploy the changer from step 2, which will be subject to a vote.
 
 ![dia-flow-changes.jpg](docs/images/dia-flow-changes.jpg)
+A [full size image](docs/images/dia-flow.jpg) can be seen [here](docs/images/dia-flow.jpg).
 
 
 The modifications will be applied to the components outlined in red. The MOC splitters will be modified and new instances of commission splitters will be created. These changes are straightforward and simple, making them the most convenient modification alternative for the protocol.
