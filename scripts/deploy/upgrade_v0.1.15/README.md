@@ -39,6 +39,7 @@ These steps will ensure that the fee increase is implemented in a transparent an
 
 Standing in the `scripts/deploy/upgrade_v0.1.15` path of the [MOC repository](https://github.com/money-on-chain/main-RBTC-contract), we run these commands:
 
+
 ```js
 $ truffle exec 1_deploy_CommissionSplitterV2.js --network rskMocMainnet2
 ```
@@ -64,12 +65,10 @@ $ truffle exec 4_deploy_CommissionSplitterV3.js --network rdocMainnet
 
 Standing in the `scripts/deploy/upgrade_v0.1.15` path of the [MOC repository](https://github.com/money-on-chain/main-RBTC-contract), we run these commands:
 
-**FIX THIS!**
 
 ```js
 $ truffle exec 10_deploy_FeeIncreaseProposalCombined.js --network rskMocMainnet2
 ```
-
 
 ## Addresses of the new Commission Splitters components
 
