@@ -24,7 +24,7 @@ To implement the fee increase, we propose the following steps:
 5. The yearly fee paid by BPRO and RIFP holders will be increased to 1%.
 6. We will deploy the changer from step 2, which will be subject to a vote.
 
-![dia-flow-changes.jpg](dia-flow-changes.jpg)
+![dia-flow-changes.jpg](docs/images/dia-flow-changes.jpg)
 
 
 The modifications will be applied to the components outlined in red. The MOC splitters will be modified and new instances of commission splitters will be created. These changes are straightforward and simple, making them the most convenient modification alternative for the protocol.
