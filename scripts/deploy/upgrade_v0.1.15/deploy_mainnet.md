@@ -1,7 +1,7 @@
 # Mainnet upgrade version v0.1.15 - Deploy commission splitter & Changer commissions fees
 
 
-## Deploy Addresses (ROC & MOC)
+## Addresses of the new Commission Splitters components and Change contract (ROC & MOC)
 
 
 **Change contract**
