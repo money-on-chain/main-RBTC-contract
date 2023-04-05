@@ -22,20 +22,19 @@ module.exports = async callback => {
     contractInfo.tokenGovern = await commissionSplitterV2.tokenGovern();
 
     console.log('Contract storage');
-
-    if (contractInfo.outputAddress_1 === config.CommissionSplitterV2.outputAddress_1) {
+    if (contractInfo.outputAddress_1.toLowerCase() === config.CommissionSplitterV2.outputAddress_1.toLowerCase()) {
       console.log('OK. 1. outputAddress_1: ', contractInfo.outputAddress_1);
     } else {
       console.log('ERROR. 1. outputAddress_1: ', contractInfo.outputAddress_1);
     }
 
-    if (contractInfo.outputAddress_2 === config.CommissionSplitterV2.outputAddress_2) {
+    if (contractInfo.outputAddress_2.toLowerCase() === config.CommissionSplitterV2.outputAddress_2.toLowerCase()) {
       console.log('OK. 2. outputAddress_2: ', contractInfo.outputAddress_2);
     } else {
       console.log('ERROR. 2. outputAddress_2: ', contractInfo.outputAddress_2);
     }
 
-    if (contractInfo.outputAddress_3 === config.CommissionSplitterV2.outputAddress_3) {
+    if (contractInfo.outputAddress_3.toLowerCase() === config.CommissionSplitterV2.outputAddress_3.toLowerCase()) {
       console.log('OK. 3. outputAddress_3: ', contractInfo.outputAddress_3);
     } else {
       console.log('ERROR. 3. outputAddress_3: ', contractInfo.outputAddress_3);
@@ -58,31 +57,31 @@ module.exports = async callback => {
     }
 
     if (
-      contractInfo.outputTokenGovernAddress_1.toString() ===
-      config.CommissionSplitterV2.outputTokenGovernAddress_1
+      contractInfo.outputTokenGovernAddress_1.toLowerCase() ===
+      config.CommissionSplitterV2.outputTokenGovernAddress_1.toLowerCase()
     ) {
       console.log(
-        'OK. 5. outputTokenGovernAddress_1: ',
+        'OK. 6. outputTokenGovernAddress_1: ',
         contractInfo.outputTokenGovernAddress_1.toString()
       );
     } else {
       console.log(
-        'ERROR. 5. outputTokenGovernAddress_1: ',
+        'ERROR. 6. outputTokenGovernAddress_1: ',
         contractInfo.outputTokenGovernAddress_1.toString()
       );
     }
 
     if (
-      contractInfo.outputTokenGovernAddress_2.toString() ===
-      config.CommissionSplitterV2.outputTokenGovernAddress_2
+      contractInfo.outputTokenGovernAddress_2.toLowerCase() ===
+      config.CommissionSplitterV2.outputTokenGovernAddress_2.toLowerCase()
     ) {
       console.log(
-        'OK. 5. outputTokenGovernAddress_2: ',
+        'OK. 7. outputTokenGovernAddress_2: ',
         contractInfo.outputTokenGovernAddress_2.toString()
       );
     } else {
       console.log(
-        'ERROR. 5. outputTokenGovernAddress_2: ',
+        'ERROR. 7. outputTokenGovernAddress_2: ',
         contractInfo.outputTokenGovernAddress_2.toString()
       );
     }
@@ -92,20 +91,20 @@ module.exports = async callback => {
       config.CommissionSplitterV2.outputProportionTokenGovern_1
     ) {
       console.log(
-        'OK. 5. outputProportionTokenGovern_1: ',
+        'OK. 8. outputProportionTokenGovern_1: ',
         contractInfo.outputProportionTokenGovern_1.toString()
       );
     } else {
       console.log(
-        'ERROR. 5. outputProportionTokenGovern_1: ',
+        'ERROR. 8. outputProportionTokenGovern_1: ',
         contractInfo.outputProportionTokenGovern_1.toString()
       );
     }
 
-    if (contractInfo.tokenGovern.toString() === config.CommissionSplitterV2.tokenGovern) {
-      console.log('OK. 5. tokenGovern: ', contractInfo.tokenGovern.toString());
+    if (contractInfo.tokenGovern.toLowerCase() === config.CommissionSplitterV2.tokenGovern.toLowerCase()) {
+      console.log('OK. 9. tokenGovern: ', contractInfo.tokenGovern.toString());
     } else {
-      console.log('ERROR. 5. tokenGovern: ', contractInfo.tokenGovern.toString());
+      console.log('ERROR. 9. tokenGovern: ', contractInfo.tokenGovern.toString());
     }
   } catch (error) {
     callback(error);
