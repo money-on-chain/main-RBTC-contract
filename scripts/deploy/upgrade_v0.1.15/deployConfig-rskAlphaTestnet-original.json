@@ -29,9 +29,9 @@
   "FeeIncreaseProposal": {
     "MOC": {
       "MoCInrate": "0x8CA7685F69B4bb96D221049Ac84e2F9363ca7F2c",
-      "bitProInterestAddress": "0x09dc0796634BC515B69A2447182fD4F0e14973c6",
-      "commissionAddress": "0x6ccfbF309d6c2d9D675988be332d98CE54a42c72",
-      "bitProRate": "191414800000000",
+      "bitProInterestAddress": "<CommissionSplitterV3>",
+      "commissionAddress": "<CommissionSplitterV2>",
+      "bitProRate": "196200000000000",
       "commissionRates": {
         "MINT_BPRO_FEES_RBTC": 0.002,
         "REDEEM_BPRO_FEES_RBTC": 0.002,
@@ -39,12 +39,32 @@
         "REDEEM_DOC_FEES_RBTC": 0.002,
         "MINT_BTCX_FEES_RBTC": 0.002,
         "REDEEM_BTCX_FEES_RBTC": 0.002,
-        "MINT_BPRO_FEES_MOC": 0.001,
-        "REDEEM_BPRO_FEES_MOC": 0.001,
-        "MINT_DOC_FEES_MOC": 0.001,
-        "REDEEM_DOC_FEES_MOC": 0.001,
-        "MINT_BTCX_FEES_MOC": 0.001,
-        "REDEEM_BTCX_FEES_MOC": 0.001
+        "MINT_BPRO_FEES_MOC": 0.0015,
+        "REDEEM_BPRO_FEES_MOC": 0.0015,
+        "MINT_DOC_FEES_MOC": 0.0015,
+        "REDEEM_DOC_FEES_MOC": 0.0015,
+        "MINT_BTCX_FEES_MOC": 0.0015,
+        "REDEEM_BTCX_FEES_MOC": 0.0015
+      }
+    },
+    "ROC": {
+      "MoCInrate": "0x2B57fb820601655ca7Da16a5134db4780Aa93E74",
+      "riskProInterestAddress": "<CommissionSplitterV3>",
+      "commissionAddress": "<CommissionSplitterV2>",
+      "riskProRate": "196200000000000",
+      "commissionRates": {
+        "MINT_RISKPRO_FEES_RESERVE": 0.002,
+        "REDEEM_RISKPRO_FEES_RESERVE": 0.002,
+        "MINT_STABLETOKEN_FEES_RESERVE": 0.002,
+        "REDEEM_STABLETOKEN_FEES_RESERVE": 0.002,
+        "MINT_RISKPROX_FEES_RESERVE": 0.002,
+        "REDEEM_RISKPROX_FEES_RESERVE": 0.002,
+        "MINT_RISKPRO_FEES_MOC": 0.0015,
+        "REDEEM_RISKPRO_FEES_MOC": 0.0015,
+        "MINT_STABLETOKEN_FEES_MOC": 0.0015,
+        "REDEEM_STABLETOKEN_FEES_MOC": 0.0015,
+        "MINT_RISKPROX_FEES_MOC": 0.0015,
+        "REDEEM_RISKPROX_FEES_MOC": 0.0015
       }
     }
   },
