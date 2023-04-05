@@ -76,7 +76,7 @@ module.exports = {
       host: 'https://public-node.rsk.co',
       provider: new HDWalletProvider(mnemonic, 'https://public-node.rsk.co'),
       network_id: '*',
-      gas: 4700000,
+      gas: 6700000,
       gasPrice: 69000000,
       skipDryRun: true,
       confirmations: 1
