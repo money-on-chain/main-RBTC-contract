@@ -94,15 +94,18 @@ module.exports = async callback => {
     console.log();
 
     if (
-      contractInfo.MOC_bitProInterestAddress ===
-      config.FeeIncreaseProposal.MOC.bitProInterestAddress
+      contractInfo.MOC_bitProInterestAddress.toLowerCase() ===
+      config.FeeIncreaseProposal.MOC.bitProInterestAddress.toLowerCase()
     ) {
       console.log('OK. 1. bitProInterestAddress: ', contractInfo.MOC_bitProInterestAddress);
     } else {
       console.log('ERROR. 1. bitProInterestAddress: ', contractInfo.MOC_bitProInterestAddress);
     }
 
-    if (contractInfo.MOC_commissionAddress === config.FeeIncreaseProposal.MOC.commissionAddress) {
+    if (
+      contractInfo.MOC_commissionAddress.toLowerCase() ===
+      config.FeeIncreaseProposal.MOC.commissionAddress.toLowerCase()
+    ) {
       console.log('OK. 2. commissionAddress: ', contractInfo.MOC_commissionAddress);
     } else {
       console.log('ERROR. 2. commissionAddress: ', contractInfo.MOC_commissionAddress);
@@ -470,15 +473,18 @@ module.exports = async callback => {
     console.log();
 
     if (
-      contractInfo.ROC_riskProInterestAddress ===
-      config.FeeIncreaseProposal.ROC.riskProInterestAddress
+      contractInfo.ROC_riskProInterestAddress.toLowerCase() ===
+      config.FeeIncreaseProposal.ROC.riskProInterestAddress.toLowerCase()
     ) {
       console.log('OK. 1. riskProInterestAddress: ', contractInfo.ROC_riskProInterestAddress);
     } else {
       console.log('ERROR. 1. riskProInterestAddress: ', contractInfo.ROC_riskProInterestAddress);
     }
 
-    if (contractInfo.ROC_commissionAddress === config.FeeIncreaseProposal.ROC.commissionAddress) {
+    if (
+      contractInfo.ROC_commissionAddress.toLowerCase() ===
+      config.FeeIncreaseProposal.ROC.commissionAddress.toLowerCase()
+    ) {
       console.log('OK. 2. commissionAddress: ', contractInfo.ROC_commissionAddress);
     } else {
       console.log('ERROR. 2. commissionAddress: ', contractInfo.ROC_commissionAddress);
