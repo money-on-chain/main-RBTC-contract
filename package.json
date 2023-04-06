@@ -17,6 +17,7 @@
     "block-utils": "scripts/mine_blocks.sh",
     "truffle-compile": "truffle compile --all",
     "solium": "npx ethlint -d contracts/",
+    "solium-fix": "npx ethlint -d contracts/ --fix",
     "eslint": "npx truffle compile --all; npx eslint 'test/**/*.js' 'scripts/**/*.js'",
     "eslint-fix": "npx truffle compile --all; npx eslint --fix 'test/**/*.js' 'scripts/**/*.js'",
     "migrate-development": "npx truffle migrate --network development",
@@ -64,8 +65,7 @@
     "standard-version": "7.1.0",
     "truffle": "5.0.26",
     "truffle-hdwallet-provider": "1.0.13",
-    "web3": "1.0.0-beta.55",
-    "@zemse/solidity-flattener": "1.5.1"
+    "web3": "1.0.0-beta.55"
   },
   "engines": {
     "node": "=8.17.0"

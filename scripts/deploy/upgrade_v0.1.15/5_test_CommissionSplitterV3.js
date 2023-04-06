@@ -17,13 +17,19 @@ module.exports = async callback => {
 
     console.log('Contract storage');
 
-    if (contractInfo.outputAddress_1.toLowerCase() === config.CommissionSplitterV3.outputAddress_1.toLowerCase()) {
+    if (
+      contractInfo.outputAddress_1.toLowerCase() ===
+      config.CommissionSplitterV3.outputAddress_1.toLowerCase()
+    ) {
       console.log('OK. 1. outputAddress_1: ', contractInfo.outputAddress_1);
     } else {
       console.log('ERROR. 1. outputAddress_1: ', contractInfo.outputAddress_1);
     }
 
-    if (contractInfo.outputAddress_2.toLowerCase() === config.CommissionSplitterV3.outputAddress_2.toLowerCase()) {
+    if (
+      contractInfo.outputAddress_2.toLowerCase() ===
+      config.CommissionSplitterV3.outputAddress_2.toLowerCase()
+    ) {
       console.log('OK. 2. outputAddress_2: ', contractInfo.outputAddress_2);
     } else {
       console.log('ERROR. 2. outputAddress_2: ', contractInfo.outputAddress_2);
