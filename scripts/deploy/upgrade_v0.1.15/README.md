@@ -24,7 +24,9 @@ To implement the fee increase, we propose the following steps:
 5. The yearly fee paid by BPRO and RIFP holders will be increased to 1%.
 6. We will deploy the changer from step 2, which will be subject to a vote.
 
-![dia-flow-changes.jpg](dia-flow-changes.jpg)
+![dia-flow-changes.jpg](docs/images/dia-flow-changes.jpg)
+
+A [full size image](docs/images/dia-flow.jpg) can be seen [here](docs/images/dia-flow.jpg).
 
 
 The modifications will be applied to the components outlined in red. The MOC splitters will be modified and new instances of commission splitters will be created. These changes are straightforward and simple, making them the most convenient modification alternative for the protocol.
@@ -36,6 +38,7 @@ These steps will ensure that the fee increase is implemented in a transparent an
 
 
 Standing in the `scripts/deploy/upgrade_v0.1.15` path of the [MOC repository](https://github.com/money-on-chain/main-RBTC-contract), we run these commands:
+
 
 ```js
 $ truffle exec 1_deploy_CommissionSplitterV2.js --network rskMocMainnet2
@@ -62,34 +65,22 @@ $ truffle exec 4_deploy_CommissionSplitterV3.js --network rdocMainnet
 
 Standing in the `scripts/deploy/upgrade_v0.1.15` path of the [MOC repository](https://github.com/money-on-chain/main-RBTC-contract), we run these commands:
 
-**FIX THIS!**
 
 ```js
-truffle exec 10_deploy_FeeIncreaseProposalCombined.js --network rskMocMainnet2
+$ truffle exec 10_deploy_FeeIncreaseProposalCombined.js --network rskMocMainnet2
 ```
 
-
-## Deploy Addresses
-
-**FIX THIS!**
-
-✓ [This is the pull request (TBD)](https://github.com/money-on-chain/main-RBTC-contract/pull/???) to add these changes to the repository.
-
-✓ The `change contract`  to make the changes that is also already deployed in `mainnet` would be this [`0x0000000000000000000000000000000000000000` (TBD)](https://explorer.rsk.co/address/0x0000000000000000000000000000000000000000__ctab=Code)
-
-✓ This is the `change contract` that will be submitted to a vote.
-
-✓ The upgrade delegator in `mainnet` is [`0x5cE577f6Ec969CE9a282838D350206C52A6F338C`](https://explorer.rsk.co/address/0x5cE577f6Ec969CE9a282838D350206C52A6F338C?__ctab=Code)
+## Addresses of the new Commission Splitters components
 
 
 **Proxies**
 
 |  Environment  |  Contract  |  Address |  
 |:---|:---|:---|
-|  Money on Chain  |  `CommissionSplitterV2`  | [`0x0000000000000000000000000000000000000000` (TBD)](https://explorer.rsk.co/address/0x0000000000000000000000000000000000000000) |
-|  Money on Chain  |  `CommissionSplitterV3`  | [`0x0000000000000000000000000000000000000000` (TBD)](https://explorer.rsk.co/address/0x0000000000000000000000000000000000000000) |
-|  RIF on Chain  |  `CommissionSplitterV2`  | [`0x0000000000000000000000000000000000000000` (TBD)](https://explorer.rsk.co/address/0x0000000000000000000000000000000000000000) |
-|  RIF on Chain  |  `CommissionSplitterV3`  | [`0x0000000000000000000000000000000000000000` (TBD)](https://explorer.rsk.co/address/0x0000000000000000000000000000000000000000) |
+|  Money on Chain  |  `CommissionSplitterV2`  | [`0x81893C94E41b9D1dAAE96f8894ebBB4946d8bC72`](https://explorer.rsk.co/address/0x81893C94E41b9D1dAAE96f8894ebBB4946d8bC72?__ctab=Code) |
+|  Money on Chain  |  `CommissionSplitterV3`  | [`0x541a9c9E4985Fa2DD0Ada54d3ad0115333Ccd393`](https://explorer.rsk.co/address/0x541a9c9E4985Fa2DD0Ada54d3ad0115333Ccd393?__ctab=Code) |
+|  RIF on Chain  |  `CommissionSplitterV2`  | [`0xF7FdF7F777c43CD31C4c37Ee851F08A51ABd2DB5`](https://explorer.rsk.co/address/0xF7FdF7F777c43CD31C4c37Ee851F08A51ABd2DB5?__ctab=Code) |
+|  RIF on Chain  |  `CommissionSplitterV3`  | [`0x22E7E9a24D230bEBd569e9f376Ee08f5c448880e`](https://explorer.rsk.co/address/0x22E7E9a24D230bEBd569e9f376Ee08f5c448880e?__ctab=Code) |
 
 
 
@@ -97,7 +88,17 @@ truffle exec 10_deploy_FeeIncreaseProposalCombined.js --network rskMocMainnet2
 
 |  Environment  |  Contract  |  Address |  
 |:---|:---|:---|
-|  Money on Chain  |  `CommissionSplitterV2`  | [`0x0000000000000000000000000000000000000000` (TBD)](https://explorer.rsk.co/address/0x0000000000000000000000000000000000000000) |
-|  Money on Chain  |  `CommissionSplitterV3`  | [`0x0000000000000000000000000000000000000000` (TBD)](https://explorer.rsk.co/address/0x0000000000000000000000000000000000000000) |
-|  RIF on Chain  |  `CommissionSplitterV2`  | [`0x0000000000000000000000000000000000000000` (TBD)](https://explorer.rsk.co/address/0x0000000000000000000000000000000000000000) |
-|  RIF on Chain  |  `CommissionSplitterV3`  | [`0x0000000000000000000000000000000000000000` (TBD)](https://explorer.rsk.co/address/0x0000000000000000000000000000000000000000) |
+|  Money on Chain  |  `CommissionSplitterV2`  | [`0x86aCDeEAd366775Bc0e80AccAAF036a5de6e3E19`](https://explorer.rsk.co/address/0x86aCDeEAd366775Bc0e80AccAAF036a5de6e3E19?__ctab=Code) |
+|  Money on Chain  |  `CommissionSplitterV3`  | [`0x5b4d54517132966B0e06AAd64e613ED00A89E761`](https://explorer.rsk.co/address/0x5b4d54517132966B0e06AAd64e613ED00A89E761?__ctab=Code) |
+|  RIF on Chain  |  `CommissionSplitterV2`  | [`0x55027234a08C81C4338855aFE22677ebB61A5826`](https://explorer.rsk.co/address/0x55027234a08C81C4338855aFE22677ebB61A5826?__ctab=Code) |
+|  RIF on Chain  |  `CommissionSplitterV3`  | [`0x6B33e06c87945c925492C95287A81F9741dC4fBa`](https://explorer.rsk.co/address/0x6B33e06c87945c925492C95287A81F9741dC4fBa?__ctab=Code) |
+
+
+
+## Change Contract execution 
+
+✓ The `change contract` in `mainnet` responsible for making changes to both protocols with a single transaction is [`0xb696960377559B64F58748F22B2816195A2835cC`](https://explorer.rsk.co/address/0xb696960377559B64F58748F22B2816195A2835cC?__ctab=Code)
+
+✓ For the changes to be applied, the `change contract` must have been submitted to the voting process.
+
+✓ The `upgrade delegator` in `mainnet` is [`0x5cE577f6Ec969CE9a282838D350206C52A6F338C`](https://explorer.rsk.co/address/0x5cE577f6Ec969CE9a282838D350206C52A6F338C?__ctab=Code)
