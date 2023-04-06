@@ -16,6 +16,10 @@ jobs:
       - name: Git setup
         run: git config --global url."https://".insteadOf git://
       - uses: actions/checkout@v3
+      - name: Use Python 3.8
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
       - name: Use Node.js
         uses: actions/setup-node@v3
         with:
