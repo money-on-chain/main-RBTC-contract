@@ -20,9 +20,26 @@ If you have any questions, comments or interest in pursuing any other use cases,
 
 */
 
-pragma solidity ^0.5.0;
-// solium-disable no-experimental
+pragma solidity ^0.5.8;
 pragma experimental ABIEncoderV2;
+
+
+/**
+  @title ChangeContract
+  @notice This interface is the one used by the governance system.
+  @dev If you plan to do some changes to a system governed by this project you should write a contract
+  that does those changes, like a recipe. This contract MUST not have ANY kind of public or external function
+  that modifies the state of this ChangeContract, otherwise you could run into front-running issues when the governance
+  system is fully in place.
+ */
+interface ChangeContract {
+
+  /**
+    @notice Override this function with a recipe of the changes to be done when this ChangeContract
+    is executed
+   */
+  function execute() external;
+}
 
 
 /**
@@ -100,113 +117,112 @@ contract Ownable {
 }
 
 
-// Adaptation of https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/governance/BatchChanger.sol
+interface IMOCMoCInrate {
+    function commissionsAddress() external view returns(address payable);
+    function getBitProInterestAddress() external view returns(address payable);
+    function getBitProRate() external view returns(uint256);
+    function commissionRatesByTxType(uint8 txType) external view returns(uint256);
+
+    function MINT_BPRO_FEES_RBTC() external view returns(uint8);
+    function REDEEM_BPRO_FEES_RBTC() external view returns(uint8);
+    function MINT_DOC_FEES_RBTC() external view returns(uint8);
+    function REDEEM_DOC_FEES_RBTC() external view returns(uint8);
+    function MINT_BTCX_FEES_RBTC() external view returns(uint8);
+    function REDEEM_BTCX_FEES_RBTC() external view returns(uint8);
+    function MINT_BPRO_FEES_MOC() external view returns(uint8);
+    function REDEEM_BPRO_FEES_MOC() external view returns(uint8);
+    function MINT_DOC_FEES_MOC() external view returns(uint8);
+    function REDEEM_DOC_FEES_MOC() external view returns(uint8);
+    function MINT_BTCX_FEES_MOC() external view returns(uint8);
+    function REDEEM_BTCX_FEES_MOC() external view returns(uint8);
+
+    function setCommissionsAddress(address payable newCommissionsAddress)  external;
+    function setBitProInterestAddress(address payable newBitProInterestAddress) external;
+    function setBitProRate(uint256 newBitProRate) external;
+    function setCommissionRateByTxType(uint8 txType, uint256 value) external;
+}
+
 /**
- * @dev Contract module that groups operations to be run by the Governor in a single transaction
+  @notice This changer sets Fee increase & New commission splitters in MoC Platform operations
  */
-contract BatchChanger is Ownable {
-  address[] public targetsToExecute;
-  bytes[] public datasToExecute;
+contract FeeIncreaseProposal is ChangeContract, Ownable {
+  IMOCMoCInrate public mocInrate;
+  address payable public commissionAddress;
+  address payable public bitProInterestAddress;
+  uint256 public bitProRate;
+  CommissionRates[] public commissionRates;
+  uint8 public constant COMMISSION_RATES_ARRAY_MAX_LENGTH = 50;
+  uint256 public constant PRECISION = 10**18;
 
-  /**
-   * @dev Emitted when a call is scheduled.
-   */
-  event CallScheduled(address indexed target, bytes data);
+  struct CommissionRates {
+    uint8 txType;
+    uint256 fee;
+  }
 
-  /**
-    * @dev Emitted when a call is performed.
-    */
-  event CallExecuted(address indexed target, bytes data);
+  constructor(
+    IMOCMoCInrate _mocInrate,
+    address payable _commissionAddress,
+    address payable _bitProInterestAddress,
+    uint256 _bitProRate,
+    CommissionRates[] memory _commissionRates
+  ) public {
+    require(_mocInrate != IMOCMoCInrate(0), "Wrong MoCInrate contract address");
+    require(_commissionAddress != address(0), "Wrong Commission Address");
+    require(_bitProInterestAddress != address(0), "Wrong BitPro Interest target Address");
+    require(
+          _bitProRate <= PRECISION,
+          "Wrong bitProRate should not be higher than precision"
+        );
 
-  /**
-   * @dev Length of the targetsToExecute array
-   */
-  function targetsToExecuteLength() public view returns(uint) {
-    return targetsToExecute.length;
+    mocInrate = _mocInrate;
+    commissionAddress = _commissionAddress;
+    bitProInterestAddress = _bitProInterestAddress;
+    bitProRate = _bitProRate;
+    setCommissionRatesInternal(_commissionRates);
+  }
+
+  function execute() external {
+    require(mocInrate != IMOCMoCInrate(0), "Wrong MoCInrate contract address");
+
+    mocInrate.setCommissionsAddress(commissionAddress);
+    mocInrate.setBitProInterestAddress(bitProInterestAddress);
+    mocInrate.setBitProRate(bitProRate);
+    initializeCommissionRates();
+
+    // Execute only one time
+    mocInrate = IMOCMoCInrate(0);
   }
 
   /**
-   * @dev Length of the datasToExecute array
-   */
-  function datasToExecuteLength() public view returns(uint) {
-    return datasToExecute.length;
+    @dev returns the commission rate fees array length
+  */
+  function commissionRatesLength() public view returns (uint256) {
+    return commissionRates.length;
   }
 
   /**
-    * @dev Schedule an operation containing a batch of transactions.
-    *
-    * Emits one {CallScheduled} event per transaction in the batch.
-    *
-    */
-  function scheduleBatch(
-    address[] memory targets,
-    bytes[] memory datas
-  ) public onlyOwner {
-    require(targets.length == datas.length, "BatchChanger: length mismatch");
+    @dev initializes the commission rate fees by transaction type to use in the MoCInrate contract
+  */
+  function initializeCommissionRates() internal {
+    require(commissionRates.length > 0, "commissionRates cannot be empty");
+    // Change the error message according to the value of the COMMISSION_RATES_ARRAY_MAX_LENGTH constant
+    require(commissionRates.length <= COMMISSION_RATES_ARRAY_MAX_LENGTH, "commissionRates length must be between 1 and 50");
 
-    for (uint256 i = 0; i < targets.length; ++i) {
-      _schedule(targets[i], datas[i]);
+    for (uint256 i = 0; i < commissionRates.length; i++) {
+      mocInrate.setCommissionRateByTxType(commissionRates[i].txType, commissionRates[i].fee);
     }
   }
 
-  /**
-    * @dev Execute an (ready) operation containing a batch of transactions.
-    *
-    * Emits one {CallExecuted} event per transaction in the batch.
-    *
-    * Should be called by the governor, but this contract does not check that explicitly because
-    * it is not its responsability in the current architecture
-    */
-  function execute() public {
-    for (uint256 i = 0; i < targetsToExecute.length; ++i) {
-      _call(targetsToExecute[i], datasToExecute[i]);
+  function setCommissionRatesInternal(CommissionRates[] memory _commissionRates) internal {
+    require(_commissionRates.length > 0, "commissionRates cannot be empty");
+    // Change the error message according to the value of the COMMISSION_RATES_ARRAY_MAX_LENGTH constant
+    require(_commissionRates.length <= COMMISSION_RATES_ARRAY_MAX_LENGTH, "commissionRates length must be between 1 and 50");
+
+    delete commissionRates;
+
+    for (uint256 i = 0; i < _commissionRates.length; i++){
+      commissionRates.push(_commissionRates[i]);
     }
-    delete targetsToExecute;
-    delete datasToExecute;
-  }
-
-  /**
-    * @dev Execute an operation's call.
-    *
-    * Emits a {CallExecuted} event.
-    */
-  function _call(
-    address target,
-    bytes memory data
-  ) private {
-    // solium-disable security/no-low-level-calls
-    (bool success, bytes memory returndata) = target.call(data);
-    require(success, string(returndata));
-
-    emit CallExecuted(target, data);
-  }
-
-  /**
-   * @dev Schedule an operation containing a single transaction.
-   *
-   * Emits a {CallScheduled} event.
-   *
-   */
-  function _schedule(
-    address target,
-    bytes memory data
-  ) private {
-    targetsToExecute.push(target);
-    datasToExecute.push(data);
-    emit CallScheduled(target, data);
-  }
-
-  /**
-    * @dev Schedule a single transaction.
-    *
-    * Emits one {CallScheduled} event.
-    *
-    */
-  function schedule(
-    address target,
-    bytes memory data
-  ) public onlyOwner {
-    _schedule(target, data);
   }
 
 }

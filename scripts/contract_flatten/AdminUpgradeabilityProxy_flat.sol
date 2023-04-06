@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: 
+// SPDX-License-Identifier:
 // File: zos-lib/contracts/upgradeability/Proxy.sol
 
 pragma solidity ^0.5.0;
@@ -190,7 +190,7 @@ contract UpgradeabilityProxy is BaseUpgradeabilityProxy {
       (bool success,) = _logic.delegatecall(_data);
       require(success);
     }
-  }  
+  }
 }
 
 // File: zos-lib/contracts/upgradeability/BaseAdminUpgradeabilityProxy.sol
@@ -321,7 +321,7 @@ pragma solidity ^0.5.0;
 
 /**
  * @title AdminUpgradeabilityProxy
- * @dev Extends from BaseAdminUpgradeabilityProxy with a constructor for 
+ * @dev Extends from BaseAdminUpgradeabilityProxy with a constructor for
  * initializing the implementation, admin, and init data.
  */
 contract AdminUpgradeabilityProxy is BaseAdminUpgradeabilityProxy, UpgradeabilityProxy {
