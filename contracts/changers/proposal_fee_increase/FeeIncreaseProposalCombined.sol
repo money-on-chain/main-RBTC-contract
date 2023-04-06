@@ -48,18 +48,18 @@ contract FeeIncreaseProposalCombined is ChangeContract, Ownable {
     require(_MOC_commissionAddress != address(0), "Wrong MoC Commission Address");
     require(_MOC_bitProInterestAddress != address(0), "Wrong MoC BitPro Interest target Address");
     require(
-          _MOC_bitProRate <= PRECISION,
-          "Wrong MoC bitProRate should not be higher than precision"
-        );
+      _MOC_bitProRate <= PRECISION,
+      "Wrong MoC bitProRate should not be higher than precision"
+    );
 
     // RoC Platform
     require(_ROC_mocInrate != IROCMoCInrate(0), "Wrong RoC MoCInrate contract address");
     require(_ROC_commissionAddress != address(0), "Wrong RoC Commission Address");
     require(_ROC_riskProInterestAddress != address(0), "Wrong RoC RiskPro Interest target Address");
     require(
-          _ROC_riskProRate <= PRECISION,
-          "Wrong RoC riskProProRate should not be higher than precision"
-        );
+      _ROC_riskProRate <= PRECISION,
+      "Wrong RoC riskProProRate should not be higher than precision"
+    );
 
     // MoC Platform
     MOC_mocInrate = _MOC_mocInrate;

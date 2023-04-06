@@ -33,9 +33,9 @@ contract FeeIncreaseProposal is ChangeContract, Ownable {
     require(_commissionAddress != address(0), "Wrong Commission Address");
     require(_bitProInterestAddress != address(0), "Wrong BitPro Interest target Address");
     require(
-          _bitProRate <= PRECISION,
-          "Wrong bitProRate should not be higher than precision"
-        );
+      _bitProRate <= PRECISION,
+      "Wrong bitProRate should not be higher than precision"
+    );
 
     mocInrate = _mocInrate;
     commissionAddress = _commissionAddress;

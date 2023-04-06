@@ -93,9 +93,9 @@ contract CommissionSplitterV3 is Governed, ReentrancyGuard {
     onlyAuthorizedChanger
   {
     require(
-          _outputProportion_1 <= PRECISION,
-          "Output Proportion #1 should not be higher than precision"
-        );
+      _outputProportion_1 <= PRECISION,
+      "Output Proportion #1 should not be higher than precision"
+    );
     outputProportion_1 = _outputProportion_1;
   }
 

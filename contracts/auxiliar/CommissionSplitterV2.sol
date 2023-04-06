@@ -12,7 +12,13 @@ import "openzeppelin-eth/contracts/utils/ReentrancyGuard.sol";
  */
 contract CommissionSplitterV2 is Governed, ReentrancyGuard {
 
-  event SplitExecuted(uint256 outputAmount_1, uint256 outputAmount_2, uint256 outputAmount_3, uint256 outputTokenGovernAmount_1, uint256 outputTokenGovernAmount_2);
+  event SplitExecuted(
+    uint256 outputAmount_1,
+    uint256 outputAmount_2,
+    uint256 outputAmount_3,
+    uint256 outputTokenGovernAmount_1,
+    uint256 outputTokenGovernAmount_2
+  );
 
   // Math
   using SafeMath for uint256;
@@ -162,9 +168,9 @@ contract CommissionSplitterV2 is Governed, ReentrancyGuard {
     onlyAuthorizedChanger
   {
     require(
-          _outputProportion_1 <= PRECISION,
-          "Output Proportion #1 should not be higher than precision"
-        );
+      _outputProportion_1 <= PRECISION,
+      "Output Proportion #1 should not be higher than precision"
+    );
     outputProportion_1 = _outputProportion_1;
   }
 
@@ -198,9 +204,9 @@ contract CommissionSplitterV2 is Governed, ReentrancyGuard {
     onlyAuthorizedChanger
   {
     require(
-          _outputProportionTokenGovern_1 <= PRECISION,
-          "Output Proportion Token Govern should not be higher than precision"
-        );
+      _outputProportionTokenGovern_1 <= PRECISION,
+      "Output Proportion Token Govern should not be higher than precision"
+    );
     outputProportionTokenGovern_1 = _outputProportionTokenGovern_1;
   }
 
