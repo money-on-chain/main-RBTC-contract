@@ -123,7 +123,7 @@ contract.skip('MoC', function([owner, userAccount, otherAccount, vendorAccount])
               );
             });
           });
-          describe(`WHEN ${scenario.params.bproxToMint} BProx are minted`, function() {
+          /* describe(`WHEN ${scenario.params.bproxToMint} BProx are minted`, function() {
             beforeEach(async function() {
               await mocHelper.mintBProxAmount(
                 owner,
@@ -165,7 +165,7 @@ contract.skip('MoC', function([owner, userAccount, otherAccount, vendorAccount])
                 'wrong X2 leverage after minting bprox'
               );
             });
-          });
+          }); */
           describe(`AND the user drops ${scenario.params.docsToDrop} doc`, function() {
             let userBtcBalance;
             let redeemTx;

@@ -14,6 +14,7 @@ const initializeDeleveraging = async (owner, vendorAccount, accounts) => {
 };
 
 contract.skip('MoC: Gas limit on deleveraging', function([owner, vendorAccount, ...accounts]) {
+  /*
   initialAccounts = accounts.slice(0, 300);
   afterAccounts = accounts.slice(300, 500);
   before(async function() {
@@ -148,4 +149,6 @@ contract.skip('MoC: Gas limit on deleveraging', function([owner, vendorAccount, 
       });
     });
   });
+
+   */
 });

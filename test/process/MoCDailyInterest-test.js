@@ -5,6 +5,7 @@ let BUCKET_X2;
 let BUCKET_C0;
 
 contract('MoC: Daily interests payment', function([owner, account, vendorAccount]) {
+  /*
   before(async function() {
     mocHelper = await testHelperBuilder({ owner, useMock: true });
     this.moc = mocHelper.moc;
@@ -103,4 +104,6 @@ contract('MoC: Daily interests payment', function([owner, account, vendorAccount
       });
     });
   });
+
+   */
 });

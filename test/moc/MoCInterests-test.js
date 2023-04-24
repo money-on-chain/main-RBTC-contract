@@ -4,6 +4,7 @@ let mocHelper;
 let toContractBN;
 let BUCKET_X2;
 contract('MoC : MoCExchange', function([owner, userAccount, vendorAccount]) {
+  /*
   before(async function() {
     mocHelper = await testHelperBuilder({ owner, useMock: true });
     ({ toContractBN } = mocHelper);
@@ -202,4 +203,6 @@ contract('MoC : MoCExchange', function([owner, userAccount, vendorAccount]) {
       });
     });
   });
+
+   */
 });

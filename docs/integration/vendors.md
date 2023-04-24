@@ -34,17 +34,17 @@ Note that the markup has also a precision of 18 decimals, i.e. a 1 \* 10^15 in t
 
 **Base commission**
 
-* Pay in RBTC: 0.1%
-* Pay in MOC: 0.05%
+* Pay in RBTC: 0.2%
+* Pay in MOC: 0.15%
 
 **Markup**
 
 * Webapp of Money on chain is a vendor
-* Markup is 0.05%.
-* Markup in RBTC: 0.05%
-* Markup in MOC: 0.05%
-* Final Commission in RBTC: 0.1% + 0.05% = 0.15%
-* Final Commission in MOC: 0.05% + 0.05% = 0.10%
+* Markup is 0.1%.
+* Markup in RBTC: 0.1%
+* Markup in MOC: 0.1%
+* Final Commission in RBTC: 0.2% + 0.1% = 0.30%
+* Final Commission in MOC: 0.15% + 0.1% = 0.25%
 
 
 

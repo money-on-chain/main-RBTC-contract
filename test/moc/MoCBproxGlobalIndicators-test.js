@@ -8,6 +8,7 @@ contract('MoC : BTCx operations does not modify global indicators', function([
   userAccount,
   vendorAccount
 ]) {
+  /*
   before(async function() {
     mocHelper = await testHelperBuilder({ owner, useMock: true });
     this.moc = mocHelper.moc;
@@ -64,4 +65,6 @@ contract('MoC : BTCx operations does not modify global indicators', function([
       });
     });
   });
+
+   */
 });

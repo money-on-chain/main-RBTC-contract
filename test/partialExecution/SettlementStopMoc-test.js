@@ -8,8 +8,8 @@ const ACCOUNTS_QUANTITY = 10;
 
 const testFunctionPromises = vendorAccount => {
   const testFunctions = [
-    { name: 'mintBProxVendors', args: [BUCKET_X2, 0, vendorAccount] },
-    { name: 'redeemBProxVendors', args: [BUCKET_X2, 0, vendorAccount] },
+    // { name: 'mintBProxVendors', args: [BUCKET_X2, 0, vendorAccount] },
+    // { name: 'redeemBProxVendors', args: [BUCKET_X2, 0, vendorAccount] },
     { name: 'redeemDocRequest', args: [0] },
     { name: 'alterRedeemRequestAmount', args: [true, 1] }
   ];

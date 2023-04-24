@@ -1,6 +1,6 @@
 {
   "name": "money-on-chain",
-  "version": "0.1.12",
+  "version": "0.1.14",
   "private": true,
   "homepage": "https://github.com/money-on-chain/main-RBTC-contract",
   "description": "Money On Chain - Main RBTC Contract",
@@ -17,6 +17,7 @@
     "block-utils": "scripts/mine_blocks.sh",
     "truffle-compile": "truffle compile --all",
     "solium": "npx ethlint -d contracts/",
+    "solium-fix": "npx ethlint -d contracts/ --fix",
     "eslint": "npx truffle compile --all; npx eslint 'test/**/*.js' 'scripts/**/*.js'",
     "eslint-fix": "npx truffle compile --all; npx eslint --fix 'test/**/*.js' 'scripts/**/*.js'",
     "migrate-development": "npx truffle migrate --network development",
@@ -28,17 +29,13 @@
     "copy-abis": "npx truffle compile; node copyAbis.js",
     "flatten-contracts": "bash scripts/contract_flattener.sh"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/money-on-chain/main-RBTC-contract.git"
-  },
   "keywords": [],
   "author": "Atix",
   "license": "AGPL-3.0",
   "dependencies": {
     "@thinkanddev/solidoc": "^3.0.1",
-    "eth-gas-reporter": "^0.2.22",
-    "moc-governance": "git+ssh://git@github.com:money-on-chain/Areopagus-Governance.git#v0.3.1-optimizer",
+    "eth-gas-reporter": "0.2.22",
+    "moc-governance": "https://github.com/money-on-chain/Areopagus-Governance.git#v0.3.1-optimizer",
     "openzeppelin-eth": "2.1.3",
     "openzeppelin-solidity": "2.3.0",
     "zos": "2.3.1",
@@ -68,8 +65,7 @@
     "standard-version": "7.1.0",
     "truffle": "5.0.26",
     "truffle-hdwallet-provider": "1.0.13",
-    "web3": "1.0.0-beta.55",
-    "@zemse/solidity-flattener": "1.5.1"
+    "web3": "1.0.0-beta.55"
   },
   "engines": {
     "node": "=8.17.0"

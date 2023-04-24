@@ -1,0 +1,30 @@
+name: CI Test
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+    name: Test contracts
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Install build develop
+        run: sudo apt-get install make gcc g++ python3 git bash
+      - name: Git setup
+        run: git config --global url."https://".insteadOf git://
+      - uses: actions/checkout@v3
+      - name: Use Python 3.8
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '8.17.0'
+      - run: npm ci
+      - run: npm run solium
+      - run: npm run eslint
+      - run: npm test
