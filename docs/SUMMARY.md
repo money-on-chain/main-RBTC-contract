@@ -53,9 +53,6 @@
         * [Outside Settlement: redeemFreeDocVendors](integration/redeemFreeDocVendors.md)
         * [On Liquidation State: redeemAllDoc](integration/redeemAllDoc.md)
         * [How-to](integration/redeeming-docs-howto.md)
-* [Getting BTCx](integration/getting-btc2x.md)
-    * [Minting BTCx](integration/minting-btc2x.md)
-    * [Redeeming BTCx](integration/redeeming-btc2x.md)
 * [Commission fees values](integration/commission-fees-values.md)
 * [Vendors](integration/vendors.md)
 * [Fees calculation](integration/fees-calculation.md)
@@ -72,8 +69,7 @@
     * [Example code redeeming free DOC](integration/example-code-redeeming-free-doc.md)
     * [Example code redeeming DOC Request](integration/example-code-redeeming-doc-request.md)
     * [Example code redeeming all DOC](integration/example-code-redeeming-all-doc.md)
-    * [Example code minting BTCx](integration/example-code-minting-btc2x.md)
-    * [Example code redeeming BTCx](integration/example-code-redeeming-btc2x.md)
+
 
 ## Smart contracts
 
