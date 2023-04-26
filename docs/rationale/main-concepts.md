@@ -27,8 +27,6 @@ It's targeted towards users seeking to _hodl_ Bitcoins and also receive a passiv
 
 The MoC token is designed to govern a decentralized autonomous organization (DAO), and can also be used to pay fees for the use of the platform at a lower rate than those to be paid with BTC. MoC holders will also be able to get a reward for staking and providing services to the platform. MoC token holders will vote on contract modifications and new features. On a basic level, the DAO decides whether or not to update the code of the smart contract.
 
-## Leveraged instruments
-
 ## Oracle
 
 It's crucial to the system workflow to have an up to date BTC-USD rate price feed to relay on. This is currently achieved by a separate contract so that it can be easily replaced in the future without affecting the MoC system. See [PriceProvider](priceprovider.md).

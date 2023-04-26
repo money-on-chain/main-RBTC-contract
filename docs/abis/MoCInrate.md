@@ -601,6 +601,8 @@ function setCommissionsAddress(address payable newCommissionsAddress) public non
 
 Calculates interest rate for BProx Minting, redeem and Free Doc Redeem
 
+> ⚠ This has been deprecated since the [Proposal to remove leveraged positions](https://forum.moneyonchain.com/t/removal-of-leveraged-positions/298) from the protocol was **approved**, however it is necessary to maintain the contracts and their documentation for legacy support.
+
 ```js
 function spotInrate() public view
 returns(uint256)
@@ -656,6 +658,8 @@ returns(uint256)
 
 Extract the inrate from the passed RBTC value for Bprox minting operation
 
+> ⚠ This has been deprecated since the [Proposal to remove leveraged positions](https://forum.moneyonchain.com/t/removal-of-leveraged-positions/298) from the protocol was **approved**, however it is necessary to maintain the contracts and their documentation for legacy support.
+
 ```js
 function calcMintInterestValues(bytes32 bucket, uint256 rbtcAmount) public view
 returns(uint256)
@@ -702,6 +706,8 @@ This function calculates the interest to return to the user
 in a BPRox redemption. It uses a mechanism to counteract the effect
 of free docs redemption. It will be replaced with FreeDoC redemption
 interests in the future
+
+> ⚠ This has been deprecated since the [Proposal to remove leveraged positions](https://forum.moneyonchain.com/t/removal-of-leveraged-positions/298) from the protocol was **approved**, however it is necessary to maintain the contracts and their documentation for legacy support.
 
 ```js
 function calcFinalRedeemInterestValue(bytes32 bucket, uint256 rbtcToRedeem) public view
@@ -964,6 +970,8 @@ Interests [using reservePrecision]
 ### simulateDocMovement
 
 Calculates the final amount of Bucket 0 DoCs on BProx mint/redeem
+
+> ⚠ This has been deprecated since the [Proposal to remove leveraged positions](https://forum.moneyonchain.com/t/removal-of-leveraged-positions/298) from the protocol was **approved**, however it is necessary to maintain the contracts and their documentation for legacy support.
 
 ```js
 function simulateDocMovement(bytes32 bucket, uint256 btcAmount, bool onMinting) internal view

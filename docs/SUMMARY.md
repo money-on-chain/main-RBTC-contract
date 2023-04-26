@@ -85,7 +85,6 @@
     * [MakeUnstoppable](abis/MakeUnstoppable.md)
     * [MoC](abis/MoC.md)
     * [MoCBProxManager](abis/MoCBProxManager.md)
-    * [MoCBProxManagerUpdater](abis/MoCBProxManagerUpdater.md)
     * [MoCBucketContainer](abis/MoCBucketContainer.md)
     * [MoCConnector](abis/MoCConnector.md)
     * [MoCConverter](abis/MoCConverter.md)

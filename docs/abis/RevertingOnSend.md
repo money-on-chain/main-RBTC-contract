@@ -71,6 +71,8 @@ function setAcceptingMoney(bool accepting) public nonpayable
 
 ### mintBProx
 
+> ⚠ This has been deprecated since the [Proposal to remove leveraged positions](https://forum.moneyonchain.com/t/removal-of-leveraged-positions/298) from the protocol was **approved**, however it is necessary to maintain the contracts and their documentation for legacy support.
+
 ```js
 function mintBProx(bytes32 bucket, uint256 bproxAmountToMint, address payable vendorAccount) public payable
 ```
