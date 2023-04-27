@@ -47,7 +47,7 @@ MoC also handles the [System states](system-states.md) by a series of modifiers:
   }
 ```
 
-- _bucketStateTransition_: Any method that can potentially modify a bucket values is require to first verify if current conditions doesn't demand that bucket liquidation. This is currently used while minting/redeeming Leveraged instruments (BProX).
+- _bucketStateTransition_: Any method that can potentially modify a bucket values is require to first verify if current conditions doesn't demand that bucket liquidation.
 
 ```
   modifier bucketStateTransition(string bucket) {

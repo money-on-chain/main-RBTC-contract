@@ -245,6 +245,8 @@ returns(uint256)
 
 ### maxBProxBtcValue
 
+> ⚠ This has been deprecated since the [Proposal to remove leveraged positions](https://forum.moneyonchain.com/t/removal-of-leveraged-positions/298) from the protocol was **approved**, however it is necessary to maintain the contracts and their documentation for legacy support.
+
 ```js
 function maxBProxBtcValue(uint256 nDoc, uint256 peg, uint256 btcPrice, uint256 lev) public view
 returns(uint256)
@@ -260,6 +262,8 @@ returns(uint256)
 | lev | uint256 |  | 
 
 ### maxBProxBtcValueInfiniteLeverage
+
+> ⚠ This has been deprecated since the [Proposal to remove leveraged positions](https://forum.moneyonchain.com/t/removal-of-leveraged-positions/298) from the protocol was **approved**, however it is necessary to maintain the contracts and their documentation for legacy support.
 
 ```js
 function maxBProxBtcValueInfiniteLeverage(uint256 nDoc, uint256 peg, uint256 btcPrice, uint256 delta) public view

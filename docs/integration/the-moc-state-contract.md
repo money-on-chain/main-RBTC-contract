@@ -2,7 +2,7 @@
 
 ## MoCInrate
 
-Deals with interest payments on leverage deposits and defines the interest rates to trade with DOC and BTCx. Also with the commission rates to operate on the Money on Chain platform.
+Deals defines the interest rates to trade with DOC. Also with the commission rates to operate on the Money on Chain platform.
 
 - mainnet: [ 0xc0f9B54c41E3d0587Ce0F7540738d8d649b0A3F3 ](https://explorer.rsk.co/address/0xc0f9B54c41E3d0587Ce0F7540738d8d649b0A3F3)
 - testnet: [ 0x76790f846FAAf44cf1B2D717d0A6c5f6f5152B60 ](https://explorer.testnet.rsk.co/address/0x76790f846FAAf44cf1B2D717d0A6c5f6f5152B60)

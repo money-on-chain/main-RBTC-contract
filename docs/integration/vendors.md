@@ -225,8 +225,6 @@ Gets vendor staking
 To integrate vendors in mint, redeem , etc please take a look to:
 
 * [MoC Minting BitPro](minting-bitpros.md)
-* [MoC Minting BTCx](minting-btc2x.md)
 * [MoC Minting DoC](minting-docs.md)
 * [MoC Redeeming BitPro](redeeming-bitpros.md)
-* [MoC Redeeming BTCx](redeeming-btc2x.md)
 * [MoC Redeeming DoC](redeeming-docs.md)

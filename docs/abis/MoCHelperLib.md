@@ -111,6 +111,8 @@ average interest rate [using mocPrecision]
 
 ### spotInrate
 
+> ⚠ This has been deprecated since the [Proposal to remove leveraged positions](https://forum.moneyonchain.com/t/removal-of-leveraged-positions/298) from the protocol was **approved**, however it is necessary to maintain the contracts and their documentation for legacy support.
+
 Calculates spot interest rate that BProx owners should pay to BPro owners: Rate = tMax * (abRatio ** power) + tMin
 
 ```js
@@ -359,6 +361,8 @@ BPro BTC price [using reservePrecision]
 | nTP | uint256 | BPro amount [using mocPrecision] | 
 
 ### bproxBProPrice
+
+> ⚠ This has been deprecated since the [Proposal to remove leveraged positions](https://forum.moneyonchain.com/t/removal-of-leveraged-positions/298) from the protocol was **approved**, however it is necessary to maintain the contracts and their documentation for legacy support.
 
 Calculates BPro BTC price: BProxInBPro = bproxTecPrice / bproPrice
 
@@ -681,6 +685,8 @@ btc to move [using reservePrecision]
 | lev | uint256 | L bucket leverage [using mocPrecision] | 
 
 ### maxBProxBtcValue
+
+> ⚠ This has been deprecated since the [Proposal to remove leveraged positions](https://forum.moneyonchain.com/t/removal-of-leveraged-positions/298) from the protocol was **approved**, however it is necessary to maintain the contracts and their documentation for legacy support.
 
 Max amount of BTC allowed to be used to mint bprox: Maxbprox = nDOC/ (PEG*B*(lev-1))
 

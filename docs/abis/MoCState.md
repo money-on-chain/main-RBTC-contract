@@ -750,6 +750,8 @@ maxBPro for redeem [using mocPrecision]
 
 ### maxBProx
 
+> ⚠ This has been deprecated since the [Proposal to remove leveraged positions](https://forum.moneyonchain.com/t/removal-of-leveraged-positions/298) from the protocol was **approved**, however it is necessary to maintain the contracts and their documentation for legacy support.
+
 GLOBAL max bprox to mint
 
 ```js
@@ -768,6 +770,8 @@ maxBProx [using reservePrecision]
 | bucket | bytes32 | Name of the bucket used | 
 
 ### maxBProxBtcValue
+
+> ⚠ This has been deprecated since the [Proposal to remove leveraged positions](https://forum.moneyonchain.com/t/removal-of-leveraged-positions/298) from the protocol was **approved**, however it is necessary to maintain the contracts and their documentation for legacy support.
 
 ⤾ overrides IMoCState.maxBProxBtcValue
 
@@ -948,6 +952,8 @@ the BPro USD Price [using mocPrecision]
 
 ### maxBProxBProValue
 
+> ⚠ This has been deprecated since the [Proposal to remove leveraged positions](https://forum.moneyonchain.com/t/removal-of-leveraged-positions/298) from the protocol was **approved**, however it is necessary to maintain the contracts and their documentation for legacy support.
+
 GLOBAL max bprox to mint
 
 ```js
@@ -966,6 +972,8 @@ max BPro allowed to be spent to mint BProx [using reservePrecision]
 | bucket | bytes32 | Name of the bucket used | 
 
 ### bproxBProPrice
+
+> ⚠ This has been deprecated since the [Proposal to remove leveraged positions](https://forum.moneyonchain.com/t/removal-of-leveraged-positions/298) from the protocol was **approved**, however it is necessary to maintain the contracts and their documentation for legacy support.
 
 BUCKET BProx price in BPro
 
@@ -1499,6 +1507,8 @@ returns(uint256)
 
 ### bproxToBtc
 
+> ⚠ This has been deprecated since the [Proposal to remove leveraged positions](https://forum.moneyonchain.com/t/removal-of-leveraged-positions/298) from the protocol was **approved**, however it is necessary to maintain the contracts and their documentation for legacy support.
+
 ⤾ overrides IMoCState.bproxToBtc
 
 ```js
@@ -1515,6 +1525,8 @@ returns(uint256)
 
 ### bproxToBtcHelper
 
+> ⚠ This has been deprecated since the [Proposal to remove leveraged positions](https://forum.moneyonchain.com/t/removal-of-leveraged-positions/298) from the protocol was **approved**, however it is necessary to maintain the contracts and their documentation for legacy support.
+
 ```js
 function bproxToBtcHelper(uint256 bproxAmount, bytes32 bucket) internal view
 returns(uint256)
@@ -1528,6 +1540,8 @@ returns(uint256)
 | bucket | bytes32 |  | 
 
 ### btcToBProx
+
+> ⚠ This has been deprecated since the [Proposal to remove leveraged positions](https://forum.moneyonchain.com/t/removal-of-leveraged-positions/298) from the protocol was **approved**, however it is necessary to maintain the contracts and their documentation for legacy support.
 
 ⤾ overrides IMoCState.btcToBProx
 

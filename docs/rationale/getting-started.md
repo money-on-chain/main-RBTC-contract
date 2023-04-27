@@ -78,9 +78,6 @@ For more technical information you can see our [ABI documentation](../abis/abi-d
 - _proxyAdmin_: Address of the Proxy Admin contract
 - _commissionSplitter_: Defines an address for an existing CommissionSplitter. If none is set, then the CommissionSplitter will be deployed.
 - _mocCommissionProportion_: Defines the proportion of commissions that will be injected as collateral to MoC. This configuration only works if no _commissionSplitter_ address is set.
-- _btcxTmin_: Minimum interest rate.
-- _btcxPower_: Power is a parameter for interest rate calculation.
-- _btcxTmax_: Maximun interest rate.
 - _bitProHolderRate_: BitPro holder interest rate.
 - _daysBitProHolderExecutePayment_: Days to execute payment
 - _targetAddressBitProInterest_: Target address to transfer the weekly BitPro holders

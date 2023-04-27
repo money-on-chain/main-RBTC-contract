@@ -77,6 +77,8 @@ We understand that this solution makes the system vulnerable on deploy stage, as
 
 ## Block gas limit prevention
 
+> ⚠ This has been deprecated since the [Proposal to remove leveraged positions](https://forum.moneyonchain.com/t/removal-of-leveraged-positions/298) from the protocol was **approved**, however it is necessary to maintain the contracts and their documentation for legacy support.
+
 Although not recomended, dynamic array looping is needed to be performed on certain functions:
 
 - On Settlement, while processing _DoCRedeemRequest_ or _BProX_ collection.
