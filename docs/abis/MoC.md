@@ -282,6 +282,8 @@ function initialize(address connectorAddress, address governorAddress, address s
 
 ### bproxBalanceOf
 
+> ⚠ This has been deprecated since the [Proposal to remove leveraged positions](https://forum.moneyonchain.com/t/removal-of-leveraged-positions/298) from the protocol was **approved**, however it is necessary to maintain the contracts and their documentation for legacy support.
+
 Gets the BProx balance of an address
 
 ```js
@@ -474,6 +476,8 @@ function mintDocVendors(uint256 btcToMint, address payable vendorAccount) public
 
 ### redeemBProx
 
+> ⚠ This has been deprecated since the [Proposal to remove leveraged positions](https://forum.moneyonchain.com/t/removal-of-leveraged-positions/298) from the protocol was **approved**, however it is necessary to maintain the contracts and their documentation for legacy support.
+
 Redeems Bprox Tokens and pays the comissions of the operation in RBTC (retrocompatible function).
 
 ```js
@@ -488,6 +492,8 @@ function redeemBProx(bytes32 bucket, uint256 bproxAmount) public nonpayable
 | bproxAmount | uint256 | Amount in Bprox | 
 
 ### redeemBProxVendors
+
+> ⚠ This has been deprecated since the [Proposal to remove leveraged positions](https://forum.moneyonchain.com/t/removal-of-leveraged-positions/298) from the protocol was **approved**, however it is necessary to maintain the contracts and their documentation for legacy support.
 
 Redeems Bprox Tokens and pays the comissions of the operation in RBTC
 
@@ -505,6 +511,10 @@ function redeemBProxVendors(bytes32 bucket, uint256 bproxAmount, address payable
 
 ### mintBProx
 
+> ⚠ This has been deprecated since the [Proposal to remove leveraged positions](https://forum.moneyonchain.com/t/removal-of-leveraged-positions/298) from the protocol was **approved**, however it is necessary to maintain the contracts and their documentation for legacy support.
+
+> ⚠ See the [approved technical proposal](https://forum.moneyonchain.com/t/technical-proposal-for-removal-of-leveraged-positions/308#technical-proposal-for-removal-of-leveraged-positions-1) to understand how the behavior of this function has changed.
+
 BUCKET bprox minting (retrocompatible function).
 
 ```js
@@ -519,6 +529,10 @@ function mintBProx(bytes32 bucket, uint256 btcToMint) public payable
 | btcToMint | uint256 | amount to mint on RBTC | 
 
 ### mintBProxVendors
+
+> ⚠ This has been deprecated since the [Proposal to remove leveraged positions](https://forum.moneyonchain.com/t/removal-of-leveraged-positions/298) from the protocol was **approved**, however it is necessary to maintain the contracts and their documentation for legacy support.
+
+> ⚠ See the [approved technical proposal](https://forum.moneyonchain.com/t/technical-proposal-for-removal-of-leveraged-positions/308#technical-proposal-for-removal-of-leveraged-positions-1) to understand how the behavior of this function has changed.
 
 BUCKET bprox minting
 

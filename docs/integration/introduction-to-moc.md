@@ -4,9 +4,8 @@ Money On Chain is a suite of smart contracts whose purpose is providing:
 
 - A bitcoin-collateralized stable-coin, Dollar On Chain, (DoC)
 - A passive income hodler-targeted token, BitPro (BPRO)
-- A leveraged Bitcoin investment instrument (BTCX series).
 
-The rationale behind this is that deposits of RBTC help collateralize the DoCs, BitPro absorbs the USD-BTC rate fluctuations, and BTCx is leveraged borrowing value from BitPro and DoC holders, with a daily interest rate being paid to the former.
+The rationale behind this is that deposits of RBTC help collateralize the DoCs and BitPro absorbs the USD-BTC rate fluctuations.
 
 Note in this tutorial we will use BTC and RBTC as interchangeable terms, as there is a 1:1 peg guaranteed by the RSK network, but in all the cases we mean RBTC as this is the correct coin of the RSK token.
 

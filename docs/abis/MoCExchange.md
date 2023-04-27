@@ -542,6 +542,10 @@ The amount of RBTC in sent for the redemption or 0 if send does not succed
 
 ### mintBProx
 
+> ⚠ This has been deprecated since the [Proposal to remove leveraged positions](https://forum.moneyonchain.com/t/removal-of-leveraged-positions/298) from the protocol was **approved**, however it is necessary to maintain the contracts and their documentation for legacy support.
+
+> ⚠ See the [approved technical proposal](https://forum.moneyonchain.com/t/technical-proposal-for-removal-of-leveraged-positions/308#technical-proposal-for-removal-of-leveraged-positions-1) to understand how the behavior of this function has changed.
+
 ⤾ overrides IMoCExchange.mintBProx
 
 BUCKET Bprox minting. Mints Bprox for the specified bucket
@@ -565,6 +569,8 @@ total RBTC Spent (btcToMint more interest) and commission spent (in BTC and MoC)
 | vendorAccount | address | Vendor address | 
 
 ### redeemBProx
+
+> ⚠ This has been deprecated since the [Proposal to remove leveraged positions](https://forum.moneyonchain.com/t/removal-of-leveraged-positions/298) from the protocol was **approved**, however it is necessary to maintain the contracts and their documentation for legacy support.
 
 ⤾ overrides IMoCExchange.redeemBProx
 
@@ -591,6 +597,8 @@ the actual amount of btc to redeem and the btc commission (in BTC and MoC) for t
 
 ### forceRedeemBProx
 
+> ⚠ This has been deprecated since the [Proposal to remove leveraged positions](https://forum.moneyonchain.com/t/removal-of-leveraged-positions/298) from the protocol was **approved**, however it is necessary to maintain the contracts and their documentation for legacy support.
+
 ⤾ overrides IMoCExchange.forceRedeemBProx
 
 Burns user BProx and sends the equivalent amount of RBTC
@@ -616,6 +624,8 @@ result of the RBTC sending transaction [using reservePrecision]
 
 ### burnBProxFor
 
+> ⚠ This has been deprecated since the [Proposal to remove leveraged positions](https://forum.moneyonchain.com/t/removal-of-leveraged-positions/298) from the protocol was **approved**, however it is necessary to maintain the contracts and their documentation for legacy support.
+
 Burns user BProx
 
 ```js
@@ -637,6 +647,8 @@ Bitcoin total value of the redemption [using reservePrecision]
 | bproxPrice | uint256 | Price of one BProx in RBTC [using reservePrecision] | 
 
 ### redeemBProxInternal
+
+> ⚠ This has been deprecated since the [Proposal to remove leveraged positions](https://forum.moneyonchain.com/t/removal-of-leveraged-positions/298) from the protocol was **approved**, however it is necessary to maintain the contracts and their documentation for legacy support.
 
 Internal function to avoid stack too deep errors
 
@@ -672,6 +684,10 @@ function mintBProInternal(address account, uint256 btcAmount, struct MoCExchange
 | vendorAccount | address |  | 
 
 ### mintBProxInternal
+
+> ⚠ This has been deprecated since the [Proposal to remove leveraged positions](https://forum.moneyonchain.com/t/removal-of-leveraged-positions/298) from the protocol was **approved**, however it is necessary to maintain the contracts and their documentation for legacy support.
+
+> ⚠ See the [approved technical proposal](https://forum.moneyonchain.com/t/technical-proposal-for-removal-of-leveraged-positions/308#technical-proposal-for-removal-of-leveraged-positions-1) to understand how the behavior of this function has changed.
 
 Internal function to avoid stack too deep errors
 
