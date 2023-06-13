@@ -4,6 +4,9 @@ import "zos-lib/contracts/upgradeability/AdminUpgradeabilityProxy.sol";
 import "moc-governance/contracts/Governance/ChangeContract.sol";
 import "moc-governance/contracts/Upgradeability/UpgradeDelegator.sol";
 
+// import to compile MoC_v0115 for testing
+import "../../contracts_updated/MoC_v0115.sol";
+
 /**
   @title UpgraderChanger
   @notice This contract is a ChangeContract intended to be used when

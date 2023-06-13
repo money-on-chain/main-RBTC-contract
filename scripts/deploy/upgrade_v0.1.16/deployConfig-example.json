@@ -1,0 +1,28 @@
+{
+  "mocProxyAddresses": {
+    "MoC": "0xD34B89ceE8dD865b232D9701C4127fB6b7D04F2C"
+  },
+  "mocImplementationAddresses": {
+    "MoC": "0x0Dc19Fd39c67cC06E083770D9c81C808eaA905da",
+    "UpgradeDelegator": "0xB697E0F1cF39623969E7ED15d0D27405D5fB3309",
+    "Governor": "0x53a28117849B8Aa4f53BCF90813065E9C93c2D95"
+  },
+  "rocProxyAddresses": {
+    "MoC": "0xd621eBAd2e364Bcc0ca2681aB349B65d9a458e8a"
+  },
+  "rocImplementationAddresses": {
+    "MoC": "0x442a3cAc6cD4C9c3828414dAda004133831201aA",
+    "UpgradeDelegator": "0x642d222EBC8E5cC3a74Cd2c79A50aD34c57fe97c"
+  },
+  "governanceImplementationAddresses": {
+    "UpgradeDelegator": "0xB697E0F1cF39623969E7ED15d0D27405D5fB3309",
+    "Stopper": "0x70Bb6B04132eF9126DAb4622eC86CC17EF93842E"
+  },
+  "valuesToAssign": {
+    "gasPriceManagerAddress": "0x642d222EBC8E5cC3a74Cd2c79A50aD34c57fe97c",
+    "maxGasPrice": 70000000
+  },
+  "changerAddresses": {
+    "MaxGasPriceChanger": "0x5De04a4d8c53109E807473a219d3405B90605b8C"
+  }
+}
