@@ -330,7 +330,13 @@ const createContracts = params => async ({ owner, useMock }) => {
     mocInrate.address,
     mocVendors.address // pass other address as parameter because MoCBurnout is deprecated
   );
-  await moc.initialize(mocConnector.address, governor.address, stopper.address, startStoppable);
+  await moc.initialize(
+    mocConnector.address,
+    governor.address,
+    stopper.address,
+    startStoppable,
+    21000000000 // max gas price
+  );
   await stopper.initialize(owner);
   await mocExchange.initialize(mocConnector.address);
   // Making sure to call the correct initialize function

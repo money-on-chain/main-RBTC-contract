@@ -15,12 +15,12 @@ import "./interface/IMoCVendors.sol";
 import "./interface/IMoCInrate.sol";
 import "./interface/IMoC.sol";
 
-contract MoCEvents {
+contract MoCEvents_v0115 {
   event BucketLiquidation(bytes32 bucket);
   event ContractLiquidated(address mocAddress);
 }
 
-contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
+contract MoC_v0115 is MoCEvents_v0115, MoCLibConnection, MoCBase, Stoppable, IMoC {
   using SafeMath for uint256;
 
   /// @dev Contracts.
@@ -57,14 +57,12 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
     @param governorAddress Governor contract address
     @param stopperAddress Stopper contract address
     @param startStoppable Indicates if the contract starts being unstoppable or not
-    @param maxGasPrice_ gas price limit to mint and redeem operations
   */
   function initialize(
     address connectorAddress,
     address governorAddress,
     address stopperAddress,
-    bool startStoppable,
-    uint256 maxGasPrice_
+    bool startStoppable
   ) public initializer {
     initializePrecisions();
     initializeBase(connectorAddress);
@@ -78,7 +76,6 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
     mocInrate = IMoCInrate(connector.mocInrate());
     //initializeGovernanceContracts
     Stoppable.initialize(stopperAddress, IGovernor(governorAddress), startStoppable);
-    maxGasPrice = maxGasPrice_;
   }
 
   /****************************INTERFACE*******************************************/
@@ -154,7 +151,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
    */
   function mintBProVendors(uint256 btcToMint, address payable vendorAccount)
   public payable
-  whenNotPaused() transitionState() notInProtectionMode() isValidGasPrice() {
+  whenNotPaused() transitionState() notInProtectionMode() {
     /** UPDATE V0112: 24/09/2020 - Upgrade to support multiple commission rates **/
     (uint256 totalBtcSpent,
     uint256 btcCommission,
@@ -191,7 +188,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
   */
   function redeemBProVendors(uint256 bproAmount, address payable vendorAccount)
   public
-  whenNotPaused() transitionState() atLeastState(IMoCState.States.AboveCobj) isValidGasPrice() {
+  whenNotPaused() transitionState() atLeastState(IMoCState.States.AboveCobj) {
     /** UPDATE V0112: 24/09/2020 - Upgrade to support multiple commission rates **/
     (uint256 btcAmount,
     uint256 btcCommission,
@@ -228,7 +225,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
    */
   function mintDocVendors(uint256 btcToMint, address payable vendorAccount)
   public payable
-  whenNotPaused() transitionState() atLeastState(IMoCState.States.AboveCobj) isValidGasPrice() {
+  whenNotPaused() transitionState() atLeastState(IMoCState.States.AboveCobj) {
     /** UPDATE V0112: 24/09/2020 - Upgrade to support multiple commission rates **/
     (uint256 totalBtcSpent,
     uint256 btcCommission,
@@ -327,7 +324,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
   */
   function redeemFreeDocVendors(uint256 docAmount, address payable vendorAccount)
   public
-  whenNotPaused() transitionState() notInProtectionMode() isValidGasPrice() {
+  whenNotPaused() transitionState() notInProtectionMode() {
     /** UPDATE V0112: 24/09/2020 - Upgrade to support multiple commission rates **/
     (uint256 btcAmount,
     uint256 btcCommission,
@@ -699,28 +696,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
       _;
   }
 
-  /**
-   * @notice validate that the given gas price is less or equal to the gas price limit
-   */
-  modifier isValidGasPrice() {
-    require(tx.gasprice <= maxGasPrice, "gas price is above the max allowed");
-    _;
-  }
-
-  /**
-   * @notice allows the pauser or an authorized changer to update the gas price limit
-   *  The pauser is a multisig that could be used in this case to speed up the max gas price
-   *  change if it is necessary
-   * @param maxGasPrice_ new gas price limit
-   */
-  function setMaxGasPrice(uint256 maxGasPrice_) external {
-    require(stopper == msg.sender || governor.isAuthorizedChanger(msg.sender), "not authorized changer or stopper");
-    maxGasPrice = maxGasPrice_;
-  }
-
-  uint256 public maxGasPrice;
-
   // Leave a gap betweeen inherited contracts variables in order to be
   // able to add more variables in them later
-  uint256[49] private upgradeGap;
+  uint256[50] private upgradeGap;
 }
