@@ -2,18 +2,18 @@ pragma solidity ^0.5.8;
 
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "openzeppelin-solidity/contracts/lifecycle/Pausable.sol";
-import "./MoCBProxManager.sol";
-import "./interface/IMoCState.sol";
-import "./MoCLibConnection.sol";
-import "./interface/IMoCSettlement.sol";
-import "./interface/IMoCExchange.sol";
-import "./base/MoCBase.sol";
+import "../contracts/MoCBProxManager.sol";
+import "../contracts/interface/IMoCState.sol";
+import "../contracts/MoCLibConnection.sol";
+import "../contracts/interface/IMoCSettlement.sol";
+import "../contracts/interface/IMoCExchange.sol";
+import "../contracts/base/MoCBase.sol";
 import "moc-governance/contracts/Stopper/Stoppable.sol";
 import "moc-governance/contracts/Governance/IGovernor.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/IERC20.sol";
-import "./interface/IMoCVendors.sol";
-import "./interface/IMoCInrate.sol";
-import "./interface/IMoC.sol";
+import "../contracts/interface/IMoCVendors.sol";
+import "../contracts/interface/IMoCInrate.sol";
+import "../contracts/interface/IMoC.sol";
 
 contract MoCEvents_v0115 {
   event BucketLiquidation(bytes32 bucket);

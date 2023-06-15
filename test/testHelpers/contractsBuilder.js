@@ -419,7 +419,8 @@ const createContracts = params => async ({ owner, useMock }) => {
     mocPriceProvider,
     mocExchange,
     mocVendors,
-    mockMoCVendorsChanger
+    mockMoCVendorsChanger,
+    upgradeDelegator
   };
 };
 
