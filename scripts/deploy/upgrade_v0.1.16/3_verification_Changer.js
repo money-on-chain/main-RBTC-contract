@@ -1,6 +1,27 @@
 /* eslint-disable no-console */
+const contract = require('truffle-contract');
+
 const MaxGasPriceChanger = artifacts.require('./changers/MaxGasPriceChanger.sol');
+const MoC = artifacts.require('./MoC.sol');
 const { getConfig, getNetwork } = require('../helper');
+
+const ROC_ABI = [
+  {
+    constant: true,
+    inputs: [],
+    name: 'getRiskProRate',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256'
+      }
+    ],
+    payable: false,
+    stateMutability: 'view',
+    type: 'function'
+  }
+];
 
 module.exports = async callback => {
   try {
@@ -10,6 +31,13 @@ module.exports = async callback => {
 
     const changerAddress = config.changerAddresses.MaxGasPriceChanger;
     const changer = await MaxGasPriceChanger.at(changerAddress);
+
+    const RoC = contract({
+      abi: ROC_ABI,
+      address: config.rocProxyAddresses.MoC
+    });
+
+    await RoC.setProvider(MaxGasPriceChanger.currentProvider);
 
     const changerInfo = {};
     changerInfo.mocProxy = await changer.MOC_proxy();
@@ -23,6 +51,20 @@ module.exports = async callback => {
     changerInfo.maxGasPrice = (await changer.maxGasPrice()).toString();
 
     console.log('Changer contract parameters');
+    const moc = await MoC.at(config.mocProxyAddresses.MoC);
+    const roc = await RoC.at(config.rocProxyAddresses.MoC);
+    try {
+      await moc.getBitProRate();
+      console.log('OK. MoC Proxy: ', config.mocProxyAddresses.MoC);
+    } catch (error) {
+      console.log('ERROR MoC Proxy: ', config.mocProxyAddresses.MoC);
+    }
+    try {
+      await roc.getRiskProRate();
+      console.log('OK. RoC Proxy: ', config.rocProxyAddresses.MoC);
+    } catch (error) {
+      console.log('ERROR RoC Proxy: ', config.rocProxyAddresses.MoC);
+    }
 
     if (changerInfo.mocProxy === config.mocProxyAddresses.MoC) {
       console.log('OK. MoC Proxy: ', changerInfo.mocProxy);
