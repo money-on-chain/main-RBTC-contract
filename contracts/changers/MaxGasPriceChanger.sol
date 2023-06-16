@@ -49,7 +49,10 @@ contract MaxGasPriceChanger is ChangeContract {
     ROC_proxy = _ROC_proxy;
     ROC_newImplementation = _ROC_newImplementation;
     maxGasPrice = _maxGasPrice;
-    stopper_proxy = castToAdminUpgradeabilityProxy(address(MoC(address(_MOC_proxy)).stopper()));
+    address mocStopper = MoC(address(_MOC_proxy)).stopper();
+    address rocStopper = MoC(address(_ROC_proxy)).stopper();
+    require(mocStopper == rocStopper, "MoC and RoC have different stopper address set");
+    stopper_proxy = castToAdminUpgradeabilityProxy(address(mocStopper));
     stopper_newImplementation = _stopper_newImplementation;
   }
 
