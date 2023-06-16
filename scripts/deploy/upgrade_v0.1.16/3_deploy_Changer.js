@@ -12,12 +12,12 @@ module.exports = async callback => {
 
     console.log('MaxGasPriceChanger Deploy');
     const maxGasPriceChanger = await MaxGasPriceChanger.new(
+      config.governanceImplementationAddresses.UpgradeDelegator,
       config.mocProxyAddresses.MoC,
-      config.mocImplementationAddresses.UpgradeDelegator,
       config.mocImplementationAddresses.MoC,
       config.rocProxyAddresses.MoC,
-      config.rocImplementationAddresses.UpgradeDelegator,
       config.rocImplementationAddresses.MoC,
+      config.governanceImplementationAddresses.Stopper,
       config.valuesToAssign.maxGasPrice
     );
     console.log('MaxGasPriceChanger address: ', maxGasPriceChanger.address);

@@ -12,43 +12,55 @@ import "../MoC.sol";
  */
 contract MaxGasPriceChanger is ChangeContract {
 
+  UpgradeDelegator public upgradeDelegator;
   AdminUpgradeabilityProxy public MOC_proxy;
-  UpgradeDelegator public MOC_upgradeDelegator;
   address public MOC_newImplementation;
 
   AdminUpgradeabilityProxy public ROC_proxy;
-  UpgradeDelegator public ROC_upgradeDelegator;
   address public ROC_newImplementation;
+
+  AdminUpgradeabilityProxy public stopper_proxy;
+  address public stopper_newImplementation;
 
   uint256 public maxGasPrice;
 
   /**
     @notice Constructor
+    @param _upgradeDelegator Address of the upgradeDelegator in charge of that proxy
     @param _MOC_proxy Address of the MOC proxy to be upgraded
-    @param _MOC_upgradeDelegator Address of the MOC upgradeDelegator in charge of that proxy
     @param _MOC_newImplementation Address of the contract the MOC proxy will delegate to
     @param _ROC_proxy Address of the ROC proxy to be upgraded
-    @param _ROC_upgradeDelegator Address of the ROC upgradeDelegator in charge of that proxy
     @param _ROC_newImplementation Address of the contract the ROC proxy will delegate to
+    @param _stopper_newImplementation Address of the contract the Stopper proxy will delegate to
     @param _maxGasPrice gas price limit to mint and redeem operations
   */
   constructor(
+    UpgradeDelegator _upgradeDelegator,
     AdminUpgradeabilityProxy _MOC_proxy,
-    UpgradeDelegator _MOC_upgradeDelegator,
     address _MOC_newImplementation,
     AdminUpgradeabilityProxy _ROC_proxy,
-    UpgradeDelegator _ROC_upgradeDelegator,
     address _ROC_newImplementation,
+    address _stopper_newImplementation,
     uint256 _maxGasPrice
     ) public {
+    upgradeDelegator = _upgradeDelegator;
     MOC_proxy = _MOC_proxy;
-    MOC_upgradeDelegator = _MOC_upgradeDelegator;
     MOC_newImplementation = _MOC_newImplementation;
     ROC_proxy = _ROC_proxy;
-    ROC_upgradeDelegator = _ROC_upgradeDelegator;
     ROC_newImplementation = _ROC_newImplementation;
     maxGasPrice = _maxGasPrice;
+    stopper_proxy = castToAdminUpgradeabilityProxy(address(MoC(address(_MOC_proxy)).stopper()));
+    stopper_newImplementation = _stopper_newImplementation;
   }
+
+  /**
+   * @notice cast non payable address to AdminUpgradebilityProxy
+   * @param _address address to cast
+   */
+  function castToAdminUpgradeabilityProxy(address _address) internal returns (AdminUpgradeabilityProxy proxy) {
+    return AdminUpgradeabilityProxy(address(uint160(_address)));
+  }
+
   /**
     @notice Execute the changes.
     @dev Should be called by the governor, but this contract does not check that explicitly because it is not its responsability in
@@ -67,9 +79,11 @@ contract MaxGasPriceChanger is ChangeContract {
    */
   function _upgrade() internal {
     // upgrade MoC
-    MOC_upgradeDelegator.upgrade(MOC_proxy, MOC_newImplementation);
+    upgradeDelegator.upgrade(MOC_proxy, MOC_newImplementation);
     // upgrade RoC
-    ROC_upgradeDelegator.upgrade(ROC_proxy, ROC_newImplementation);
+    upgradeDelegator.upgrade(ROC_proxy, ROC_newImplementation);
+    // upgrade Stopper
+    upgradeDelegator.upgrade(stopper_proxy, stopper_newImplementation);
   }
 
   /**

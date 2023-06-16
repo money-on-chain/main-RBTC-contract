@@ -12,8 +12,9 @@ echo "Using network '$NETWORK'"
 
 SCRIPTS="
 1_deploy_MoC.js
-2_deploy_Changer.js
-3_verification_Changer.js
+2_deploy_Stopper.js
+3_deploy_Changer.js
+4_verification_Changer.js
 "
 
 for S in $SCRIPTS; do

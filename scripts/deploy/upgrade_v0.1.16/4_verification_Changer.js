@@ -40,13 +40,14 @@ module.exports = async callback => {
     await RoC.setProvider(MaxGasPriceChanger.currentProvider);
 
     const changerInfo = {};
+    changerInfo.upgradeDelegator = await changer.upgradeDelegator();
     changerInfo.mocProxy = await changer.MOC_proxy();
-    changerInfo.mocUpgradeDelegator = await changer.MOC_upgradeDelegator();
     changerInfo.mocNewImplementation = await changer.MOC_newImplementation();
 
     changerInfo.rocProxy = await changer.ROC_proxy();
-    changerInfo.rocUpgradeDelegator = await changer.ROC_upgradeDelegator();
     changerInfo.rocNewImplementation = await changer.ROC_newImplementation();
+
+    changerInfo.stopperNewImplementation = await changer.stopper_newImplementation();
 
     changerInfo.maxGasPrice = (await changer.maxGasPrice()).toString();
 
@@ -66,16 +67,18 @@ module.exports = async callback => {
       console.log('ERROR RoC Proxy: ', config.rocProxyAddresses.MoC);
     }
 
+    if (
+      changerInfo.upgradeDelegator === config.governanceImplementationAddresses.UpgradeDelegator
+    ) {
+      console.log('OK. UpgradeDelegator: ', changerInfo.upgradeDelegator);
+    } else {
+      console.log('ERROR! UpgradeDelegator is not the same ', changerInfo.upgradeDelegator);
+    }
+
     if (changerInfo.mocProxy === config.mocProxyAddresses.MoC) {
       console.log('OK. MoC Proxy: ', changerInfo.mocProxy);
     } else {
       console.log('ERROR! MoC Proxy is not the same ', changerInfo.mocProxy);
-    }
-
-    if (changerInfo.mocUpgradeDelegator === config.mocImplementationAddresses.UpgradeDelegator) {
-      console.log('OK. MoC UpgradeDelegator: ', changerInfo.mocUpgradeDelegator);
-    } else {
-      console.log('ERROR! MoC UpgradeDelegator is not the same ', changerInfo.mocUpgradeDelegator);
     }
 
     if (changerInfo.mocNewImplementation === config.mocImplementationAddresses.MoC) {
@@ -93,18 +96,21 @@ module.exports = async callback => {
       console.log('ERROR! RoC Proxy is not the same ', changerInfo.rocProxy);
     }
 
-    if (changerInfo.rocUpgradeDelegator === config.rocImplementationAddresses.UpgradeDelegator) {
-      console.log('OK. RoC UpgradeDelegator: ', changerInfo.rocUpgradeDelegator);
-    } else {
-      console.log('ERROR! RoC UpgradeDelegator is not the same ', changerInfo.rocUpgradeDelegator);
-    }
-
     if (changerInfo.rocNewImplementation === config.rocImplementationAddresses.MoC) {
       console.log('OK. RoC NewImplementation: ', changerInfo.rocNewImplementation);
     } else {
       console.log(
         'ERROR! RoC NewImplementation is not the same ',
         changerInfo.rocNewImplementation
+      );
+    }
+
+    if (changerInfo.stopperNewImplementation === config.governanceImplementationAddresses.Stopper) {
+      console.log('OK. Stopper NewImplementation: ', changerInfo.stopperNewImplementation);
+    } else {
+      console.log(
+        'ERROR! Stopper NewImplementation is not the same ',
+        changerInfo.stopperNewImplementation
       );
     }
 
