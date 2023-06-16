@@ -8,7 +8,7 @@ import "moc-governance/contracts/Stopper/Stoppable.sol";
   @notice The contract in charge of handling the stoppability of the contract
   that define this contract as its stopper
  */
-contract Stopper is Ownable {
+contract StopperV2 is Ownable {
 
   /**
     @notice Pause activeContract if it is stoppable

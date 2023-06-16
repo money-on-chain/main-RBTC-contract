@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-const Stopper = artifacts.require('./governance/Stopper.sol');
+const Stopper = artifacts.require('./governance/StopperV2.sol');
 const { getConfig, getNetwork, saveConfig } = require('../helper');
 
 module.exports = async callback => {
