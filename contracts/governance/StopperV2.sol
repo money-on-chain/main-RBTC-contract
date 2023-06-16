@@ -5,8 +5,12 @@ import "moc-governance/contracts/Stopper/Stoppable.sol";
 
 /**
   @title Stopper
-  @notice The contract in charge of handling the stoppability of the contract
-  that define this contract as its stopper
+  @notice The contract in charge of handling the stoppability and maximum gas Price limit 
+    of the contract that define this contract as its stopper.
+  @dev both pausing or setting a really low maxGasPrice has the same effect on the protocol,
+    is prevents anyone from using it. And it also requires the same level of reactivity, 
+    as a sudden network gasPrice spike, would require immediate maxGasPrice adjustment to compensate, 
+    as it would a pause. Stopper, holds owner account responsible for both this two features.
  */
 contract StopperV2 is Ownable {
 
