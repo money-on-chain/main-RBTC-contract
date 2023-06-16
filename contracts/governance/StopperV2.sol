@@ -12,7 +12,7 @@ import "moc-governance/contracts/Stopper/Stoppable.sol";
     as a sudden network gasPrice spike, would require immediate maxGasPrice adjustment to compensate, 
     as it would a pause. Stopper, holds owner account responsible for both this two features.
  */
-contract Stopper is Ownable {
+contract StopperV2 is Ownable {
 
   /**
     @notice Pause activeContract if it is stoppable
