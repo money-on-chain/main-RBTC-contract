@@ -1,0 +1,29 @@
+{
+  "mocProxyAddresses": {
+    "MoC": "0x01AD6f8E884ed4DDC089fA3efC075E9ba45C9039"
+  },
+  "mocImplementationAddresses": {
+    "MoC": "",
+    "UpgradeDelegator": "0x00a47D7d7B9bD22e0A862908EC493bDE893f627B",
+    "Governor": "0x7b716178771057195bB511f0B1F7198EEE62Bc22"
+  },
+  "rocProxyAddresses": {
+    "MoC": "0x4512f4C1d984bbf8B7f7404EddFb1881cFA79EfD"
+  },
+  "rocImplementationAddresses": {
+    "MoC": "",
+    "UpgradeDelegator": "0xCDAbFbF334A5F6BCe900D2f73470D1e6722365d8",
+    "Governor": "0x7b716178771057195bB511f0B1F7198EEE62Bc22"
+  },
+  "governanceImplementationAddresses": {
+    "UpgradeDelegator": "0xCDAbFbF334A5F6BCe900D2f73470D1e6722365d8",
+    "Stopper": ""
+  },
+  "valuesToAssign": {
+    "maxGasPrice": 65820000
+  },
+  "changerAddresses": {
+    "MaxGasPriceChanger": ""
+  },
+  "governorOwnerAddress": "0x7D124cC0f59aDA5793AD8edA9eD1836cB7e797a3"
+}
