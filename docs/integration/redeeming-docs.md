@@ -2,7 +2,7 @@
 
 The function that interests us is: `function redeemFreeDocVendors(uint256 docAmount, address vendorAccount) public`.
 
-> Since the [Removal of leveraged positions](https://forum.moneyonchain.com/t/removal-of-leveraged-positions/298) in the protocol, the following functions have been deprecated but must be described since they are still in the code.
+> Since the [Removal of leveraged positions](https://forum.moneyonchain.com/t/removal-of-leveraged-positions/298) in the protocol, the following functions have been deprecated but must be described since these functions are still in the code.
 
 **Settlements** is a time based recurring process that allows or rejects the processing of DOC redeem requests.
 
