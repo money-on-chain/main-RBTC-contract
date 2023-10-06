@@ -9,7 +9,7 @@ This contract handles settlement logic and stores redeem request collection. It 
 - State:
   - Last Processed Block: Block Number of the last successful execution
     `uint256 internal lastProcessedBlock;`
-  - Block Span: Set by configuration, min number of blocks settlement should be re-evaluated on, this should be adjusted according network mining rate to hit the target time (90 days)
+  - Block Span: Set by configuration, min number of blocks settlement should be re-evaluated on, this should be adjusted according network mining rate to hit the target time
     `uint256 internal blockSpan;`
   - Redeem request collection: tracks accounts with active redeem request for next settlement
 
