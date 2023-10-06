@@ -413,7 +413,8 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
       mocConnector.address,
       governorAddress,
       stopperAddress,
-      config.startStoppable
+      config.startStoppable,
+      config.maxGasPrice
     );
     console.log('MoC Initialized');
 

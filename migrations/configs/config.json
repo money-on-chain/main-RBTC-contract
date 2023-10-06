@@ -1,5 +1,6 @@
 {
   "coverage": {
+    "maxGasPrice": 21000000000,
     "initialPrice": 10000,
     "initialEma": 10000,
     "dayBlockSpan": 20,
@@ -45,6 +46,7 @@
     }
   },
   "development": {
+    "maxGasPrice": 21000000000,
     "initialPrice": 7800,
     "initialEma": 7800,
     "dayBlockSpan": 20,
@@ -90,6 +92,7 @@
     }
   },
   "regtest": {
+    "maxGasPrice": 65820000,
     "initialPrice": 7800,
     "initialEma": 7800,
     "dayBlockSpan": 20,
@@ -135,6 +138,7 @@
     }
   },
   "rskTestnet": {
+    "maxGasPrice": 65820000,
     "oracle": "0x667bd3d048FaEBb85bAa0E9f9D87cF4c8CDFE849",
     "governor": "0x9258531274B945eB628656F4b30e8216938A619C",
     "stopper": "0x0BE712DD242BF133417f6e389436783Fccb62e9e",
@@ -185,6 +189,7 @@
     }
   },
   "rskMainnet": {
+    "maxGasPrice": 65820000,
     "oracle": "0x667bd3d048FaEBb85bAa0E9f9D87cF4c8CDFE849",
     "governor": "0x9258531274B945eB628656F4b30e8216938A619C",
     "stopper": "0x0BE712DD242BF133417f6e389436783Fccb62e9e",
