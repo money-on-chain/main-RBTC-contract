@@ -20,13 +20,14 @@ SCRIPTS="
 7_deploy_MoCInrate.js
 9_deploy_MoCState.js
 10_batch_changer.js
-11_check_deploy.js
+11_verification_changer.js
+12_check_deploy.js
 "
 
 for S in $SCRIPTS; do
     echo "------------------------------------------------------------"
     echo "Running: $S"
-    truffle exec $DIR/$S --network $NETWORK
+    npx truffle exec $DIR/$S --network $NETWORK
     [ $? -eq 0 ]  || exit 1
     echo "------------------------------------------------------------"
 done
