@@ -24,10 +24,10 @@
     "implementation": "0xa6C35a5269E504451bf4d86Cfb2BdEfcBeC574Ce"
   },
   "FlowChangeProposal": {
-    "mocInrate": "",
-    "mocState": "",
-    "mocSettlement": "",
-    "mocProviderAddress": "0xE972c8E83A5b97bB4FC867855A0aA13EF96f228D",
+    "mocInrate": "0x76790f846FAAf44cf1B2D717d0A6c5f6f5152B60",
+    "mocState": "0x0adb40132cB0ffcEf6ED81c26A1881e214100555",
+    "mocSettlement": "0x367D283c53f8F10e47424e2AeB102F45eCC49FEa",
+    "mocProviderAddress": "0x8DCE78BbD4D757EF7777Be113277cf5A35283b1E",
     "blockSpan": 3756,
     "blockSpanBitProInterest": 26292,
     "blockSpanSettlement": 112680,
