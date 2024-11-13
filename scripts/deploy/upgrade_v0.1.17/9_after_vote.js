@@ -24,21 +24,23 @@ module.exports = async callback => {
 
     const contractInfo = {};
 
-    contractInfo.MoCInrate = {}
+    contractInfo.MoCInrate = {};
     contractInfo.MoCInrate.getBitProInterestBlockSpan = await moCInrate.getBitProInterestBlockSpan();
     contractInfo.MoCInrate.commissionsAddress = await moCInrate.commissionsAddress();
     contractInfo.MoCInrate.getBitProInterestAddress = await moCInrate.getBitProInterestAddress();
 
-    contractInfo.MoCState = {}
+    contractInfo.MoCState = {};
     contractInfo.MoCState.getDayBlockSpan = await moCState.getDayBlockSpan();
     contractInfo.MoCState.getEmaCalculationBlockSpan = await moCState.getEmaCalculationBlockSpan();
     contractInfo.MoCState.getMoCPriceProvider = await moCState.getMoCPriceProvider();
 
-    contractInfo.MoCSettlement = {}
+    contractInfo.MoCSettlement = {};
     contractInfo.MoCSettlement.getBlockSpan = await moCSettlement.getBlockSpan();
 
-    const commissionSplitterV2 = await CommissionSplitterV2.at(contractInfo.MoCInrate.commissionsAddress);
-    contractInfo.CommissionSplitterV2 = {}
+    const commissionSplitterV2 = await CommissionSplitterV2.at(
+      contractInfo.MoCInrate.commissionsAddress
+    );
+    contractInfo.CommissionSplitterV2 = {};
     contractInfo.CommissionSplitterV2.outputAddress_1 = await commissionSplitterV2.outputAddress_1();
     contractInfo.CommissionSplitterV2.outputAddress_2 = await commissionSplitterV2.outputAddress_2();
     contractInfo.CommissionSplitterV2.outputAddress_3 = await commissionSplitterV2.outputAddress_3();
@@ -49,8 +51,10 @@ module.exports = async callback => {
     contractInfo.CommissionSplitterV2.outputProportionTokenGovern_1 = await commissionSplitterV2.outputProportionTokenGovern_1();
     contractInfo.CommissionSplitterV2.tokenGovern = await commissionSplitterV2.tokenGovern();
 
-    const commissionSplitterV3 = await CommissionSplitterV3.at(contractInfo.MoCInrate.getBitProInterestAddress);
-    contractInfo.CommissionSplitterV3 = {}
+    const commissionSplitterV3 = await CommissionSplitterV3.at(
+      contractInfo.MoCInrate.getBitProInterestAddress
+    );
+    contractInfo.CommissionSplitterV3 = {};
     contractInfo.CommissionSplitterV3.outputAddress_1 = await commissionSplitterV3.outputAddress_1();
     contractInfo.CommissionSplitterV3.outputAddress_2 = await commissionSplitterV3.outputAddress_2();
     contractInfo.CommissionSplitterV3.outputProportion_1 = await commissionSplitterV3.outputProportion_1();
@@ -63,11 +67,26 @@ module.exports = async callback => {
     console.log('a. outputAddress_1: ', contractInfo.CommissionSplitterV2.outputAddress_1);
     console.log('b. outputAddress_2: ', contractInfo.CommissionSplitterV2.outputAddress_2);
     console.log('c. outputAddress_3: ', contractInfo.CommissionSplitterV2.outputAddress_3);
-    console.log('d. outputProportion_1: ', contractInfo.CommissionSplitterV2.outputProportion_1.toString());
-    console.log('e. outputProportion_2: ', contractInfo.CommissionSplitterV2.outputProportion_2.toString());
-    console.log('g. outputTokenGovernAddress_1: ', contractInfo.CommissionSplitterV2.outputTokenGovernAddress_1);
-    console.log('h. outputTokenGovernAddress_2: ', contractInfo.CommissionSplitterV2.outputTokenGovernAddress_2);
-    console.log('i. outputProportionTokenGovern_1: ', contractInfo.CommissionSplitterV2.outputProportionTokenGovern_1.toString());
+    console.log(
+      'd. outputProportion_1: ',
+      contractInfo.CommissionSplitterV2.outputProportion_1.toString()
+    );
+    console.log(
+      'e. outputProportion_2: ',
+      contractInfo.CommissionSplitterV2.outputProportion_2.toString()
+    );
+    console.log(
+      'g. outputTokenGovernAddress_1: ',
+      contractInfo.CommissionSplitterV2.outputTokenGovernAddress_1
+    );
+    console.log(
+      'h. outputTokenGovernAddress_2: ',
+      contractInfo.CommissionSplitterV2.outputTokenGovernAddress_2
+    );
+    console.log(
+      'i. outputProportionTokenGovern_1: ',
+      contractInfo.CommissionSplitterV2.outputProportionTokenGovern_1.toString()
+    );
     console.log('j. tokenGovern: ', contractInfo.CommissionSplitterV2.tokenGovern);
     console.log('');
     console.log('CommissionSplitterV3');
@@ -75,16 +94,22 @@ module.exports = async callback => {
     console.log('');
     console.log('a. outputAddress_1: ', contractInfo.CommissionSplitterV3.outputAddress_1);
     console.log('b. outputAddress_2: ', contractInfo.CommissionSplitterV3.outputAddress_2);
-    console.log('c. outputProportion_1: ', contractInfo.CommissionSplitterV3.outputProportion_1.toString());
+    console.log(
+      'c. outputProportion_1: ',
+      contractInfo.CommissionSplitterV3.outputProportion_1.toString()
+    );
     console.log('');
 
     console.log('Contracts Storage');
     console.log('=================');
     console.log('');
 
-    console.log('1. MoCInrate getBitProInterestAddress() ->> CommissionSplitterV3: ', contractInfo.MoCInrate.getBitProInterestAddress);
+    console.log(
+      '1. MoCInrate getBitProInterestAddress() ->> CommissionSplitterV3: ',
+      contractInfo.MoCInrate.getBitProInterestAddress
+    );
     if (
-      contractInfo.MoCInrate.getBitProInterestAddress.toLowerCase() !=
+      contractInfo.MoCInrate.getBitProInterestAddress.toLowerCase() !==
       config.CommissionSplitterV3.proxy.toLowerCase()
     ) {
       console.log('--> ERROR!: Is not the same');
@@ -92,9 +117,12 @@ module.exports = async callback => {
       console.log('--> OK');
     }
 
-    console.log('2. MoCInrate commissionsAddress() ->> CommissionSplitterV2: ', contractInfo.MoCInrate.commissionsAddress);
+    console.log(
+      '2. MoCInrate commissionsAddress() ->> CommissionSplitterV2: ',
+      contractInfo.MoCInrate.commissionsAddress
+    );
     if (
-      contractInfo.MoCInrate.commissionsAddress.toLowerCase() !=
+      contractInfo.MoCInrate.commissionsAddress.toLowerCase() !==
       config.CommissionSplitterV2.proxy.toLowerCase()
     ) {
       console.log('--> ERROR!: Is not the same');
@@ -102,9 +130,12 @@ module.exports = async callback => {
       console.log('--> OK');
     }
 
-    console.log('3. MoCInrate getBitProInterestBlockSpan(): ', contractInfo.MoCInrate.getBitProInterestBlockSpan.toString());
+    console.log(
+      '3. MoCInrate getBitProInterestBlockSpan(): ',
+      contractInfo.MoCInrate.getBitProInterestBlockSpan.toString()
+    );
     if (
-      contractInfo.MoCInrate.getBitProInterestBlockSpan.toString() !=
+      contractInfo.MoCInrate.getBitProInterestBlockSpan.toString() !==
       config.FlowChangeProposal.blockSpanBitProInterest.toString()
     ) {
       console.log('--> ERROR!: Is not the same');
@@ -112,9 +143,12 @@ module.exports = async callback => {
       console.log('--> OK');
     }
 
-    console.log('4. MoCState getDayBlockSpan(): ', contractInfo.MoCState.getDayBlockSpan.toString());
+    console.log(
+      '4. MoCState getDayBlockSpan(): ',
+      contractInfo.MoCState.getDayBlockSpan.toString()
+    );
     if (
-      contractInfo.MoCState.getDayBlockSpan.toString() !=
+      contractInfo.MoCState.getDayBlockSpan.toString() !==
       config.FlowChangeProposal.blockSpan.toString()
     ) {
       console.log('--> ERROR!: Is not the same');
@@ -122,9 +156,12 @@ module.exports = async callback => {
       console.log('--> OK');
     }
 
-    console.log('5. MoCState getEmaCalculationBlockSpan(): ', contractInfo.MoCState.getEmaCalculationBlockSpan.toString());
+    console.log(
+      '5. MoCState getEmaCalculationBlockSpan(): ',
+      contractInfo.MoCState.getEmaCalculationBlockSpan.toString()
+    );
     if (
-      contractInfo.MoCState.getEmaCalculationBlockSpan.toString() !=
+      contractInfo.MoCState.getEmaCalculationBlockSpan.toString() !==
       config.FlowChangeProposal.blockSpanEMA.toString()
     ) {
       console.log('--> ERROR!: Is not the same');
@@ -134,17 +171,19 @@ module.exports = async callback => {
 
     console.log('6. MoCState getMoCPriceProvider(): ', contractInfo.MoCState.getMoCPriceProvider);
     if (
-      contractInfo.MoCState.getMoCPriceProvider !=
-      config.FlowChangeProposal.mocProviderAddress
+      contractInfo.MoCState.getMoCPriceProvider !== config.FlowChangeProposal.mocProviderAddress
     ) {
       console.log('--> ERROR!: Is not the same');
     } else {
       console.log('--> OK');
     }
 
-    console.log('7. MoCSettlement getBlockSpan(): ', contractInfo.MoCSettlement.getBlockSpan.toString());
+    console.log(
+      '7. MoCSettlement getBlockSpan(): ',
+      contractInfo.MoCSettlement.getBlockSpan.toString()
+    );
     if (
-      contractInfo.MoCSettlement.getBlockSpan.toString() !=
+      contractInfo.MoCSettlement.getBlockSpan.toString() !==
       config.FlowChangeProposal.blockSpanSettlement.toString()
     ) {
       console.log('--> ERROR!: Is not the same');
@@ -153,8 +192,6 @@ module.exports = async callback => {
     }
 
     console.log('Finish!');
-
-
   } catch (error) {
     callback(error);
   }

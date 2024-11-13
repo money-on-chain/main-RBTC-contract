@@ -21,6 +21,7 @@ CONTRACTS=(
     "zos-lib/contracts/upgradeability/AdminUpgradeabilityProxy.sol"
     "contracts/changers/MaxGasPriceChanger.sol"
     "contracts/governance/StopperV2.sol"
+    "contracts/changers/proposal_flow_change/FlowChangeProposal.sol"
 )
 
 # Working directory: the root of the project

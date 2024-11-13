@@ -29,18 +29,18 @@ module.exports = async callback => {
     config.FlowChangeProposal.changer = flowChangeProposal.address;
     saveConfig(config, configPath);
 
-     if (shouldExecuteChanges(network)) {
-       // Execute changes in contracts
-       console.log('Execute change - Changer');
-       const governor = await Governor.at(config.Governor);
-       await governor.executeChange(flowChangeProposal.address);
-     } else {
-       console.log('Executing test governor execute change');
-       const governor = await Governor.at(config.Governor);
-       await governor.contract.methods
-         .executeChange(config.FlowChangeProposal.changer)
-         .call({ from: config.governorOwnerAddress });
-     }
+    if (shouldExecuteChanges(network)) {
+      // Execute changes in contracts
+      console.log('Execute change - Changer');
+      const governor = await Governor.at(config.Governor);
+      await governor.executeChange(flowChangeProposal.address);
+    } else {
+      console.log('Executing test governor execute change');
+      const governor = await Governor.at(config.Governor);
+      await governor.contract.methods
+        .executeChange(config.FlowChangeProposal.changer)
+        .call({ from: config.governorOwnerAddress });
+    }
   } catch (error) {
     callback(error);
   }

@@ -1,8 +1,8 @@
 /* eslint-disable no-console */
 const contract = require('truffle-contract');
+
 const FlowChangeProposal = artifacts.require('./changers/FlowChangeProposal.sol');
 const { getConfig, getNetwork } = require('../helper');
-
 
 module.exports = async callback => {
   try {
@@ -72,16 +72,31 @@ module.exports = async callback => {
       console.log('ERROR! blockSpan is not the same ', changerInfo.blockSpan.toString());
     }
 
-    if (changerInfo.blockSpanBitProInterest.toString() === config.FlowChangeProposal.blockSpanBitProInterest.toString()) {
-      console.log('OK. blockSpanBitProInterest contract: ', changerInfo.blockSpanBitProInterest.toString());
+    if (
+      changerInfo.blockSpanBitProInterest.toString() ===
+      config.FlowChangeProposal.blockSpanBitProInterest.toString()
+    ) {
+      console.log(
+        'OK. blockSpanBitProInterest contract: ',
+        changerInfo.blockSpanBitProInterest.toString()
+      );
     } else {
-      console.log('ERROR! blockSpanBitProInterest is not the same ', changerInfo.blockSpanBitProInterest.toString());
+      console.log(
+        'ERROR! blockSpanBitProInterest is not the same ',
+        changerInfo.blockSpanBitProInterest.toString()
+      );
     }
 
-    if (changerInfo.blockSpanSettlement.toString() === config.FlowChangeProposal.blockSpanSettlement.toString()) {
+    if (
+      changerInfo.blockSpanSettlement.toString() ===
+      config.FlowChangeProposal.blockSpanSettlement.toString()
+    ) {
       console.log('OK. blockSpanSettlement contract: ', changerInfo.blockSpanSettlement.toString());
     } else {
-      console.log('ERROR! blockSpanSettlement is not the same ', changerInfo.blockSpanSettlement.toString());
+      console.log(
+        'ERROR! blockSpanSettlement is not the same ',
+        changerInfo.blockSpanSettlement.toString()
+      );
     }
 
     if (changerInfo.blockSpanEMA.toString() === config.FlowChangeProposal.blockSpanEMA.toString()) {
@@ -91,7 +106,6 @@ module.exports = async callback => {
     }
 
     console.log('Changer contract parameters');
-
   } catch (error) {
     callback(error);
   }
