@@ -1,0 +1,37 @@
+{
+  "ProxyAdmin": "0x009C51E1f6feDcDB8014Ea9AE1E39B6dbF2AC0EC",
+  "UpgradeDelegator": "0x5cE577f6Ec969CE9a282838D350206C52A6F338C",
+  "Governor": "0x3b8853DF65AfBd94853E6D77ee0Ab5590F41bB08",
+  "governorOwnerAddress": "0x65a5681bE95d212F0c90eAd40170D8277de81169",
+  "CommissionSplitterV2": {
+    "outputAddress_1": "0x4905f643db489d9561617638d31875b6bff79077",
+    "outputAddress_2": "0xc8863d91604A12cE6073cA6A01D00172BB9BD508",
+    "outputAddress_3": "0xf773B590aF754D597770937Fa8ea7AbDf2668370",
+    "outputProportion_1": "500000000000000000",
+    "outputProportion_2": "400000000000000000",
+    "outputTokenGovernAddress_1": "0x4905f643db489d9561617638d31875b6bff79077",
+    "outputTokenGovernAddress_2": "0xbe9B273d23A6ED9ca0df098bF70ac79bAD5D393D",
+    "outputProportionTokenGovern_1": "500000000000000000",
+    "tokenGovern": "0x9AC7fE28967B30E3A4e6e03286d715b42B453D10",
+    "proxy": "0x60cEEf03AA1AA96263e297D220EE4EBc3c6b6E47",
+    "implementation": "0x3DF0fD2e1F0F7a9004FA10d4A4d25B299b259BEb"
+  },
+  "CommissionSplitterV3": {
+    "outputAddress_1": "0x4905f643db489d9561617638d31875b6bff79077",
+    "outputAddress_2": "0xc8863d91604A12cE6073cA6A01D00172BB9BD508",
+    "outputProportion_1": "500000000000000000",
+    "proxy": "0x114921bcbd5fc34E103494d338cA492B9400B0fD",
+    "implementation": "0x165EA15fc08A8f9469edAe30C7ea076999EbA019"
+  },
+  "FlowChangeProposal": {
+    "mocInrate": "0xc0f9B54c41E3d0587Ce0F7540738d8d649b0A3F3",
+    "mocState": "0xb9C42EFc8ec54490a37cA91c423F7285Fa01e257",
+    "mocSettlement": "0x609dF03D8a85eAffE376189CA7834D4C35e32F22",
+    "mocProviderAddress": "0x15956e5F5792a241ACc3c607588626656C01A41b",
+    "blockSpan": 3756,
+    "blockSpanBitProInterest": 26292,
+    "blockSpanSettlement": 112680,
+    "blockSpanEMA": 3756,
+    "changer": "0xDEA8d435f90d7FB6C2312407b547DB104D4a4c10"
+  }
+}
