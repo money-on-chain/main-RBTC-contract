@@ -154,7 +154,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
    */
   function mintBProVendors(uint256 btcToMint, address payable vendorAccount)
   public payable
-  whenNotPaused() transitionState() notInProtectionMode() isValidGasPrice() {
+  nonReentrant whenNotPaused() transitionState() notInProtectionMode() isValidGasPrice() {
     /** UPDATE V0112: 24/09/2020 - Upgrade to support multiple commission rates **/
     (uint256 totalBtcSpent,
     uint256 btcCommission,
@@ -191,7 +191,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
   */
   function redeemBProVendors(uint256 bproAmount, address payable vendorAccount)
   public
-  whenNotPaused() transitionState() atLeastState(IMoCState.States.AboveCobj) isValidGasPrice() {
+  nonReentrant whenNotPaused() transitionState() atLeastState(IMoCState.States.AboveCobj) isValidGasPrice() {
     /** UPDATE V0112: 24/09/2020 - Upgrade to support multiple commission rates **/
     (uint256 btcAmount,
     uint256 btcCommission,
@@ -228,7 +228,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
    */
   function mintDocVendors(uint256 btcToMint, address payable vendorAccount)
   public payable
-  whenNotPaused() transitionState() atLeastState(IMoCState.States.AboveCobj) isValidGasPrice() {
+  nonReentrant whenNotPaused() transitionState() atLeastState(IMoCState.States.AboveCobj) isValidGasPrice() {
     /** UPDATE V0112: 24/09/2020 - Upgrade to support multiple commission rates **/
     (uint256 totalBtcSpent,
     uint256 btcCommission,
@@ -267,7 +267,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
   */
   function redeemBProxVendors(bytes32 bucket, uint256 bproxAmount, address payable vendorAccount) public
   whenNotPaused() whenSettlementReady() availableBucket(bucket) notBaseBucket(bucket)
-  transitionState() bucketStateTransition(bucket) {
+  nonReentrant transitionState() bucketStateTransition(bucket) {
     /** UPDATE V0112: 24/09/2020 - Upgrade to support multiple commission rates **/
     (uint256 totalBtcRedeemed,
     uint256 btcCommission,
@@ -327,7 +327,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
   */
   function redeemFreeDocVendors(uint256 docAmount, address payable vendorAccount)
   public
-  whenNotPaused() transitionState() notInProtectionMode() isValidGasPrice() {
+  nonReentrant whenNotPaused() transitionState() notInProtectionMode() isValidGasPrice() {
     /** UPDATE V0112: 24/09/2020 - Upgrade to support multiple commission rates **/
     (uint256 btcAmount,
     uint256 btcCommission,
@@ -452,7 +452,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
     @dev Runs all settlement process
     @param steps Number of steps
   */
-  function runSettlement(uint256 steps) public whenNotPaused() transitionState() {
+  function runSettlement(uint256 steps) public nonReentrant whenNotPaused() transitionState() {
     // Transfer accums commissions to commissions address
     doTransfer(mocInrate.commissionsAddress(), settlement.runSettlement(steps));
   }
@@ -463,7 +463,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
     @param btcAmount amount to transfer
     @return result of the transaction
   */
-  function sendToAddress(address payable receiver, uint256 btcAmount) public onlyWhitelisted(msg.sender) returns(bool) {
+  function sendToAddress(address payable receiver, uint256 btcAmount) public nonReentrant onlyWhitelisted(msg.sender) returns(bool) {
     if (btcAmount == 0) {
       return true;
     }
@@ -529,7 +529,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
     transferBtcCommission(vendorAccount, btcCommission, btcMarkup);
 
     // Calculate change
-    sender.transfer(value.sub(totalBtcWithFees));
+    safeTransferRbtc(sender, value.sub(totalBtcWithFees));
   }
 
   /**
@@ -591,7 +591,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
 
     transferBtcCommission(vendorAccount, btcCommission, btcMarkup);
 
-    sender.transfer(btcAmount);
+    safeTransferRbtc(sender, btcAmount);
   }
 
   /**
@@ -609,12 +609,12 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
       // Transfer vendor markup in MoC
       if (mocVendors.updatePaidMarkup(vendorAccount, 0, btcMarkup)) {
         // Transfer RBTC to vendor address
-        vendorAccount.transfer(btcMarkup);
+        safeTransferRbtc(vendorAccount, btcMarkup);
         // Transfer RBTC to commissions address
-        mocInrate.commissionsAddress().transfer(btcCommission);
+        safeTransferRbtc(mocInrate.commissionsAddress(), btcCommission);
       } else {
         // Transfer MoC to commissions address
-        mocInrate.commissionsAddress().transfer(totalBtcFee);
+        safeTransferRbtc(mocInrate.commissionsAddress(), totalBtcFee);
       }
     }
   }
@@ -628,18 +628,29 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
   */
   function doTransfer(address payable receiver, uint256 btcAmount) private {
     mocState.subtractRbtcFromSystem(btcAmount);
-    receiver.transfer(btcAmount);
+    safeTransferRbtc(receiver, btcAmount);
   }
 
   /**
-    @dev Transfer using send function and updates global RBTC register in MoCState
+    @dev Safe RBTC transfer that is compatible with EIP-1884 gas cost changes
+    @param receiver address of receiver
+    @param amount amount in RBTC
+  */
+  function safeTransferRbtc(address payable receiver, uint256 amount) private {
+    // solium-disable-next-line security/no-call-value
+    (bool success, ) = receiver.call.value(amount)("");
+    require(success, "RBTC transfer failed");
+  }
+
+  /**
+    @dev Transfer using call and updates global RBTC register in MoCState only on success
     @param receiver address of receiver
     @param btcAmount amount in RBTC
     @return Execution result
   */
   function doSend(address payable receiver, uint256 btcAmount) private returns(bool) {
-    // solium-disable-next-line security/no-send
-    bool result = receiver.send(btcAmount);
+    // solium-disable-next-line security/no-call-value
+    (bool result, ) = receiver.call.value(btcAmount)("");
 
     if (result) {
       mocState.subtractRbtcFromSystem(btcAmount);
@@ -652,6 +663,13 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
   modifier whenSettlementReady() {
     require(settlement.isSettlementReady(), "Function can only be called when settlement is ready");
     _;
+  }
+
+  modifier nonReentrant() {
+    require(!_reentrancyLock, "reentrancy not allowed");
+    _reentrancyLock = true;
+    _;
+    _reentrancyLock = false;
   }
 
   modifier atState(IMoCState.States _state) {
@@ -719,8 +737,9 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
   }
 
   uint256 public maxGasPrice;
+  bool private _reentrancyLock;
 
   // Leave a gap betweeen inherited contracts variables in order to be
   // able to add more variables in them later
-  uint256[49] private upgradeGap;
+  uint256[48] private upgradeGap;
 }
