@@ -26,10 +26,6 @@ const MocStateChanger = artifacts.require('./contracts/MocStateChanger.sol');
 const MocInrateChanger = artifacts.require('./contracts/MocInrateChanger.sol');
 const MoCSettlementChanger = artifacts.require('./contracts/MoCSettlementChanger.sol');
 const MoCBucketContainerChanger = artifacts.require('./contracts/MoCBucketContainerChanger.sol');
-const MoCRestartSettlementChanger = artifacts.require(
-  './contracts/MoCRestartSettlementChanger.sol'
-);
-const MoCStallSettlementChanger = artifacts.require('./contracts/MoCStallSettlementChanger.sol');
 const MocChanger = artifacts.require('./contracts/MocChanger.sol');
 const CommissionSplitter = artifacts.require('CommissionSplitter.sol');
 
@@ -262,10 +258,6 @@ const createContracts = params => async ({ owner, useMock }) => {
       from: owner
     }
   );
-  const mockMoCStallSettlementChanger = await MoCStallSettlementChanger.new(mocSettlement.address);
-  const mockMoCRestartSettlementChanger = await MoCRestartSettlementChanger.new(
-    mocSettlement.address
-  );
   const mockMoCBucketContainerChanger = await MoCBucketContainerChanger.new(
     bprox.address,
     c0Cobj,
@@ -412,8 +404,6 @@ const createContracts = params => async ({ owner, useMock }) => {
     mockMoCSettlementChanger,
     mockMoCBucketContainerChanger,
     mockMocChanger,
-    mockMoCStallSettlementChanger,
-    mockMoCRestartSettlementChanger,
     revertingContract,
     mocToken,
     mocPriceProvider,

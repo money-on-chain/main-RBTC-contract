@@ -1,3 +1,4 @@
+/* eslint-disable import/no-unresolved */
 const { getWeb3, getConfig } = require('./changerHelper');
 const GovernorAbi = require('../../build/contracts/Governor.json');
 

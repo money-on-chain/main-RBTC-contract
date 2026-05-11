@@ -3,7 +3,6 @@ const Governor = artifacts.require('moc-governance/contracts/Governance/Governor
 const BatchChanger = artifacts.require('./changers/BatchChanger.sol');
 
 const UpgradeDelegator = artifacts.require('./UpgradeDelegator.sol');
-const MoCSettlement = artifacts.require('./MoCSettlement.sol');
 const CommissionSplitter = artifacts.require('./CommissionSplitter.sol');
 const MoCInrate = artifacts.require('./MoCInrate.sol');
 const MoCState = artifacts.require('./MoCState.sol');
@@ -167,13 +166,6 @@ module.exports = async callback => {
         .upgrade(config.proxyAddresses.MoCState, config.implementationAddresses.MoCState)
         .encodeABI()
     );
-
-    console.log('Prepare MoCSettlement');
-    const moCSettlementAddress = config.proxyAddresses.MoCSettlement;
-    const moCSettlement = await MoCSettlement.at(moCSettlementAddress);
-    // fixTasksPointer
-    targets.push(moCSettlementAddress);
-    datas.push(moCSettlement.contract.methods.fixTasksPointer().encodeABI());
 
     console.log('Prepare CommissionSplitter');
     const commissionSplitterAddress = config.proxyAddresses.CommissionSplitter;

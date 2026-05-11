@@ -124,8 +124,8 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
   * @dev Creates or updates the amount of a Doc redeem Request from the msg.sender
   * @param docAmount Amount of Docs to redeem on settlement [using mocPrecision]
   */
-  function redeemDocRequest(uint256 docAmount) public  whenNotPaused() whenSettlementReady() {
-    settlement.addRedeemRequest(docAmount, msg.sender);
+  function redeemDocRequest(uint256 docAmount) public {
+    // Do nothing. Feature removed
   }
 
   /**
@@ -133,8 +133,8 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
     @param isAddition true if adding amount to redeem, false to substract.
     @param delta the amount to add/substract to current position
   */
-  function alterRedeemRequestAmount(bool isAddition, uint256 delta) public whenNotPaused() whenSettlementReady() {
-    settlement.alterRedeemRequestAmount(isAddition, delta, msg.sender);
+  function alterRedeemRequestAmount(bool isAddition, uint256 delta) public {
+    // Do nothing. Feature removed
   }
 
   /**
@@ -262,29 +262,12 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
   /**
     @dev Redeems Bprox Tokens and pays the comissions of the operation in RBTC
     @param bucket Bucket to reedem, for example X2
-    @param bproxAmount Amount in Bprox
-    @param vendorAccount Vendor address
   */
-  function redeemBProxVendors(bytes32 bucket, uint256 bproxAmount, address payable vendorAccount) public
-  whenNotPaused() whenSettlementReady() availableBucket(bucket) notBaseBucket(bucket)
+  function redeemBProxVendors(bytes32 bucket, uint256 /*bproxAmount*/, address payable /*vendorAccount*/) public
+  whenNotPaused() availableBucket(bucket) notBaseBucket(bucket)
   nonReentrant transitionState() bucketStateTransition(bucket) {
-    /** UPDATE V0112: 24/09/2020 - Upgrade to support multiple commission rates **/
-    (uint256 totalBtcRedeemed,
-    uint256 btcCommission,
-    uint256 mocCommission,
-    uint256 btcMarkup,
-    uint256 mocMarkup) = mocExchange.redeemBProx(msg.sender, bucket, bproxAmount, vendorAccount);
-
-    redeemWithCommission(
-      msg.sender,
-      totalBtcRedeemed,
-      btcCommission,
-      mocCommission,
-      vendorAccount,
-      btcMarkup,
-      mocMarkup
-    );
-    /** END UPDATE V0112: 24/09/2020 - Upgrade to support multiple commission rates **/
+    /** UPDATE V0114: 31/01/2023 - Removal of leveraged positions. Please take a look at http://bit.ly/3XPiKUA **/
+    revert("Redeem Leveraged position is disabled. See: http://bit.ly/3XPiKUA");
   }
 
   /**
@@ -300,11 +283,9 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
   /**
     @dev BUCKET bprox minting
     @param bucket Name of the bucket used
-    @param btcToMint amount to mint on RBTC
-    @param vendorAccount Vendor address
   */
-  function mintBProxVendors(bytes32 bucket, uint256 btcToMint, address payable vendorAccount) public payable
-  whenNotPaused() whenSettlementReady() availableBucket(bucket) notBaseBucket(bucket)
+  function mintBProxVendors(bytes32 bucket, uint256 /*btcToMint*/, address payable /*vendorAccount*/) public payable
+  whenNotPaused() availableBucket(bucket) notBaseBucket(bucket)
   transitionState() bucketStateTransition(bucket) {
     /** UPDATE V0114: 31/01/2023 - Removal of leveraged positions. Please take a look at http://bit.ly/3XPiKUA **/
     revert("Mint Leveraged position is disabled. See: http://bit.ly/3XPiKUA");
@@ -433,7 +414,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
     return false;
   }
 
-  function evalBucketLiquidation(bytes32 bucket) public availableBucket(bucket) notBaseBucket(bucket) whenSettlementReady() {
+  function evalBucketLiquidation(bytes32 bucket) public availableBucket(bucket) notBaseBucket(bucket) {
     if (isBucketLiquidationReached(bucket)) {
       bproxManager.liquidateBucket(bucket, BUCKET_C0);
 
@@ -453,8 +434,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
     @param steps Number of steps
   */
   function runSettlement(uint256 steps) public nonReentrant whenNotPaused() transitionState() {
-    // Transfer accums commissions to commissions address
-    doTransfer(mocInrate.commissionsAddress(), settlement.runSettlement(steps));
+    settlement.runSettlement(steps);
   }
 
   /**
@@ -660,10 +640,6 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
   }
 
   /***** STATE MODIFIERS *****/
-  modifier whenSettlementReady() {
-    require(settlement.isSettlementReady(), "Function can only be called when settlement is ready");
-    _;
-  }
 
   modifier nonReentrant() {
     require(!_reentrancyLock, "reentrancy not allowed");

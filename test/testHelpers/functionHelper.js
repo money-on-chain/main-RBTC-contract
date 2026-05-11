@@ -307,8 +307,6 @@ const getReserveBalance = async address => new BN(await web3.eth.getBalance(addr
 // Runs settlement with a default fixed step count
 const executeSettlement = moc => () => moc.runSettlement(SETTLEMENT_STEPS);
 
-const getRedeemRequestAt = moc => async index => moc.getRedeemRequestAt(index);
-
 const getBProxBalance = bprox => async (bucket, address) => bprox.bproxBalanceOf(bucket, address);
 
 const getUserBalances = (bproToken, docToken, bproxManager, mocToken) => async account => {
@@ -586,7 +584,6 @@ module.exports = async contracts => {
     getGlobalState: getGlobalState(mocState),
     getBucketState: getBucketState(mocState),
     logBucket: logBucket(mocState),
-    getRedeemRequestAt: getRedeemRequestAt(moc),
     setFinalCommissionAddress: setFinalCommissionAddress(commissionSplitter, governor),
     setMocCommissionProportion: setMocCommissionProportion(commissionSplitter, governor),
     mintMoCToken: mintMoCToken(mocToken),
