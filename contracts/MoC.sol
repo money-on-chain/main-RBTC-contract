@@ -265,7 +265,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
   */
   function redeemBProxVendors(bytes32 bucket, uint256 /*bproxAmount*/, address payable /*vendorAccount*/) public
   whenNotPaused() availableBucket(bucket) notBaseBucket(bucket)
-  nonReentrant transitionState() bucketStateTransition(bucket) {
+  transitionState() bucketStateTransition(bucket) {
     /** UPDATE V0114: 31/01/2023 - Removal of leveraged positions. Please take a look at http://bit.ly/3XPiKUA **/
     revert("Redeem Leveraged position is disabled. See: http://bit.ly/3XPiKUA");
   }
@@ -433,7 +433,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
     @dev Runs all settlement process
     @param steps Number of steps
   */
-  function runSettlement(uint256 steps) public nonReentrant whenNotPaused() transitionState() {
+  function runSettlement(uint256 steps) public whenNotPaused() transitionState() {
     settlement.runSettlement(steps);
   }
 

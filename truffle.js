@@ -1,5 +1,6 @@
 const HDWalletProvider = require('truffle-hdwallet-provider');
 const fs = require('fs');
+const path = require('path');
 
 const mnemonicFile = `${__dirname}/mnemonic.txt`;
 let mnemonic;
@@ -22,7 +23,8 @@ module.exports = {
   // for more about customizing your Truffle configuration!
   compilers: {
     solc: {
-      version: '0.5.17',
+      // Use local solc-js package wrapper to avoid downloading compiler in CI
+      version: path.resolve(__dirname, 'node_modules/solc'),
       evmVersion: 'byzantium',
       settings: {
         optimizer: {
