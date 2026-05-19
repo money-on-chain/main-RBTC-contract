@@ -154,7 +154,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
    */
   function mintBProVendors(uint256 btcToMint, address payable vendorAccount)
   public payable
-  nonReentrant whenNotPaused() transitionState() notInProtectionMode() isValidGasPrice() {
+  nonReentrant whenNotPaused() transitionStateWithRefund() notInProtectionMode() isValidGasPrice() {
     /** UPDATE V0112: 24/09/2020 - Upgrade to support multiple commission rates **/
     (uint256 totalBtcSpent,
     uint256 btcCommission,
@@ -228,7 +228,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
    */
   function mintDocVendors(uint256 btcToMint, address payable vendorAccount)
   public payable
-  nonReentrant whenNotPaused() transitionState() atLeastState(IMoCState.States.AboveCobj) isValidGasPrice() {
+  nonReentrant whenNotPaused() transitionStateWithRefund() atLeastState(IMoCState.States.AboveCobj) isValidGasPrice() {
     /** UPDATE V0112: 24/09/2020 - Upgrade to support multiple commission rates **/
     (uint256 totalBtcSpent,
     uint256 btcCommission,
@@ -688,6 +688,19 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
     mocState.nextState();
     if (mocState.state() == IMoCState.States.Liquidated) {
       liquidate();
+    }
+    else
+      _;
+  }
+
+  modifier transitionStateWithRefund()
+  {
+    mocState.nextState();
+    if (mocState.state() == IMoCState.States.Liquidated) {
+      liquidate();
+      if (msg.value > 0) {
+        safeTransferRbtc(msg.sender, msg.value);
+      }
     }
     else
       _;
