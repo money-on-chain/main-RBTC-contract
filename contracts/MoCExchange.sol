@@ -26,6 +26,7 @@ contract MoCExchangeEvents {
     uint256 mocMarkup,
     address vendorAccount
   );
+  // Kept for ABI/backward compatibility, discount mint path is disabled.
   event RiskProWithDiscountMint(
     uint256 riskProTecPrice,
     uint256 riskProDiscountPrice,
@@ -188,18 +189,6 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection, IMoCExchan
     return ret;
   }
 
-  /**
-  * @dev BTC equivalent for the amount of bpro given applying the spotDiscountRate
-  * @param bproAmount amount of BPro [using mocPrecision]
-  * @param bproTecPrice price of BPro without discounts [using mocPrecision]
-  * @param bproDiscountRate BPro discounts [using mocPrecision]
-  * @return BTC amount
-  */
-  function bproDiscToBtc(uint256 bproAmount, uint256 bproTecPrice, uint256 bproDiscountRate) internal view returns(uint256) {
-    uint256 totalBtcValue = mocLibConfig.totalBProInBtc(bproAmount, bproTecPrice);
-    return mocLibConfig.applyDiscountRate(totalBtcValue, bproDiscountRate);
-  }
-
   /** END UPDATE V0112: 24/09/2020 **/
 
   /**
@@ -218,30 +207,6 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection, IMoCExchan
     details.bproRegularPrice = mocState.bproTecPrice();
     details.finalBProAmount = 0;
     details.btcValue = 0;
-
-    if (mocState.state() == IMoCState.States.BProDiscount) {
-      details.discountPrice = mocState.bproDiscountPrice();
-      details.bproDiscountAmount = mocLibConfig.maxBProWithBtc(btcAmount, details.discountPrice);
-
-      details.finalBProAmount = Math.min(
-        details.bproDiscountAmount,
-        mocState.maxBProWithDiscount()
-      );
-      details.btcValue = details.finalBProAmount == details.bproDiscountAmount
-        ? btcAmount
-        // Converts BTC to BPro with discount up to the discount limit
-        : bproDiscToBtc(
-          details.finalBProAmount,
-          details.bproRegularPrice,
-          mocState.bproSpotDiscountRate()
-        );
-
-      emit RiskProWithDiscountMint(
-        details.bproRegularPrice,
-        details.discountPrice,
-        details.finalBProAmount
-      );
-    }
 
     if (btcAmount != details.btcValue) {
       // Converts BTC to BPro

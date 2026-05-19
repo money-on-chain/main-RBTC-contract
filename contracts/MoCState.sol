@@ -58,14 +58,14 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator, IMoCState {
   uint256 public dayBlockSpan;
   // Relation between DOC and dollar
   uint256 public peg;
-  // BPro max discount rate
-  // Reflects the discount spot rate at Liquidation level
+  // DEPRECATED: kept only for backward compatibility (external getters/governance flow)
+  // BPro max discount rate (legacy discount flow disabled)
   uint256 public bproMaxDiscountRate;
   // Liquidation limit
   // [using mocPrecision]
   uint256 public liq;
-  // BPro with discount limit
-  // [using mocPrecision]
+  // DEPRECATED: kept only for backward compatibility (external getters/governance flow)
+  // BPro with discount limit [using mocPrecision] (legacy discount flow disabled)
   uint256 public utpdu;
   // Complete amount of Bitcoin in the system
   // this represents basically MoC Balance
@@ -394,13 +394,7 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator, IMoCState {
    @return maxBPro for mint with discount [using mocPrecision]
   */
   function maxBProWithDiscount() public view returns(uint256) {
-    uint256 nDoc = docTotalSupply();
-    uint256 bproSpotDiscount = bproSpotDiscountRate();
-    uint256 bproPrice = bproUsdPrice();
-    uint256 btcPrice = getBitcoinPrice();
-
-    return mocLibConfig.maxBProWithDiscount(collateralRbtcInSystem(), nDoc, utpdu, peg, btcPrice, bproPrice,
-      bproSpotDiscount);
+    return 0;
   }
 
   /**
@@ -454,10 +448,7 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator, IMoCState {
    @return the BPro Tec Price [using reservePrecision]
   */
   function bproDiscountPrice() public view returns(uint256) {
-    uint256 bproTecprice = bproTecPrice();
-    uint256 discountRate = bproSpotDiscountRate();
-
-    return mocLibConfig.applyDiscountRate(bproTecprice, discountRate);
+    return bproTecPrice();
   }
 
   /**
@@ -504,9 +495,7 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator, IMoCState {
    @return BPro discount rate [using DISCOUNT_PRECISION].
   */
   function bproSpotDiscountRate() public view returns(uint256) {
-    uint256 cov = globalCoverage();
-
-    return mocLibConfig.bproSpotDiscountRate(bproMaxDiscountRate, liq, utpdu, cov);
+    return 0;
   }
 
   /**
@@ -685,9 +674,7 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator, IMoCState {
     if (cov <= liq && liquidationEnabled) {
       setLiquidationPrice();
       state = States.Liquidated;
-    } else if (cov > liq && cov <= utpdu) {
-      state = States.BProDiscount;
-    } else if (cov > utpdu && cov <= cobj()) {
+    } else if (cov <= cobj()) {
       state = States.BelowCobj;
     } else {
       state = States.AboveCobj;

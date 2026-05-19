@@ -160,15 +160,8 @@ const redeemBProx = moc => async (from, bucket, amount, vendorAccount = zeroAddr
 };
 
 const rbtcNeededToMintBpro = (moc, mocState) => async bproAmount => {
-  // TODO: manage max Bitpro with discount
-  const mocPrecision = await moc.getMocPrecision();
   const bproTecPrice = await mocState.bproTecPrice();
-  // Check discount rate
-  const bproSpotDiscount = await mocState.bproSpotDiscountRate();
-  const factor = mocPrecision.sub(bproSpotDiscount);
-  const finalPrice = bproTecPrice.mul(factor).div(mocPrecision);
-
-  const btcTotal = toContractBNNoPrec(bproAmount * finalPrice);
+  const btcTotal = toContractBNNoPrec(bproAmount * bproTecPrice);
   return btcTotal;
 };
 
