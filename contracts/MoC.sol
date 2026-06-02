@@ -347,7 +347,7 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
     @dev Pays the BitPro interest and transfers it to the address mocInrate.bitProInterestAddress
     BitPro interests = Nb (bucket 0) * bitProRate.
   */
-  function payBitProHoldersInterestPayment() public whenNotPaused() {
+  function payBitProHoldersInterestPayment() public nonReentrant whenNotPaused() {
     uint256 toPay = mocInrate.payBitProHoldersInterestPayment();
     if (doSend(mocInrate.getBitProInterestAddress(), toPay)) {
       bproxManager.substractValuesFromBucket(BUCKET_C0, toPay, 0, 0);
