@@ -29,7 +29,6 @@ const assertAllMintReedemMocHelperPausedFunctions = (userAccount, vendorAccount)
 const assertAllMocPausedFunctions = (owner, userAccount, vendorAccount) => {
   const testFunctions = [
     { name: 'redeemBProxVendors', args: [BUCKET_X2, 3, vendorAccount] },
-    { name: 'alterRedeemRequestAmount', args: [false, 100] },
     { name: 'runSettlement', args: [1] },
     { name: 'dailyInratePayment', args: [{ from: owner }] },
     { name: 'payBitProHoldersInterestPayment', args: [{ from: owner }] }
@@ -71,9 +70,6 @@ contract('MoC', function([owner, userAccount, vendorAccount]) {
     describe('AND a user tries to do redeem operations', function() {
       it('THEN redeemBProx must revert', async function() {
         await assertAllMocPausedFunctions(owner, userAccount, vendorAccount);
-      });
-      it('THEN redeemDocRequest must revert', async function() {
-        await expectRevert(mocHelper.moc.redeemDocRequest(100), CONTRACT_IS_PAUSED);
       });
     });
     describe('AND a user tries to send RBTC to MoC Contract', function() {

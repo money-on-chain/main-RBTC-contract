@@ -1,3 +1,4 @@
+/* eslint-disable import/no-unresolved */
 const SetCommissionMocProportion = require('../../build/contracts/SetCommissionMocProportionChanger.json');
 const { deployContract, getConfig } = require('./changerHelper');
 

@@ -31,8 +31,8 @@ Using network 'rskMocMainnet2'.
 
 Configuration path:  /home/martin/Proyectos/Public_Moc_Contract/scripts/deploy/upgrade_v0.1.12/deployConfig-rskMocMainnet2.json
 BatchChanger Deploy at: 0x58933D29430b79780F54d1E97CB70eA9558360BE
-Length Data:  26
-Length Target:  26
+Length Data:  25
+Length Target:  25
 OK! length of arrays
 OK! STEP 0. MoC.sol [0xf773B590aF754D597770937Fa8ea7AbDf2668370] Upgrade to implementation [0x9965C3B0fDcb9145AdFd4C0535716b109F450f9F].
 OK! STEP 1. MoCExchange.sol [0x6aCb83bB0281FB847b43cf7dd5e2766BFDF49038] Upgrade to implementation [0x36D1Dc7b41a18c2455ad7C3844a3C711712f6F14].
@@ -40,26 +40,25 @@ OK! STEP 2. MoCSettlement.sol [0x609dF03D8a85eAffE376189CA7834D4C35e32F22] Upgra
 OK! STEP 3. CommissionSplitter.sol [0xa5467535851263122ef1476e24C529CFc6CFc086] Upgrade to implementation [0xc60b5050552e35B1af3026A44465c058B77861dc].
 OK! STEP 4. MoCInrate.sol [0xc0f9B54c41E3d0587Ce0F7540738d8d649b0A3F3] Upgrade to implementation [0xE9B15be6e7Cd575B15a197DE6A536f39B32Ac918].
 OK! STEP 5. MoCState.sol [0xb9C42EFc8ec54490a37cA91c423F7285Fa01e257] Upgrade to implementation [0x436930E882DFf853344275067235a0FfE5c1F112].
-OK! STEP 6. Prepare moCSettlement.sol execute: [fixTasksPointer()]
-OK! STEP 7. Prepare commissionSplitter.sol execute: [setMocToken(0x9AC7fE28967B30E3A4e6e03286d715b42B453D10)]
-OK! STEP 8. Prepare commissionSplitter.sol execute: [setMocTokenCommissionAddress(0x7002dD3027947aB98cA3DDC28F93F2450281453A)]
-OK! STEP 9. Prepare MoCInrate.sol execute: [setCommissionRateByTxType(1, 1000000000000000)]
-OK! STEP 10. Prepare MoCInrate.sol execute: [setCommissionRateByTxType(2, 1000000000000000)]
-OK! STEP 11. Prepare MoCInrate.sol execute: [setCommissionRateByTxType(3, 1000000000000000)]
-OK! STEP 12. Prepare MoCInrate.sol execute: [setCommissionRateByTxType(4, 1000000000000000)]
-OK! STEP 13. Prepare MoCInrate.sol execute: [setCommissionRateByTxType(5, 1000000000000000)]
-OK! STEP 14. Prepare MoCInrate.sol execute: [setCommissionRateByTxType(6, 1000000000000000)]
-OK! STEP 15. Prepare MoCInrate.sol execute: [setCommissionRateByTxType(7, 500000000000000)]
-OK! STEP 16. Prepare MoCInrate.sol execute: [setCommissionRateByTxType(8, 500000000000000)]
-OK! STEP 17. Prepare MoCInrate.sol execute: [setCommissionRateByTxType(9, 500000000000000)]
-OK! STEP 18. Prepare MoCInrate.sol execute: [setCommissionRateByTxType(10, 500000000000000)]
-OK! STEP 19. Prepare MoCInrate.sol execute: [setCommissionRateByTxType(11, 500000000000000)]
-OK! STEP 20. Prepare MoCInrate.sol execute: [setCommissionRateByTxType(12, 500000000000000)]
-OK! STEP 21. Prepare moCState.sol execute: [setMoCPriceProvider(0x72835fDc4F73cb33b1E7e03bFe067AAfED2BDB9C)]
-OK! STEP 22. Prepare moCState.sol execute: [setMoCToken(0x9AC7fE28967B30E3A4e6e03286d715b42B453D10)]
-OK! STEP 23. Prepare moCState.sol execute: [setMoCVendors(0x2d442aA5D391475b6Af3ad361eA3b9818fb35BcA)]
-OK! STEP 24. Prepare moCState.sol execute: [setLiquidationEnabled(false)]
-OK! STEP 25. Prepare moCState.sol execute: [setProtected(1.5)]
+OK! STEP 6. Prepare commissionSplitter.sol execute: [setMocToken(0x9AC7fE28967B30E3A4e6e03286d715b42B453D10)]
+OK! STEP 7. Prepare commissionSplitter.sol execute: [setMocTokenCommissionAddress(0x7002dD3027947aB98cA3DDC28F93F2450281453A)]
+OK! STEP 8. Prepare MoCInrate.sol execute: [setCommissionRateByTxType(1, 1000000000000000)]
+OK! STEP 9. Prepare MoCInrate.sol execute: [setCommissionRateByTxType(2, 1000000000000000)]
+OK! STEP 10. Prepare MoCInrate.sol execute: [setCommissionRateByTxType(3, 1000000000000000)]
+OK! STEP 11. Prepare MoCInrate.sol execute: [setCommissionRateByTxType(4, 1000000000000000)]
+OK! STEP 12. Prepare MoCInrate.sol execute: [setCommissionRateByTxType(5, 1000000000000000)]
+OK! STEP 13. Prepare MoCInrate.sol execute: [setCommissionRateByTxType(6, 1000000000000000)]
+OK! STEP 14. Prepare MoCInrate.sol execute: [setCommissionRateByTxType(7, 500000000000000)]
+OK! STEP 15. Prepare MoCInrate.sol execute: [setCommissionRateByTxType(8, 500000000000000)]
+OK! STEP 16. Prepare MoCInrate.sol execute: [setCommissionRateByTxType(9, 500000000000000)]
+OK! STEP 17. Prepare MoCInrate.sol execute: [setCommissionRateByTxType(10, 500000000000000)]
+OK! STEP 18. Prepare MoCInrate.sol execute: [setCommissionRateByTxType(11, 500000000000000)]
+OK! STEP 19. Prepare MoCInrate.sol execute: [setCommissionRateByTxType(12, 500000000000000)]
+OK! STEP 20. Prepare moCState.sol execute: [setMoCPriceProvider(0x72835fDc4F73cb33b1E7e03bFe067AAfED2BDB9C)]
+OK! STEP 21. Prepare moCState.sol execute: [setMoCToken(0x9AC7fE28967B30E3A4e6e03286d715b42B453D10)]
+OK! STEP 22. Prepare moCState.sol execute: [setMoCVendors(0x2d442aA5D391475b6Af3ad361eA3b9818fb35BcA)]
+OK! STEP 23. Prepare moCState.sol execute: [setLiquidationEnabled(false)]
+OK! STEP 24. Prepare moCState.sol execute: [setProtected(1.5)]
 ```
 
 **Proxies**
@@ -96,5 +95,4 @@ OK! STEP 25. Prepare moCState.sol execute: [setProtected(1.5)]
 |  CommissionSplitter  | [0xc60b5050552e35B1af3026A44465c058B77861dc](https://explorer.rsk.co/address/0xc60b5050552e35B1af3026A44465c058B77861dc) |
 |  MoCPriceProvider  | [0x72835fDc4F73cb33b1E7e03bFe067AAfED2BDB9C](https://explorer.rsk.co/address/0x72835fDc4F73cb33b1E7e03bFe067AAfED2BDB9C) |
 |  MoCToken  | [0x9AC7fE28967B30E3A4e6e03286d715b42B453D10](https://explorer.rsk.co/address/0x9AC7fE28967B30E3A4e6e03286d715b42B453D10) |
-
 

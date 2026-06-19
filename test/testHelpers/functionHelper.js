@@ -160,15 +160,8 @@ const redeemBProx = moc => async (from, bucket, amount, vendorAccount = zeroAddr
 };
 
 const rbtcNeededToMintBpro = (moc, mocState) => async bproAmount => {
-  // TODO: manage max Bitpro with discount
-  const mocPrecision = await moc.getMocPrecision();
   const bproTecPrice = await mocState.bproTecPrice();
-  // Check discount rate
-  const bproSpotDiscount = await mocState.bproSpotDiscountRate();
-  const factor = mocPrecision.sub(bproSpotDiscount);
-  const finalPrice = bproTecPrice.mul(factor).div(mocPrecision);
-
-  const btcTotal = toContractBNNoPrec(bproAmount * finalPrice);
+  const btcTotal = toContractBNNoPrec(bproAmount * bproTecPrice);
   return btcTotal;
 };
 
@@ -306,8 +299,6 @@ const getReserveBalance = async address => new BN(await web3.eth.getBalance(addr
 
 // Runs settlement with a default fixed step count
 const executeSettlement = moc => () => moc.runSettlement(SETTLEMENT_STEPS);
-
-const getRedeemRequestAt = moc => async index => moc.getRedeemRequestAt(index);
 
 const getBProxBalance = bprox => async (bucket, address) => bprox.bproxBalanceOf(bucket, address);
 
@@ -586,7 +577,6 @@ module.exports = async contracts => {
     getGlobalState: getGlobalState(mocState),
     getBucketState: getBucketState(mocState),
     logBucket: logBucket(mocState),
-    getRedeemRequestAt: getRedeemRequestAt(moc),
     setFinalCommissionAddress: setFinalCommissionAddress(commissionSplitter, governor),
     setMocCommissionProportion: setMocCommissionProportion(commissionSplitter, governor),
     mintMoCToken: mintMoCToken(mocToken),
