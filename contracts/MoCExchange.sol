@@ -316,11 +316,7 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection, IMoCExchan
       );
       uint256 docsBtcValue = mocState.docsToBtc(details.finalDocAmount);
 
-      details.btcInterestAmount = mocInrate.calcDocRedInterestValues(
-        details.finalDocAmount,
-        docsBtcValue
-      );
-      details.finalBtcAmount = docsBtcValue.sub(details.btcInterestAmount);
+      details.finalBtcAmount = docsBtcValue;
 
       /** UPDATE V0112: 24/09/2020 - Upgrade to support multiple commission rates **/
       CommissionParamsStruct memory params;
@@ -335,7 +331,6 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection, IMoCExchan
       /** END UPDATE V0112: 24/09/2020 - Upgrade to support multiple commission rates **/
 
       doDocRedeem(account, details.finalDocAmount, docsBtcValue);
-      bproxManager.payInrate(BUCKET_C0, details.btcInterestAmount);
 
       redeemFreeDocInternal(account, details, vendorAccount);
 
@@ -481,7 +476,7 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection, IMoCExchan
       details.finalDocAmount,
       details.finalBtcAmount,
       details.commission.btcCommission,
-      details.btcInterestAmount,
+      0,
       details.commission.btcPrice,
       details.commission.mocCommission,
       details.commission.mocPrice,
@@ -511,58 +506,6 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection, IMoCExchan
 
   /** END UPDATE V0112: 24/09/2020 **/
 
-  /**
-    @dev Calculates the amount of RBTC that one bucket should move to another in
-    BProx minting/redemption. This extra makes BProx more leveraging than BPro.
-    @param bucketFrom Origin bucket from which the BTC are moving
-    @param bucketTo Destination bucket to which the BTC are moving
-    @param totalBtc Amount of BTC moving between buckets [using reservePrecision]
-    @param lev lev of the L bucket [using mocPrecision]
-  */
-  function moveExtraFundsToBucket(
-    bytes32 bucketFrom,
-    bytes32 bucketTo,
-    uint256 totalBtc,
-    uint256 lev
-  ) internal {
-    uint256 btcToMove = mocLibConfig.bucketTransferAmount(totalBtc, lev);
-    uint256 docsToMove = mocState.btcToDoc(btcToMove);
-
-    uint256 btcToMoveFinal = Math.min(
-      btcToMove,
-      bproxManager.getBucketNBTC(bucketFrom)
-    );
-    uint256 docsToMoveFinal = Math.min(
-      docsToMove,
-      bproxManager.getBucketNDoc(bucketFrom)
-    );
-
-    bproxManager.moveBtcAndDocs(
-      bucketFrom,
-      bucketTo,
-      btcToMoveFinal,
-      docsToMoveFinal
-    );
-  }
-
-  /**
-   @dev Returns RBTCs for user in concept of interests refund
-   @param bucket Bucket where the BProxs are hold
-   @param rbtcToRedeem Total RBTC value of the redemption [using reservePrecision]
-   @return Interests [using reservePrecision]
-  */
-  function recoverInterests(bytes32 bucket, uint256 rbtcToRedeem)
-    internal
-    returns (uint256)
-  {
-    uint256 rbtcInterests = mocInrate.calcFinalRedeemInterestValue(
-      bucket,
-      rbtcToRedeem
-    );
-
-    return bproxManager.recoverInrate(BUCKET_C0, rbtcInterests);
-  }
-
   function doDocRedeem(address userAddress, uint256 docAmount, uint256 totalBtc)
     internal
   {
@@ -587,25 +530,6 @@ contract MoCExchange is MoCExchangeEvents, MoCBase, MoCLibConnection, IMoCExchan
   /** START UPDATE V0112: 24/09/2020  **/
   /** Upgrade to support multiple commission rates **/
   /** Structs **/
-
-  struct RiskProxRedeemStruct{
-    uint256 totalBtcRedeemed;
-    uint256 btcTotalWithoutCommission;
-    uint256 rbtcInterests;
-    uint256 bucketLev;
-    uint256 bproxToRedeem;
-    uint256 rbtcToRedeem;
-    uint256 bproxPrice;
-    CommissionReturnStruct commission;
-  }
-
-  struct RiskProxMintStruct{
-    uint256 bproxToMint;
-    uint256 finalBtcToMint;
-    uint256 btcInterestAmount;
-    uint256 lev;
-    CommissionReturnStruct commission;
-  }
 
   struct RiskProRedeemStruct{
     uint256 bproFinalAmount;

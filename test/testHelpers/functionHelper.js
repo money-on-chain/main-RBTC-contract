@@ -241,45 +241,6 @@ const mintDocAmount = (moc, btcPriceProvider, mocInrate, mocVendors) => async (
   return moc.mintDocVendors(toContract(btcTotal), vendorAccount, { from: account, value });
 };
 
-const mintBProxAmount = (moc, mocState, mocInrate, mocVendors) => async (
-  account,
-  bucket,
-  bproxAmount,
-  vendorAccount,
-  txType = comissionsTxType.MINT_BTCX_FEES_RBTC
-) => {
-  if (!bproxAmount) {
-    return;
-  }
-
-  const tproTecPrice = await mocState.bucketBProTecPrice(BUCKET_X2);
-  const btcTotal = toContractBNNoPrec(bproxAmount * tproTecPrice);
-
-  const btcInterestAmount = await mocInrate.calcMintInterestValues(bucket, btcTotal);
-
-  // Sent more to pay commissions: if RBTC fees are used then get commission value,
-  // otherwise commission is 0 RBTC
-  const commissionRate = txType.eq(await mocInrate.MINT_BTCX_FEES_RBTC())
-    ? await mocInrate.commissionRatesByTxType(txType)
-    : 0;
-  const mocPrecision = await moc.getMocPrecision();
-  const commissionRbtcAmount =
-    commissionRate > 0 ? btcTotal.mul(commissionRate).div(mocPrecision) : 0;
-
-  const vendor = await mocVendors.vendors(vendorAccount);
-  const { markup } = vendor;
-  const markupRbtcAmount = markup > 0 ? btcTotal.mul(markup).div(mocPrecision) : 0;
-
-  // Multiply commission by 3 to avoid rounding issues
-  const value = btcInterestAmount
-    .add(toContractBNNoPrec(commissionRbtcAmount))
-    .add(toContractBNNoPrec(markupRbtcAmount))
-    .add(btcTotal)
-    .add(btcTotal);
-
-  return moc.mintBProxVendors(bucket, btcTotal, vendorAccount, { from: account, value });
-};
-
 const redeemBPro = moc => async (from, amount, vendorAccount = zeroAddress) => {
   const reservePrecision = await moc.getReservePrecision();
   return vendorAccount !== zeroAddress
@@ -565,7 +526,6 @@ module.exports = async contracts => {
     rbtcNeededToMintBpro: rbtcNeededToMintBpro(moc, mocState),
     mintBProAmount: mintBProAmount(moc, mocState, mocInrate, mocVendors),
     mintDocAmount: mintDocAmount(moc, btcPriceProvider, mocInrate, mocVendors),
-    mintBProxAmount: mintBProxAmount(moc, mocState, mocInrate, mocVendors),
     redeemBPro: redeemBPro(moc),
     calculateBitProHoldersInterest: calculateBitProHoldersInterest(moc),
     getBitProRate: getBitProRate(moc),

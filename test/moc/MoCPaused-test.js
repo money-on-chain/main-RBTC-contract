@@ -30,7 +30,6 @@ const assertAllMocPausedFunctions = (owner, userAccount, vendorAccount) => {
   const testFunctions = [
     { name: 'redeemBProxVendors', args: [BUCKET_X2, 3, vendorAccount] },
     { name: 'runSettlement', args: [1] },
-    { name: 'dailyInratePayment', args: [{ from: owner }] },
     { name: 'payBitProHoldersInterestPayment', args: [{ from: owner }] }
   ];
   const txs = testFunctions.map(func => mocHelper.moc[func.name](...func.args));

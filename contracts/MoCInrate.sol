@@ -11,7 +11,6 @@ import "./interface/IMoCVendors.sol";
 import "./interface/IMoCInrate.sol";
 
 contract MoCInrateEvents {
-  event InrateDailyPay(uint256 amount, uint256 daysToSettlement, uint256 nReserveBucketC0);
   event RiskProHoldersInterestPay(uint256 amount, uint256 nReserveBucketC0BeforePay);
 }
 
@@ -120,18 +119,6 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
 
   function getDoCPower() public view returns(uint256) {
     return docPower;
-  }
-
-  /**
-    @dev Calculates an average interest rate between after and before free doc Redemption
-    @param docRedeem Docs to redeem [using mocPrecision]
-    @return Interest rate value [using mocPrecision]
-   */
-  function docInrateAvg(uint256 docRedeem) public view returns(uint256) {
-    uint256 preAbRatio = mocState.currentAbundanceRatio();
-    uint256 posAbRatio = mocState.abundanceRatio(bproxManager.getBucketNDoc(BUCKET_C0).sub(docRedeem));
-
-    return mocLibConfig.inrateAvg(docTmax, docPower, docTmin, preAbRatio, posAbRatio);
   }
 
   /** END UPDATE V017: 01/11/2019 **/
@@ -264,98 +251,6 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
     commissionsAddress = newCommissionsAddress;
   }
 
-  /**
-    @dev Calculates interest rate for BProx Minting, redeem and Free Doc Redeem
-    @return Interest rate value [using RatePrecsion]
-   */
-  function spotInrate() public view returns(uint256) {
-    uint256 abRatio = mocState.currentAbundanceRatio();
-
-    return mocLibConfig.spotInrate(btcxParams.tMax, btcxParams.power, btcxParams.tMin, abRatio);
-  }
-
-  /**
-    @dev Calculates an average interest rate between after and before mint/redeem
-    @param bucket Name of the bucket involved in the operation
-    @param btcAmount Value of the operation from which calculates the inrate [using reservePrecision]
-    @param onMinting Value that represents if the calculation is based on mint or on redeem
-    @return Interest rate value [using mocPrecision]
-   */
-  function btcxInrateAvg(bytes32 bucket, uint256 btcAmount, bool onMinting) public view returns(uint256) {
-    uint256 preAbRatio = mocState.currentAbundanceRatio();
-    uint256 posAbRatio = mocState.abundanceRatio(simulateDocMovement(bucket, btcAmount, onMinting));
-
-    return mocLibConfig.inrateAvg(btcxParams.tMax, btcxParams.power, btcxParams.tMin, preAbRatio, posAbRatio);
-  }
-
-  /**
-    @dev returns the amount of BTC to pay in concept of interest to bucket C0
-   */
-  function dailyInrate() public view returns(uint256) {
-    uint256 daysToSettl = mocState.daysToSettlement();
-    uint256 totalInrateInBag = bproxManager.getInrateBag(BUCKET_C0);
-
-    if (daysToSettl < mocLibConfig.dayPrecision) {
-      return totalInrateInBag;
-    }
-
-    // ([RES] * [DAY] / ([DAY] + [DAY])) = [RES]
-    // inrateBag / (daysToSettlement + 1)
-    uint256 toPay = totalInrateInBag
-      .mul(mocLibConfig.dayPrecision)
-      .div(daysToSettl.add(mocLibConfig.dayPrecision));
-
-    return toPay;
-  }
-
-  /**
-    @dev Extract the inrate from the passed RBTC value for Bprox minting operation
-    @param bucket Bucket to use to calculate interés
-    @param rbtcAmount Total value from which extract the interest rate [using reservePrecision]
-    @return RBTC to pay in concept of interests [using reservePrecision]
-  */
-  function calcMintInterestValues(bytes32 bucket, uint256 rbtcAmount) public view returns(uint256) {
-    // Calculate Reserves to move in the operation
-    uint256 rbtcToMove = mocLibConfig.bucketTransferAmount(rbtcAmount, mocState.leverage(bucket));
-    // Calculate interest rate
-    uint256 inrateValue = btcxInrateAvg(bucket, rbtcAmount, true); // Minting
-    uint256 finalInrate = inrateToSettlement(inrateValue, true); // Minting
-
-    // Final interest
-    return mocLibConfig.getInterestCost(rbtcToMove, finalInrate);
-  }
-
-  /**
-    @dev Extract the inrate from the passed RBTC value for the Doc Redeem operation
-    @param docAmount Doc amount of the redemption [using mocPrecision]
-    @param rbtcAmount Total value from which extract the interest rate [using reservePrecision]
-    @return RBTC to pay in concept of interests [using reservePrecision]
-  */
-  function calcDocRedInterestValues(uint256 docAmount, uint256 rbtcAmount) public view returns(uint256) {
-    uint256 rate = docInrateAvg(docAmount);
-    uint256 finalInrate = inrateToSettlement(rate, true);
-    uint256 interests = mocLibConfig.getInterestCost(rbtcAmount, finalInrate);
-
-    return interests;
-  }
-
-  /**
-    @dev This function calculates the interest to return to the user
-    in a BPRox redemption. It uses a mechanism to counteract the effect
-    of free docs redemption. It will be replaced with FreeDoC redemption
-    interests in the future
-    @param bucket Bucket to use to calculate interest
-    @param rbtcToRedeem Total value from which calculate interest [using reservePrecision]
-    @return RBTC to recover in concept of interests [using reservePrecision]
-  */
-  function calcFinalRedeemInterestValue(bytes32 bucket, uint256 rbtcToRedeem) public view returns(uint256) {
-    // Get interests to return for redemption
-    uint256 redeemInterest = calcRedeemInterestValue(bucket, rbtcToRedeem); // Redeem
-    uint256 proportionalInterest = calcProportionalInterestValue(bucket, redeemInterest);
-
-    return Math.min(proportionalInterest, redeemInterest);
-  }
-
   /************************************/
   /***** UPGRADE v0110      ***********/
   /************************************/
@@ -411,40 +306,8 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
 
   /** END UPDATE V0112: 24/09/2020 **/
 
-  /**
-    @dev Calculates RBTC value to return to the user in concept of interests
-    @param bucket Bucket to use to calculate interest
-    @param rbtcToRedeem Total value from which calculate interest [using reservePrecision]
-    @return RBTC to recover in concept of interests [using reservePrecision]
-  */
-  function calcRedeemInterestValue(bytes32 bucket, uint256 rbtcToRedeem) public view returns(uint256) {
-    // Calculate Reserves to move in the operation
-    uint256 rbtcToMove = mocLibConfig.bucketTransferAmount(rbtcToRedeem, mocState.leverage(bucket));
-    // Calculate interest rate
-    uint256 inrate = btcxInrateAvg(bucket, rbtcToRedeem, false); // Redeem
-    uint256 finalInrate = inrateToSettlement(inrate, false); // Redeem
-
-    // Calculate interest for the redemption
-    return mocLibConfig.getInterestCost(rbtcToMove, finalInrate);
-  }
-
-  /**
-    @dev Moves the daily amount of interest rate to C0 bucket
-  */
-  function dailyInratePayment() public
-  onlyWhitelisted(msg.sender) onlyOnceADay() returns(uint256) {
-    uint256 toPay = dailyInrate();
-    lastDailyPayBlock = block.number;
-
-    if (toPay != 0) {
-      bproxManager.deliverInrate(BUCKET_C0, toPay);
-    }
-
-    emit InrateDailyPay(toPay, mocState.daysToSettlement(), mocState.getBucketNBTC(BUCKET_C0));
-  }
-
   function isDailyEnabled() public view returns(bool) {
-    return lastDailyPayBlock == 0 || block.number > lastDailyPayBlock + mocState.dayBlockSpan();
+    return false;
   }
 
   function isBitProInterestEnabled() public view returns(bool) {
@@ -492,94 +355,6 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
   }
 
   /** END UPDATE V0112: 24/09/2020 **/
-
-  /**
-    @dev Calculates the interest rate to pay until the settlement day
-    @param inrate Spot interest rate
-    @param countAllDays Value that represents if the calculation will use all days or one day less
-    @return Interest rate value [using RatePrecsion]
-   */
-  function inrateToSettlement(uint256 inrate, bool countAllDays) internal view returns(uint256) {
-    uint256 dayCount = inrateDayCount(countAllDays);
-
-    return inrate.mul(dayCount).div(mocLibConfig.dayPrecision);
-  }
-
-  /**
-    @dev This function calculates the interest to return to a user redeeming
-    BTCx as a proportion of the amount in the interestBag.
-    @param bucket Bucket to use to calculate interest
-    @param redeemInterest Total value from which calculate interest [using reservePrecision]
-    @return InterestsInBag * (RedeemInterests / FullRedeemInterest) [using reservePrecision]
-  */
-  function calcProportionalInterestValue(bytes32 bucket, uint256 redeemInterest) internal view returns(uint256) {
-    uint256 fullRedeemInterest = calcFullRedeemInterestValue(bucket);
-    uint256 interestsInBag = bproxManager.getInrateBag(BUCKET_C0);
-
-    if (fullRedeemInterest == 0) {
-      return 0;
-    }
-
-    // Proportional interests amount
-    return redeemInterest.mul(interestsInBag).div(fullRedeemInterest); // [RES] * [RES] / [RES]
-  }
-
-  /**
-    @dev This function calculates the interest to return if a user redeem all Btcx in existance
-    @param bucket Bucket to use to calculate interest
-    @return Interests [using reservePrecision]
-  */
-  function calcFullRedeemInterestValue(bytes32 bucket) internal view returns(uint256) {
-    // Value in RBTC of all BProxs in the bucket
-    uint256 fullBProxRbtcValue = mocState.bproxToBtc(bproxManager.getBucketNBPro(bucket), bucket);
-    // Interests to return if a redemption of all Bprox is done
-    return calcRedeemInterestValue(bucket, fullBProxRbtcValue); // Redeem
-  }
-
-  /**
-    @dev Calculates the final amount of Bucket 0 DoCs on BProx mint/redeem
-    @param bucket Name of the bucket involved in the operation
-    @param btcAmount Value of the operation from which calculates the inrate [using reservePrecision]
-    @return Final bucket 0 Doc amount
-   */
-  function simulateDocMovement(bytes32 bucket, uint256 btcAmount, bool onMinting) internal view returns(uint256) {
-    // Calculates docs to move
-    uint256 btcToMove = mocLibConfig.bucketTransferAmount(btcAmount, mocState.leverage(bucket));
-    uint256 docsToMove = mocState.btcToDoc(btcToMove);
-
-    if (onMinting) {
-      /* Should not happen when minting bpro because it's
-      not possible to mint more than max bprox but is
-      useful when trying to calculate inrate before minting */
-      return bproxManager.getBucketNDoc(BUCKET_C0) > docsToMove ? bproxManager.getBucketNDoc(BUCKET_C0).sub(docsToMove) : 0;
-    } else {
-      return bproxManager.getBucketNDoc(BUCKET_C0).add(Math.min(docsToMove, bproxManager.getBucketNDoc(bucket)));
-    }
-  }
-
-  /**
-    @dev Returns the days to use for interests calculation
-    @param countAllDays Value that represents if the calculation is based on mint or on redeem
-    @return days [using dayPrecision]
-   */
-  function inrateDayCount(bool countAllDays) internal view returns(uint256) {
-    uint256 daysToSettl = mocState.daysToSettlement();
-
-    if (daysToSettl < mocLibConfig.dayPrecision) {
-      return 0;
-    }
-
-    if (countAllDays) {
-      return daysToSettl;
-    }
-
-    return daysToSettl.sub(mocLibConfig.dayPrecision);
-  }
-
-  modifier onlyOnceADay() {
-    require(isDailyEnabled(), "Interest rate already payed today");
-    _;
-  }
 
   modifier onlyWhenBitProInterestsIsEnabled() {
     require(isBitProInterestEnabled(), "Interest rate of BitPro holders already payed this week");

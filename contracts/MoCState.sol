@@ -191,13 +191,11 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator, IMoCState {
   }
 
   /**
-    @dev Amount of Bitcoins in the system excluding BTCx values and interests holdings
+    @dev Amount of Bitcoins in the system
+    @dev BTCx (leveraged positions) have been permanently disabled and BUCKET_X2 nBPro is always 0
   */
   function collateralRbtcInSystem() public view returns(uint256) {
-    uint256 rbtcInBtcx = bproxToBtcHelper(bproxManager.getBucketNBPro(BUCKET_X2),BUCKET_X2);
-    uint256 rbtcInBag = bproxManager.getInrateBag(BUCKET_C0);
-
-    return rbtcInSystem.sub(rbtcInBtcx).sub(rbtcInBag);
+    return rbtcInSystem;
   }
 
   /**
@@ -554,8 +552,8 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator, IMoCState {
     return bproxManager.getBucketCobj(bucket);
   }
 
-  function getInrateBag(bytes32 bucket) public view returns(uint256) {
-    return bproxManager.getInrateBag(bucket);
+  function getInrateBag(bytes32 bucket) external pure returns(uint256) {
+    return 0;
   }
 
   /**********************
@@ -776,10 +774,6 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator, IMoCState {
 
   function bproxToBtc(uint256 bproxAmount, bytes32 bucket) public view returns(uint256) {
     return mocLibConfig.bproBtcValue(bproxAmount, bucketBProTecPrice(bucket));
-  }
-
-  function bproxToBtcHelper(uint256 bproxAmount, bytes32 bucket) internal view returns(uint256) {
-    return mocLibConfig.bproBtcValue(bproxAmount, bucketBProTecPriceHelper(bucket));
   }
 
   function btcToBProx(uint256 btcAmount, bytes32 bucket) public view returns(uint256) {
