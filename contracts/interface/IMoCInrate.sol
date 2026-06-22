@@ -15,8 +15,6 @@ interface IMoCInrate {
     function MINT_BTCX_FEES_MOC() external view returns(uint8);
     function REDEEM_BTCX_FEES_MOC() external view returns(uint8);
 
-    function dailyInratePayment() external returns(uint256);
-
     function payBitProHoldersInterestPayment() external returns(uint256);
 
     function calculateBitProHoldersInterest() external view returns(uint256, uint256);
@@ -36,12 +34,6 @@ interface IMoCInrate {
     function calcCommissionValue(uint256 rbtcAmount, uint8 txType) external view returns(uint256);
 
     function calculateVendorMarkup(address vendorAccount, uint256 amount) external view returns (uint256 markup);
-
-    function calcDocRedInterestValues(uint256 docAmount, uint256 rbtcAmount) external view returns(uint256);
-
-    function calcMintInterestValues(bytes32 bucket, uint256 rbtcAmount) external view returns(uint256);
-
-    function calcFinalRedeemInterestValue(bytes32 bucket, uint256 rbtcToRedeem) external view returns(uint256);
 
     function setBitProInterestBlockSpan(uint256 newBitProBlockSpan) external;
 }

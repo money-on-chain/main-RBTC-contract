@@ -337,13 +337,6 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
   }
 
   /**
-    @dev Moves the daily amount of interest rate to C0 bucket
-  */
-  function dailyInratePayment() public whenNotPaused() {
-    mocInrate.dailyInratePayment();
-  }
-
-  /**
     @dev Pays the BitPro interest and transfers it to the address mocInrate.bitProInterestAddress
     BitPro interests = Nb (bucket 0) * bitProRate.
   */
@@ -386,8 +379,8 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
     return mocInrate.getBitProInterestBlockSpan();
   }
 
-  function isDailyEnabled() public view returns(bool) {
-    return mocInrate.isDailyEnabled();
+  function isDailyEnabled() external pure returns(bool) {
+    return false;
   }
 
   function isBitProInterestEnabled() public view returns(bool) {

@@ -71,8 +71,8 @@ contract MoCBucketContainer is MoCBase, Governed {
     return mocBuckets[bucket].cobj;
   }
 
-  function getInrateBag(bytes32 bucket) public view returns(uint256) {
-    return mocBuckets[bucket].inrateBag;
+  function getInrateBag(bytes32 bucket) external pure returns(uint256) {
+    return 0;
   }
 
   /**
@@ -147,49 +147,6 @@ contract MoCBucketContainer is MoCBase, Governed {
     bucket.nBTC = bucket.nBTC.sub(btc);
     bucket.nDoc = bucket.nDoc.sub(doc);
     bucket.nBPro = bucket.nBPro.sub(bprox);
-  }
-
-  /**
-    @dev Moves BTC from inrateBag to main BTC bucket bag
-    @param bucketName Name of the bucket to operate
-    @param amount value to move from inrateBag to main bag [using reservePrecision]
-   */
-  function deliverInrate(bytes32 bucketName, uint256 amount) public
-   onlyWhitelisted(msg.sender) onlyBaseBucket(bucketName) bucketStateUpdate(bucketName) {
-    MoCBucket storage bucket = mocBuckets[bucketName];
-
-    uint256 toMove = Math.min(bucket.inrateBag, amount);
-
-    bucket.inrateBag = bucket.inrateBag.sub(toMove);
-    bucket.nBTC = bucket.nBTC.add(toMove);
-  }
-
-  /**
-    @dev Removes Interests rate from Inrate bag
-    @param bucketName Name of the bucket to operate
-    @param amount value to move from inrateBag to main bag [using reservePrecision]
-    @return Retrieved value
-   */
-  function recoverInrate(bytes32 bucketName, uint256 amount) public
-  onlyWhitelisted(msg.sender) onlyBaseBucket(bucketName) bucketStateUpdate(bucketName) returns(uint256) {
-    MoCBucket storage bucket = mocBuckets[bucketName];
-
-    uint256 toRetrieve = Math.min(bucket.inrateBag, amount);
-
-    bucket.inrateBag = bucket.inrateBag.sub(toRetrieve);
-
-    return toRetrieve;
-  }
-
-  /**
-    @dev Moves BTC from origin bucket to destination bucket inrateBag
-    @param bucketName name of the bucket to from which takes
-    @param btcAmount value to add to main bag [using reservePrecision]
-  */
-  function payInrate(bytes32 bucketName, uint256 btcAmount) public
-  onlyWhitelisted(msg.sender) onlyBaseBucket(bucketName) {
-    MoCBucket storage bucket = mocBuckets[bucketName];
-    bucket.inrateBag = bucket.inrateBag.add(btcAmount);
   }
 
   /**
