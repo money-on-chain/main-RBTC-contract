@@ -31,13 +31,21 @@ contract('MoC timestamp scheduling', function([owner, account, interestTarget, v
     await mocHelper.revertState();
   });
 
-  it('initializes EMA with a timestamp and subsequently gates it for one day', async function() {
+  it('stores the last EMA timestamp and gates calculations for one day', async function() {
     const latestBlock = await web3.eth.getBlock('latest');
-    const nextCalculation = Number(latestBlock.timestamp) + DAY;
-    const changer = await EmaTimeBasedChangerMock.new(mocHelper.mocState.address, nextCalculation);
+    const lastCalculation = Number(latestBlock.timestamp);
+    const changer = await EmaTimeBasedChangerMock.new(mocHelper.mocState.address, lastCalculation);
     await mocHelper.governor.executeChange(changer.address);
 
-    assert(!(await mocHelper.mocState.shouldCalculateEma()), 'EMA was enabled before its timestamp');
+    assert.equal((await mocHelper.mocState.emaCalculationTimeSpan()).toNumber(), DAY);
+    assert.equal(
+      (await mocHelper.mocState.lastEmaCalculationTimestamp()).toNumber(),
+      lastCalculation
+    );
+    assert(
+      !(await mocHelper.mocState.shouldCalculateEma()),
+      'EMA was enabled before one day elapsed'
+    );
 
     await increaseTime(DAY);
     assert(await mocHelper.mocState.shouldCalculateEma(), 'EMA was not due at its timestamp');
@@ -48,7 +56,7 @@ contract('MoC timestamp scheduling', function([owner, account, interestTarget, v
     assert(await mocHelper.mocState.shouldCalculateEma(), 'EMA was not due after one day');
   });
 
-  it('uses the configured weekly timestamp and schedules from the payment execution time', async function() {
+  it('stores the last interest payment timestamp and gates payments for one week', async function() {
     await mocHelper.registerVendor(vendor, 0, owner);
     await mocHelper.mintBPro(account, mocHelper.toContractBN(2), vendor);
     await mocHelper.mockMocInrateChanger.setBitProRate(mocHelper.toContractBN(0.5 * 10 ** 18));
@@ -56,21 +64,26 @@ contract('MoC timestamp scheduling', function([owner, account, interestTarget, v
     await mocHelper.governor.executeChange(mocHelper.mockMocInrateChanger.address);
 
     const latestBlock = await web3.eth.getBlock('latest');
-    const nextPayment = Number(latestBlock.timestamp) + DAY;
+    const lastPayment = Number(latestBlock.timestamp);
     const changer = await BitProInterestTimeBasedChangerMock.new(
       mocHelper.mocInrate.address,
-      nextPayment
+      lastPayment
     );
     await mocHelper.governor.executeChange(changer.address);
 
-    assert(!(await mocHelper.isBitProInterestEnabled()), 'interest was enabled before its timestamp');
-    await increaseTime(DAY);
-    assert(await mocHelper.isBitProInterestEnabled(), 'interest was not enabled at its timestamp');
+    assert.equal((await mocHelper.mocInrate.bitProInterestTimeSpan()).toNumber(), 7 * DAY);
+    assert.equal((await mocHelper.mocInrate.lastBitProInterestTimestamp()).toNumber(), lastPayment);
+    assert(
+      !(await mocHelper.isBitProInterestEnabled()),
+      'interest was enabled before one week elapsed'
+    );
+    await increaseTime(7 * DAY + 1);
+    assert(await mocHelper.isBitProInterestEnabled(), 'interest was not enabled after one week');
 
     await mocHelper.payBitProHoldersInterestPayment();
     assert(!(await mocHelper.isBitProInterestEnabled()), 'interest was not gated after payment');
 
-    await increaseTime(7 * DAY);
-    assert(await mocHelper.isBitProInterestEnabled(), 'interest was not due after one week');
+    await increaseTime(7 * DAY + 1);
+    assert(await mocHelper.isBitProInterestEnabled(), 'interest was not due after another week');
   });
 });

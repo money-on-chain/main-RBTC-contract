@@ -1,4 +1,7 @@
 pragma solidity ^0.5.8;
+// Historical governance changer. Its contract interfaces target the deployment
+// it originally changed and do not represent the current protocol interfaces.
+
 pragma experimental ABIEncoderV2;
 
 import "../MoCInrate.sol";

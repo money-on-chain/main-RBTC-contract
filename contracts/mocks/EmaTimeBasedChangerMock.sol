@@ -5,14 +5,14 @@ import "moc-governance/contracts/Governance/ChangeContract.sol";
 
 contract EmaTimeBasedChangerMock is ChangeContract {
   MoCState private mocState;
-  uint256 private nextDueTimestamp;
+  uint256 private lastCalculationTimestamp;
 
-  constructor(MoCState _mocState, uint256 _nextDueTimestamp) public {
+  constructor(MoCState _mocState, uint256 _lastCalculationTimestamp) public {
     mocState = _mocState;
-    nextDueTimestamp = _nextDueTimestamp;
+    lastCalculationTimestamp = _lastCalculationTimestamp;
   }
 
   function execute() external {
-    mocState.initializeEmaCalculation(nextDueTimestamp);
+    mocState.initializeEmaCalculation(lastCalculationTimestamp);
   }
 }

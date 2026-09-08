@@ -20,7 +20,9 @@ contract MoCEMACalculator is Governed {
   uint256 internal emaCalculationBlockSpan;
 
   // First unused word in the deployed parent storage gap.
-  uint256 public nextEmaCalculation;
+  uint256 public lastEmaCalculationTimestamp;
+
+  uint256 public constant emaCalculationTimeSpan = 1 days;
 
   uint256 constant public PRICE_PRECISION =  10 ** 18;
   uint256 constant public FACTOR_PRECISION = 10 ** 18;
@@ -42,18 +44,18 @@ contract MoCEMACalculator is Governed {
   }
 
   /**
-   * @dev Sets the first timestamp-based EMA due date. This can only be done
+   * @dev Sets the last timestamp-based EMA calculation. This can only be done
    *      once through the governance-approved changer that upgrades the proxy.
    */
-  function initializeEmaCalculation(uint256 nextDueTimestamp) public onlyAuthorizedChanger() {
-    require(nextDueTimestamp > 0, "EMA timestamp must be positive");
-    require(nextEmaCalculation == 0, "EMA schedule already initialized");
-    nextEmaCalculation = nextDueTimestamp;
+  function initializeEmaCalculation(uint256 lastCalculationTimestamp) public onlyAuthorizedChanger() {
+    require(lastCalculationTimestamp > 0, "EMA timestamp must be positive");
+    require(lastEmaCalculationTimestamp == 0, "EMA schedule already initialized");
+    lastEmaCalculationTimestamp = lastCalculationTimestamp;
   }
 
   function shouldCalculateEma() public view returns(bool) {
-    require(nextEmaCalculation != 0, "EMA schedule not initialized");
-    return block.timestamp >= nextEmaCalculation;
+    require(lastEmaCalculationTimestamp != 0, "EMA schedule not initialized");
+    return block.timestamp >= lastEmaCalculationTimestamp.add(emaCalculationTimeSpan);
   }
 
   /**
@@ -81,7 +83,7 @@ contract MoCEMACalculator is Governed {
       uint256 currentEma = bitcoinMovingAverage.mul(coefficientComp()).add(weightedPrice)
         .div(FACTOR_PRECISION);
 
-      nextEmaCalculation = block.timestamp.add(1 days);
+      lastEmaCalculationTimestamp = block.timestamp;
       bitcoinMovingAverage = currentEma;
 
       emit MovingAverageCalculation(btcPrice, currentEma);
@@ -101,6 +103,6 @@ contract MoCEMACalculator is Governed {
     smoothingFactor = factor;
   }
 
-  // One slot is consumed by nextEmaCalculation.
+  // One slot is consumed by lastEmaCalculationTimestamp.
   uint256[49] private upgradeGap;
 }

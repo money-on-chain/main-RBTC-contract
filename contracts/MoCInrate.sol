@@ -212,13 +212,13 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
   }
 
   /**
-   * @dev Sets the first weekly interest due date once, through the governance
+   * @dev Sets the last weekly interest payment timestamp once, through the governance
    *      changer that upgrades the proxy.
    */
-  function initializeBitProInterestSchedule(uint256 nextPaymentTimestamp) public onlyAuthorizedChanger() {
-    require(nextPaymentTimestamp > 0, "Interest timestamp must be positive");
-    require(nextBitProInterestPayment == 0, "Interest schedule already initialized");
-    nextBitProInterestPayment = nextPaymentTimestamp;
+  function initializeBitProInterestSchedule(uint256 lastPaymentTimestamp) public onlyAuthorizedChanger() {
+    require(lastPaymentTimestamp > 0, "Interest timestamp must be positive");
+    require(lastBitProInterestTimestamp == 0, "Interest schedule already initialized");
+    lastBitProInterestTimestamp = lastPaymentTimestamp;
   }
 
   /**
@@ -305,8 +305,8 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
   }
 
   function isBitProInterestEnabled() public view returns(bool) {
-    require(nextBitProInterestPayment != 0, "Interest schedule not initialized");
-    return block.timestamp >= nextBitProInterestPayment;
+    require(lastBitProInterestTimestamp != 0, "Interest schedule not initialized");
+    return block.timestamp > lastBitProInterestTimestamp.add(bitProInterestTimeSpan);
   }
 
   /**
@@ -328,7 +328,7 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
   onlyWhitelisted(msg.sender)
   onlyWhenBitProInterestsIsEnabled() returns(uint256) {
     (uint256 bitProInterest, uint256 bucketBtnc0) = calculateBitProHoldersInterest();
-    nextBitProInterestPayment = block.timestamp.add(7 days);
+    lastBitProInterestTimestamp = block.timestamp;
     emit RiskProHoldersInterestPay(bitProInterest, bucketBtnc0);
     return bitProInterest;
   }
@@ -428,8 +428,10 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
   /** END UPDATE V0112: 24/09/2020 **/
 
   // First unused word in the deployed contract storage gap.
-  uint256 public nextBitProInterestPayment;
+  uint256 public lastBitProInterestTimestamp;
 
-  // One slot is consumed by nextBitProInterestPayment.
+  uint256 public constant bitProInterestTimeSpan = 7 days;
+
+  // One slot is consumed by lastBitProInterestTimestamp.
   uint256[49] private upgradeGap;
 }

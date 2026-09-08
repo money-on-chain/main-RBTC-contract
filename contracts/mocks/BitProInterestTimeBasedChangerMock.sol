@@ -5,14 +5,14 @@ import "moc-governance/contracts/Governance/ChangeContract.sol";
 
 contract BitProInterestTimeBasedChangerMock is ChangeContract {
   MoCInrate private mocInrate;
-  uint256 private nextPaymentTimestamp;
+  uint256 private lastPaymentTimestamp;
 
-  constructor(MoCInrate _mocInrate, uint256 _nextPaymentTimestamp) public {
+  constructor(MoCInrate _mocInrate, uint256 _lastPaymentTimestamp) public {
     mocInrate = _mocInrate;
-    nextPaymentTimestamp = _nextPaymentTimestamp;
+    lastPaymentTimestamp = _lastPaymentTimestamp;
   }
 
   function execute() external {
-    mocInrate.initializeBitProInterestSchedule(nextPaymentTimestamp);
+    mocInrate.initializeBitProInterestSchedule(lastPaymentTimestamp);
   }
 }
