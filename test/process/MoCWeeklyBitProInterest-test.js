@@ -1,3 +1,4 @@
+const { time } = require('openzeppelin-test-helpers');
 const testHelperBuilder = require('../mocHelper.js');
 
 let mocHelper;
@@ -10,6 +11,8 @@ contract('MoC: BitPro holder interests payment', function([
   targetAddr,
   vendorAccount
 ]) {
+  const WEEK = 7 * 24 * 60 * 60;
+
   before(async function() {
     mocHelper = await testHelperBuilder({ owner, useMock: true });
     ({ toContractBN } = mocHelper);
@@ -33,7 +36,6 @@ contract('MoC: BitPro holder interests payment', function([
       bitProMintBtc: 0,
       bitProInterestTargetAddress: targetAddr,
       bitProHolderRate: 0.5 * 10 ** 18,
-      blockSpan: 20 * 3,
       expect: {
         bucket0AfterInterest: 0,
         targetAddrBalance: 0,
@@ -44,7 +46,6 @@ contract('MoC: BitPro holder interests payment', function([
       description: 'There are money in the bucket 0. Function should decrease C0 bucket RBTCs',
       bitProMintBtc: 2,
       bitProHolderRate: 0.5 * 10 ** 18,
-      blockSpan: 20 * 7,
       bitProInterestTargetAddress: targetAddr,
       expect: {
         bucket0AfterInterest: 1,
@@ -60,8 +61,8 @@ contract('MoC: BitPro holder interests payment', function([
         await mocHelper.mintBPro(account, toContractBN(s.bitProMintBtc), vendorAccount);
         await this.mockMocInrateChanger.setBitProRate(toContractBN(s.bitProHolderRate));
         await this.mockMocInrateChanger.setBitProInterestAddress(s.bitProInterestTargetAddress);
-        await this.mockMocInrateChanger.setBitProInterestBlockSpan(s.blockSpan);
         await this.governor.executeChange(this.mockMocInrateChanger.address);
+        await time.increase(WEEK + 1);
         beforeTargetAddressBalance = toContractBN(await web3.eth.getBalance(targetAddr));
       });
       it(`THEN payment value is ${s.expect.paymentValue}`, async function() {
@@ -73,9 +74,9 @@ contract('MoC: BitPro holder interests payment', function([
           'Weekly BitPro holders is deferent'
         );
       });
-      it('THEN bitpro blockSpan is correct', async function() {
-        const bitProBlockSpan = await mocHelper.getBitProInterestBlockSpan();
-        assert(bitProBlockSpan, s.blockSpan, 'BitPro holders blockSpan is deferent');
+      it('THEN the BitPro interest period is one week', async function() {
+        const bitProInterestTimeSpan = await mocHelper.getBitProInterestTimeSpan();
+        mocHelper.assertBig(bitProInterestTimeSpan, WEEK, 'BitPro interest period is incorrect');
       });
       it('THEN bitpro weekly rate is correct', async function() {
         const bitProRate = await mocHelper.getBitProRate();

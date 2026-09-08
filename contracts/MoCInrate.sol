@@ -395,6 +395,7 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
     bitProRate = _bitProRate;
     bitProInterestAddress = bitProInterestsTarget;
     bitProInterestBlockSpan = blockSpanBitPro;
+    lastBitProInterestTimestamp = block.timestamp;
     //commissionRate = commissionRateParam;
     commissionsAddress = commissionsAddressTarget;
     docTmin = _docTmin;

@@ -82,7 +82,7 @@ const calculateBitProHoldersInterest = moc => async () => moc.calculateBitProHol
 
 const getBitProRate = moc => async () => moc.getBitProRate();
 
-const getBitProInterestBlockSpan = moc => async () => moc.getBitProInterestBlockSpan();
+const getBitProInterestTimeSpan = mocInrate => async () => mocInrate.bitProInterestTimeSpan();
 
 const payBitProHoldersInterestPayment = moc => async () => moc.payBitProHoldersInterestPayment();
 
@@ -529,7 +529,7 @@ module.exports = async contracts => {
     redeemBPro: redeemBPro(moc),
     calculateBitProHoldersInterest: calculateBitProHoldersInterest(moc),
     getBitProRate: getBitProRate(moc),
-    getBitProInterestBlockSpan: getBitProInterestBlockSpan(moc),
+    getBitProInterestTimeSpan: getBitProInterestTimeSpan(mocInrate),
     getBitProInterestAddress: getBitProInterestAddress(moc),
     payBitProHoldersInterestPayment: payBitProHoldersInterestPayment(moc),
     isBitProInterestEnabled: isBitProInterestEnabled(moc),

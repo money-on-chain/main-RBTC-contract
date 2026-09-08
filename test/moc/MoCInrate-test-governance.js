@@ -12,7 +12,6 @@ const scenario = {
   btcxTmin: 4,
   btcxTmax: 7777777,
   btcxPower: 7,
-  bitProInterestBlockSpan: 50 * 80 * 12,
   bitProRate: 78,
   rbtcAmount: 20,
   commissionAmount: 0.04,
@@ -158,30 +157,23 @@ contract('MoCInrate Governed', function([owner, account2, vendorAccount]) {
       });
     });
 
-    describe('GIVEN the default bitProInterestBlockSpan', function() {
-      it(`THEN an unauthorized account ${account2} tries to change bitProInterestBlockSpan to ${scenario.bitProInterestBlockSpan}`, async function() {
+    describe('GIVEN the timestamp-based BitPro interest schedule', function() {
+      it('THEN it is initialized with a one-week period', async function() {
+        const lastPayment = await this.mocInrate.lastBitProInterestTimestamp();
+        mocHelper.assertBig(await this.mocInrate.bitProInterestTimeSpan(), 7 * 24 * 60 * 60);
+        assert(lastPayment > 0, 'lastBitProInterestTimestamp should be greater than 0');
+      });
+      it(`THEN account ${account2} cannot initialize the interest schedule`, async function() {
         try {
-          await this.mocInrate.setBitProInterestBlockSpan(scenario.bitProInterestBlockSpan, {
+          await this.mocInrate.initializeBitProInterestSchedule(1, {
             from: account2
           });
         } catch (err) {
           assert(
             NOT_AUTHORIZED_CHANGER === err.reason,
-            `${account2} Should not be authorized to set bitProInterestBlockSpan`
+            `${account2} should not be authorized to initialize the interest schedule`
           );
         }
-      });
-      it(`THEN an authorized contract tries to change bitProInterestBlockSpan to ${scenario.bitProInterestBlockSpan}`, async function() {
-        await this.mockMocInrateChanger.setBitProInterestBlockSpan(
-          scenario.bitProInterestBlockSpan
-        );
-        await this.governor.executeChange(this.mockMocInrateChanger.address);
-        const newBitProInterestBlockSpan = await this.mocInrate.getBitProInterestBlockSpan();
-        mocHelper.assertBig(
-          newBitProInterestBlockSpan,
-          scenario.bitProInterestBlockSpan,
-          `bitProInterestBlockSpan should be ${scenario.bitProInterestBlockSpan}`
-        );
       });
     });
 

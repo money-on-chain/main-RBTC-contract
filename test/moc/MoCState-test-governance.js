@@ -8,7 +8,6 @@ const scenario = {
   utpdu: 10,
   blockSpan: 20 * 3,
   bproMaxDiscountRate: 250,
-  emaCalculationBlockSpan: 20,
   smoothingFactor: 2,
   maxMintBPro: 2,
   liquidationEnabled: true,
@@ -305,30 +304,23 @@ contract('MoCState Governed', function([owner, account2]) {
       });
     });
 
-    describe('GIVEN the emaCalculationBlockSpan value', function() {
-      it(`THEN an unauthorized account ${account2} tries to change emaCalculationBlockSpan to ${scenario.emaCalculationBlockSpan}`, async function() {
+    describe('GIVEN the timestamp-based EMA schedule', function() {
+      it('THEN it is initialized with a one-day period', async function() {
+        const lastCalculation = await this.mocState.lastEmaCalculationTimestamp();
+        mocHelper.assertBig(await this.mocState.emaCalculationTimeSpan(), 24 * 60 * 60);
+        assert(lastCalculation > 0, 'lastEmaCalculationTimestamp should be greater than 0');
+      });
+      it(`THEN account ${account2} cannot initialize the EMA schedule`, async function() {
         try {
-          await this.mocState.setEmaCalculationBlockSpan(scenario.emaCalculationBlockSpan, {
+          await this.mocState.initializeEmaCalculation(1, {
             from: account2
           });
         } catch (err) {
           assert(
             NOT_AUTORIZED_CHANGER === err.reason,
-            `${account2} Should not be authorized to set emaCalculationBlockSpan`
+            `${account2} should not be authorized to initialize the EMA schedule`
           );
         }
-      });
-      it(`THEN an authorized contract tries to change emaCalculationBlockSpan to ${scenario.emaCalculationBlockSpan}`, async function() {
-        const oldEmaCalculationBlockSpan = await this.mocState.getEmaCalculationBlockSpan();
-        assert(oldEmaCalculationBlockSpan > 0, 'emaCalculationBlockSpan should be greater than 0');
-        await this.mockMocStateChanger.setEmaCalculationBlockSpan(scenario.emaCalculationBlockSpan);
-        await this.governor.executeChange(this.mockMocStateChanger.address);
-        const newEmaCalculationBlockSpan = await this.mocState.getEmaCalculationBlockSpan();
-        mocHelper.assertBig(
-          newEmaCalculationBlockSpan,
-          scenario.emaCalculationBlockSpan,
-          `emaCalculationBlockSpan should be ${scenario.emaCalculationBlockSpan}`
-        );
       });
     });
 

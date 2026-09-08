@@ -1,24 +1,10 @@
+const { expectRevert, time } = require('openzeppelin-test-helpers');
 const testHelperBuilder = require('../mocHelper.js');
 
 const EmaTimeBasedChangerMock = artifacts.require('EmaTimeBasedChangerMock');
 const BitProInterestTimeBasedChangerMock = artifacts.require('BitProInterestTimeBasedChangerMock');
 
 const DAY = 24 * 60 * 60;
-
-const increaseTime = async seconds => {
-  await new Promise((resolve, reject) => {
-    web3.currentProvider.send(
-      { jsonrpc: '2.0', method: 'evm_increaseTime', params: [seconds], id: Date.now() },
-      (error, result) => (error ? reject(error) : resolve(result))
-    );
-  });
-  await new Promise((resolve, reject) => {
-    web3.currentProvider.send(
-      { jsonrpc: '2.0', method: 'evm_mine', params: [], id: Date.now() + 1 },
-      (error, result) => (error ? reject(error) : resolve(result))
-    );
-  });
-};
 
 contract('MoC timestamp scheduling', function([owner, account, interestTarget, vendor]) {
   let mocHelper;
@@ -31,32 +17,42 @@ contract('MoC timestamp scheduling', function([owner, account, interestTarget, v
     await mocHelper.revertState();
   });
 
-  it('stores the last EMA timestamp and gates calculations for one day', async function() {
+  it('initializes the EMA schedule on fresh deployment and gates calculations daily', async function() {
     const latestBlock = await web3.eth.getBlock('latest');
-    const lastCalculation = Number(latestBlock.timestamp);
-    const changer = await EmaTimeBasedChangerMock.new(mocHelper.mocState.address, lastCalculation);
-    await mocHelper.governor.executeChange(changer.address);
+    const lastCalculation = await mocHelper.mocState.lastEmaCalculationTimestamp();
 
     assert.equal((await mocHelper.mocState.emaCalculationTimeSpan()).toNumber(), DAY);
-    assert.equal(
-      (await mocHelper.mocState.lastEmaCalculationTimestamp()).toNumber(),
-      lastCalculation
+    assert(lastCalculation.toNumber() > 0, 'EMA schedule was not initialized');
+    assert(
+      lastCalculation.toNumber() <= Number(latestBlock.timestamp),
+      'EMA timestamp is after the latest block'
     );
     assert(
       !(await mocHelper.mocState.shouldCalculateEma()),
       'EMA was enabled before one day elapsed'
     );
 
-    await increaseTime(DAY);
+    await time.increase(DAY);
     assert(await mocHelper.mocState.shouldCalculateEma(), 'EMA was not due at its timestamp');
     await mocHelper.mocState.calculateBitcoinMovingAverage();
     assert(!(await mocHelper.mocState.shouldCalculateEma()), 'EMA was not gated after calculation');
 
-    await increaseTime(DAY);
+    await time.increase(DAY);
     assert(await mocHelper.mocState.shouldCalculateEma(), 'EMA was not due after one day');
   });
 
-  it('stores the last interest payment timestamp and gates payments for one week', async function() {
+  it('does not allow migration initialization to overwrite a fresh EMA schedule', async function() {
+    const changer = await EmaTimeBasedChangerMock.new(
+      mocHelper.mocState.address,
+      (await time.latest()).toString()
+    );
+    await expectRevert(
+      mocHelper.governor.executeChange(changer.address),
+      'EMA schedule already initialized'
+    );
+  });
+
+  it('initializes the interest schedule on fresh deployment and gates payments weekly', async function() {
     await mocHelper.registerVendor(vendor, 0, owner);
     await mocHelper.mintBPro(account, mocHelper.toContractBN(2), vendor);
     await mocHelper.mockMocInrateChanger.setBitProRate(mocHelper.toContractBN(0.5 * 10 ** 18));
@@ -64,26 +60,36 @@ contract('MoC timestamp scheduling', function([owner, account, interestTarget, v
     await mocHelper.governor.executeChange(mocHelper.mockMocInrateChanger.address);
 
     const latestBlock = await web3.eth.getBlock('latest');
-    const lastPayment = Number(latestBlock.timestamp);
-    const changer = await BitProInterestTimeBasedChangerMock.new(
-      mocHelper.mocInrate.address,
-      lastPayment
+    const lastPayment = await mocHelper.mocInrate.lastBitProInterestTimestamp();
+    assert(lastPayment.toNumber() > 0, 'interest schedule was not initialized');
+    assert(
+      lastPayment.toNumber() <= Number(latestBlock.timestamp),
+      'interest timestamp is after the latest block'
     );
-    await mocHelper.governor.executeChange(changer.address);
 
     assert.equal((await mocHelper.mocInrate.bitProInterestTimeSpan()).toNumber(), 7 * DAY);
-    assert.equal((await mocHelper.mocInrate.lastBitProInterestTimestamp()).toNumber(), lastPayment);
     assert(
       !(await mocHelper.isBitProInterestEnabled()),
       'interest was enabled before one week elapsed'
     );
-    await increaseTime(7 * DAY + 1);
+    await time.increase(7 * DAY + 1);
     assert(await mocHelper.isBitProInterestEnabled(), 'interest was not enabled after one week');
 
     await mocHelper.payBitProHoldersInterestPayment();
     assert(!(await mocHelper.isBitProInterestEnabled()), 'interest was not gated after payment');
 
-    await increaseTime(7 * DAY + 1);
+    await time.increase(7 * DAY + 1);
     assert(await mocHelper.isBitProInterestEnabled(), 'interest was not due after another week');
+  });
+
+  it('does not allow migration initialization to overwrite a fresh interest schedule', async function() {
+    const changer = await BitProInterestTimeBasedChangerMock.new(
+      mocHelper.mocInrate.address,
+      (await time.latest()).toString()
+    );
+    await expectRevert(
+      mocHelper.governor.executeChange(changer.address),
+      'Interest schedule already initialized'
+    );
   });
 });

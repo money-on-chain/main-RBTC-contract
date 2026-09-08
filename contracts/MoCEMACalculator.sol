@@ -68,6 +68,7 @@ contract MoCEMACalculator is Governed {
   function initializeMovingAverage(uint256 initialEma, uint256 smoothFactor, uint256 emaBlockSpan) internal {
     _doSetSmoothingFactor(smoothFactor);
     lastEmaCalculation = block.number;
+    lastEmaCalculationTimestamp = block.timestamp;
     bitcoinMovingAverage = initialEma;
     emaCalculationBlockSpan = emaBlockSpan;
   }
