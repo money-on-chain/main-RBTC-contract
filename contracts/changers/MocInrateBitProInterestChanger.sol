@@ -19,11 +19,7 @@ contract MocInrateBitProInterestChanger is ChangeContract, Ownable{
   }
 
   function execute() external {
-    mocInrate.setBitProInterestBlockSpan(bitProInterestBlockSpan);
   }
 
-  function setBitProInterestBlockSpan(uint256 _bitProInterestBlockSpan) public onlyOwner(){
-    bitProInterestBlockSpan = _bitProInterestBlockSpan;
-  }
 
 }

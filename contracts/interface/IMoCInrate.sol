@@ -23,8 +23,6 @@ interface IMoCInrate {
 
     function getBitProRate() external view returns(uint256);
 
-    function getBitProInterestBlockSpan() external view returns(uint256);
-
     function isDailyEnabled() external view returns(bool);
 
     function isBitProInterestEnabled() external view returns(bool);
@@ -35,5 +33,4 @@ interface IMoCInrate {
 
     function calculateVendorMarkup(address vendorAccount, uint256 amount) external view returns (uint256 markup);
 
-    function setBitProInterestBlockSpan(uint256 newBitProBlockSpan) external;
 }

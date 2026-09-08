@@ -371,13 +371,6 @@ contract MoC is MoCEvents, MoCLibConnection, MoCBase, Stoppable, IMoC {
     return mocInrate.getBitProRate();
   }
 
-  /**
-    @dev Gets the blockspan of BPRO that represents the frecuency of BitPro holders interest payment
-    @return returns power of bitProInterestBlockSpan
-  */
-  function getBitProInterestBlockSpan() public view returns(uint256) {
-    return mocInrate.getBitProInterestBlockSpan();
-  }
 
   function isDailyEnabled() external pure returns(bool) {
     return false;

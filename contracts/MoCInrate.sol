@@ -67,9 +67,9 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
   // Target address to transfer BitPro holders interests
   address payable public bitProInterestAddress;
   // Last block when an BitPro holders instereste was calculated
-  uint256 public lastBitProInterestBlock;
-  // BitPro interest Blockspan to configure blocks between payments
-  uint256 public bitProInterestBlockSpan;
+  uint256 internal lastBitProInterestBlock;
+  // Historical block-span value retained only for storage compatibility.
+  uint256 internal bitProInterestBlockSpan;
 
   // Target addres to transfer commissions of mint/redeem
   address payable public commissionsAddress;
@@ -172,14 +172,6 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
   }
 
   /**
-   * @dev Gets the blockspan of BPRO that represents the frecuency of BitPro holders intereset payment
-   * @return returns power of bitProInterestBlockSpan
-   */
-  function getBitProInterestBlockSpan() public view returns(uint256) {
-    return bitProInterestBlockSpan;
-  }
-
-  /**
    * @dev sets tMin param of BTCX tokens
    * @param _btxcTmin tMin of BTCX
    */
@@ -219,12 +211,14 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
     bitProRate = newBitProRate;
   }
 
-   /**
-    @dev Sets the blockspan BitPro Intereset rate payment is enable to be executed
-    @param newBitProBlockSpan New BitPro Block span
+  /**
+   * @dev Sets the first weekly interest due date once, through the governance
+   *      changer that upgrades the proxy.
    */
-  function setBitProInterestBlockSpan(uint256 newBitProBlockSpan) public onlyAuthorizedChanger() {
-    bitProInterestBlockSpan = newBitProBlockSpan;
+  function initializeBitProInterestSchedule(uint256 nextPaymentTimestamp) public onlyAuthorizedChanger() {
+    require(nextPaymentTimestamp > 0, "Interest timestamp must be positive");
+    require(nextBitProInterestPayment == 0, "Interest schedule already initialized");
+    nextBitProInterestPayment = nextPaymentTimestamp;
   }
 
   /**
@@ -311,7 +305,8 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
   }
 
   function isBitProInterestEnabled() public view returns(bool) {
-    return lastBitProInterestBlock == 0 || block.number > (lastBitProInterestBlock + bitProInterestBlockSpan);
+    require(nextBitProInterestPayment != 0, "Interest schedule not initialized");
+    return block.timestamp >= nextBitProInterestPayment;
   }
 
   /**
@@ -333,7 +328,7 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
   onlyWhitelisted(msg.sender)
   onlyWhenBitProInterestsIsEnabled() returns(uint256) {
     (uint256 bitProInterest, uint256 bucketBtnc0) = calculateBitProHoldersInterest();
-    lastBitProInterestBlock = block.number;
+    nextBitProInterestPayment = block.timestamp.add(7 days);
     emit RiskProHoldersInterestPay(bitProInterest, bucketBtnc0);
     return bitProInterest;
   }
@@ -432,7 +427,9 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
 
   /** END UPDATE V0112: 24/09/2020 **/
 
-  // Leave a gap betweeen inherited contracts variables in order to be
-  // able to add more variables in them later
-  uint256[50] private upgradeGap;
+  // First unused word in the deployed contract storage gap.
+  uint256 public nextBitProInterestPayment;
+
+  // One slot is consumed by nextBitProInterestPayment.
+  uint256[49] private upgradeGap;
 }

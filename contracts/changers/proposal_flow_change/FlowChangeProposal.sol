@@ -4,7 +4,6 @@ import "moc-governance/contracts/Governance/ChangeContract.sol";
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 
 interface IIMoCInrate {
-    function setBitProInterestBlockSpan(uint256 newBitProBlockSpan) external;
     function setCommissionsAddress(address newCommissionsAddress) external;
     function setBitProInterestAddress(address newBitProInterestAddress ) external;
 }
@@ -15,7 +14,6 @@ interface IIMoCSettlement {
 
 interface IIMoCState {
     function setDayBlockSpan(uint256 blockSpan) external;
-    function setEmaCalculationBlockSpan(uint256 blockSpan) external;
     function setMoCPriceProvider(address mocProviderAddress) external;
 }
 
@@ -74,9 +72,7 @@ contract FlowChangeProposal is ChangeContract, Ownable {
     mocState.setMoCPriceProvider(mocProviderAddress);
 
     mocState.setDayBlockSpan(blockSpan);
-    mocInrate.setBitProInterestBlockSpan(blockSpanBitProInterest);
     mocSettlement.setBlockSpan(blockSpanSettlement);
-    mocState.setEmaCalculationBlockSpan(blockSpanEMA);
 
     // Execute only one time
     mocInrate = IIMoCInrate(0);

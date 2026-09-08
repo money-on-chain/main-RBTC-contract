@@ -64,7 +64,6 @@ contract MocStateChanger is ChangeContract, Ownable {
     mocState.setLiq(liq);
     mocState.setUtpdu(uptdu);
     mocState.setMaxDiscountRate(maxDiscRate);
-    mocState.setEmaCalculationBlockSpan(emaCalculationBlockSpan);
     mocState.setSmoothingFactor(smoothingFactor);
     mocState.setBtcPriceProvider(btcPriceProvider);
     mocState.setMaxMintBPro(maxMintBPro);
@@ -105,13 +104,6 @@ contract MocStateChanger is ChangeContract, Ownable {
 
   function setSmoothingFactor(uint256 factor) public onlyOwner() {
     smoothingFactor = factor;
-  }
-
-  /**
-  * @param blockSpan Defines how many blocks should pass between BMA calculations
-  **/
-  function setEmaCalculationBlockSpan(uint256 blockSpan) public onlyOwner() {
-    emaCalculationBlockSpan = blockSpan;
   }
 
   function updatePegValue(uint256 _newPeg) public onlyOwner() {

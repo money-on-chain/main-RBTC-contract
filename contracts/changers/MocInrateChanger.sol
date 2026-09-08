@@ -71,7 +71,6 @@ contract MocInrateChanger is ChangeContract, Ownable {
   }
 
   function execute() external {
-    mocInrate.setBitProInterestBlockSpan(bitProInterestBlockSpan);
     mocInrate.setBtcxTmin(btxcTmin);
     mocInrate.setBtcxTmax(btxcTmax);
     mocInrate.setBtcxPower(btxcPower);
@@ -94,9 +93,6 @@ contract MocInrateChanger is ChangeContract, Ownable {
     initializeCommissionRates();
   }
 
-  function setBitProInterestBlockSpan(uint256 _bitProInterestBlockSpan) public onlyOwner(){
-    bitProInterestBlockSpan = _bitProInterestBlockSpan;
-  }
 
   function setBtcxTmin(uint256 _btxcTmin) public onlyOwner(){
     btxcTmin = _btxcTmin;
