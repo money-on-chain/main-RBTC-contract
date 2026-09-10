@@ -13,6 +13,6 @@ contract EmaTimeBasedChangerMock is ChangeContract {
   }
 
   function execute() external {
-    mocState.initializeEmaCalculation(lastCalculationTimestamp);
+    mocState.initializeEmaCalculation(lastCalculationTimestamp, 1 days);
   }
 }

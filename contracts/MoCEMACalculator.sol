@@ -21,8 +21,7 @@ contract MoCEMACalculator is Governed {
 
   // First unused word in the deployed parent storage gap.
   uint256 public lastEmaCalculationTimestamp;
-
-  uint256 public constant emaCalculationTimeSpan = 1 days;
+  uint256 public emaCalculationTimeSpan;
 
   uint256 constant public PRICE_PRECISION =  10 ** 18;
   uint256 constant public FACTOR_PRECISION = 10 ** 18;
@@ -47,10 +46,19 @@ contract MoCEMACalculator is Governed {
    * @dev Sets the last timestamp-based EMA calculation. This can only be done
    *      once through the governance-approved changer that upgrades the proxy.
    */
-  function initializeEmaCalculation(uint256 lastCalculationTimestamp) public onlyAuthorizedChanger() {
+  function initializeEmaCalculation(uint256 lastCalculationTimestamp, uint256 calculationTimeSpan)
+    public onlyAuthorizedChanger() {
     require(lastCalculationTimestamp > 0, "EMA timestamp must be positive");
+    require(calculationTimeSpan > 0, "EMA time span must be positive");
     require(lastEmaCalculationTimestamp == 0, "EMA schedule already initialized");
+    require(emaCalculationTimeSpan == 0, "EMA time span already initialized");
     lastEmaCalculationTimestamp = lastCalculationTimestamp;
+    emaCalculationTimeSpan = calculationTimeSpan;
+  }
+
+  function setEmaCalculationTimeSpan(uint256 calculationTimeSpan) public onlyAuthorizedChanger() {
+    require(calculationTimeSpan > 0, "EMA time span must be positive");
+    emaCalculationTimeSpan = calculationTimeSpan;
   }
 
   function shouldCalculateEma() public view returns(bool) {
@@ -69,6 +77,7 @@ contract MoCEMACalculator is Governed {
     _doSetSmoothingFactor(smoothFactor);
     lastEmaCalculation = block.number;
     lastEmaCalculationTimestamp = block.timestamp;
+    emaCalculationTimeSpan = 1 days;
     bitcoinMovingAverage = initialEma;
     emaCalculationBlockSpan = emaBlockSpan;
   }
@@ -104,6 +113,6 @@ contract MoCEMACalculator is Governed {
     smoothingFactor = factor;
   }
 
-  // One slot is consumed by lastEmaCalculationTimestamp.
-  uint256[49] private upgradeGap;
+  // Two slots are consumed by the timestamp schedule.
+  uint256[48] private upgradeGap;
 }

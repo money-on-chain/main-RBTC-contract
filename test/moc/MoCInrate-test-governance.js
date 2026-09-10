@@ -165,13 +165,25 @@ contract('MoCInrate Governed', function([owner, account2, vendorAccount]) {
       });
       it(`THEN account ${account2} cannot initialize the interest schedule`, async function() {
         try {
-          await this.mocInrate.initializeBitProInterestSchedule(1, {
+          await this.mocInrate.initializeBitProInterestSchedule(1, 7 * 24 * 60 * 60, {
             from: account2
           });
         } catch (err) {
           assert(
             NOT_AUTHORIZED_CHANGER === err.reason,
             `${account2} should not be authorized to initialize the interest schedule`
+          );
+        }
+      });
+      it(`THEN account ${account2} cannot change the interest time span`, async function() {
+        try {
+          await this.mocInrate.setBitProInterestTimeSpan(8 * 24 * 60 * 60, {
+            from: account2
+          });
+        } catch (err) {
+          assert(
+            NOT_AUTHORIZED_CHANGER === err.reason,
+            `${account2} should not be authorized to change the interest time span`
           );
         }
       });

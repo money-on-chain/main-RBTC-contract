@@ -215,10 +215,19 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
    * @dev Sets the last weekly interest payment timestamp once, through the governance
    *      changer that upgrades the proxy.
    */
-  function initializeBitProInterestSchedule(uint256 lastPaymentTimestamp) public onlyAuthorizedChanger() {
+  function initializeBitProInterestSchedule(uint256 lastPaymentTimestamp, uint256 interestTimeSpan)
+    public onlyAuthorizedChanger() {
     require(lastPaymentTimestamp > 0, "Interest timestamp must be positive");
+    require(interestTimeSpan > 0, "Interest time span must be positive");
     require(lastBitProInterestTimestamp == 0, "Interest schedule already initialized");
+    require(bitProInterestTimeSpan == 0, "Interest time span already initialized");
     lastBitProInterestTimestamp = lastPaymentTimestamp;
+    bitProInterestTimeSpan = interestTimeSpan;
+  }
+
+  function setBitProInterestTimeSpan(uint256 interestTimeSpan) public onlyAuthorizedChanger() {
+    require(interestTimeSpan > 0, "Interest time span must be positive");
+    bitProInterestTimeSpan = interestTimeSpan;
   }
 
   /**
@@ -396,6 +405,7 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
     bitProInterestAddress = bitProInterestsTarget;
     bitProInterestBlockSpan = blockSpanBitPro;
     lastBitProInterestTimestamp = block.timestamp;
+    bitProInterestTimeSpan = 7 days;
     //commissionRate = commissionRateParam;
     commissionsAddress = commissionsAddressTarget;
     docTmin = _docTmin;
@@ -430,9 +440,8 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
 
   // First unused word in the deployed contract storage gap.
   uint256 public lastBitProInterestTimestamp;
+  uint256 public bitProInterestTimeSpan;
 
-  uint256 public constant bitProInterestTimeSpan = 7 days;
-
-  // One slot is consumed by lastBitProInterestTimestamp.
-  uint256[49] private upgradeGap;
+  // Two slots are consumed by the timestamp schedule.
+  uint256[48] private upgradeGap;
 }

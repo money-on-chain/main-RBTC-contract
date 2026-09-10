@@ -13,6 +13,6 @@ contract BitProInterestTimeBasedChangerMock is ChangeContract {
   }
 
   function execute() external {
-    mocInrate.initializeBitProInterestSchedule(lastPaymentTimestamp);
+    mocInrate.initializeBitProInterestSchedule(lastPaymentTimestamp, 7 days);
   }
 }

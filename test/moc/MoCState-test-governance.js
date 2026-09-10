@@ -312,13 +312,25 @@ contract('MoCState Governed', function([owner, account2]) {
       });
       it(`THEN account ${account2} cannot initialize the EMA schedule`, async function() {
         try {
-          await this.mocState.initializeEmaCalculation(1, {
+          await this.mocState.initializeEmaCalculation(1, 24 * 60 * 60, {
             from: account2
           });
         } catch (err) {
           assert(
             NOT_AUTORIZED_CHANGER === err.reason,
             `${account2} should not be authorized to initialize the EMA schedule`
+          );
+        }
+      });
+      it(`THEN account ${account2} cannot change the EMA time span`, async function() {
+        try {
+          await this.mocState.setEmaCalculationTimeSpan(2 * 24 * 60 * 60, {
+            from: account2
+          });
+        } catch (err) {
+          assert(
+            NOT_AUTORIZED_CHANGER === err.reason,
+            `${account2} should not be authorized to change the EMA time span`
           );
         }
       });
