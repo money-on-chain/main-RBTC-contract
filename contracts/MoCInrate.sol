@@ -40,7 +40,8 @@ contract MoCInrateStructs {
     uint256 btcxTmax;
     // BitPro holder interest rate [using mocPrecision]
     uint256 bitProRate;
-    // BitPro blockspan to configure payments periods[using mocPrecision]
+    // Deprecated when weekly BitPro interest scheduling moved from blocks to timestamps.
+    // Retained as the initialization input for the historical storage slot.
     uint256 blockSpanBitPro;
     // Target address to transfer the weekly BitPro holders interest
     address payable bitProInterestTargetAddress;
@@ -62,14 +63,14 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
 
   // Last block when a payment was executed
   uint256 public lastDailyPayBlock;
-  // Absolute  BitPro holders rate for the given bitProInterestBlockSpan time span. [using mocPrecision]
+  // Absolute BitPro holders rate for the deprecated block-based interest time span. [using mocPrecision]
   uint256 public bitProRate;
   // Target address to transfer BitPro holders interests
   address payable public bitProInterestAddress;
-  // Last block when an BitPro holders instereste was calculated
-  uint256 internal lastBitProInterestBlock;
-  // Historical block-span value retained only for storage compatibility.
-  uint256 internal bitProInterestBlockSpan;
+  // Deprecated when weekly BitPro interest scheduling moved from blocks to
+  // timestamps. These historical slots are retained only for proxy storage compatibility.
+  uint256 internal deprecatedLastBitProInterestBlock;
+  uint256 internal deprecatedBitProInterestBlockSpan;
 
   // Target addres to transfer commissions of mint/redeem
   address payable public commissionsAddress;
@@ -380,7 +381,7 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
    * @param btcxPower Power is a parameter for interest rate calculation [using noPrecision]
    * @param btcxMax Maximun interest rate [using mocPrecision]
    * @param _bitProRate BitPro holder interest rate [using mocPrecision]
-   * @param blockSpanBitPro BitPro blockspan to configure payments periods[using mocPrecision]
+   * @param deprecatedBlockSpanBitPro Historical BitPro blockspan retained for compatibility
    * @param bitProInterestsTarget Target address to transfer the weekly BitPro holders interest
    */
   function initializeValues(
@@ -391,7 +392,7 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
     uint256 _bitProRate,
     address payable commissionsAddressTarget,
     //uint256 commissionRateParam,
-    uint256 blockSpanBitPro,
+    uint256 deprecatedBlockSpanBitPro,
     address payable bitProInterestsTarget,
     uint256 _docTmin,
     uint256 _docPower,
@@ -403,7 +404,7 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
     btcxParams.tMax = btcxMax;
     bitProRate = _bitProRate;
     bitProInterestAddress = bitProInterestsTarget;
-    bitProInterestBlockSpan = blockSpanBitPro;
+    deprecatedBitProInterestBlockSpan = deprecatedBlockSpanBitPro;
     lastBitProInterestTimestamp = block.timestamp;
     bitProInterestTimeSpan = 7 days;
     //commissionRate = commissionRateParam;

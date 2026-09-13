@@ -15,9 +15,10 @@ contract MoCEMACalculator is Governed {
   uint256 internal bitcoinMovingAverage;
   uint256 public smoothingFactor;
 
-  // Historical block-scheduling slots retained only for proxy storage layout.
-  uint256 internal lastEmaCalculation;
-  uint256 internal emaCalculationBlockSpan;
+  // Deprecated when EMA scheduling moved from blocks to timestamps. These
+  // historical slots are retained only to preserve the proxy storage layout.
+  uint256 internal deprecatedLastEmaCalculation;
+  uint256 internal deprecatedEmaCalculationBlockSpan;
 
   // First unused word in the deployed parent storage gap.
   uint256 public lastEmaCalculationTimestamp;
@@ -71,15 +72,15 @@ contract MoCEMACalculator is Governed {
     * More information of EMA calculation https://en.wikipedia.org/wiki/Exponential_smoothing
     * @param initialEma Initial ema value
     * @param smoothFactor Weight coefficient for EMA calculation.
-    * @param emaBlockSpan Historical initialization parameter retained for ABI compatibility.
+    * @param deprecatedEmaBlockSpan Historical initialization parameter retained for ABI compatibility.
   */
-  function initializeMovingAverage(uint256 initialEma, uint256 smoothFactor, uint256 emaBlockSpan) internal {
+  function initializeMovingAverage(uint256 initialEma, uint256 smoothFactor, uint256 deprecatedEmaBlockSpan) internal {
     _doSetSmoothingFactor(smoothFactor);
-    lastEmaCalculation = block.number;
+    deprecatedLastEmaCalculation = block.number;
     lastEmaCalculationTimestamp = block.timestamp;
     emaCalculationTimeSpan = 1 days;
     bitcoinMovingAverage = initialEma;
-    emaCalculationBlockSpan = emaBlockSpan;
+    deprecatedEmaCalculationBlockSpan = deprecatedEmaBlockSpan;
   }
 
   /**
