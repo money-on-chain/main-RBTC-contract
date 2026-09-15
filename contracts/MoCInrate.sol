@@ -40,8 +40,6 @@ contract MoCInrateStructs {
     uint256 btcxTmax;
     // BitPro holder interest rate [using mocPrecision]
     uint256 bitProRate;
-    // BitPro blockspan to configure payments periods[using mocPrecision]
-    uint256 blockSpanBitPro;
     // Target address to transfer the weekly BitPro holders interest
     address payable bitProInterestTargetAddress;
     // Target address to transfer commissions of mint/redeem
@@ -62,14 +60,14 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
 
   // Last block when a payment was executed
   uint256 public lastDailyPayBlock;
-  // Absolute  BitPro holders rate for the given bitProInterestBlockSpan time span. [using mocPrecision]
+  // Absolute BitPro holders rate for the given bitProInterestTimeSpan. [using mocPrecision]
   uint256 public bitProRate;
   // Target address to transfer BitPro holders interests
   address payable public bitProInterestAddress;
-  // Last block when an BitPro holders instereste was calculated
-  uint256 public lastBitProInterestBlock;
-  // BitPro interest Blockspan to configure blocks between payments
-  uint256 public bitProInterestBlockSpan;
+  // Deprecated when weekly BitPro interest scheduling moved from blocks to
+  // timestamps. These historical slots are retained only for proxy storage compatibility.
+  uint256 internal deprecatedLastBitProInterestBlock;
+  uint256 internal deprecatedBitProInterestBlockSpan;
 
   // Target addres to transfer commissions of mint/redeem
   address payable public commissionsAddress;
@@ -139,7 +137,6 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
       params.bitProRate,
       params.commissionsAddressTarget,
       //commissionRateParam,
-      params.blockSpanBitPro,
       params.bitProInterestTargetAddress,
       params.docTmin,
       params.docPower,
@@ -169,14 +166,6 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
    */
   function getBtcxPower() public view returns(uint256) {
     return btcxParams.power;
-  }
-
-  /**
-   * @dev Gets the blockspan of BPRO that represents the frecuency of BitPro holders intereset payment
-   * @return returns power of bitProInterestBlockSpan
-   */
-  function getBitProInterestBlockSpan() public view returns(uint256) {
-    return bitProInterestBlockSpan;
   }
 
   /**
@@ -219,12 +208,23 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
     bitProRate = newBitProRate;
   }
 
-   /**
-    @dev Sets the blockspan BitPro Intereset rate payment is enable to be executed
-    @param newBitProBlockSpan New BitPro Block span
+  /**
+   * @dev Sets the last weekly interest payment timestamp once, through the governance
+   *      changer that upgrades the proxy.
    */
-  function setBitProInterestBlockSpan(uint256 newBitProBlockSpan) public onlyAuthorizedChanger() {
-    bitProInterestBlockSpan = newBitProBlockSpan;
+  function initializeBitProInterestSchedule(uint256 lastPaymentTimestamp, uint256 interestTimeSpan)
+    public onlyAuthorizedChanger() {
+    require(lastPaymentTimestamp > 0, "Interest timestamp must be positive");
+    require(interestTimeSpan > 0, "Interest time span must be positive");
+    require(lastBitProInterestTimestamp == 0, "Interest schedule already initialized");
+    require(bitProInterestTimeSpan == 0, "Interest time span already initialized");
+    lastBitProInterestTimestamp = lastPaymentTimestamp;
+    bitProInterestTimeSpan = interestTimeSpan;
+  }
+
+  function setBitProInterestTimeSpan(uint256 interestTimeSpan) public onlyAuthorizedChanger() {
+    require(interestTimeSpan > 0, "Interest time span must be positive");
+    bitProInterestTimeSpan = interestTimeSpan;
   }
 
   /**
@@ -311,7 +311,10 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
   }
 
   function isBitProInterestEnabled() public view returns(bool) {
-    return lastBitProInterestBlock == 0 || block.number > (lastBitProInterestBlock + bitProInterestBlockSpan);
+    // Preserve immediate first eligibility on fresh chains whose timestamp is
+    // still earlier than one interest period after the Unix epoch.
+    return lastBitProInterestTimestamp == 0 ||
+      block.timestamp > lastBitProInterestTimestamp.add(bitProInterestTimeSpan);
   }
 
   /**
@@ -333,7 +336,7 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
   onlyWhitelisted(msg.sender)
   onlyWhenBitProInterestsIsEnabled() returns(uint256) {
     (uint256 bitProInterest, uint256 bucketBtnc0) = calculateBitProHoldersInterest();
-    lastBitProInterestBlock = block.number;
+    lastBitProInterestTimestamp = block.timestamp;
     emit RiskProHoldersInterestPay(bitProInterest, bucketBtnc0);
     return bitProInterest;
   }
@@ -376,7 +379,6 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
    * @param btcxPower Power is a parameter for interest rate calculation [using noPrecision]
    * @param btcxMax Maximun interest rate [using mocPrecision]
    * @param _bitProRate BitPro holder interest rate [using mocPrecision]
-   * @param blockSpanBitPro BitPro blockspan to configure payments periods[using mocPrecision]
    * @param bitProInterestsTarget Target address to transfer the weekly BitPro holders interest
    */
   function initializeValues(
@@ -387,7 +389,6 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
     uint256 _bitProRate,
     address payable commissionsAddressTarget,
     //uint256 commissionRateParam,
-    uint256 blockSpanBitPro,
     address payable bitProInterestsTarget,
     uint256 _docTmin,
     uint256 _docPower,
@@ -399,7 +400,8 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
     btcxParams.tMax = btcxMax;
     bitProRate = _bitProRate;
     bitProInterestAddress = bitProInterestsTarget;
-    bitProInterestBlockSpan = blockSpanBitPro;
+    lastBitProInterestTimestamp = block.timestamp;
+    bitProInterestTimeSpan = 7 days;
     //commissionRate = commissionRateParam;
     commissionsAddress = commissionsAddressTarget;
     docTmin = _docTmin;
@@ -432,7 +434,10 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
 
   /** END UPDATE V0112: 24/09/2020 **/
 
-  // Leave a gap betweeen inherited contracts variables in order to be
-  // able to add more variables in them later
-  uint256[50] private upgradeGap;
+  // First unused word in the deployed contract storage gap.
+  uint256 public lastBitProInterestTimestamp;
+  uint256 public bitProInterestTimeSpan;
+
+  // Two slots are consumed by the timestamp schedule.
+  uint256[48] private upgradeGap;
 }

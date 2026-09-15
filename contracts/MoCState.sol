@@ -29,7 +29,6 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator, IMoCState {
     uint256 dayBlockSpan;
     uint256 ema;
     uint256 smoothFactor;
-    uint256 emaBlockSpan;
     uint256 maxMintBPro;
     address mocPriceProvider;
     address mocTokenAddress;
@@ -98,7 +97,7 @@ contract MoCState is MoCLibConnection, MoCBase, MoCEMACalculator, IMoCState {
       params.mocPriceProvider,
       params.liquidationEnabled,
       params.protected);
-    initializeMovingAverage(params.ema, params.smoothFactor, params.emaBlockSpan);
+    initializeMovingAverage(params.ema, params.smoothFactor);
   }
 
   /**

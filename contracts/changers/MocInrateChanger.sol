@@ -1,4 +1,7 @@
 pragma solidity ^0.5.8;
+// Historical governance changer. Its contract interfaces target the deployment
+// it originally changed and do not represent the current protocol interfaces.
+
 pragma experimental ABIEncoderV2;
 
 import "../MoCInrate.sol";
@@ -71,7 +74,6 @@ contract MocInrateChanger is ChangeContract, Ownable {
   }
 
   function execute() external {
-    mocInrate.setBitProInterestBlockSpan(bitProInterestBlockSpan);
     mocInrate.setBtcxTmin(btxcTmin);
     mocInrate.setBtcxTmax(btxcTmax);
     mocInrate.setBtcxPower(btxcPower);
@@ -94,9 +96,6 @@ contract MocInrateChanger is ChangeContract, Ownable {
     initializeCommissionRates();
   }
 
-  function setBitProInterestBlockSpan(uint256 _bitProInterestBlockSpan) public onlyOwner(){
-    bitProInterestBlockSpan = _bitProInterestBlockSpan;
-  }
 
   function setBtcxTmin(uint256 _btxcTmin) public onlyOwner(){
     btxcTmin = _btxcTmin;

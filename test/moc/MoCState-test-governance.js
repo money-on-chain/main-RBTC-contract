@@ -8,7 +8,6 @@ const scenario = {
   utpdu: 10,
   blockSpan: 20 * 3,
   bproMaxDiscountRate: 250,
-  emaCalculationBlockSpan: 20,
   smoothingFactor: 2,
   maxMintBPro: 2,
   liquidationEnabled: true,
@@ -17,6 +16,7 @@ const scenario = {
 
 const BtcPriceProviderMock = artifacts.require('./contracts/mocks/BtcPriceProviderMock.sol');
 const MoCPriceProviderMock = artifacts.require('./contracts/mocks/MoCPriceProviderMock.sol');
+const EmaTimeSpanChangerMock = artifacts.require('./contracts/mocks/EmaTimeSpanChangerMock.sol');
 
 contract('MoCState Governed', function([owner, account2]) {
   before(async function() {
@@ -305,29 +305,48 @@ contract('MoCState Governed', function([owner, account2]) {
       });
     });
 
-    describe('GIVEN the emaCalculationBlockSpan value', function() {
-      it(`THEN an unauthorized account ${account2} tries to change emaCalculationBlockSpan to ${scenario.emaCalculationBlockSpan}`, async function() {
+    describe('GIVEN the timestamp-based EMA schedule', function() {
+      it('THEN it is initialized with a one-day period', async function() {
+        const lastCalculation = await this.mocState.lastEmaCalculationTimestamp();
+        mocHelper.assertBig(await this.mocState.emaCalculationTimeSpan(), 24 * 60 * 60);
+        assert(lastCalculation > 0, 'lastEmaCalculationTimestamp should be greater than 0');
+      });
+      it(`THEN account ${account2} cannot initialize the EMA schedule`, async function() {
         try {
-          await this.mocState.setEmaCalculationBlockSpan(scenario.emaCalculationBlockSpan, {
+          await this.mocState.initializeEmaCalculation(1, 24 * 60 * 60, {
             from: account2
           });
         } catch (err) {
           assert(
             NOT_AUTORIZED_CHANGER === err.reason,
-            `${account2} Should not be authorized to set emaCalculationBlockSpan`
+            `${account2} should not be authorized to initialize the EMA schedule`
           );
         }
       });
-      it(`THEN an authorized contract tries to change emaCalculationBlockSpan to ${scenario.emaCalculationBlockSpan}`, async function() {
-        const oldEmaCalculationBlockSpan = await this.mocState.getEmaCalculationBlockSpan();
-        assert(oldEmaCalculationBlockSpan > 0, 'emaCalculationBlockSpan should be greater than 0');
-        await this.mockMocStateChanger.setEmaCalculationBlockSpan(scenario.emaCalculationBlockSpan);
-        await this.governor.executeChange(this.mockMocStateChanger.address);
-        const newEmaCalculationBlockSpan = await this.mocState.getEmaCalculationBlockSpan();
+      it(`THEN account ${account2} cannot change the EMA time span`, async function() {
+        try {
+          await this.mocState.setEmaCalculationTimeSpan(2 * 24 * 60 * 60, {
+            from: account2
+          });
+        } catch (err) {
+          assert(
+            NOT_AUTORIZED_CHANGER === err.reason,
+            `${account2} should not be authorized to change the EMA time span`
+          );
+        }
+      });
+      it('THEN an authorized changer can change the EMA time span', async function() {
+        const oldTimeSpan = await this.mocState.emaCalculationTimeSpan();
+        const newTimeSpan = 2 * 24 * 60 * 60;
+        assert(oldTimeSpan > 0, 'emaCalculationTimeSpan should be greater than 0');
+
+        const changer = await EmaTimeSpanChangerMock.new(this.mocState.address, newTimeSpan);
+        await this.governor.executeChange(changer.address);
+
         mocHelper.assertBig(
-          newEmaCalculationBlockSpan,
-          scenario.emaCalculationBlockSpan,
-          `emaCalculationBlockSpan should be ${scenario.emaCalculationBlockSpan}`
+          await this.mocState.emaCalculationTimeSpan(),
+          newTimeSpan,
+          `emaCalculationTimeSpan should be ${newTimeSpan}`
         );
       });
     });

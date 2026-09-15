@@ -14,8 +14,15 @@ contract MoCEMACalculator is Governed {
 
   uint256 internal bitcoinMovingAverage;
   uint256 public smoothingFactor;
-  uint256 public lastEmaCalculation;
-  uint256 public emaCalculationBlockSpan;
+
+  // Deprecated when EMA scheduling moved from blocks to timestamps. These
+  // historical slots are retained only to preserve the proxy storage layout.
+  uint256 internal deprecatedLastEmaCalculation;
+  uint256 internal deprecatedEmaCalculationBlockSpan;
+
+  // First unused word in the deployed parent storage gap.
+  uint256 public lastEmaCalculationTimestamp;
+  uint256 public emaCalculationTimeSpan;
 
   uint256 constant public PRICE_PRECISION =  10 ** 18;
   uint256 constant public FACTOR_PRECISION = 10 ** 18;
@@ -36,43 +43,46 @@ contract MoCEMACalculator is Governed {
     return address(governor);
   }
 
-  function getEmaCalculationBlockSpan() public view returns(uint256){
-    return emaCalculationBlockSpan;
+  /**
+   * @dev Sets the last timestamp-based EMA calculation. This can only be done
+   *      once through the governance-approved changer that upgrades the proxy.
+   */
+  function initializeEmaCalculation(uint256 lastCalculationTimestamp, uint256 calculationTimeSpan)
+    public onlyAuthorizedChanger() {
+    require(lastCalculationTimestamp > 0, "EMA timestamp must be positive");
+    require(calculationTimeSpan > 0, "EMA time span must be positive");
+    require(lastEmaCalculationTimestamp == 0, "EMA schedule already initialized");
+    require(emaCalculationTimeSpan == 0, "EMA time span already initialized");
+    lastEmaCalculationTimestamp = lastCalculationTimestamp;
+    emaCalculationTimeSpan = calculationTimeSpan;
   }
 
-  /**
-  * @param blockSpan Defines how many blocks should pass between BMA calculations
-  **/
-  function setEmaCalculationBlockSpan(uint256 blockSpan) public onlyAuthorizedChanger() {
-    emaCalculationBlockSpan = blockSpan;
+  function setEmaCalculationTimeSpan(uint256 calculationTimeSpan) public onlyAuthorizedChanger() {
+    require(calculationTimeSpan > 0, "EMA time span must be positive");
+    emaCalculationTimeSpan = calculationTimeSpan;
   }
 
   function shouldCalculateEma() public view returns(bool) {
-    return block.number >= lastEmaCalculation.add(emaCalculationBlockSpan);
-  }
-
-  function getLastEmaCalculation() public view returns(uint256) {
-    return lastEmaCalculation;
+    return block.timestamp >= lastEmaCalculationTimestamp.add(emaCalculationTimeSpan);
   }
 
   /**
-    @dev Provides Bitcoin's Price and Moving average.
-     More information of EMA calculation https://en.wikipedia.org/wiki/Exponential_smoothing
+    * @dev Provides Bitcoin's Price and Moving average.
+    * More information of EMA calculation https://en.wikipedia.org/wiki/Exponential_smoothing
     * @param initialEma Initial ema value
     * @param smoothFactor Weight coefficient for EMA calculation.
-    * @param emaBlockSpan Block count in a period for EMA calculation
   */
-  function initializeMovingAverage(uint256 initialEma, uint256 smoothFactor, uint256 emaBlockSpan) internal {
+  function initializeMovingAverage(uint256 initialEma, uint256 smoothFactor) internal {
     _doSetSmoothingFactor(smoothFactor);
-    lastEmaCalculation = block.number;
+    lastEmaCalculationTimestamp = block.timestamp;
+    emaCalculationTimeSpan = 1 days;
     bitcoinMovingAverage = initialEma;
-    emaCalculationBlockSpan = emaBlockSpan;
   }
 
   /**
-    @dev Calculates a EMA of the price.
-     More information of EMA calculation https://en.wikipedia.org/wiki/Exponential_smoothing
-    @param btcPrice Current price.
+    * @dev Calculates a EMA of the price.
+    * More information of EMA calculation https://en.wikipedia.org/wiki/Exponential_smoothing
+    * @param btcPrice Current price.
   */
   function setBitcoinMovingAverage(uint256 btcPrice) internal {
     if (shouldCalculateEma()) {
@@ -80,16 +90,13 @@ contract MoCEMACalculator is Governed {
       uint256 currentEma = bitcoinMovingAverage.mul(coefficientComp()).add(weightedPrice)
         .div(FACTOR_PRECISION);
 
-      lastEmaCalculation = block.number;
+      lastEmaCalculationTimestamp = block.timestamp;
       bitcoinMovingAverage = currentEma;
 
       emit MovingAverageCalculation(btcPrice, currentEma);
     }
   }
 
-  /**
-    @dev Calculates the smoothing factor complement
-  */
   function coefficientComp() internal view returns(uint256) {
     return FACTOR_PRECISION.sub(smoothingFactor);
   }
@@ -103,7 +110,6 @@ contract MoCEMACalculator is Governed {
     smoothingFactor = factor;
   }
 
-  // Leave a gap betweeen inherited contracts variables in order to be
-  // able to add more variables in them later
-  uint256[50] private upgradeGap;
+  // Two slots are consumed by the timestamp schedule.
+  uint256[48] private upgradeGap;
 }

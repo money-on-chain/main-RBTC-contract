@@ -1,3 +1,4 @@
+const { time } = require('openzeppelin-test-helpers');
 const testHelperBuilder = require('../mocHelper');
 
 let mocHelper;
@@ -15,16 +16,13 @@ contract('MoC: MoCState', function([owner]) {
     before(async function() {
       await mocHelper.revertState();
     });
-    describe('GIVEN the EMA calculation period is 50 blocks and BTC price is set', function() {
+    describe('GIVEN the EMA calculation period is one day and BTC price is set', function() {
       let initialEMA;
       before(async function() {
-        await this.mocState.getLastEmaCalculation();
-        await mocHelper.mockMocStateChanger.setEmaCalculationBlockSpan(toContractBN(50));
-        await mocHelper.governor.executeChange(mocHelper.mockMocStateChanger.address);
         await mocHelper.setBitcoinPrice(toContractBN(5000 * mocHelper.MOC_PRECISION));
         initialEMA = await this.mocState.getBitcoinMovingAverage();
       });
-      describe('WHEN BTC price is set before 50 blocks', function() {
+      describe('WHEN BTC price is set before one day', function() {
         before(async function() {
           await mocHelper.setBitcoinPrice(toContractBN(1000 * mocHelper.MOC_PRECISION));
         });
@@ -42,10 +40,10 @@ contract('MoC: MoCState', function([owner]) {
           });
         });
       });
-      describe('WHEN BTC price is set after 40 blocks and EMA calculation is called', function() {
+      describe('WHEN BTC price is set after one day and EMA calculation is called', function() {
         let tx;
         before(async function() {
-          await mocHelper.waitNBlocks(40);
+          await time.increase(time.duration.days(1));
           await mocHelper.setBitcoinPrice(toContractBN(1000 * mocHelper.MOC_PRECISION));
           tx = await this.mocState.calculateBitcoinMovingAverage();
         });
@@ -65,13 +63,13 @@ contract('MoC: MoCState', function([owner]) {
     before(async function() {
       await mocHelper.revertState();
     });
-    describe('GIVEN the bma calculation period is 1 block and the period 120', function() {
+    describe('GIVEN the bma calculation period is one day and the period 120', function() {
       before(async function() {
         const sm = 2 / (120 + 1);
-        await mocHelper.mockMocStateChanger.setEmaCalculationBlockSpan(1);
         await mocHelper.mockMocStateChanger.setSmoothingFactor(toContractBN(1 * factorPrecision));
         await mocHelper.governor.executeChange(mocHelper.mockMocStateChanger.address);
 
+        await time.increase(time.duration.days(1));
         await mocHelper.setBitcoinPrice(toContractBN(123.25983 * mocHelper.MOC_PRECISION));
         await mocHelper.mocState.calculateBitcoinMovingAverage();
         await mocHelper.mockMocStateChanger.setSmoothingFactor(toContractBN(sm * factorPrecision));
@@ -88,6 +86,7 @@ contract('MoC: MoCState', function([owner]) {
       states.forEach(async state => {
         describe(`WHEN the user set a price of ${state.btcPrice}`, function() {
           before(async function() {
+            await time.increase(time.duration.days(1));
             await mocHelper.setBitcoinPrice(toContractBN(state.btcPrice * mocHelper.MOC_PRECISION));
             await this.mocState.calculateBitcoinMovingAverage();
           });
@@ -120,16 +119,16 @@ contract('MoC: MoCState', function([owner]) {
     ];
 
     states.forEach(state => {
-      describe('GIVEN the initial price is 10000 and the bma calculation period is 1 block', function() {
+      describe('GIVEN the initial price is 10000 and the bma calculation period is one day', function() {
         describe(`AND the weighting decrease coefficient value is ${state.smoothingFactor}`, function() {
           describe(`WHEN the user set a price of ${state.btcPrice}`, function() {
             beforeEach(async function() {
               await mocHelper.revertState();
-              await mocHelper.mockMocStateChanger.setEmaCalculationBlockSpan(1);
               await mocHelper.mockMocStateChanger.setSmoothingFactor(
                 toContractBN(state.smoothingFactor * factorPrecision)
               );
               await mocHelper.governor.executeChange(mocHelper.mockMocStateChanger.address);
+              await time.increase(time.duration.days(1));
               await mocHelper.setBitcoinPrice(
                 toContractBN(state.btcPrice * mocHelper.MOC_PRECISION)
               );

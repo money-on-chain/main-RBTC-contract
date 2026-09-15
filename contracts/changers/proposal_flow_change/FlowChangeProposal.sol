@@ -1,10 +1,12 @@
 pragma solidity ^0.5.8;
+// Historical governance changer. Its contract interfaces target the deployment
+// it originally changed and do not represent the current protocol interfaces.
+
 
 import "moc-governance/contracts/Governance/ChangeContract.sol";
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 
 interface IIMoCInrate {
-    function setBitProInterestBlockSpan(uint256 newBitProBlockSpan) external;
     function setCommissionsAddress(address newCommissionsAddress) external;
     function setBitProInterestAddress(address newBitProInterestAddress ) external;
 }
@@ -15,7 +17,6 @@ interface IIMoCSettlement {
 
 interface IIMoCState {
     function setDayBlockSpan(uint256 blockSpan) external;
-    function setEmaCalculationBlockSpan(uint256 blockSpan) external;
     function setMoCPriceProvider(address mocProviderAddress) external;
 }
 
@@ -74,9 +75,7 @@ contract FlowChangeProposal is ChangeContract, Ownable {
     mocState.setMoCPriceProvider(mocProviderAddress);
 
     mocState.setDayBlockSpan(blockSpan);
-    mocInrate.setBitProInterestBlockSpan(blockSpanBitProInterest);
     mocSettlement.setBlockSpan(blockSpanSettlement);
-    mocState.setEmaCalculationBlockSpan(blockSpanEMA);
 
     // Execute only one time
     mocInrate = IIMoCInrate(0);

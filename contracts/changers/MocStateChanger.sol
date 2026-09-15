@@ -1,4 +1,7 @@
 pragma solidity ^0.5.8;
+// Historical governance changer. Its contract interfaces target the deployment
+// it originally changed and do not represent the current protocol interfaces.
+
 import "../MoCState.sol";
 import "moc-governance/contracts/Governance/ChangeContract.sol";
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
@@ -64,7 +67,6 @@ contract MocStateChanger is ChangeContract, Ownable {
     mocState.setLiq(liq);
     mocState.setUtpdu(uptdu);
     mocState.setMaxDiscountRate(maxDiscRate);
-    mocState.setEmaCalculationBlockSpan(emaCalculationBlockSpan);
     mocState.setSmoothingFactor(smoothingFactor);
     mocState.setBtcPriceProvider(btcPriceProvider);
     mocState.setMaxMintBPro(maxMintBPro);
@@ -105,13 +107,6 @@ contract MocStateChanger is ChangeContract, Ownable {
 
   function setSmoothingFactor(uint256 factor) public onlyOwner() {
     smoothingFactor = factor;
-  }
-
-  /**
-  * @param blockSpan Defines how many blocks should pass between BMA calculations
-  **/
-  function setEmaCalculationBlockSpan(uint256 blockSpan) public onlyOwner() {
-    emaCalculationBlockSpan = blockSpan;
   }
 
   function updatePegValue(uint256 _newPeg) public onlyOwner() {
