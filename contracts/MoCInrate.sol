@@ -60,7 +60,7 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
 
   // Last block when a payment was executed
   uint256 public lastDailyPayBlock;
-  // Absolute BitPro holders rate for the deprecated block-based interest time span. [using mocPrecision]
+  // Absolute BitPro holders rate for the given bitProInterestTimeSpan. [using mocPrecision]
   uint256 public bitProRate;
   // Target address to transfer BitPro holders interests
   address payable public bitProInterestAddress;
