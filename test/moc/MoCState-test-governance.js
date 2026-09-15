@@ -16,6 +16,7 @@ const scenario = {
 
 const BtcPriceProviderMock = artifacts.require('./contracts/mocks/BtcPriceProviderMock.sol');
 const MoCPriceProviderMock = artifacts.require('./contracts/mocks/MoCPriceProviderMock.sol');
+const EmaTimeSpanChangerMock = artifacts.require('./contracts/mocks/EmaTimeSpanChangerMock.sol');
 
 contract('MoCState Governed', function([owner, account2]) {
   before(async function() {
@@ -333,6 +334,20 @@ contract('MoCState Governed', function([owner, account2]) {
             `${account2} should not be authorized to change the EMA time span`
           );
         }
+      });
+      it('THEN an authorized changer can change the EMA time span', async function() {
+        const oldTimeSpan = await this.mocState.emaCalculationTimeSpan();
+        const newTimeSpan = 2 * 24 * 60 * 60;
+        assert(oldTimeSpan > 0, 'emaCalculationTimeSpan should be greater than 0');
+
+        const changer = await EmaTimeSpanChangerMock.new(this.mocState.address, newTimeSpan);
+        await this.governor.executeChange(changer.address);
+
+        mocHelper.assertBig(
+          await this.mocState.emaCalculationTimeSpan(),
+          newTimeSpan,
+          `emaCalculationTimeSpan should be ${newTimeSpan}`
+        );
       });
     });
 

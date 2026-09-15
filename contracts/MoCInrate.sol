@@ -311,7 +311,10 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
   }
 
   function isBitProInterestEnabled() public view returns(bool) {
-    return block.timestamp > lastBitProInterestTimestamp.add(bitProInterestTimeSpan);
+    // Preserve immediate first eligibility on fresh chains whose timestamp is
+    // still earlier than one interest period after the Unix epoch.
+    return lastBitProInterestTimestamp == 0 ||
+      block.timestamp > lastBitProInterestTimestamp.add(bitProInterestTimeSpan);
   }
 
   /**
