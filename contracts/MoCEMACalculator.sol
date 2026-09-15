@@ -63,7 +63,6 @@ contract MoCEMACalculator is Governed {
   }
 
   function shouldCalculateEma() public view returns(bool) {
-    require(lastEmaCalculationTimestamp != 0, "EMA schedule not initialized");
     return block.timestamp >= lastEmaCalculationTimestamp.add(emaCalculationTimeSpan);
   }
 
@@ -72,15 +71,12 @@ contract MoCEMACalculator is Governed {
     * More information of EMA calculation https://en.wikipedia.org/wiki/Exponential_smoothing
     * @param initialEma Initial ema value
     * @param smoothFactor Weight coefficient for EMA calculation.
-    * @param deprecatedEmaBlockSpan Historical initialization parameter retained for ABI compatibility.
   */
-  function initializeMovingAverage(uint256 initialEma, uint256 smoothFactor, uint256 deprecatedEmaBlockSpan) internal {
+  function initializeMovingAverage(uint256 initialEma, uint256 smoothFactor) internal {
     _doSetSmoothingFactor(smoothFactor);
-    deprecatedLastEmaCalculation = block.number;
     lastEmaCalculationTimestamp = block.timestamp;
     emaCalculationTimeSpan = 1 days;
     bitcoinMovingAverage = initialEma;
-    deprecatedEmaCalculationBlockSpan = deprecatedEmaBlockSpan;
   }
 
   /**

@@ -368,7 +368,6 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
       btcxPower: toContract(config.btcxPower), // btcxPower [no precision]
       btcxTmax: toContract(config.btcxTmax * 10 ** 18), // btcxTmax [using mocPrecision]
       bitProRate: toContract(config.bitProHolderRate * 10 ** 18), // BitPro Holder rate .25% (annual 0.0025 / 365 * 7) with [mocPrecision]
-      blockSpanBitPro: config.dayBlockSpan * config.daysBitProHolderExecutePayment, // Blockspan to execute payment once a week
       bitProInterestTargetAddress: targetAddressBitPro, // Target address of BitPro interest
       commissionsAddressTarget: commissionSplitter.address, // Target address of commission payment
       // toContract(config.commissionRate * 10 ** 18), // commissionRate [mocPrecision]
@@ -386,7 +385,6 @@ const makeUtils = async (artifacts, networkName, config, owner, deployer) => {
       dayBlockSpan: config.dayBlockSpan,
       ema: toContract(config.initialEma * 10 ** 18),
       smoothFactor: toContract(config.smoothFactor * 10 ** 18),
-      emaBlockSpan: config.dayBlockSpan,
       maxMintBPro: toContract(config.maxMintBPro * 10 ** 18),
       mocPriceProvider: mocOracleAddress,
       mocTokenAddress: mocToken.address,

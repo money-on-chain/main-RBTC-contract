@@ -40,9 +40,6 @@ contract MoCInrateStructs {
     uint256 btcxTmax;
     // BitPro holder interest rate [using mocPrecision]
     uint256 bitProRate;
-    // Deprecated when weekly BitPro interest scheduling moved from blocks to timestamps.
-    // Retained as the initialization input for the historical storage slot.
-    uint256 blockSpanBitPro;
     // Target address to transfer the weekly BitPro holders interest
     address payable bitProInterestTargetAddress;
     // Target address to transfer commissions of mint/redeem
@@ -140,7 +137,6 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
       params.bitProRate,
       params.commissionsAddressTarget,
       //commissionRateParam,
-      params.blockSpanBitPro,
       params.bitProInterestTargetAddress,
       params.docTmin,
       params.docPower,
@@ -315,7 +311,6 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
   }
 
   function isBitProInterestEnabled() public view returns(bool) {
-    require(lastBitProInterestTimestamp != 0, "Interest schedule not initialized");
     return block.timestamp > lastBitProInterestTimestamp.add(bitProInterestTimeSpan);
   }
 
@@ -381,7 +376,6 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
    * @param btcxPower Power is a parameter for interest rate calculation [using noPrecision]
    * @param btcxMax Maximun interest rate [using mocPrecision]
    * @param _bitProRate BitPro holder interest rate [using mocPrecision]
-   * @param deprecatedBlockSpanBitPro Historical BitPro blockspan retained for compatibility
    * @param bitProInterestsTarget Target address to transfer the weekly BitPro holders interest
    */
   function initializeValues(
@@ -392,7 +386,6 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
     uint256 _bitProRate,
     address payable commissionsAddressTarget,
     //uint256 commissionRateParam,
-    uint256 deprecatedBlockSpanBitPro,
     address payable bitProInterestsTarget,
     uint256 _docTmin,
     uint256 _docPower,
@@ -404,7 +397,6 @@ contract MoCInrate is MoCInrateEvents, MoCInrateStructs, MoCBase, MoCLibConnecti
     btcxParams.tMax = btcxMax;
     bitProRate = _bitProRate;
     bitProInterestAddress = bitProInterestsTarget;
-    deprecatedBitProInterestBlockSpan = deprecatedBlockSpanBitPro;
     lastBitProInterestTimestamp = block.timestamp;
     bitProInterestTimeSpan = 7 days;
     //commissionRate = commissionRateParam;

@@ -67,6 +67,7 @@ const baseParams = {
   btcxTmax: toContract(0.0002611578760678 * 10 ** 18), // mocPrecision
   btcxPower: toContract(1),
   bitProRate: toContract(0.000047945 * 10 ** 18), // mocPrecision -- weekly 0.0025 / 365 * 7
+  // Used only to construct the historical MoCStateChanger test fixture.
   emaBlockSpan: toContract(40),
   // commissionRate: toContract(0 * 10 ** 18), // mocPrecision
   peg: toContract(1),
@@ -283,7 +284,6 @@ const createContracts = params => async ({ owner, useMock }) => {
     btcxPower,
     btcxTmax,
     bitProRate,
-    blockSpanBitPro: dayBlockSpan * 7,
     bitProInterestTargetAddress: owner,
     commissionsAddressTarget: owner,
     // commissionRate,
@@ -301,7 +301,6 @@ const createContracts = params => async ({ owner, useMock }) => {
     dayBlockSpan, // no Precision
     ema: btcPrice,
     smoothFactor: smoothingFactor,
-    emaBlockSpan,
     maxMintBPro,
     mocPriceProvider: mocPriceProvider.address,
     mocTokenAddress: mocToken.address,
