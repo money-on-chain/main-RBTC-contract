@@ -1,0 +1,21 @@
+{
+  "mainnet": {
+    "governor": "0x3b8853DF65AfBd94853E6D77ee0Ab5590F41bB08",
+    "oracleManager": "0x64A5634b2d1f17DC7C4765aAcD222f8e9Eb7712C",
+    "mocRegistry": "0xCD101a2414256DA8F8E25d7b483b3cf639a71683",
+    "mocToken": "0x9AC7fE28967B30E3A4e6e03286d715b42B453D10",
+    "docToken": "0xe700691dA7b9851F2F35f8b8182c69c53CcaD9Db",
+    "mocStateV1": "0xb9C42EFc8ec54490a37cA91c423F7285Fa01e257",
+    "supporters": "0xB1fc9817C4ad3C40562DfF1159732d657831558A",
+    "foundation": "0x4905F643Db489d9561617638d31875b6bfF79077",
+    "tasksRunner": "0xd99a43ba443068Ea539CeB623aE24e6C9910b975",
+    "docToRbtcPriceProvider": "0x6CA9d0e9382f58ac9B109f5F7F3AaBc8b86c1a24",
+    "rbtcToMocMocRewardsReverseAuction": "0x42E29760D05CfB229D4075C75238Ec82Fb94fd59",
+    "mocV1": "0xf773B590aF754D597770937Fa8ea7AbDf2668370",
+    "mocInrateV1": "0xc0f9B54c41E3d0587Ce0F7540738d8d649b0A3F3",
+    "coiner": "0x661F7d510cdB40638f5Afd9f9dF8877398500593",
+    "multicall2": "0x8f344c3b2a02a801c24635f594c5652c8a2eb02a",
+    "vendor": "0xC61820bFB8F87391d62Cd3976dDc1d35e0cf7128",
+    "rns": "0xcb868aeabd31e2b66f74e9a55cf064abb31a4ad5"
+  }
+}
